@@ -3,25 +3,151 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --background: #0a0a0a;
+  --foreground: #ffffff;
+  --primary: #a855f7;
+  --primary-light: #c084fc;
+  --accent-red: #ef4444;
+  --accent-yellow: #facc15;
+  --accent-pink: #ec4899;
+  --muted: #27272a;
+  --muted-foreground: #a1a1aa;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
+/* Mesh/Nest Background Pattern */
+.mesh-background {
+  background-color: var(--background);
+  background-image: 
+    radial-gradient(at 40% 20%, rgba(168, 85, 247, 0.15) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, rgba(236, 72, 153, 0.1) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, rgba(168, 85, 247, 0.1) 0px, transparent 50%),
+    radial-gradient(at 80% 50%, rgba(239, 68, 68, 0.08) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(250, 204, 21, 0.08) 0px, transparent 50%),
+    radial-gradient(at 80% 100%, rgba(168, 85, 247, 0.1) 0px, transparent 50%);
+}
+
+/* Animated mesh gradient */
+.mesh-animated {
+  background-size: 200% 200%;
+  animation: meshMove 20s ease infinite;
+}
+
+@keyframes meshMove {
+  0%, 100% {
+    background-position: 0% 0%;
+  }
+  25% {
+    background-position: 100% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  75% {
+    background-position: 0% 100%;
   }
 }
 
+/* Grid pattern overlay */
+.grid-pattern {
+  background-image: 
+    linear-gradient(rgba(168, 85, 247, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(168, 85, 247, 0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+/* Dot pattern overlay */
+.dot-pattern {
+  background-image: radial-gradient(rgba(168, 85, 247, 0.15) 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
 body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-light);
+}
+
+/* Glow effects */
+.glow-purple {
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
+}
+
+.glow-purple-lg {
+  box-shadow: 0 0 40px rgba(168, 85, 247, 0.5);
+}
+
+.glow-pink {
+  box-shadow: 0 0 20px rgba(236, 72, 153, 0.4);
+}
+
+.glow-multi {
+  box-shadow: 
+    0 0 20px rgba(168, 85, 247, 0.3),
+    0 0 40px rgba(236, 72, 153, 0.2),
+    0 0 60px rgba(239, 68, 68, 0.1);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #ef4444 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-alt {
+  background: linear-gradient(135deg, #facc15 0%, #ec4899 50%, #a855f7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Glass effect */
+.glass {
+  background: rgba(39, 39, 42, 0.6);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+/* Button hover animations */
+.btn-primary {
+  background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 40px rgba(168, 85, 247, 0.4);
+}
+
+/* Card hover effects */
+.card-hover {
+  transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+  transform: translateY(-4px);
+  border-color: rgba(168, 85, 247, 0.5);
 }
