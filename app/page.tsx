@@ -10,11 +10,11 @@ import { CTASection } from '@/components/CTASection';
 
 /**
  * Homepage
- * Premium MVP landing page with cyberpunk theme
+ * Clean, modern landing page with Linktree-inspired design
  */
 export default function Home() {
   return (
-    <main className="bg-cyber-black">
+    <main className="relative">
       {/* Hero Section */}
       <Hero />
 

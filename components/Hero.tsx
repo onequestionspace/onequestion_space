@@ -5,33 +5,44 @@ import { useAuth } from '@/hooks/useAuth';
 
 /**
  * Hero Section Component
- * Premium hero with gradient background and dual CTA
+ * Linktree-inspired minimal design with mesh background
  */
 export function Hero() {
   const { isSignedIn, isLoaded } = useAuth();
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
-      {/* Animated background gradients */}
-      <div className="absolute inset-0 bg-cyber-black">
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyber-purple/20 rounded-full mix-blend-multiply filter blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-cyber-purple/10 rounded-full mix-blend-multiply filter blur-3xl animate-pulse animation-delay-2000"></div>
-      </div>
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+      {/* Mesh gradient background */}
+      <div className="absolute inset-0 mesh-background mesh-animated" />
+      
+      {/* Dot pattern overlay */}
+      <div className="absolute inset-0 dot-pattern opacity-40" />
+
+      {/* Floating decorative elements */}
+      <div className="absolute top-1/4 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse-slow" />
+      <div className="absolute bottom-1/4 right-10 w-96 h-96 bg-accent-pink/15 rounded-full blur-3xl animate-pulse-slow" />
+      <div className="absolute top-1/2 left-1/3 w-64 h-64 bg-accent-yellow/10 rounded-full blur-3xl animate-pulse-slow" />
 
       {/* Content */}
       <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        {/* Badge */}
+        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8">
+          <span className="w-2 h-2 rounded-full bg-accent-yellow animate-pulse" />
+          <span className="text-sm text-muted-foreground">Now in Early Access</span>
+        </div>
+
         {/* Main Headline */}
-        <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+        <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight tracking-tight">
           Stop answering the
           <br />
-          <span className="bg-gradient-to-r from-cyber-purple via-cyber-yellow to-cyber-red bg-clip-text text-transparent">
-            same question twice
-          </span>
+          <span className="gradient-text">same question twice</span>
         </h1>
 
         {/* Subheadline */}
-        <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-2xl mx-auto leading-relaxed">
           Upload your knowledge once. Let AI answer forever.
+          <br className="hidden sm:block" />
+          Your personal Q&A page, powered by AI.
         </p>
 
         {/* CTA Buttons */}
@@ -40,15 +51,14 @@ export function Hero() {
             <>
               <Link
                 href={isSignedIn ? '/dashboard' : '/sign-up'}
-                className="group relative px-8 py-4 bg-gradient-to-r from-cyber-purple to-cyber-red text-white font-bold text-lg rounded-xl overflow-hidden transition-all hover:shadow-glow-purple-lg"
+                className="group relative px-8 py-4 bg-gradient-primary text-white font-semibold text-lg rounded-full overflow-hidden transition-all hover:shadow-glow-lg hover:-translate-y-0.5"
               >
-                <div className="absolute inset-0 bg-gradient-to-r from-cyber-red to-cyber-purple opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                <span className="relative">Claim Your Space</span>
+                Claim Your Space
               </Link>
 
               <Link
                 href="/waitlist"
-                className="px-8 py-4 border-2 border-cyber-purple text-cyber-purple font-bold text-lg rounded-xl hover:bg-cyber-purple/10 transition-all hover:shadow-glow-purple"
+                className="px-8 py-4 rounded-full font-semibold text-lg border border-white/20 text-white hover:bg-white/5 transition-all hover:border-primary/50"
               >
                 Join Waitlist
               </Link>
@@ -56,36 +66,40 @@ export function Hero() {
           )}
         </div>
 
-        {/* Hero Visual - Mockup */}
-        <div className="relative mt-16">
-          <div className="bg-gradient-to-b from-cyber-purple/10 to-transparent rounded-2xl border border-cyber-purple/30 p-8 backdrop-blur-sm">
-            <div className="bg-cyber-gray rounded-lg p-6 space-y-4">
-              {/* Profile Header */}
-              <div className="flex items-center space-x-4">
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-cyber-purple to-cyber-red"></div>
-                <div className="text-left">
-                  <p className="text-white font-bold">@creator</p>
-                  <p className="text-gray-400 text-sm">Ask me anything</p>
+        {/* Hero Visual - Linktree-style Preview Card */}
+        <div className="relative mt-8 max-w-md mx-auto">
+          <div className="glass rounded-3xl p-6 card-hover">
+            {/* Profile Header */}
+            <div className="flex flex-col items-center mb-6">
+              <div className="w-20 h-20 rounded-full bg-gradient-primary flex items-center justify-center text-3xl font-bold text-white mb-4 ring-4 ring-white/10">
+                A
+              </div>
+              <h3 className="text-white font-bold text-xl">@asym</h3>
+              <p className="text-muted-foreground text-sm">Founder at One Question</p>
+            </div>
+
+            {/* Links Preview */}
+            <div className="space-y-3">
+              <div className="bg-white/5 hover:bg-white/10 rounded-xl p-4 border border-white/10 transition-all cursor-pointer group">
+                <div className="flex items-center justify-between">
+                  <span className="text-white font-medium">Ask me anything</span>
+                  <svg className="w-5 h-5 text-primary group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
                 </div>
               </div>
-
-              {/* Question Box */}
-              <div className="bg-cyber-black/50 rounded-lg p-4 border border-cyber-purple/20">
-                <p className="text-gray-400 text-sm">What&apos;s your best productivity tip?</p>
-              </div>
-
-              {/* AI Answer */}
-              <div className="bg-cyber-purple/10 rounded-lg p-4 border border-cyber-purple/30">
-                <p className="text-gray-300 text-sm">
-                  <span className="text-cyber-purple font-semibold">AI Answer:</span> Focus on deep work blocks with the Pomodoro technique...
-                </p>
+              <div className="bg-gradient-primary/20 hover:bg-gradient-primary/30 rounded-xl p-4 border border-primary/30 transition-all cursor-pointer">
+                <div className="flex items-center justify-between">
+                  <span className="text-white font-medium">AI-Powered Q&A</span>
+                  <span className="text-xs bg-primary/30 text-primary-light px-2 py-1 rounded-full">Live</span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Decorative elements */}
-          <div className="absolute -top-4 -right-4 w-20 h-20 border border-cyber-purple/20 rounded-full"></div>
-          <div className="absolute -bottom-4 -left-4 w-32 h-32 border border-cyber-purple/10 rounded-full"></div>
+          {/* Decorative rings */}
+          <div className="absolute -inset-4 border border-primary/10 rounded-[2rem] pointer-events-none" />
+          <div className="absolute -inset-8 border border-primary/5 rounded-[2.5rem] pointer-events-none" />
         </div>
       </div>
     </section>
