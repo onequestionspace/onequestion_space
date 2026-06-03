@@ -1,5 +1,5 @@
 import './globals.css';
-import type { Metadata, Viewport } from 'next';
+import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
 import { Navbar } from '@/components/Navbar';
@@ -23,7 +23,8 @@ export const metadata: Metadata = {
   },
 };
 
-export const viewport: Viewport = {
+// Viewport is handled via metadata in some Next.js versions or as a separate export
+export const viewport = {
   themeColor: '#a855f7',
   width: 'device-width',
   initialScale: 1,
