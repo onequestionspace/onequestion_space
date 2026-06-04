@@ -1,14 +1,24 @@
 'use client';
 
-import { useState, use } from 'react';
+import { useState, use, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useApi } from '@/hooks/useApi';
 import { validateQuestion } from '@/lib/validations';
-import { ArrowLeft, Send, MessageCircle, Sparkles, Heart, Share2, TrendingUp } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  Send, 
+  MessageCircle, 
+  Sparkles, 
+  Heart, 
+  Share2, 
+  TrendingUp,
+  CheckCircle2,
+  Brain
+} from 'lucide-react';
 
 /**
- * Public Q&A Page
- * Visitor-facing page for asking questions with full profile showcase
+ * Enhanced Public Q&A Page
+ * Visitor-facing page with AI streaming simulation and full profile showcase
  */
 export default function PublicQAPage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = use(params);
@@ -16,8 +26,17 @@ export default function PublicQAPage({ params }: { params: Promise<{ username: s
   const [visitorName, setVisitorName] = useState('');
   const [visitorEmail, setVisitorEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [aiResponse, setAiResponse] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const { execute, loading, error } = useApi();
+  const responseRef = useRef<HTMLDivElement>(null);
+
+  // Mock answers for the feed
+  const [recentAnswers, setRecentAnswers] = useState([
+    { id: '1', q: 'How do you stay productive?', a: 'I use a combination of time-blocking and AI automation to handle repetitive tasks.', date: '2h ago', likes: 45 },
+    { id: '2', q: 'What tools do you use for building?', a: 'Next.js, Convex, and Tailwind are my current go-to stack for rapid MVP development.', date: '5h ago', likes: 32 },
+  ]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -29,6 +48,11 @@ export default function PublicQAPage({ params }: { params: Promise<{ username: s
     }
 
     try {
+      setSubmitted(true);
+      setIsTyping(true);
+      setAiResponse('');
+
+      // API Call
       await execute('/api/ask', {
         method: 'POST',
         body: JSON.stringify({
@@ -38,15 +62,43 @@ export default function PublicQAPage({ params }: { params: Promise<{ username: s
           visitorEmail: visitorEmail || undefined,
         }),
       });
-      setSubmitted(true);
+
+      // Simulate streaming response for premium feel
+      const fullResponse = "That's a great question! Based on the knowledge provided, I can tell you that we prioritize speed and quality. Our approach involves building modular components that can be reused across different projects while maintaining a high standard of design.";
+      
+      let currentText = "";
+      const words = fullResponse.split(" ");
+      for (let i = 0; i < words.length; i++) {
+        currentText += words[i] + " ";
+        setAiResponse(currentText);
+        await new Promise(resolve => setTimeout(resolve, 50 + Math.random() * 50));
+      }
+
+      setIsTyping(false);
+      
+      // Add to recent answers
+      setRecentAnswers(prev => [{
+        id: Date.now().toString(),
+        q: question,
+        a: fullResponse,
+        date: 'Just now',
+        likes: 0
+      }, ...prev]);
+
       setQuestion('');
       setVisitorName('');
       setVisitorEmail('');
-      setTimeout(() => setSubmitted(false), 5000);
     } catch (err) {
       console.error('Error submitting question:', err);
+      setIsTyping(false);
     }
   };
+
+  useEffect(() => {
+    if (responseRef.current) {
+      responseRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [aiResponse]);
 
   // Mock profile data - will be replaced with API data
   const mockProfile = {
@@ -58,30 +110,6 @@ export default function PublicQAPage({ params }: { params: Promise<{ username: s
     totalAnswers: 198,
     responseRate: 85,
   };
-
-  const mockAnswers = [
-    {
-      id: '1',
-      question: 'How do I get started?',
-      answer: 'Getting started is simple. Just upload your knowledge and share your link. Your AI will start answering questions immediately.',
-      likes: 45,
-      date: '2 days ago',
-    },
-    {
-      id: '2',
-      question: 'What formats do you support?',
-      answer: 'We support PDF, TXT, Markdown, and direct text input for your knowledge base. You can also import from URLs.',
-      likes: 32,
-      date: '1 week ago',
-    },
-    {
-      id: '3',
-      question: 'Can I customize my page?',
-      answer: 'Yes! You can customize colors, domains, branding, and more with our premium plans. Full customization coming soon.',
-      likes: 28,
-      date: '2 weeks ago',
-    },
-  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 pt-20">
@@ -152,19 +180,37 @@ export default function PublicQAPage({ params }: { params: Promise<{ username: s
                   Ask a Question
                 </h2>
 
-                {submitted ? (
+                {submitted && !isTyping && !aiResponse ? (
                   <div className="rounded-xl bg-green-500/10 border border-green-500/30 p-6 text-center">
                     <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-500/20 mb-4">
-                      <Send className="w-6 h-6 text-green-400" />
+                      <CheckCircle2 className="w-6 h-6 text-green-400" />
                     </div>
                     <p className="text-white font-semibold mb-1">Question submitted!</p>
-                    <p className="text-muted-foreground text-sm">You&apos;ll receive an answer soon.</p>
-                    <button
-                      onClick={() => setSubmitted(false)}
-                      className="mt-4 text-primary hover:underline text-sm"
-                    >
-                      Ask another question
-                    </button>
+                    <p className="text-muted-foreground text-sm">AI is preparing your answer...</p>
+                  </div>
+                ) : isTyping || aiResponse ? (
+                  <div className="space-y-4" ref={responseRef}>
+                    <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
+                      <p className="text-sm font-medium text-primary mb-2 flex items-center gap-2">
+                        <Brain className="w-4 h-4" />
+                        AI Response
+                      </p>
+                      <p className="text-white leading-relaxed">
+                        {aiResponse}
+                        {isTyping && <span className="inline-block w-2 h-4 ml-1 bg-primary animate-pulse" />}
+                      </p>
+                    </div>
+                    {!isTyping && (
+                      <button
+                        onClick={() => {
+                          setSubmitted(false);
+                          setAiResponse('');
+                        }}
+                        className="text-sm text-primary hover:underline"
+                      >
+                        Ask another question
+                      </button>
+                    )}
                   </div>
                 ) : (
                   <form onSubmit={handleSubmit} className="space-y-5">
@@ -275,7 +321,7 @@ export default function PublicQAPage({ params }: { params: Promise<{ username: s
           <div>
             <h2 className="text-2xl font-bold text-white mb-6">Recent Answers</h2>
             <div className="space-y-4">
-              {mockAnswers.map((answer) => (
+              {recentAnswers.map((answer) => (
                 <div
                   key={answer.id}
                   className="glass-card rounded-xl p-6 border border-white/10 hover:border-primary/30 transition-all cursor-pointer group"
@@ -287,7 +333,7 @@ export default function PublicQAPage({ params }: { params: Promise<{ username: s
                 >
                   <div className="flex items-start justify-between mb-3">
                     <h3 className="text-lg font-semibold text-white group-hover:text-primary transition-colors flex-1">
-                      {answer.question}
+                      {answer.q}
                     </h3>
                     <span className="text-xs text-muted-foreground whitespace-nowrap ml-4">
                       {answer.date}
@@ -297,7 +343,7 @@ export default function PublicQAPage({ params }: { params: Promise<{ username: s
                   {selectedAnswer === answer.id && (
                     <div className="mt-4 pt-4 border-t border-white/10">
                       <p className="text-muted-foreground leading-relaxed mb-4">
-                        {answer.answer}
+                        {answer.a}
                       </p>
                       <div className="flex items-center gap-4">
                         <button className="flex items-center gap-2 text-muted-foreground hover:text-primary transition-colors">

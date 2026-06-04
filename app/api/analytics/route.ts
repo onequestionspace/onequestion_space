@@ -23,19 +23,35 @@ export async function GET(request: NextRequest) {
     // 4. Calculate engagement metrics
     // 5. Return comprehensive analytics
 
+    // Mock data for frontend development
+    const data = {
+      totalQuestions: 1248,
+      answeredQuestions: 1192,
+      accuracyRate: 95.5,
+      avgResponseTime: '1.2s',
+      chartData: [
+        { date: 'Mon', count: 45 },
+        { date: 'Tue', count: 52 },
+        { date: 'Wed', count: 48 },
+        { date: 'Thu', count: 61 },
+        { date: 'Fri', count: 55 },
+        { date: 'Sat', count: 32 },
+        { date: 'Sun', count: 28 },
+      ],
+      popularTopics: [
+        { topic: 'Pricing', count: 342 },
+        { topic: 'Features', count: 285 },
+        { topic: 'Support', count: 156 },
+        { topic: 'API Access', count: 98 },
+      ],
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    };
+
     return NextResponse.json(
       {
         success: true,
-        data: {
-          totalQuestions: 0,
-          totalAnswers: 0,
-          totalVisitors: 0,
-          averageResponseTime: 0,
-          topQuestions: [],
-          recentActivity: [],
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
-        },
+        data: data,
       },
       { status: 200 }
     );
