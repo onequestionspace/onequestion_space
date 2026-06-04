@@ -56,15 +56,29 @@ export default defineSchema({
   })
     .index('by_profileId', ['profileId']),
 
-  // Subscriptions
+  // Subscriptions - Message-based billing
   subscriptions: defineTable({
     userId: v.string(),
-    plan: v.union(v.literal('free'), v.literal('pro'), v.literal('enterprise')),
-    status: v.union(v.literal('active'), v.literal('inactive'), v.literal('cancelled')),
+    plan: v.union(
+      v.literal('free'),
+      v.literal('starter'),
+      v.literal('pro'),
+      v.literal('business'),
+      v.literal('enterprise')
+    ),
+    status: v.union(
+      v.literal('active'),
+      v.literal('inactive'),
+      v.literal('cancelled'),
+      v.literal('trial')
+    ),
+    messagesUsed: v.number(),
+    messagesLimit: v.number(), // -1 for unlimited
     paymentReference: v.optional(v.string()),
     amount: v.optional(v.number()),
     currency: v.optional(v.string()),
     renewalDate: v.optional(v.number()),
+    trialEndsAt: v.optional(v.number()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })

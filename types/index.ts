@@ -49,12 +49,15 @@ export interface Analytics {
 export interface Subscription {
   id: string;
   userId: string;
-  plan: 'free' | 'pro' | 'enterprise';
-  status: 'active' | 'inactive' | 'cancelled';
+  plan: 'free' | 'starter' | 'pro' | 'business' | 'enterprise';
+  status: 'active' | 'inactive' | 'cancelled' | 'trial';
+  messagesUsed: number;
+  messagesLimit: number; // -1 for unlimited
   paymentReference?: string;
   amount?: number;
   currency?: string;
   renewalDate?: number;
+  trialEndsAt?: number;
   createdAt: number;
   updatedAt: number;
 }

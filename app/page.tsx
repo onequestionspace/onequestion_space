@@ -1,5 +1,6 @@
 'use client';
 
+import { URLClaimBox } from '@/components/URLClaimBox';
 import { Hero } from '@/components/Hero';
 import { SocialProof } from '@/components/SocialProof';
 import { HowItWorks } from '@/components/HowItWorks';
@@ -15,6 +16,9 @@ import { CTASection } from '@/components/CTASection';
 export default function Home() {
   return (
     <main className="relative">
+      {/* URL Claim Box */}
+      <URLClaimBox />
+
       {/* Hero Section */}
       <Hero />
 

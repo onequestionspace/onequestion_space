@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { UserButton } from '@clerk/nextjs';
+import { ThemeToggle } from './ThemeToggle';
 
 /**
  * Navigation Bar Component
@@ -47,8 +48,9 @@ export function Navbar() {
             )}
           </div>
 
-          {/* Auth Section */}
-          <div className="flex items-center gap-3">
+          {/* Theme Toggle & Auth Section */}
+          <div className="flex items-center gap-4">
+            <ThemeToggle />
             {isLoaded && isSignedIn ? (
               <UserButton 
                 appearance={{

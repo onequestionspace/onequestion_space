@@ -2,6 +2,7 @@ import './globals.css';
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
+import { ThemeProvider } from '@/lib/theme-context';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 
@@ -36,15 +37,17 @@ export default function RootLayout({
 }) {
   return (
     <ClerkProvider>
-      <html lang="en" className="bg-background">
-        <body className={`${inter.className} antialiased`}>
-          <div className="flex flex-col min-h-screen mesh-background">
-            <Navbar />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
-        </body>
-      </html>
+      <ThemeProvider>
+        <html lang="en" className="bg-background">
+          <body className={`${inter.className} antialiased`}>
+            <div className="flex flex-col min-h-screen mesh-background">
+              <Navbar />
+              <main className="flex-1">{children}</main>
+              <Footer />
+            </div>
+          </body>
+        </html>
+      </ThemeProvider>
     </ClerkProvider>
   );
 }
