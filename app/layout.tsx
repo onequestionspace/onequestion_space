@@ -2,8 +2,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
-import { Navbar } from '@/components/Navbar';
-import { Footer } from '@/components/Footer';
+import { LayoutWrapper } from '@/components/LayoutWrapper';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -23,7 +22,6 @@ export const metadata: Metadata = {
   },
 };
 
-// Viewport is handled via metadata in some Next.js versions or as a separate export
 export const viewport = {
   themeColor: '#a855f7',
   width: 'device-width',
@@ -39,11 +37,9 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en" className="bg-background">
         <body className={`${inter.className} antialiased`}>
-          <div className="flex flex-col min-h-screen mesh-background">
-            <Navbar />
-            <main className="flex-1">{children}</main>
-            <Footer />
-          </div>
+          <LayoutWrapper>
+            {children}
+          </LayoutWrapper>
         </body>
       </html>
     </ClerkProvider>
