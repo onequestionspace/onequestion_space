@@ -24,7 +24,7 @@ jobs:
         run: npm ci
 
       - name: Run ESLint
-        run: npm run lint
+        run: npx eslint . --ext .ts,.tsx
 
   build:
     name: Build
