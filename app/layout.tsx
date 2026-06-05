@@ -1,13 +1,11 @@
 import './globals.css';
 import type { Metadata } from 'next';
-import { Inter, Geist } from 'next/font/google';
+import { Inter } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
 import { ThemeProvider } from '@/lib/theme-context';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { cn } from "@/lib/utils";
-
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -39,11 +37,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-<ThemeProvider>
+    <ThemeProvider>
       <ClerkProvider>
         <html
           lang="en"
-          className={cn("bg-background", "font-sans", geist.variable)}
+          className={cn("bg-background", inter.variable)}
         >
           <body className={`${inter.className} antialiased`}>
             <div className="flex flex-col min-h-screen mesh-background">
