@@ -36,8 +36,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
-      <ThemeProvider>
+    <ThemeProvider>
+      <ClerkProvider>
         <html lang="en" className="bg-background">
           <body className={`${inter.className} antialiased`}>
             <div className="flex flex-col min-h-screen mesh-background">
@@ -47,7 +47,7 @@ export default function RootLayout({
             </div>
           </body>
         </html>
-      </ThemeProvider>
-    </ClerkProvider>
+      </ClerkProvider>
+    </ThemeProvider>
   );
 }
