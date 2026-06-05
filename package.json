@@ -6,7 +6,7 @@
   "dev": "next dev --webpack",
   "build": "next build --webpack",
   "start": "next start"
-  }
+  },
   "dependencies": {
     "@clerk/nextjs": "^7.4.3",
     "axios": "^1.16.1",
