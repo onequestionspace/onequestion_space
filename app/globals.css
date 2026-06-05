@@ -1,9 +1,6 @@
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
 :root {
   --primary: #a855f7;
   --primary-light: #c084fc;
@@ -223,13 +220,17 @@ html {
     --sidebar-border: oklch(1 0 0 / 10%);
     --sidebar-ring: oklch(0.556 0 0);
   }
+
   * {
-    @apply border-border outline-ring/50;
+    border-color: var(--border);
   }
+
   body {
-    @apply bg-background text-foreground;
+    background-color: var(--background);
+    color: var(--foreground);
   }
+
   html {
-    @apply font-sans;
+    font-family: sans-serif;
   }
 }

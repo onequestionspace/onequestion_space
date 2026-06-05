@@ -1,6 +1,6 @@
 'use client';
-
 import FadeIn from '@/components/motion/FadeIn';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useState, use, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useApi } from '@/hooks/useApi';
