@@ -21,7 +21,9 @@ import {
  * Visitor-facing page with AI streaming simulation and full profile showcase
  */
 export default function PublicQAPage({ params }: { params: Promise<{ username: string }> }) {
-  const { username } = use(params);
+  const resolvedParams = use(params);
+  const username = resolvedParams.username;
+  
   const [question, setQuestion] = useState('');
   const [visitorName, setVisitorName] = useState('');
   const [visitorEmail, setVisitorEmail] = useState('');
