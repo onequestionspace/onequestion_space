@@ -34,10 +34,13 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link href="/#how-it-works" className="text-muted-foreground hover:text-primary transition-colors text-sm">
-                  Features
-                </Link>
-              </li>
+                <Link
+  href="/features"
+  className="text-muted-foreground hover:text-primary transition-colors text-sm"
+>
+  Features
+</Link>            
+               </li>
               <li>
                 <Link href="/waitlist" className="text-muted-foreground hover:text-primary transition-colors text-sm">
                   Waitlist
