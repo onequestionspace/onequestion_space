@@ -1,21 +1,12 @@
-// App Configuration
-export const APP_NAME = 'One Question';
-export const APP_TAGLINE = 'Your knowledge. Your answers. Your space.';
-export const APP_DESCRIPTION = 'Create your own AI-powered Q&A page. Upload knowledge once. AI answers visitor questions forever.';
-
-// URLs
-export const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-
-// Pricing Plans - Message-based tiers
 export const PRICING_PLANS = {
-  free: {
-    name: 'Free',
+  freeTrial: {
+    name: 'Free Trial',
     price: 0,
     currency: 'USD',
-    messages: 30,
-    description: 'Perfect for getting started',
+    messages: 50,
+    description: 'Try One Question free for 14 days',
     features: [
-      '30 messages/month',
+      '50 messages/month',
       'Basic AI responses',
       'Public profile',
       'Community support',
@@ -24,8 +15,9 @@ export const PRICING_PLANS = {
     highlighted: false,
     comingSoon: false,
   },
-  starter: {
-    name: 'Starter',
+
+  pro: {
+    name: 'Pro',
     price: 9,
     currency: 'USD',
     messages: 500,
@@ -41,8 +33,9 @@ export const PRICING_PLANS = {
     highlighted: true,
     comingSoon: false,
   },
-  pro: {
-    name: 'Pro',
+
+  proPlus: {
+    name: 'Pro+',
     price: 29,
     currency: 'USD',
     messages: 2000,
@@ -58,6 +51,7 @@ export const PRICING_PLANS = {
     highlighted: false,
     comingSoon: true,
   },
+
   business: {
     name: 'Business',
     price: 49,
@@ -76,6 +70,7 @@ export const PRICING_PLANS = {
     highlighted: false,
     comingSoon: true,
   },
+
   enterprise: {
     name: 'Enterprise',
     price: 99,
@@ -93,57 +88,5 @@ export const PRICING_PLANS = {
     cta: 'Contact Sales',
     highlighted: false,
     comingSoon: true,
-  },
-};
-
-// How It Works Steps
-export const HOW_IT_WORKS = [
-  {
-    step: 1,
-    title: 'Create Page',
-    description: 'Set up your Q&A page in seconds',
-  },
-  {
-    step: 2,
-    title: 'Upload Knowledge',
-    description: 'Share your expertise and documents',
-  },
-  {
-    step: 3,
-    title: 'Share Link',
-    description: 'Get a unique URL for your page',
-  },
-  {
-    step: 4,
-    title: 'AI Answers',
-    description: 'Let AI handle visitor questions',
-  },
-];
-
-// Navigation Links
-export const NAV_LINKS = [
-  { href: '/', label: 'Home' },
-  { href: '/pricing', label: 'Pricing' },
-  { href: '/dashboard', label: 'Dashboard' },
-];
-
-// File Upload Limits
-export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
-export const ALLOWED_FILE_TYPES = ['application/pdf', 'text/plain', 'text/markdown'];
-
-// Question Limits
-export const MAX_QUESTION_LENGTH = 500;
-export const MAX_KNOWLEDGE_LENGTH = 50000;
-
-// API Endpoints
-export const API_ENDPOINTS = {
-  ask: '/api/ask',
-  upload: '/api/upload',
-  waitlist: '/api/waitlist',
-  checkUsername: '/api/check-username',
-  paystack: {
-    initialize: '/api/paystack/initialize',
-    verify: '/api/paystack/verify',
-    webhook: '/api/paystack/webhook',
   },
 };
