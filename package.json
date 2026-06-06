@@ -3,13 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-<<<<<<< HEAD
-    "dev": "next dev",
+   "dev": "next dev",
     "build": "next build",
-=======
-    "dev": "next dev --webpack",
-    "build": "next build --webpack",
->>>>>>> fix/footer-polish
     "start": "next start"
   },
   "dependencies": {
