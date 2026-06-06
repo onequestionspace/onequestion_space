@@ -8,7 +8,7 @@ export function Footer() {
     {
       title: 'Product',
       links: [
-        { name: 'Features', href: '/#product' },
+        { name: 'Features', href: '/features' },
         { name: 'Pricing', href: '/pricing' },
         { name: 'Waitlist', href: '/waitlist' },
         { name: 'AI Assistant', href: '/blog' },
