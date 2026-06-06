@@ -13,6 +13,7 @@ import type * as knowledge from "../knowledge.js";
 import type * as profiles from "../profiles.js";
 import type * as questions from "../questions.js";
 import type * as subscriptions from "../subscriptions.js";
+import type * as waitlist from "../waitlist.js";
 
 import type {
   ApiFromModules,
@@ -26,6 +27,7 @@ declare const fullApi: ApiFromModules<{
   profiles: typeof profiles;
   questions: typeof questions;
   subscriptions: typeof subscriptions;
+  waitlist: typeof waitlist;
 }>;
 
 /**

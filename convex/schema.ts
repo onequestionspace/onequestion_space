@@ -84,11 +84,9 @@ export default defineSchema({
   })
     .index('by_userId', ['userId']),
 
-  // Waitlist
   waitlist: defineTable({
-    email: v.string(),
-    name: v.optional(v.string()),
-    createdAt: v.number(),
-  })
-    .index('by_email', ['email']),
+  email: v.string(),
+  role: v.optional(v.string()),
+  createdAt: v.number(),
+}).index('by_email', ['email']),
 });

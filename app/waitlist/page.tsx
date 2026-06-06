@@ -14,7 +14,7 @@ import { Sparkles, ArrowLeft, Check } from 'lucide-react';
  */
 export default function WaitlistPage() {
   const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
+  const [role, setRole] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const { execute, loading, error } = useApi();
 
@@ -30,11 +30,12 @@ export default function WaitlistPage() {
     try {
       await execute('/api/waitlist', {
         method: 'POST',
-        body: JSON.stringify({ email, name }),
-      });
+      body: JSON.stringify({ email, role }),
+});
+
       setSubmitted(true);
       setEmail('');
-      setName('');
+      setRole('');
     } catch (err) {
       console.error('Error submitting to waitlist:', err);
     }
@@ -74,29 +75,48 @@ export default function WaitlistPage() {
             </div>
 
             {submitted ? (
-              <div className="rounded-xl bg-primary/10 border border-primary/20 p-6 text-center">
-                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary/20 mb-4">
-                  <Check className="w-6 h-6 text-primary" />
-                </div>
-                <p className="text-foreground font-semibold mb-1">You&apos;re on the list!</p>
-                <p className="text-muted-foreground text-sm">We&apos;ll notify you when we launch.</p>
-              </div>
+              <div>
+  <label
+    htmlFor="role"
+    className="block text-sm font-medium text-foreground mb-2"
+  >
+    Name
+  </label>
+
+  <input
+    type="text"
+    id="role"
+    value={role}
+    onChange={(e) => setRole(e.target.value)}
+    placeholder="Select your role"
+    className="w-full px-4 py-3 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+  />
+</div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5">
-                <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
-                    Name
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="Your name"
-                    className="w-full px-4 py-3 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-                  />
-                </div>
+                     <div>
+  <label
+    htmlFor="role"
+    className="block text-sm font-medium text-foreground mb-2"
+  >
+    What do you do?
+  </label>
 
+  <select
+    id="role"
+    value={role}
+    onChange={(e) => setRole(e.target.value)}
+    className="w-full px-4 py-3 rounded-xl bg-card border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+  >
+    <option value="">Select one</option>
+    <option value="Creator">Creator</option>
+    <option value="Founder">Founder</option>
+    <option value="Student">Student</option>
+    <option value="Coach">Coach</option>
+    <option value="Consultant">Consultant</option>
+    <option value="Other">Other</option>
+  </select>
+</div>
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
                     Email
