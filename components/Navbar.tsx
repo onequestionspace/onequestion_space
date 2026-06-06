@@ -5,10 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { UserButton } from '@clerk/nextjs';
-<<<<<<< HEAD
 import { Menu, X, Sparkles, ChevronRight } from 'lucide-react';
-=======
->>>>>>> fix/footer-polish
 
 export function Navbar() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -45,7 +42,6 @@ export function Navbar() {
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
-<<<<<<< HEAD
             {navLinks.map((link) => (
               <Link
                 key={link.name}
@@ -53,83 +49,49 @@ export function Navbar() {
                 className={`text-sm font-medium transition-colors hover:text-primary ${
                   pathname === link.href ? 'text-primary' : 'text-muted-foreground'
                 }`}
-=======
-            <Link 
-              href="/pricing" 
-              className="text-muted-foreground hover:text-white transition-colors text-sm font-medium"
-            >
-              Pricing
-            </Link>
-            <Link 
-              href="/features" 
-              className="text-muted-foreground hover:text-white transition-colors text-sm font-medium"
-            >
-              Features
-            </Link>
-            {isLoaded && isSignedIn && (
-              <Link 
-                href="/dashboard" 
-                className="text-muted-foreground hover:text-white transition-colors text-sm font-medium"
->>>>>>> fix/footer-polish
               >
                 {link.name}
               </Link>
             ))}
           </div>
 
-<<<<<<< HEAD
-          {/* Auth Section */}
+          {/* Desktop Auth */}
           <div className="hidden md:flex items-center gap-4">
             {isLoaded && (
-=======
-          {/* Theme Toggle & Auth Section */}
-          <div className="flex items-center gap-4">
-            {isLoaded && isSignedIn ? (
-              <UserButton 
-                appearance={{
-                  elements: {
-                    avatarBox: 'w-9 h-9',
-                  },
-                }}
-              />
-            ) : (
->>>>>>> fix/footer-polish
-              <>
-                {isSignedIn ? (
-                  <div className="flex items-center gap-6">
-                    <Link 
-                      href="/dashboard" 
-                      className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      Dashboard
-                    </Link>
-                    <UserButton />
-                  </div>
-                ) : (
-                  <>
-                    <Link 
-                      href="/sign-in" 
-                      className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-                    >
-                      Login
-                    </Link>
-                    <Link
-                      href="/sign-up"
-                      className="px-5 py-2.5 rounded-full bg-white text-black text-sm font-bold hover:bg-primary hover:text-white transition-all flex items-center gap-2 group"
-                    >
-                      Get Started
-                      <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </Link>
-                  </>
-                )}
-              </>
+              isSignedIn ? (
+                <div className="flex items-center gap-6">
+                  <Link
+                    href="/dashboard"
+                    className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Dashboard
+                  </Link>
+                  <UserButton />
+                </div>
+              ) : (
+                <>
+                  <Link
+                    href="/sign-in"
+                    className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Login
+                  </Link>
+                  <Link
+                    href="/sign-up"
+                    className="px-5 py-2.5 rounded-full bg-white text-black text-sm font-bold hover:bg-primary hover:text-white transition-all flex items-center gap-2 group"
+                  >
+                    Get Started
+                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </>
+              )
             )}
           </div>
 
           {/* Mobile Menu Button */}
           <div className="md:hidden flex items-center gap-4">
             {isSignedIn && <UserButton />}
-            <button 
+            <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="p-2 text-white hover:text-primary transition-colors"
             >
