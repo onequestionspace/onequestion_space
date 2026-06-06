@@ -8,14 +8,14 @@ export const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:300
 
 // Pricing Plans - Message-based tiers
 export const PRICING_PLANS = {
-  free: {
-    name: 'Free',
+  free trial: {
+    name: 'free trial',
     price: 0,
     currency: 'USD',
-    messages: 30,
-    description: 'Perfect for getting started',
+    messages: 50,
+    description: 'Try One Question free for 14 days',
     features: [
-      '30 messages/month',
+      '50 messages/month',
       'Basic AI responses',
       'Public profile',
       'Community support',
@@ -24,8 +24,8 @@ export const PRICING_PLANS = {
     highlighted: false,
     comingSoon: false,
   },
-  starter: {
-    name: 'Starter',
+  pro: {
+    name: 'pro',
     price: 9,
     currency: 'USD',
     messages: 500,
@@ -41,8 +41,8 @@ export const PRICING_PLANS = {
     highlighted: true,
     comingSoon: false,
   },
-  pro: {
-    name: 'Pro',
+  pro+: {
+    name: 'pro+',
     price: 29,
     currency: 'USD',
     messages: 2000,
