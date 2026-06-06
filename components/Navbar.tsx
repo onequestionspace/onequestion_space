@@ -5,7 +5,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { UserButton } from '@clerk/nextjs';
+<<<<<<< HEAD
 import { Menu, X, Sparkles, ChevronRight } from 'lucide-react';
+=======
+>>>>>>> fix/footer-polish
 
 export function Navbar() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -42,6 +45,7 @@ export function Navbar() {
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
+<<<<<<< HEAD
             {navLinks.map((link) => (
               <Link
                 key={link.name}
@@ -49,15 +53,47 @@ export function Navbar() {
                 className={`text-sm font-medium transition-colors hover:text-primary ${
                   pathname === link.href ? 'text-primary' : 'text-muted-foreground'
                 }`}
+=======
+            <Link 
+              href="/pricing" 
+              className="text-muted-foreground hover:text-white transition-colors text-sm font-medium"
+            >
+              Pricing
+            </Link>
+            <Link 
+              href="/features" 
+              className="text-muted-foreground hover:text-white transition-colors text-sm font-medium"
+            >
+              Features
+            </Link>
+            {isLoaded && isSignedIn && (
+              <Link 
+                href="/dashboard" 
+                className="text-muted-foreground hover:text-white transition-colors text-sm font-medium"
+>>>>>>> fix/footer-polish
               >
                 {link.name}
               </Link>
             ))}
           </div>
 
+<<<<<<< HEAD
           {/* Auth Section */}
           <div className="hidden md:flex items-center gap-4">
             {isLoaded && (
+=======
+          {/* Theme Toggle & Auth Section */}
+          <div className="flex items-center gap-4">
+            {isLoaded && isSignedIn ? (
+              <UserButton 
+                appearance={{
+                  elements: {
+                    avatarBox: 'w-9 h-9',
+                  },
+                }}
+              />
+            ) : (
+>>>>>>> fix/footer-polish
               <>
                 {isSignedIn ? (
                   <div className="flex items-center gap-6">
