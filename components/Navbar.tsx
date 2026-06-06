@@ -32,10 +32,10 @@ export function Navbar() {
               Pricing
             </Link>
             <Link 
-              href="#how-it-works" 
+              href="/features" 
               className="text-muted-foreground hover:text-white transition-colors text-sm font-medium"
             >
-              How it Works
+              Features
             </Link>
             {isLoaded && isSignedIn && (
               <Link 
