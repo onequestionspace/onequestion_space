@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { MessageCircle, Sparkles } from 'lucide-react';
 
 export function Footer() {
@@ -42,9 +43,7 @@ export function Footer() {
           {/* Brand Column */}
           <div className="lg:col-span-2 space-y-6">
             <Link href="/" className="flex items-center gap-3 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary via-pink to-accent flex items-center justify-center shadow-glow-primary">
-                <span className="text-white font-bold text-xl">Q</span>
-              </div>
+              <Image src="/logo.png" alt="One Question" width={40} height={40} className="rounded-xl" />
               <span className="text-xl font-bold text-white tracking-tight">One Question</span>
             </Link>
             <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
