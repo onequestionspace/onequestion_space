@@ -27,7 +27,7 @@ export default function WaitlistPage() {
     }
 
     try {
-      const result = await execute('/api/waitlist', {
+      const result: any = await execute('/api/waitlist', {
         method: 'POST',
         body: JSON.stringify({ email, role, name, username }),
       });
