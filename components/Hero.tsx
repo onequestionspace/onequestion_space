@@ -60,7 +60,7 @@ export function Hero() {
                 href="/waitlist"
                 className="px-8 py-4 rounded-full font-semibold text-lg border border-white/20 text-white hover:bg-white/5 transition-all hover:border-primary/50"
               >
-                Join Waitlist
+                Claim Early Access 
               </Link>
             </>
           )}
