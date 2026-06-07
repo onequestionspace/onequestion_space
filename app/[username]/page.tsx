@@ -138,9 +138,7 @@ export default function PublicQAPage({ params }: { params: Promise<{ username: s
           <div className="glass-card rounded-3xl p-8 sm:p-12 border border-primary/20 shadow-glow mb-12">
             {/* Profile Info */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 mb-8">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary via-pink to-accent flex items-center justify-center text-5xl ring-4 ring-primary/20 flex-shrink-0">
-                {mockProfile.avatar}
-              </div>
+              <Image src={`/founders/${username}.png`} alt={mockProfile.displayName} width={96} height={96} className="w-24 h-24 rounded-full object-cover ring-4 ring-primary/20 flex-shrink-0" onError={(e) => { e.currentTarget.style.display = "none"; }} />
               <div className="flex-1">
                 <h1 className="text-4xl sm:text-5xl font-bold text-white mb-2">
                   {mockProfile.displayName}
