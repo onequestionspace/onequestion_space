@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useUser } from '@clerk/nextjs';
 
 /**
@@ -8,13 +7,8 @@ import { useUser } from '@clerk/nextjs';
  */
 export function useAuth() {
   const { user, isLoaded, isSignedIn } = useUser();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  useEffect(() => {
-    if (isLoaded) {
-      setIsAuthenticated(!!isSignedIn);
-    }
-  }, [isLoaded, isSignedIn]);
+  const isAuthenticated = isLoaded ? !!isSignedIn : false;
 
   return {
     user,
@@ -22,6 +16,6 @@ export function useAuth() {
     isSignedIn,
     isAuthenticated,
     userId: user?.id,
-    email: user?.emailAddresses[0]?.emailAddress,
+    email: user?.emailAddresses?.[0]?.emailAddress,
   };
 }

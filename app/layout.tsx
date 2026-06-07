@@ -2,7 +2,6 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
-import { ThemeProvider } from '@/lib/theme-context';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { cn } from "@/lib/utils";
@@ -37,7 +36,6 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ThemeProvider>
       <ClerkProvider>
         <html
           lang="en"
@@ -52,6 +50,5 @@ export default function RootLayout({
           </body>
         </html>
       </ClerkProvider>
-    </ThemeProvider>
   );
 }
