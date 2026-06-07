@@ -8,13 +8,12 @@ import { useApi } from '@/hooks/useApi';
 import { validateEmail } from '@/lib/validations';
 import { Sparkles, ArrowLeft, Check } from 'lucide-react';
 
-/**
- * Waitlist Page
- * Early access signup with brand design
- */
 export default function WaitlistPage() {
   const [email, setEmail] = useState('');
   const [role, setRole] = useState('');
+  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
+  const [position, setPosition] = useState<number | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const { execute, loading, error } = useApi();
 
@@ -28,11 +27,11 @@ export default function WaitlistPage() {
     }
 
     try {
-      await execute('/api/waitlist', {
+      const result = await execute('/api/waitlist', {
         method: 'POST',
-      body: JSON.stringify({ email, role }),
-});
-
+        body: JSON.stringify({ email, role, name, username }),
+      });
+      setPosition(result?.position ?? null);
       setSubmitted(true);
       setEmail('');
       setRole('');
@@ -44,8 +43,7 @@ export default function WaitlistPage() {
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
-      
-      {/* Background mesh */}
+
       <div className="fixed inset-0 -z-10">
         <div className="mesh-gradient" />
         <div className="dot-pattern" />
@@ -53,16 +51,14 @@ export default function WaitlistPage() {
 
       <main className="pt-32 pb-20 flex items-center justify-center min-h-screen">
         <div className="max-w-md w-full mx-auto px-4">
-          {/* Back link */}
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="inline-flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-8"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to home
           </Link>
 
-          {/* Waitlist Card */}
           <div className="glass-card rounded-2xl p-8 border border-border">
             <div className="text-center mb-8">
               <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-pink mb-4">
@@ -70,53 +66,87 @@ export default function WaitlistPage() {
               </div>
               <h1 className="text-3xl font-bold text-foreground mb-2">Join the Waitlist</h1>
               <p className="text-muted-foreground">
-                Be the first to experience One Question when we launch
+                Reserve your username before anyone else takes it
               </p>
             </div>
 
             {submitted ? (
-              <div>
-  <label
-    htmlFor="role"
-    className="block text-sm font-medium text-foreground mb-2"
-  >
-    Name
-  </label>
-
-  <input
-    type="text"
-    id="role"
-    value={role}
-    onChange={(e) => setRole(e.target.value)}
-    placeholder="Select your role"
-    className="w-full px-4 py-3 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-  />
-</div>
+              <div className="text-center space-y-4 py-4">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary to-pink mb-2">
+                  <Check className="w-8 h-8 text-white" />
+                </div>
+                <h2 className="text-2xl font-bold">🎉 You are In</h2>
+                {position && (
+                  <div className="inline-block px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
+                    <p className="text-primary font-bold text-lg">#{position} on the waitlist</p>
+                  </div>
+                )}
+                <p className="text-muted-foreground">Welcome to One Question, {name}. Your username is reserved.</p>
+                <div className="px-4 py-3 rounded-xl bg-card border border-border">
+                  <p className="text-sm text-muted-foreground mb-1">Your future profile</p>
+                  <p className="text-primary font-medium">onequestion.space/{username}</p>
+                </div>
+                <Link href="/" className="inline-block mt-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+                  Back to home
+                </Link>
+              </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5">
-                     <div>
-  <label
-    htmlFor="role"
-    className="block text-sm font-medium text-foreground mb-2"
-  >
-    What do you do?
-  </label>
+                <div>
+                  <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
+                    Full Name
+                  </label>
+                  <input
+                    type="text"
+                    id="name"
+                    value={name}
+                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Your name"
+                    className="w-full px-4 py-3 rounded-xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                    required
+                  />
+                </div>
 
-  <select
-    id="role"
-    value={role}
-    onChange={(e) => setRole(e.target.value)}
-    className="w-full px-4 py-3 rounded-xl bg-card border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
-  >
-    <option value="">Select one</option>
-    <option value="Creator">Creator</option>
-    <option value="Founder">Founder</option>
-    <option value="Student">Student</option>
-    <option value="Coach">Coach</option>
-    <option value="Consultant">Consultant</option>
-    <option value="Other">Other</option>
-  </select>
-</div>
+                <div>
+                  <label htmlFor="username" className="block text-sm font-medium text-foreground mb-2">
+                    Claim Your Username
+                  </label>
+                  <div className="flex items-center bg-card border border-border rounded-xl overflow-hidden focus-within:ring-2 focus-within:ring-primary">
+                    <span className="px-4 text-muted-foreground whitespace-nowrap text-sm">
+                      onequestion.space/
+                    </span>
+                    <input
+                      type="text"
+                      id="username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ''))}
+                      placeholder="yourname"
+                      className="flex-1 bg-transparent px-2 py-3 text-foreground focus:outline-none"
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label htmlFor="role" className="block text-sm font-medium text-foreground mb-2">
+                    What do you do?
+                  </label>
+                  <select
+                    id="role"
+                    value={role}
+                    onChange={(e) => setRole(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl bg-card border border-border text-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+                  >
+                    <option value="">Select one</option>
+                    <option value="Creator">Creator</option>
+                    <option value="Founder">Founder</option>
+                    <option value="Student">Student</option>
+                    <option value="Coach">Coach</option>
+                    <option value="Consultant">Consultant</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+
                 <div>
                   <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
                     Email
@@ -143,7 +173,7 @@ export default function WaitlistPage() {
                   disabled={loading}
                   className="w-full py-3 px-6 rounded-full bg-gradient-to-r from-primary to-pink text-white font-semibold hover:shadow-glow-primary transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? 'Joining...' : 'Join Waitlist'}
+                  {loading ? 'Reserving...' : 'Claim Early Access'}
                 </button>
               </form>
             )}
