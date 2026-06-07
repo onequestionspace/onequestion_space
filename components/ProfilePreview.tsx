@@ -28,9 +28,7 @@ export function ProfilePreview() {
           <div className="glass rounded-3xl p-8 card-hover">
             {/* Profile Header */}
             <div className="flex flex-col items-center mb-8">
-              <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary via-accent-pink to-accent-red flex items-center justify-center text-3xl font-bold text-white mb-4 ring-4 ring-white/10">
-                A
-              </div>
+              <Image src="/founders/asym.png" alt="Asym" width={96} height={96} className="w-24 h-24 rounded-full object-cover mb-4 ring-4 ring-white/10" />
               <h3 className="text-white font-bold text-2xl">@asym</h3>
               <p className="text-muted-foreground">Founder & CEO at One Question</p>
             </div>
