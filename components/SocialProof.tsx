@@ -4,12 +4,17 @@ import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 
 export function SocialProof() {
-  const waitlistData = useQuery(api.waitlist.getWaitlistCount);
-  const count = waitlistData?.count ?? 0;
+  let count = 0;
+  try {
+    const waitlistData = useQuery(api.waitlist.getWaitlistCount);
+    count = waitlistData?.count ?? 0;
+  } catch {
+    count = 0;
+  }
 
   const stats = [
     {
-      number: count > 0 ? `${count}+` : '...',
+      number: count > 0 ? `${count}+` : 'Growing',
       label: 'Early Members',
       color: 'text-primary',
     },
