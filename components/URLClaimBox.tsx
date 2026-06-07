@@ -74,10 +74,10 @@ export function URLClaimBox() {
           {/* Header */}
           <div className="text-center mb-6">
             <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-              Get Your URL & Ask Questions
+              Your personal Q&A space. One question at a time.
             </h2>
             <p className="text-muted-foreground">
-              Claim your unique One Question space in seconds
+              Claim your username, upload your knowledge, and let AI answer questions for you — automatically.
             </p>
           </div>
 
