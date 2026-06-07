@@ -4,9 +4,15 @@ import { validateEmail } from '@/lib/validations';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '../../../convex/_generated/api';
 
-const convex = new ConvexHttpClient(
-  process.env.NEXT_PUBLIC_CONVEX_URL!
-);
+function getConvexClient() {
+  const url = process.env.NEXT_PUBLIC_CONVEX_URL;
+
+  if (!url) {
+    throw new Error('NEXT_PUBLIC_CONVEX_URL is not configured');
+  }
+
+  return new ConvexHttpClient(url);
+}
 
 /**
  * POST /api/waitlist
@@ -26,10 +32,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    await convex.mutation(api.waitlist.addToWaitlist, {
-      email,
-      role,
-    });
+const convex = getConvexClient();
+
+await convex.mutation(api.waitlist.addToWaitlist, {
 
     return NextResponse.json(
       {
