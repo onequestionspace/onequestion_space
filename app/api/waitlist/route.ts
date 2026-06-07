@@ -35,18 +35,21 @@ export async function POST(request: NextRequest) {
 const convex = getConvexClient();
 
 await convex.mutation(api.waitlist.addToWaitlist, {
+  email,
+  role,
+});
 
-    return NextResponse.json(
-      {
-        success: true,
-        message: 'Successfully added to waitlist',
-        data: {
-          email,
-          role,
-        },
-      },
-      { status: 201 }
-    );
+return NextResponse.json(
+  {
+    success: true,
+    message: 'Successfully added to waitlist',
+    data: {
+      email,
+      role,
+    },
+  },
+  { status: 201 }
+);
   } catch (error) {
     console.error('Error in /api/waitlist:', error);
 
