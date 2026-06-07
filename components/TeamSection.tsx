@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 
 /**
  * Team Section Component
@@ -19,7 +20,7 @@ export function TeamSection() {
       bio: 'Building AI-powered products and technical architecture',
       handle: '@Asym_Alwali',
       link: 'https://twitter.com/Asym_Alwali',
-      avatar: 'A',
+      avatar: '/founders/asym.png',
       gradient: 'from-primary to-accent-pink',
     },
     {
@@ -28,7 +29,7 @@ export function TeamSection() {
       bio: 'Driving growth, user research, and product strategy',
       handle: '@Paraja',
       link: '#',
-      avatar: 'P',
+      avatar: '/founders/paraja.png',
       gradient: 'from-accent-pink to-accent-red',
     },
   ];
@@ -57,9 +58,7 @@ export function TeamSection() {
               className="glass rounded-2xl p-8 card-hover"
             >
               {/* Avatar */}
-              <div className={`w-16 h-16 rounded-full bg-gradient-to-br ${member.gradient} flex items-center justify-center text-2xl font-bold text-white mb-4`}>
-                {member.avatar}
-              </div>
+              <Image src={member.avatar} alt={member.name} width={64} height={64} className="w-16 h-16 rounded-full object-cover mb-4" />
 
               {/* Name and Role */}
               <h3 className="text-xl font-bold text-white mb-1">{member.name}</h3>
