@@ -96,7 +96,7 @@ export function URLClaimBox() {
                   setError('');
                 }}
                 placeholder="your-username"
-                className="w-full pl-32 sm:pl-56 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-muted-foreground focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all"
+                className="w-full pl-44 sm:pl-56 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-muted-foreground focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all"
                 disabled={isChecking}
               />
             </div>
