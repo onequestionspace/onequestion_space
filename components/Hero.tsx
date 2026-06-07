@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
@@ -64,16 +65,14 @@ export function Hero() {
               </Link>
             </>
           )}
-        </div>
 
+        </div>
         {/* Hero Visual - Linktree-style Preview Card */}
         <div className="relative mt-8 max-w-md mx-auto">
           <div className="glass rounded-3xl p-6 card-hover">
             {/* Profile Header */}
             <div className="flex flex-col items-center mb-6">
-              <div className="w-20 h-20 rounded-full bg-gradient-primary flex items-center justify-center text-3xl font-bold text-white mb-4 ring-4 ring-white/10">
-                A
-              </div>
+              <Image src="/founders/asym.png" alt="Asym" width={80} height={80} className="w-20 h-20 rounded-full object-cover mb-4 ring-4 ring-white/10" />
               <h3 className="text-white font-bold text-xl">@asym</h3>
               <p className="text-muted-foreground text-sm">Founder at One Question</p>
             </div>
