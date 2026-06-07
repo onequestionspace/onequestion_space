@@ -3,6 +3,7 @@ import FadeIn from '@/components/motion/FadeIn';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useState, use, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useApi } from '@/hooks/useApi';
 import { validateQuestion } from '@/lib/validations';
 import { 
@@ -108,7 +109,7 @@ export default function PublicQAPage({ params }: { params: Promise<{ username: s
     username,
     displayName: `@${username}`,
     bio: 'Expert in their field, ready to answer your questions',
-    avatar: '👤',
+    avatar: `/founders/${username}.png`,
     totalQuestions: 234,
     totalAnswers: 198,
     responseRate: 85,
