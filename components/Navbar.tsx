@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { UserButton } from '@clerk/nextjs';
 import { Menu, X, Sparkles, ChevronRight } from 'lucide-react';
+import Image from 'next/image';
 
 export function Navbar() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -35,7 +36,7 @@ export function Navbar() {
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group">
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary via-pink to-accent flex items-center justify-center shadow-glow-primary group-hover:scale-110 transition-transform">
-              <span className="text-white font-bold text-xl">Q</span>
+              <Image src="/logo.png" alt="One Question" width={40} height={40} className="rounded-xl group-hover:scale-110 transition-transform" />
             </div>
             <span className="text-xl font-bold text-white tracking-tight">One Question</span>
           </Link>
