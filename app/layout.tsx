@@ -2,6 +2,7 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ClerkProvider } from '@clerk/nextjs';
+import { ConvexClientProvider } from '@/components/ConvexClientProvider';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { cn } from "@/lib/utils";
@@ -36,19 +37,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-      <ClerkProvider>
-        <html
-          lang="en"
-          className={cn("bg-background", inter.variable)}
-        >
-          <body className={`${inter.className} antialiased`}>
+    <ClerkProvider>
+      <html lang="en" className={cn("bg-background", inter.variable)}>
+        <body className={`${inter.className} antialiased`}>
+          <ConvexClientProvider>
             <div className="flex flex-col min-h-screen mesh-background">
               <Navbar />
               <main className="flex-1">{children}</main>
               <Footer />
             </div>
-          </body>
-        </html>
-      </ClerkProvider>
+          </ConvexClientProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
