@@ -1,0 +1,170 @@
+'use client';
+
+import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import Link from 'next/link';
+
+/**
+ * URL Claim Box Component
+ * Linktree-style prominent box at the top of homepage
+ * Allows users to check URL availability and claim their space
+ */
+export function URLClaimBox() {
+  const { isSignedIn, isLoaded } = useAuth();
+  const [username, setUsername] = useState('');
+  const [isChecking, setIsChecking] = useState(false);
+  const [isAvailable, setIsAvailable] = useState<boolean | null>(null);
+  const [error, setError] = useState('');
+
+  const handleCheck = async () => {
+    if (!username.trim()) {
+      setError('Please enter a username');
+      return;
+    }
+
+    if (username.length < 3) {
+      setError('Username must be at least 3 characters');
+      return;
+    }
+
+    if (!/^[a-zA-Z0-9_-]+$/.test(username)) {
+      setError('Username can only contain letters, numbers, hyphens, and underscores');
+      return;
+    }
+
+    setIsChecking(true);
+    setError('');
+    setIsAvailable(null);
+
+    try {
+      // TODO: Replace with actual API call to check username availability
+      // const response = await fetch('/api/check-username', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify({ username }),
+      // });
+      // const data = await response.json();
+      // setIsAvailable(data.available);
+
+      // Placeholder: Simulate checking
+      await new Promise((resolve) => setTimeout(resolve, 500));
+      setIsAvailable(Math.random() > 0.3); // 70% chance available
+    } catch (err) {
+      setError('Failed to check availability. Please try again.');
+      console.error('Error checking username:', err);
+    } finally {
+      setIsChecking(false);
+    }
+  };
+
+  const handleClaim = () => {
+    if (isSignedIn) {
+      // TODO: Redirect to dashboard with pre-filled username
+      window.location.href = `/dashboard?username=${username}`;
+    } else {
+      // Redirect to sign-up with username pre-filled
+      window.location.href = `/sign-up?username=${username}`;
+    }
+  };
+
+  return (
+    <section className="relative py-8 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-primary/10 to-transparent border-b border-white/10">
+      <div className="max-w-4xl mx-auto">
+        <div className="glass rounded-2xl p-6 sm:p-8 border border-primary/30 shadow-glow">
+          {/* Header */}
+          <div className="text-center mb-6">
+            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
+              Your personal Q&A space. One question at a time.
+            </h2>
+            <p className="text-muted-foreground">
+              Claim your username, upload your knowledge, and let AI answer questions for you — automatically.
+            </p>
+          </div>
+
+          {/* Input Section */}
+          <div className="flex flex-col sm:flex-row gap-3 mb-4">
+            <div className="flex-1 relative">
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2 text-muted-foreground font-medium">
+                onequestion.space/
+              </div>
+              <input
+                type="text"
+                value={username}
+                onChange={(e) => {
+                  setUsername(e.target.value.toLowerCase());
+                  setIsAvailable(null);
+                  setError('');
+                }}
+                placeholder="your-username"
+                className="w-full pl-44 sm:pl-56 pr-4 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-muted-foreground focus:outline-none focus:border-primary/50 focus:bg-white/10 transition-all"
+                disabled={isChecking}
+              />
+            </div>
+            <button
+              onClick={handleCheck}
+              disabled={isChecking || !username.trim()}
+              className="px-6 py-3 bg-gradient-primary text-white font-semibold rounded-xl hover:shadow-glow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+            >
+              {isChecking ? 'Checking...' : 'Check'}
+            </button>
+          </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-300 text-sm">
+              {error}
+            </div>
+          )}
+
+          {/* Availability Status */}
+          {isAvailable !== null && !error && (
+            <div className="mb-4">
+              {isAvailable ? (
+                <div className="p-4 bg-green-500/10 border border-green-500/30 rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-green-300 font-semibold">✓ Available!</p>
+                      <p className="text-green-300/70 text-sm">
+                        onequestion.space/{username}
+                      </p>
+                    </div>
+                    {isLoaded && (
+                      <button
+                        onClick={handleClaim}
+                        className="px-4 py-2 bg-green-500/20 hover:bg-green-500/30 border border-green-500/50 text-green-300 font-medium rounded-lg transition-all"
+                      >
+                        Claim Now
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ) : (
+                <div className="p-4 bg-yellow-500/10 border border-yellow-500/30 rounded-lg">
+                  <p className="text-yellow-300 font-semibold">
+                    ✗ Already taken
+                  </p>
+                  <p className="text-yellow-300/70 text-sm">
+                    Try another username
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* CTA for Not Signed In */}
+          {isLoaded && !isSignedIn && (
+            <div className="text-center text-sm text-muted-foreground">
+              <Link
+                href="/sign-up"
+                className="text-primary hover:underline font-medium"
+              >
+                Sign up
+              </Link>
+              {' '}to claim your space
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}

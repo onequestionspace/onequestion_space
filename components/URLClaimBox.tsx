@@ -68,19 +68,14 @@ export function URLClaimBox() {
   };
 
   return (
-    <section className="relative py-8 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-primary/10 to-transparent border-b border-white/10">
+    <section className="relative py-4 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-primary/10 to-transparent border-b border-white/10">
       <div className="max-w-4xl mx-auto">
-        <div className="glass rounded-2xl p-6 sm:p-8 border border-primary/30 shadow-glow">
-          {/* Header */}
-          <div className="text-center mb-6">
-            <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">
-              Your personal Q&A space. One question at a time.
-            </h2>
-            <p className="text-muted-foreground">
-              Claim your username, upload your knowledge, and let AI answer questions for you — automatically.
+        <div className="glass rounded-2xl p-4 sm:p-6 border border-primary/30 shadow-glow">
+          <div className="text-center mb-4">
+            <p className="text-sm text-muted-foreground font-medium">
+              Claim your username
             </p>
           </div>
-
           {/* Input Section */}
           <div className="flex flex-col sm:flex-row gap-3 mb-4">
             <div className="flex-1 relative">
