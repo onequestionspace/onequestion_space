@@ -18,7 +18,7 @@ export function Hero() {
   };
 
   return (
-    <section className="relative flex items-center justify-center overflow-hidden pt-20 pb-16">
+    <section className="relative flex items-center justify-center overflow-hidden pt-12 pb-10">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(139,92,246,0.20),transparent_50%)]" />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(59,130,246,0.15),transparent_50%)]" />
 
@@ -38,7 +38,7 @@ export function Hero() {
           </span>
         </div>
 
-        <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight tracking-tight">
+        <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight tracking-tight">
           Answer once.
           <br />
           <span className="gradient-text">
@@ -89,7 +89,7 @@ export function Hero() {
           </div>
         </div>
 
-        <div className="text-sm text-muted-foreground mb-12">
+        <div className="text-sm text-muted-foreground mb-8">
           Your AI knowledge hub lives at your personal URL.
         </div>
 
