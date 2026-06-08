@@ -47,9 +47,9 @@ export function Hero() {
         </h1>
 
         <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-3xl mx-auto leading-relaxed">
-          Turn your knowledge into a personal AI that answers questions 24/7.
+          Create a personal AI trained on your knowledge.
           <br className="hidden sm:block" />
-          Share one link. Never repeat yourself again.
+          Share one link where visitors can ask anything about your work, products, or expertise.
         </p>
 
         <div className="max-w-2xl mx-auto mb-6">
