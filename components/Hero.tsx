@@ -46,7 +46,7 @@ export function Hero() {
           </span>
         </h1>
 
-        <p className="text-xl md:text-2xl text-muted-foreground mb-10 max-w-3xl mx-auto leading-relaxed">
+        <p className="text-lg md:text-2xl text-muted-foreground mb-10 max-w-3xl mx-auto leading-relaxed">
           Create a personal AI trained on your knowledge.
           <br className="hidden sm:block" />
           Share one link where visitors can ask anything about your work, products, or expertise.
@@ -58,7 +58,7 @@ export function Hero() {
             <div className="flex flex-col sm:flex-row gap-2">
 
               <div className="flex-1 flex items-center px-4 py-3 bg-white/5 rounded-xl">
-                <span className="text-muted-foreground whitespace-nowrap">
+                <span className="text-muted-foreground break-all">
                   onequestion.space/
                 </span>
 
@@ -80,7 +80,7 @@ export function Hero() {
               {isLoaded && (
                 <button
                   onClick={handleClaim}
-                  className="px-8 py-4 bg-gradient-primary text-white font-semibold rounded-xl hover:shadow-glow-lg transition-all hover:-translate-y-0.5"
+                  className="px-6 py-4 bg-gradient-primary text-white font-semibold rounded-xl hover:shadow-glow-lg transition-all hover:-translate-y-0.5"
                 >
                   Claim Your Space
                 </button>
@@ -109,7 +109,7 @@ export function Hero() {
             <div className="space-y-4">
 
               <div className="flex justify-end">
-                <div className="max-w-[80%] bg-white/5 border border-white/10 rounded-2xl px-4 py-3">
+                <div className="max-w-[90%] sm:max-w-[80%] bg-white/5 border border-white/10 rounded-2xl px-4 py-3">
                   <p className="text-sm text-muted-foreground mb-1">
                     Visitor
                   </p>
@@ -120,7 +120,7 @@ export function Hero() {
               </div>
 
               <div className="flex justify-start">
-                <div className="max-w-[80%] bg-primary/10 border border-primary/20 rounded-2xl px-4 py-3">
+                <div className="max-w-[90%] sm:max-w-[80%] bg-primary/10 border border-primary/20 rounded-2xl px-4 py-3">
                   <p className="text-sm text-primary-light mb-1">
                     AI
                   </p>
@@ -131,7 +131,7 @@ export function Hero() {
               </div>
 
               <div className="flex justify-end">
-                <div className="max-w-[80%] bg-white/5 border border-white/10 rounded-2xl px-4 py-3">
+                <div className="max-w-[90%] sm:max-w-[80%] bg-white/5 border border-white/10 rounded-2xl px-4 py-3">
                   <p className="text-sm text-muted-foreground mb-1">
                     Visitor
                   </p>
@@ -142,7 +142,7 @@ export function Hero() {
               </div>
 
               <div className="flex justify-start">
-                <div className="max-w-[80%] bg-primary/10 border border-primary/20 rounded-2xl px-4 py-3">
+                <div className="max-w-[90%] sm:max-w-[80%] bg-primary/10 border border-primary/20 rounded-2xl px-4 py-3">
                   <p className="text-sm text-primary-light mb-1">
                     AI
                   </p>
@@ -153,7 +153,7 @@ export function Hero() {
               </div>
 
               <div className="flex justify-end">
-                <div className="max-w-[80%] bg-white/5 border border-white/10 rounded-2xl px-4 py-3">
+                <div className="max-w-[90%] sm:max-w-[80%] bg-white/5 border border-white/10 rounded-2xl px-4 py-3">
                   <p className="text-sm text-muted-foreground mb-1">
                     Visitor
                   </p>
@@ -164,7 +164,7 @@ export function Hero() {
               </div>
 
               <div className="flex justify-start">
-                <div className="max-w-[80%] bg-primary/10 border border-primary/20 rounded-2xl px-4 py-3">
+                <div className="max-w-[90%] sm:max-w-[80%] bg-primary/10 border border-primary/20 rounded-2xl px-4 py-3">
                   <p className="text-sm text-primary-light mb-1">
                     AI
                   </p>
