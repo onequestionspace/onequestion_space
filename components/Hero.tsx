@@ -31,13 +31,13 @@ export function Hero() {
           <span className="text-sm text-muted-foreground">Build your AI knowledge hub</span>
         </div>
 
-        <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight tracking-tight">
+        <h1 className="text-3xl md:text-5xl font-bold text-white mb-4 leading-tight tracking-tight overflow-hidden">
           Answer once.
           <br />
           <span className="gradient-text">Let AI handle the rest.</span>
         </h1>
 
-        <p className="text-base md:text-lg text-muted-foreground mb-10 max-w-xl mx-auto leading-relaxed">
+        <p className="text-sm md:text-lg text-muted-foreground mb-10 max-w-xl mx-auto leading-relaxed overflow-hidden w-full">
           Create a personal AI trained on your knowledge. Share one link. Let visitors ask anything — your AI answers instantly.
         </p>
 
