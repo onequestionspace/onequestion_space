@@ -62,7 +62,7 @@ export function AnimatedDemo() {
         </span>
       </div>
 
-      <div className="space-y-4 min-h-[200px]">
+      <div className="space-y-3 h-[220px] overflow-hidden flex flex-col justify-end">
         {conversations.slice(0, visibleMessages).map((msg, i) => (
           <div key={i} className={`flex ${msg.role === 'visitor' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[85%] rounded-2xl px-4 py-3 ${
