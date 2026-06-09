@@ -10,7 +10,9 @@ export default function SignInPage() {
       subtitle="Sign in to manage your AI space"
     >
       <div className="flex justify-center">
-        <SignIn 
+        <SignIn
+          forceRedirectUrl="/dashboard"
+          signUpForceRedirectUrl="/dashboard" 
           appearance={{
             elements: {
               formButtonPrimary: "bg-primary hover:bg-primary/90 text-sm font-bold",

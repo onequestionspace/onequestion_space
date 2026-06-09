@@ -1,72 +1,72 @@
-import { mutation, query } from './_generated/server';
-import { v } from 'convex/values';
+import { mutation, query } from "./_generated/server";
+import { v } from "convex/values";
 
-/**
- * Profile Queries and Mutations
- */
+export const createIfMissing = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
 
-/**
- * Get user profile by username
- */
-export const getProfileByUsername = query({
-  args: { username: v.string() },
-  handler: async (ctx, args) => {
-    // TODO: Implement query to fetch profile by username
-    return null;
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    const existing = await ctx.db
+      .query("profiles")
+      .withIndex("by_userId", (q) =>
+        q.eq("userId", identity.subject)
+      )
+      .unique();
+
+    if (existing) {
+      return existing;
+    }
+
+    const now = Date.now();
+
+    const profileId = await ctx.db.insert("profiles", {
+      userId: identity.subject,
+      username:
+        identity.nickname ||
+        identity.email?.split("@")[0] ||
+        `user_${identity.subject.slice(0, 8)}`,
+      displayName:
+        identity.name ||
+        identity.nickname ||
+        identity.email ||
+        "User",
+      createdAt: now,
+      updatedAt: now,
+    });
+
+    return await ctx.db.get(profileId);
   },
 });
 
-/**
- * Get user profile by user ID
- */
-export const getProfileByUserId = query({
-  args: { userId: v.string() },
-  handler: async (ctx, args) => {
-    // TODO: Implement query to fetch profile by user ID
-    return null;
+export const current = query({
+  args: {},
+  handler: async (ctx) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      return null;
+    }
+
+    return await ctx.db
+      .query("profiles")
+      .withIndex("by_userId", (q) =>
+        q.eq("userId", identity.subject)
+      )
+      .unique();
   },
 });
 
-/**
- * Create user profile
- */
-export const createProfile = mutation({
-  args: {
-    userId: v.string(),
-    username: v.string(),
-    displayName: v.string(),
-    bio: v.optional(v.string()),
-    avatar: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    // TODO: Implement profile creation
-    return null;
-  },
-});
-
-/**
- * Update user profile
- */
-export const updateProfile = mutation({
-  args: {
-    userId: v.string(),
-    displayName: v.optional(v.string()),
-    bio: v.optional(v.string()),
-    avatar: v.optional(v.string()),
-  },
-  handler: async (ctx, args) => {
-    // TODO: Implement profile update
-    return null;
-  },
-});
-
-/**
- * Check if username is available
- */
 export const checkUsernameAvailable = query({
   args: { username: v.string() },
   handler: async (ctx, args) => {
-    // TODO: Implement username availability check
-    return true;
+    const existing = await ctx.db
+      .query('profiles')
+      .withIndex('by_username', (q) => q.eq('username', args.username))
+      .unique();
+    return { available: !existing };
   },
 });

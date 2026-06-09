@@ -7,12 +7,16 @@ import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
 import { cn } from "@/lib/utils";
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter'
+});
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://onequestion.space'),
   title: 'One Question - Your AI-Powered Q&A Page',
-  description: 'Create your own AI-powered Q&A page. Upload knowledge once. Let AI answer forever.',
+  description:
+    'Create your own AI-powered Q&A page. Upload knowledge once. Let AI answer forever.',
   openGraph: {
     images: ['/logo.png'],
     title: 'One Question',
@@ -40,9 +44,26 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider appearance={{ layout: { logoImageUrl: '/logo.png', logoLinkUrl: '/' }, variables: { colorPrimary: '#a855f7', colorBackground: '#0a0a0a', colorText: '#ffffff', colorInputBackground: '#1a1a1a', colorInputText: '#ffffff' } }}>
-      <html lang="en" className={cn("dark bg-background", inter.variable)}>
-        <body className={`${inter.className} antialiased`}>
+    <html
+      lang="en"
+      className={cn("dark bg-background", inter.variable)}
+    >
+      <body className={`${inter.className} antialiased`}>
+        <ClerkProvider
+          appearance={{
+            layout: {
+              logoImageUrl: '/logo.png',
+              logoLinkUrl: '/',
+            },
+            variables: {
+              colorPrimary: '#a855f7',
+              colorBackground: '#0a0a0a',
+              colorText: '#ffffff',
+              colorInputBackground: '#1a1a1a',
+              colorInputText: '#ffffff',
+            },
+          }}
+        >
           <ConvexClientProvider>
             <div className="flex flex-col min-h-screen mesh-background">
               <Navbar />
@@ -50,8 +71,8 @@ export default function RootLayout({
               <Footer />
             </div>
           </ConvexClientProvider>
-        </body>
-      </html>
-    </ClerkProvider>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }

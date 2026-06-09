@@ -1,23 +1,36 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
-import { UserButton } from '@clerk/nextjs';
-import { Menu, X, Sparkles, ChevronRight } from 'lucide-react';
+import { useClerk } from '@clerk/nextjs';
+import { Menu, X, ChevronRight, LayoutDashboard, Settings, LogOut, User } from 'lucide-react';
 import Image from 'next/image';
 
 export function Navbar() {
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isSignedIn, isLoaded, userId } = useAuth();
+  const { signOut } = useClerk();
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const profileRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (profileRef.current && !profileRef.current.contains(e.target)) {
+        setIsProfileOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClick);
+    return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
   const navLinks = [
@@ -27,116 +40,120 @@ export function Navbar() {
   ];
 
   return (
-    <nav className={`fixed top-3 left-0 right-0 z-50 px-4 ${
-      isScrolled ? 'py-4 bg-background/80 backdrop-blur-xl border-b border-white/5' : 'py-6 bg-transparent'
-    }`}>
+    <nav className="fixed top-3 left-0 right-0 z-50 px-4">
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between px-4 py-2.5 rounded-full bg-background/80 backdrop-blur-xl border border-white/15 shadow-lg max-w-lg mx-auto">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="group-hover:scale-110 transition-transform">
-              <Image src="/logo.png" alt="One Question" width={40} height={40} className="rounded-xl group-hover:scale-110 transition-transform" />
-            </div>
-            <span className="text-xl font-bold text-white tracking-tight">One Question</span>
+          <Link href="/" className="flex items-center gap-2 group">
+            <Image src="/logo.png" alt="One Question" width={32} height={32} className="rounded-xl group-hover:scale-110 transition-transform" />
+            <span className="text-sm font-bold text-white tracking-tight">One Question</span>
           </Link>
 
-          {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-1">
             {navLinks.map((link) => (
               <Link
                 key={link.name}
                 href={link.href}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  pathname === link.href ? 'text-primary' : 'text-muted-foreground'
-                }`}
+                className={'text-xs font-medium px-3 py-1.5 rounded-full transition-all hover:bg-white/10 ' + (pathname === link.href ? 'text-primary bg-white/5' : 'text-muted-foreground')}
               >
                 {link.name}
               </Link>
             ))}
           </div>
 
-          {/* Desktop Auth */}
-          <div className="hidden md:flex items-center gap-4">
+          <div className="hidden md:flex items-center gap-2">
             {isLoaded && (
               isSignedIn ? (
-                <div className="flex items-center gap-6">
-                  <Link
-                    href="/dashboard"
-                    className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-                  >
+                <div className="flex items-center gap-2" ref={profileRef}>
+                  <Link href="/dashboard" className="text-xs font-medium text-muted-foreground hover:text-white transition-colors px-3 py-1.5 rounded-full hover:bg-white/10">
                     Dashboard
                   </Link>
-                  <UserButton />
+                  <div className="relative">
+                    <button
+                      onClick={() => setIsProfileOpen(!isProfileOpen)}
+                      className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-pink flex items-center justify-center text-white text-xs font-bold hover:shadow-glow transition-all"
+                    >
+                      A
+                    </button>
+                    {isProfileOpen && (
+                      <div className="absolute right-0 top-10 w-48 glass rounded-2xl border border-white/10 shadow-xl p-2 space-y-1">
+                        <Link href="/dashboard" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-white hover:bg-white/10 transition-colors">
+                          <LayoutDashboard className="w-4 h-4 text-primary" />
+                          Dashboard
+                        </Link>
+                        <Link href="/dashboard/settings" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-white hover:bg-white/10 transition-colors">
+                          <Settings className="w-4 h-4 text-muted-foreground" />
+                          Settings
+                        </Link>
+                        <div className="border-t border-white/10 my-1" />
+                        <button onClick={() => signOut()} className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-red-400 hover:bg-red-500/10 transition-colors">
+                          <LogOut className="w-4 h-4" />
+                          Sign out
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               ) : (
-                <>
-                  <Link
-                    href="/sign-in"
-                    className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    Login
+                <div className="flex items-center gap-2">
+                  <Link href="/sign-in" className="text-xs font-medium text-muted-foreground hover:text-white transition-colors px-3 py-1.5 rounded-full hover:bg-white/10">
+                    Log in
                   </Link>
-                  <Link
-                    href="/sign-up"
-                    className="px-5 py-2.5 rounded-full bg-white text-black text-sm font-bold hover:bg-primary hover:text-white transition-all flex items-center gap-2 group"
-                  >
+                  <Link href="/sign-up" className="text-xs font-bold px-4 py-1.5 rounded-full bg-white text-black hover:bg-primary hover:text-white transition-all flex items-center gap-1">
                     Sign up free
-                    <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    <ChevronRight className="w-3 h-3" />
                   </Link>
-                </>
+                </div>
               )
             )}
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center gap-4">
-            {isSignedIn && <UserButton />}
-            <button
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="p-2 text-white hover:text-primary transition-colors"
-            >
-              {isMobileMenuOpen ? <X /> : <Menu />}
+          <div className="md:hidden flex items-center gap-2">
+            {isSignedIn && (
+              <Link href="/dashboard" className="text-xs text-primary font-medium">
+                Dashboard
+              </Link>
+            )}
+            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-white hover:text-primary transition-colors">
+              {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
           </div>
         </div>
-      </div>
 
-      {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-background/95 backdrop-blur-2xl border-b border-white/5 animate-in slide-in-from-top duration-300">
-          <div className="px-4 py-8 space-y-6">
+        {isMobileMenuOpen && (
+          <div className="mt-2 bg-background/95 backdrop-blur-2xl border border-white/10 rounded-2xl px-4 py-6 space-y-4">
             {navLinks.map((link) => (
-              <Link
-                key={link.name}
-                href={link.href}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="block text-2xl font-bold text-white hover:text-primary transition-colors"
-              >
+              <Link key={link.name} href={link.href} onClick={() => setIsMobileMenuOpen(false)} className="block text-lg font-bold text-white hover:text-primary transition-colors">
                 {link.name}
               </Link>
             ))}
-            {!isSignedIn && (
-              <div className="pt-6 space-y-4">
-                <Link
-                  href="/sign-in"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="block text-xl font-medium text-muted-foreground"
-                >
-                  Login
+            {isSignedIn ? (
+              <div className="pt-4 space-y-3 border-t border-white/10">
+                <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 text-sm font-medium text-white">
+                  <LayoutDashboard className="w-4 h-4 text-primary" />
+                  Dashboard
                 </Link>
-                <Link
-                  href="/sign-up"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  className="w-full py-4 rounded-2xl bg-primary text-white text-center font-bold flex items-center justify-center gap-2"
-                >
-                  Get Started
-                  <Sparkles className="w-5 h-5" />
+                <Link href="/dashboard/settings" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                  <Settings className="w-4 h-4" />
+                  Settings
+                </Link>
+                <button onClick={() => signOut()} className="flex items-center gap-2 text-sm font-medium text-red-400">
+                  <LogOut className="w-4 h-4" />
+                  Sign out
+                </button>
+              </div>
+            ) : (
+              <div className="pt-4 space-y-3 border-t border-white/10">
+                <Link href="/sign-in" onClick={() => setIsMobileMenuOpen(false)} className="block text-center text-sm font-medium text-muted-foreground py-2">
+                  Log in
+                </Link>
+                <Link href="/sign-up" onClick={() => setIsMobileMenuOpen(false)} className="block text-center py-3 rounded-full bg-white text-black font-bold text-sm">
+                  Sign up free
                 </Link>
               </div>
             )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </nav>
   );
 }

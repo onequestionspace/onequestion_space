@@ -10,7 +10,9 @@ export default function SignUpPage() {
       subtitle="Join the future of knowledge sharing"
     >
       <div className="flex justify-center">
-        <SignUp 
+        <SignUp
+          forceRedirectUrl="/dashboard"
+          signInForceRedirectUrl="/dashboard" 
           appearance={{
             elements: {
               formButtonPrimary: "bg-primary hover:bg-primary/90 text-sm font-bold",

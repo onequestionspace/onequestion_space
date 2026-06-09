@@ -1,21 +1,22 @@
 'use client';
 
-import { useUser } from '@clerk/nextjs';
+import { useAuth as useClerkAuth, useUser } from '@clerk/nextjs';
 
 /**
- * Custom hook for authentication state
+ * Unified auth hook (session + user)
+ * - useClerkAuth = source of truth for session state
+ * - useUser = profile data only
  */
 export function useAuth() {
-  const { user, isLoaded, isSignedIn } = useUser();
-
-  const isAuthenticated = isLoaded ? !!isSignedIn : false;
+  const { isLoaded, isSignedIn, userId } = useClerkAuth();
+  const { user } = useUser();
 
   return {
     user,
     isLoaded,
     isSignedIn,
-    isAuthenticated,
-    userId: user?.id,
+    isAuthenticated: !!isSignedIn,
+    userId,
     email: user?.emailAddresses?.[0]?.emailAddress,
   };
 }

@@ -1,15 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { ConvexHttpClient } from 'convex/browser';
+import { api } from '../../../convex/_generated/api';
 
-/**
- * POST /api/check-username
- * Check if a username is available
- */
+function getConvexClient() {
+  const url = process.env.NEXT_PUBLIC_CONVEX_URL;
+
+  if (!url) {
+    throw new Error('NEXT_PUBLIC_CONVEX_URL is not configured');
+  }
+
+  return new ConvexHttpClient(url);
+}
+
+const RESERVED_USERNAMES = [
+  'admin',
+  'api',
+  'dashboard',
+  'settings',
+  'login',
+  'signup',
+  'register',
+  'about',
+  'contact',
+  'pricing',
+  'billing',
+  'support',
+  'help',
+  'privacy',
+  'terms',
+  'www',
+];
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { username } = body;
 
-    // Validate username format
     if (!username || typeof username !== 'string') {
       return NextResponse.json(
         { success: false, error: 'Username is required' },
@@ -19,7 +45,10 @@ export async function POST(request: NextRequest) {
 
     if (username.length < 3) {
       return NextResponse.json(
-        { success: false, error: 'Username must be at least 3 characters' },
+        {
+          success: false,
+          error: 'Username must be at least 3 characters',
+        },
         { status: 400 }
       );
     }
@@ -28,35 +57,59 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           success: false,
-          error: 'Username can only contain letters, numbers, hyphens, and underscores',
+          error:
+            'Username can only contain letters, numbers, hyphens, and underscores',
         },
         { status: 400 }
       );
     }
 
-    // TODO: Implement the following:
-    // 1. Query Convex database to check if username exists
-    // 2. Check reserved usernames list
-    // 3. Return availability status
+    const normalized = username.toLowerCase();
 
-    // Placeholder: Mock response
-    const isAvailable = Math.random() > 0.2; // 80% chance available
+    if (RESERVED_USERNAMES.includes(normalized)) {
+      return NextResponse.json(
+        {
+          success: true,
+          data: {
+            username,
+            available: false,
+            url: null,
+          },
+        },
+        { status: 200 }
+      );
+    }
+
+    const convex = getConvexClient();
+
+    const available = await convex.query(
+      api.profiles.checkUsernameAvailable,
+      {
+        username: normalized,
+      }
+    );
 
     return NextResponse.json(
       {
         success: true,
         data: {
-          username,
-          available: isAvailable,
-          url: isAvailable ? `https://onequestion.space/${username}` : null,
+          username: normalized,
+          available,
+          url: available
+            ? `https://onequestion.space/${normalized}`
+            : null,
         },
       },
       { status: 200 }
     );
   } catch (error) {
     console.error('Error in /api/check-username:', error);
+
     return NextResponse.json(
-      { success: false, error: 'Internal server error' },
+      {
+        success: false,
+        error: 'Internal server error',
+      },
       { status: 500 }
     );
   }

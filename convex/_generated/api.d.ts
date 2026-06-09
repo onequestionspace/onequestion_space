@@ -14,6 +14,7 @@ import type * as profiles from "../profiles.js";
 import type * as questions from "../questions.js";
 import type * as subscriptions from "../subscriptions.js";
 import type * as waitlist from "../waitlist.js";
+import type * as whoami from "../whoami.js";
 
 import type {
   ApiFromModules,
@@ -28,6 +29,7 @@ declare const fullApi: ApiFromModules<{
   questions: typeof questions;
   subscriptions: typeof subscriptions;
   waitlist: typeof waitlist;
+  whoami: typeof whoami;
 }>;
 
 /**

@@ -1,8 +1,11 @@
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';
+import { useEffect } from 'react';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { useQuery, useMutation } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 import { 
   LayoutDashboard, 
   BarChart3, 
@@ -20,6 +23,15 @@ import {
  */
 export default function DashboardPage() {
   const { isSignedIn, isLoaded } = useAuth();
+
+  const profile = useQuery(api.profiles.current);
+  const createProfile = useMutation(api.profiles.createIfMissing);
+
+  useEffect(() => {
+    if (profile === null && isSignedIn) {
+      createProfile().catch(console.error);
+    }
+  }, [profile, isSignedIn, createProfile]);
 
   if (!isLoaded) {
     return (
@@ -89,7 +101,8 @@ export default function DashboardPage() {
           {/* Header */}
           <div className="mb-10">
             <h1 className="text-3xl font-bold text-foreground mb-2">Dashboard</h1>
-            <p className="text-muted-foreground">Welcome back! Here&apos;s your overview.</p>
+            <p className="text-muted-foreground">Welcome back, {profile?.displayName || "Creator"}</p>
+            <p className="text-sm text-primary mt-1">onequestion.space/{profile?.username}</p>
           </div>
 
           {/* Stats Grid */}
