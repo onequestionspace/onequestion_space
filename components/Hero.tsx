@@ -46,10 +46,8 @@ export function Hero() {
           </span>
         </h1>
 
-        <p className="text-lg md:text-2xl text-muted-foreground mb-10 max-w-3xl mx-auto leading-relaxed">
-          Create a personal AI trained on your knowledge.
-          <br className="hidden sm:block" />
-          Share one link where visitors can ask anything about your work, products, or expertise.
+        <p className="text-lg md:text-2xl text-muted-foreground mb-10 max-w-3xl mx-auto leading-relaxed px-4 overflow-hidden">
+          Create a personal AI trained on your knowledge. Share one link where visitors can ask anything about your work, products, or expertise.
         </p>
 
         <div className="max-w-2xl mx-auto mb-6">
