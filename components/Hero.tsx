@@ -58,7 +58,7 @@ export function Hero() {
             <div className="flex flex-col sm:flex-row gap-2">
 
               <div className="flex-1 flex items-center px-4 py-3 bg-white/5 rounded-xl">
-                <span className="text-muted-foreground break-all">
+                <span className="text-muted-foreground text-sm whitespace-nowrap">
                   onequestion.space/
                 </span>
 
