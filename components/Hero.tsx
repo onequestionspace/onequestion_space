@@ -38,7 +38,7 @@ export function Hero() {
           </span>
         </div>
 
-        <h1 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight tracking-tight">
+        <h1 className="text-3xl md:text-6xl font-bold text-white mb-4 leading-tight tracking-tight break-words">
           Answer once.
           <br />
           <span className="gradient-text">
@@ -57,8 +57,8 @@ export function Hero() {
 
             <div className="flex flex-col sm:flex-row gap-2">
 
-              <div className="flex-1 flex items-center px-4 py-3 bg-white/5 rounded-xl">
-                <span className="text-muted-foreground text-sm whitespace-nowrap">
+              <div className="flex-1 flex items-center px-3 py-3 bg-white/5 rounded-xl min-w-0">
+                <span className="text-muted-foreground text-xs sm:text-sm whitespace-nowrap shrink-0">
                   onequestion.space/
                 </span>
 
