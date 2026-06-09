@@ -41,8 +41,8 @@ export function Hero() {
           Create a personal AI trained on your knowledge. Share one link. Let visitors ask anything — your AI answers instantly.
         </p>
 
-        <div className="max-w-md mx-auto mb-3">
-          <div className="flex items-center bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-5 py-3 mb-3">
+        <div className="max-w-xs mx-auto mb-3">
+          <div className="flex items-center bg-white/10 backdrop-blur-sm border border-primary/40 rounded-full px-5 py-3 mb-3">
             <span className="text-muted-foreground text-sm whitespace-nowrap shrink-0">onequestion.space/</span>
             <input
               type="text"
@@ -55,7 +55,7 @@ export function Hero() {
           {isLoaded && (
             <button
               onClick={handleClaim}
-              className="w-full py-3 px-6 rounded-full bg-gradient-to-r from-primary to-pink text-white font-bold text-base hover:shadow-glow-lg transition-all hover:-translate-y-0.5"
+              className="w-full py-3 px-6 rounded-full bg-gradient-to-r from-primary to-pink text-white font-bold text-sm hover:shadow-glow-lg transition-all hover:-translate-y-0.5"
             >
               Claim Your Space Now
             </button>
@@ -64,7 +64,7 @@ export function Hero() {
 
         <p className="text-xs text-muted-foreground mb-10">Free to join. No credit card required.</p>
 
-        <div className="max-w-sm mx-auto">
+        <div className="max-w-xs mx-auto px-2">
           <AnimatedDemo />
         </div>
       </div>
