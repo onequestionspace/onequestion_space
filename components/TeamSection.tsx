@@ -28,7 +28,7 @@ export function TeamSection() {
       role: 'Founding Product Lead',
       bio: 'Driving growth, user research, and product strategy',
       handle: '@Paraja',
-      link: '#',
+      link: 'https://x.com/MuhammadParaja',
       avatar: '/founders/paraja.png',
       gradient: 'from-accent-pink to-accent-red',
     },
