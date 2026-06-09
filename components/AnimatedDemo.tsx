@@ -3,12 +3,14 @@
 import { useState, useEffect } from 'react';
 
 const conversations = [
-  { role: 'visitor', text: 'What services do you offer?' },
-  { role: 'ai', text: 'I offer 1-on-1 coaching, online courses, and consulting for early-stage founders.' },
-  { role: 'visitor', text: 'How much does coaching cost?' },
-  { role: 'ai', text: 'Coaching starts at $200/month. I also offer a free 30-min discovery call.' },
-  { role: 'visitor', text: 'How do I book a call?' },
-  { role: 'ai', text: 'Head to onequestion.space/asym and submit your question. I respond within 24hrs.' },
+  { role: 'visitor', text: 'What is One Question?' },
+  { role: 'ai', text: 'One Question is your personal AI-powered Q&A space. Claim your username, upload your knowledge, and let AI answer questions for you automatically.' },
+  { role: 'visitor', text: 'How does it work?' },
+  { role: 'ai', text: 'You upload what you know — FAQs, documents, expertise. Anyone who visits your page asks one question and gets an instant AI answer. No more repeating yourself.' },
+  { role: 'visitor', text: 'Who is it for?' },
+  { role: 'ai', text: 'Founders, creators, coaches, consultants — anyone tired of answering the same questions over and over. Your AI works 24/7 so you do not have to.' },
+  { role: 'visitor', text: 'How do I get started?' },
+  { role: 'ai', text: 'Just claim your username at onequestion.space. It is free to join and takes less than 60 seconds to set up.' },
 ];
 
 export function AnimatedDemo() {

@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { AnimatedDemo } from '@/components/AnimatedDemo';
+import { ParticleBackground } from '@/components/ParticleBackground';
 
 export function Hero() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -22,6 +23,7 @@ export function Hero() {
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(139,92,246,0.20),transparent_50%)]" />
       <div className="absolute inset-0 mesh-background mesh-animated" />
       <div className="absolute inset-0 dot-pattern opacity-40" />
+      <ParticleBackground />
       <div className="absolute top-1/4 left-10 w-72 h-72 bg-primary/20 rounded-full blur-3xl animate-pulse-slow" />
       <div className="absolute bottom-1/4 right-10 w-96 h-96 bg-accent-pink/15 rounded-full blur-3xl animate-pulse-slow" />
 
