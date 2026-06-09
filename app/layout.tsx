@@ -37,8 +37,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ClerkProvider>
-      <html lang="en" className={cn("bg-background", inter.variable)}>
+    <ClerkProvider appearance={{ layout: { logoImageUrl: '/logo.png', logoLinkUrl: '/' }, variables: { colorPrimary: '#a855f7', colorBackground: '#0a0a0a', colorText: '#ffffff', colorInputBackground: '#1a1a1a', colorInputText: '#ffffff' } }}>
+      <html lang="en" className={cn("dark bg-background", inter.variable)}>
         <body className={`${inter.className} antialiased`}>
           <ConvexClientProvider>
             <div className="flex flex-col min-h-screen mesh-background">
