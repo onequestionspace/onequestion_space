@@ -234,3 +234,17 @@ html {
     font-family: sans-serif;
   }
 }
+
+.section-fade {
+  background: linear-gradient(to bottom, transparent, rgba(20, 20, 30, 0.8), transparent);
+  height: 80px;
+  margin: -40px 0;
+  pointer-events: none;
+}
+
+.section-fade {
+  background: linear-gradient(to bottom, transparent, rgba(20, 20, 30, 0.8), transparent);
+  height: 80px;
+  margin: -40px 0;
+  pointer-events: none;
+}

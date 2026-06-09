@@ -33,7 +33,7 @@ export function Hero() {
           <span className="text-sm text-muted-foreground">Build your AI knowledge hub</span>
         </div>
 
-        <h1 className="text-3xl md:text-5xl font-bold text-white mb-4 leading-tight tracking-tight overflow-hidden">
+        <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-6 leading-[1.1] tracking-tight">
           Answer once.
           <br />
           <span className="gradient-text">Let AI handle the rest.</span>

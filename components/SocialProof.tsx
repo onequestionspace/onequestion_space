@@ -34,10 +34,10 @@ export function SocialProof() {
     <section className="relative py-24 overflow-hidden">
       <div className="absolute inset-0 grid-pattern" />
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-3 gap-3">
           {stats.map((stat, index) => (
-            <div key={index} className="glass rounded-2xl p-8 text-center card-hover">
-              <p className={`text-5xl font-bold mb-2 ${stat.color}`}>{stat.number}</p>
+            <div key={index} className="glass rounded-2xl p-4 text-center card-hover">
+              <p className={`text-2xl sm:text-4xl font-bold mb-1 ${stat.color}`}>{stat.number}</p>
               <p className="text-muted-foreground">{stat.label}</p>
             </div>
           ))}
