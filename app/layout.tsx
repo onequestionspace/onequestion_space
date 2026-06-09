@@ -10,15 +10,18 @@ import { cn } from "@/lib/utils";
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://onequestion.space'),
   title: 'One Question - Your AI-Powered Q&A Page',
   description: 'Create your own AI-powered Q&A page. Upload knowledge once. Let AI answer forever.',
   openGraph: {
+    images: ['/logo.png'],
     title: 'One Question',
     description: 'Your knowledge. Your answers. Your space.',
     type: 'website',
     locale: 'en_US',
   },
   twitter: {
+    images: ['/logo.png'],
     card: 'summary_large_image',
     title: 'One Question',
     description: 'Your knowledge. Your answers. Your space.',
