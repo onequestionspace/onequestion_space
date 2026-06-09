@@ -21,7 +21,6 @@ export function Navbar() {
   }, []);
 
   const navLinks = [
-    { name: 'Product', href: '/#product' },
     { name: 'Pricing', href: '/pricing' },
     { name: 'Waitlist', href: '/waitlist' },
     { name: 'Blog', href: '/blog' },
@@ -81,7 +80,7 @@ export function Navbar() {
                     href="/sign-up"
                     className="px-5 py-2.5 rounded-full bg-white text-black text-sm font-bold hover:bg-primary hover:text-white transition-all flex items-center gap-2 group"
                   >
-                    Get Started
+                    Sign up free
                     <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                   </Link>
                 </>
