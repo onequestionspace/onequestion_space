@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { AnimatedDemo } from '@/components/AnimatedDemo';
 
 export function Hero() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -56,7 +57,7 @@ export function Hero() {
             <div className="flex flex-col sm:flex-row gap-2">
 
               <div className="flex-1 flex items-center px-3 py-3 bg-white/5 rounded-xl min-w-0">
-                <span className="text-muted-foreground text-xs sm:text-sm whitespace-nowrap shrink-0">
+                <span className="text-muted-foreground text-sm sm:text-base whitespace-nowrap shrink-0">
                   onequestion.space/
                 </span>
 
