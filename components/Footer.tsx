@@ -20,7 +20,7 @@ export function Footer() {
       links: [
         { name: 'About Us', href: '/#team' },
         { name: 'Blog', href: '/blog' },
-        { name: 'Contact', href: 'mailto:hello@onequestion.space' },
+        { name: 'Contact', href: '/contact' },
       ],
     },
     {
