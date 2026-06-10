@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 
 import Link from 'next/link';
 import { Sparkles, ArrowLeft } from 'lucide-react';
@@ -34,7 +35,7 @@ export function AuthLayout({ children, title, subtitle }: {
           
           <Link href="/" className="flex items-center gap-3 mb-8">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary via-pink to-accent flex items-center justify-center shadow-glow-primary">
-              <span className="text-white font-bold text-2xl">Q</span>
+              <Image src="/logo.png" alt="One Question" width={32} height={32} className="rounded-xl" />
             </div>
           </Link>
 

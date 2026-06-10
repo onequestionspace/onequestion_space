@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 
 export function SolutionSection() {
   return (
@@ -17,7 +18,7 @@ export function SolutionSection() {
         </p>
         <div className="glass rounded-3xl p-6 border border-primary/20 text-left">
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-pink flex items-center justify-center text-white font-bold text-sm">A</div>
+            <Image src="/founders/asym.png" alt="Asym" width={40} height={40} className="w-10 h-10 rounded-full object-cover" />
             <div>
               <p className="text-white font-semibold text-sm">onequestion.space/asym</p>
               <p className="text-muted-foreground text-xs">AI Active • Answers instantly</p>
