@@ -1,35 +1,39 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
 
-/**
- * Question Queries and Mutations
- */
-
-/**
- * Get questions for a profile
- */
 export const getQuestionsByProfile = query({
   args: { profileId: v.id('profiles') },
   handler: async (ctx, args) => {
-    // TODO: Implement query to fetch questions for profile
-    return [];
+    return await ctx.db
+      .query('questions')
+      .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
+      .order('desc')
+      .collect();
   },
 });
 
-/**
- * Get unanswered questions
- */
+export const getRecentQuestions = query({
+  args: { profileId: v.id('profiles'), limit: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query('questions')
+      .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
+      .order('desc')
+      .take(args.limit ?? 5);
+  },
+});
+
 export const getUnansweredQuestions = query({
   args: { profileId: v.id('profiles') },
   handler: async (ctx, args) => {
-    // TODO: Implement query to fetch unanswered questions
-    return [];
+    return await ctx.db
+      .query('questions')
+      .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
+      .filter((q) => q.eq(q.field('isAnswered'), false))
+      .collect();
   },
 });
 
-/**
- * Create question
- */
 export const createQuestion = mutation({
   args: {
     profileId: v.id('profiles'),
@@ -37,32 +41,33 @@ export const createQuestion = mutation({
     visitorId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    // TODO: Implement question creation
-    return null;
+    return await ctx.db.insert('questions', {
+      profileId: args.profileId,
+      question: args.question,
+      visitorId: args.visitorId,
+      isAnswered: false,
+      createdAt: Date.now(),
+    });
   },
 });
 
-/**
- * Answer question
- */
 export const answerQuestion = mutation({
   args: {
     id: v.id('questions'),
     answer: v.string(),
   },
   handler: async (ctx, args) => {
-    // TODO: Implement question answering
-    return null;
+    return await ctx.db.patch(args.id, {
+      answer: args.answer,
+      isAnswered: true,
+      answeredAt: Date.now(),
+    });
   },
 });
 
-/**
- * Delete question
- */
 export const deleteQuestion = mutation({
   args: { id: v.id('questions') },
   handler: async (ctx, args) => {
-    // TODO: Implement question deletion
-    return null;
+    return await ctx.db.delete(args.id);
   },
 });

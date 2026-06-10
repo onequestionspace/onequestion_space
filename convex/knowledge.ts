@@ -1,35 +1,24 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
 
-/**
- * Knowledge Base Queries and Mutations
- */
-
-/**
- * Get knowledge base for user
- */
 export const getKnowledgeByUserId = query({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
-    // TODO: Implement query to fetch user's knowledge base
-    return [];
+    return await ctx.db
+      .query('knowledge')
+      .withIndex('by_userId', (q) => q.eq('userId', args.userId))
+      .order('desc')
+      .collect();
   },
 });
 
-/**
- * Get single knowledge item
- */
 export const getKnowledge = query({
   args: { id: v.id('knowledge') },
   handler: async (ctx, args) => {
-    // TODO: Implement query to fetch single knowledge item
-    return null;
+    return await ctx.db.get(args.id);
   },
 });
 
-/**
- * Create knowledge item
- */
 export const createKnowledge = mutation({
   args: {
     userId: v.string(),
@@ -39,14 +28,19 @@ export const createKnowledge = mutation({
     fileType: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    // TODO: Implement knowledge creation
-    return null;
+    const now = Date.now();
+    return await ctx.db.insert('knowledge', {
+      userId: args.userId,
+      title: args.title,
+      content: args.content,
+      fileUrl: args.fileUrl,
+      fileType: args.fileType,
+      createdAt: now,
+      updatedAt: now,
+    });
   },
 });
 
-/**
- * Update knowledge item
- */
 export const updateKnowledge = mutation({
   args: {
     id: v.id('knowledge'),
@@ -54,18 +48,28 @@ export const updateKnowledge = mutation({
     content: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    // TODO: Implement knowledge update
-    return null;
+    return await ctx.db.patch(args.id, {
+      ...(args.title !== undefined && { title: args.title }),
+      ...(args.content !== undefined && { content: args.content }),
+      updatedAt: Date.now(),
+    });
   },
 });
 
-/**
- * Delete knowledge item
- */
 export const deleteKnowledge = mutation({
   args: { id: v.id('knowledge') },
   handler: async (ctx, args) => {
-    // TODO: Implement knowledge deletion
-    return null;
+    return await ctx.db.delete(args.id);
+  },
+});
+
+export const getKnowledgeCount = query({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    const items = await ctx.db
+      .query('knowledge')
+      .withIndex('by_userId', (q) => q.eq('userId', args.userId))
+      .collect();
+    return items.length;
   },
 });

@@ -1,37 +1,82 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
 
-/**
- * Analytics Queries and Mutations
- */
-
-/**
- * Get analytics for a profile
- */
 export const getAnalytics = query({
   args: { profileId: v.id('profiles') },
   handler: async (ctx, args) => {
-    // TODO: Implement query to fetch analytics
-    return null;
+    return await ctx.db
+      .query('analytics')
+      .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
+      .unique();
   },
 });
 
-/**
- * Create analytics record
- */
-export const createAnalytics = mutation({
-  args: {
-    profileId: v.id('profiles'),
-  },
+export const getOrCreateAnalytics = mutation({
+  args: { profileId: v.id('profiles') },
   handler: async (ctx, args) => {
-    // TODO: Implement analytics creation
-    return null;
+    const existing = await ctx.db
+      .query('analytics')
+      .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
+      .unique();
+    if (existing) return existing;
+    const now = Date.now();
+    const id = await ctx.db.insert('analytics', {
+      profileId: args.profileId,
+      totalQuestions: 0,
+      totalAnswers: 0,
+      totalVisitors: 0,
+      createdAt: now,
+      updatedAt: now,
+    });
+    return await ctx.db.get(id);
   },
 });
 
-/**
- * Update analytics
- */
+export const incrementQuestionCount = mutation({
+  args: { profileId: v.id('profiles') },
+  handler: async (ctx, args) => {
+    const record = await ctx.db
+      .query('analytics')
+      .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
+      .unique();
+    if (!record) return;
+    await ctx.db.patch(record._id, {
+      totalQuestions: record.totalQuestions + 1,
+      updatedAt: Date.now(),
+    });
+  },
+});
+
+export const incrementAnswerCount = mutation({
+  args: { profileId: v.id('profiles') },
+  handler: async (ctx, args) => {
+    const record = await ctx.db
+      .query('analytics')
+      .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
+      .unique();
+    if (!record) return;
+    await ctx.db.patch(record._id, {
+      totalAnswers: record.totalAnswers + 1,
+      updatedAt: Date.now(),
+    });
+  },
+});
+
+export const incrementVisitorCount = mutation({
+  args: { profileId: v.id('profiles') },
+  handler: async (ctx, args) => {
+    const record = await ctx.db
+      .query('analytics')
+      .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
+      .unique();
+    if (!record) return;
+    await ctx.db.patch(record._id, {
+      totalVisitors: record.totalVisitors + 1,
+      updatedAt: Date.now(),
+    });
+  },
+});
+
 export const updateAnalytics = mutation({
   args: {
     profileId: v.id('profiles'),
@@ -40,29 +85,16 @@ export const updateAnalytics = mutation({
     totalVisitors: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    // TODO: Implement analytics update
-    return null;
-  },
-});
-
-/**
- * Increment question count
- */
-export const incrementQuestionCount = mutation({
-  args: { profileId: v.id('profiles') },
-  handler: async (ctx, args) => {
-    // TODO: Implement question count increment
-    return null;
-  },
-});
-
-/**
- * Increment answer count
- */
-export const incrementAnswerCount = mutation({
-  args: { profileId: v.id('profiles') },
-  handler: async (ctx, args) => {
-    // TODO: Implement answer count increment
-    return null;
+    const record = await ctx.db
+      .query('analytics')
+      .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
+      .unique();
+    if (!record) return;
+    await ctx.db.patch(record._id, {
+      ...(args.totalQuestions !== undefined && { totalQuestions: args.totalQuestions }),
+      ...(args.totalAnswers !== undefined && { totalAnswers: args.totalAnswers }),
+      ...(args.totalVisitors !== undefined && { totalVisitors: args.totalVisitors }),
+      updatedAt: Date.now(),
+    });
   },
 });
