@@ -28,9 +28,8 @@ export function AnimatedDemo() {
       setTimeout(() => setVisibleMessages(v => v + 1), 1200);
       return;
     }
-    setIsTyping(true);
     let i = 0;
-    setTypedText('');
+    setTimeout(() => { setIsTyping(true); setTypedText(''); }, 0);
     const interval = setInterval(() => {
       i++;
       setTypedText(current.text.slice(0, i));

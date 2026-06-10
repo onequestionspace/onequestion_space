@@ -12,7 +12,7 @@ import Image from 'next/image';
 
 export function Navbar() {
   const { isSignedIn, isLoaded, userId } = useAuth();
-  const profile = isSignedIn ? useQuery(api.profiles.current) : null;
+  const profile = useQuery(api.profiles.current);
   const { signOut } = useClerk();
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);
