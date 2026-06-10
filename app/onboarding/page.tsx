@@ -36,11 +36,11 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     if (user) {
-      setForm(prev => ({
+      setTimeout(() => setForm(prev => ({
         ...prev,
         displayName: user.fullName || user.firstName || '',
         username: user.username || user.emailAddresses?.[0]?.emailAddress?.split('@')[0]?.toLowerCase().replace(/[^a-z0-9_]/g, '') || '',
-      }));
+      })), 0);
     }
   }, [user]);
 

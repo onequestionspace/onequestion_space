@@ -33,12 +33,12 @@ export default function SettingsPage() {
 
   useEffect(() => {
     if (profile) {
-      setForm({
+      setTimeout(() => setForm({
         username: profile.username || '',
         displayName: profile.displayName || '',
         bio: profile.bio || '',
         welcomeMessage: profile.welcomeMessage || '',
-      });
+      }), 0);
     }
   }, [profile]);
 
