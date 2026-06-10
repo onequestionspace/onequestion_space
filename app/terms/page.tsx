@@ -19,7 +19,7 @@ export default function PrivacyPage() {
   ]);
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (q) => {
+  const handleSubmit = async (q: string) => {
     if (!q.trim()) return;
     setMessages(prev => [...prev, { role: 'user', text: q }]);
     setQuestion('');

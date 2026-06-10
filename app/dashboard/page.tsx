@@ -29,7 +29,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (profile === null && isSignedIn) {
-      createProfile().catch(console.error);
+      createProfile({}).catch(console.error);
     }
   }, [profile, isSignedIn, createProfile]);
 
