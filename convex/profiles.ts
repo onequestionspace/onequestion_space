@@ -70,3 +70,13 @@ export const checkUsernameAvailable = query({
     return { available: !existing };
   },
 });
+
+export const byUsername = query({
+  args: { username: v.string() },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query('profiles')
+      .withIndex('by_username', (q) => q.eq('username', args.username))
+      .unique();
+  },
+});

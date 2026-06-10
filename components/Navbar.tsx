@@ -4,12 +4,15 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 import { useClerk } from '@clerk/nextjs';
 import { Menu, X, ChevronRight, LayoutDashboard, Settings, LogOut, User } from 'lucide-react';
 import Image from 'next/image';
 
 export function Navbar() {
   const { isSignedIn, isLoaded, userId } = useAuth();
+  const profile = isSignedIn ? useQuery(api.profiles.current) : null;
   const { signOut } = useClerk();
   const pathname = usePathname();
   const [isScrolled, setIsScrolled] = useState(false);

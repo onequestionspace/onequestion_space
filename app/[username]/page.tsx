@@ -5,6 +5,8 @@ import { useState, use, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useApi } from '@/hooks/useApi';
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 import { validateQuestion } from '@/lib/validations';
 import { 
   ArrowLeft, 
@@ -104,15 +106,15 @@ export default function PublicQAPage({ params }: { params: Promise<{ username: s
     }
   }, [aiResponse]);
 
-  // Mock profile data - will be replaced with API data
+  const realProfile = useQuery(api.profiles.byUsername, { username });
   const mockProfile = {
     username,
-    displayName: `@${username}`,
-    bio: 'Expert in their field, ready to answer your questions',
-    avatar: `/founders/${username}.png`,
-    totalQuestions: 234,
-    totalAnswers: 198,
-    responseRate: 85,
+    displayName: realProfile ? (realProfile.displayName || '@' + username) : '@' + username,
+    bio: realProfile?.bio || 'Ask me anything.',
+    avatar: realProfile?.avatar || '/founders/' + username + '.png',
+    totalQuestions: 0,
+    totalAnswers: 0,
+    responseRate: 100,
   };
 
   return (
