@@ -80,3 +80,35 @@ export const byUsername = query({
       .unique();
   },
 });
+
+export const update = mutation({
+  args: {
+    username: v.optional(v.string()),
+    displayName: v.optional(v.string()),
+    bio: v.optional(v.string()),
+    avatar: v.optional(v.string()),
+    welcomeMessage: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) throw new Error("Not authenticated");
+
+    const profile = await ctx.db
+      .query("profiles")
+      .withIndex("by_userId", (q) => q.eq("userId", identity.subject))
+      .unique();
+
+    if (!profile) throw new Error("Profile not found");
+
+    await ctx.db.patch(profile._id, {
+      ...(args.username !== undefined && { username: args.username }),
+      ...(args.displayName !== undefined && { displayName: args.displayName }),
+      ...(args.bio !== undefined && { bio: args.bio }),
+      ...(args.avatar !== undefined && { avatar: args.avatar }),
+      ...(args.welcomeMessage !== undefined && { welcomeMessage: args.welcomeMessage }),
+      updatedAt: Date.now(),
+    });
+
+    return await ctx.db.get(profile._id);
+  },
+});

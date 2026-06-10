@@ -14,6 +14,7 @@ export default defineSchema({
     displayName: v.string(),
     bio: v.optional(v.string()),
     avatar: v.optional(v.string()),
+    welcomeMessage: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })

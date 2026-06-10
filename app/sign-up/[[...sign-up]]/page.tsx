@@ -22,7 +22,7 @@ function SignUpContent() {
       )}
       <div className="flex justify-center">
         <SignUp
-          forceRedirectUrl={username ? '/dashboard?username=' + username : '/dashboard'}
+          forceRedirectUrl={username ? '/onboarding?username=' + username : '/onboarding'}
           signInForceRedirectUrl="/dashboard"
           appearance={{
             elements: {

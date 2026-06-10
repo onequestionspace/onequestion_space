@@ -73,9 +73,9 @@ export function Navbar() {
                   <div className="relative">
                     <button
                       onClick={() => setIsProfileOpen(!isProfileOpen)}
-                      className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-pink flex items-center justify-center text-white text-xs font-bold hover:shadow-glow transition-all"
+                      className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-pink flex items-center justify-center text-white text-xs font-bold hover:shadow-glow transition-all overflow-hidden"
                     >
-                      A
+                      {profile?.avatar ? <img src={profile.avatar} alt="avatar" className="w-full h-full object-cover" /> : (profile?.displayName?.charAt(0)?.toUpperCase() || "U")}
                     </button>
                     {isProfileOpen && (
                       <div className="absolute right-0 top-10 w-48 glass rounded-2xl border border-white/10 shadow-xl p-2 space-y-1">
@@ -87,6 +87,12 @@ export function Navbar() {
                           <Settings className="w-4 h-4 text-muted-foreground" />
                           Settings
                         </Link>
+                        {profile?.username && (
+                          <Link href={`/${profile.username}`} onClick={() => setIsProfileOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-white hover:bg-white/10 transition-colors">
+                            <User className="w-4 h-4 text-muted-foreground" />
+                            My Space
+                          </Link>
+                        )}
                         <div className="border-t border-white/10 my-1" />
                         <button onClick={() => signOut()} className="w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-red-400 hover:bg-red-500/10 transition-colors">
                           <LogOut className="w-4 h-4" />
