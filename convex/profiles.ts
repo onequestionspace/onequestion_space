@@ -2,7 +2,7 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
 export const createIfMissing = mutation({
-  args: {},
+  args: { username: v.optional(v.string()) },
   handler: async (ctx) => {
     const identity = await ctx.auth.getUserIdentity();
 
