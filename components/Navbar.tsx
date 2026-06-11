@@ -83,6 +83,10 @@ export function Navbar() {
                           <LayoutDashboard className="w-4 h-4 text-primary" />
                           Dashboard
                         </Link>
+                        <Link href="/dashboard/profile" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-white hover:bg-white/10 transition-colors">
+                          <User className="w-4 h-4 text-muted-foreground" />
+                          Profile
+                        </Link>
                         <Link href="/dashboard/settings" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-white hover:bg-white/10 transition-colors">
                           <Settings className="w-4 h-4 text-muted-foreground" />
                           Settings
@@ -141,7 +145,11 @@ export function Navbar() {
                   <LayoutDashboard className="w-4 h-4 text-primary" />
                   Dashboard
                 </Link>
-                <Link href="/dashboard/settings" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <Link href="/dashboard/profile" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-white hover:bg-white/10 transition-colors">
+                          <User className="w-4 h-4 text-muted-foreground" />
+                          Profile
+                        </Link>
+                        <Link href="/dashboard/settings" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
                   <Settings className="w-4 h-4" />
                   Settings
                 </Link>

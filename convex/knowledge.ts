@@ -4,8 +4,7 @@ import { v } from 'convex/values';
 export const getKnowledgeByUserId = query({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db
-      .query('knowledge')
+    return await ctx.db.query('knowledge')
       .withIndex('by_userId', (q) => q.eq('userId', args.userId))
       .order('desc')
       .collect();
@@ -24,6 +23,8 @@ export const createKnowledge = mutation({
     userId: v.string(),
     title: v.string(),
     content: v.string(),
+    embeddings: v.optional(v.array(v.number())),
+    chunkIndex: v.optional(v.number()),
     fileUrl: v.optional(v.string()),
     fileType: v.optional(v.string()),
   },
@@ -33,6 +34,8 @@ export const createKnowledge = mutation({
       userId: args.userId,
       title: args.title,
       content: args.content,
+      embeddings: args.embeddings,
+      chunkIndex: args.chunkIndex,
       fileUrl: args.fileUrl,
       fileType: args.fileType,
       createdAt: now,
@@ -66,8 +69,7 @@ export const deleteKnowledge = mutation({
 export const getKnowledgeCount = query({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
-    const items = await ctx.db
-      .query('knowledge')
+    const items = await ctx.db.query('knowledge')
       .withIndex('by_userId', (q) => q.eq('userId', args.userId))
       .collect();
     return items.length;

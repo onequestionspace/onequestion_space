@@ -1,46 +1,78 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateQuestion } from '@/lib/validations';
+import { generateEmbeddings, generateAnswer, cosineSimilarity } from '@/lib/gemini';
+import { ConvexHttpClient } from 'convex/browser';
+import { api } from '@/convex/_generated/api';
 
-/**
- * POST /api/ask
- * Handle question submission and AI-powered answering
- */
+const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { question, username, visitorName, visitorEmail } = body;
 
-    // Validate question
     const validationError = validateQuestion(question);
     if (validationError) {
-      return NextResponse.json(
-        { success: false, error: validationError.message },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: validationError.message }, { status: 400 });
     }
 
-    // TODO: Implement the following:
-    // 1. Fetch user profile by username
-    // 2. Fetch user's knowledge base
-    // 3. Generate answer using OpenAI
-    // 4. Save question and answer to database
-    // 5. Update analytics
+    // 1. Fetch profile by username
+    const profile = await convex.query(api.profiles.getProfileByUsername, { username });
+    if (!profile) {
+      return NextResponse.json({ success: false, error: 'Profile not found' }, { status: 404 });
+    }
 
-    return NextResponse.json(
-      {
-        success: true,
-        data: {
-          question,
-          answer: 'This is a placeholder answer. Implementation coming soon.',
-        },
-      },
-      { status: 200 }
-    );
+    // 2. Fetch all knowledge chunks for this user
+    const knowledgeChunks = await convex.query(api.knowledge.getKnowledgeByUserId, { userId: profile.userId });
+    
+    if (!knowledgeChunks || knowledgeChunks.length === 0) {
+      return NextResponse.json({ 
+        success: true, 
+        data: { 
+          question, 
+          answer: "I don't have any knowledge base content yet. The owner needs to upload some info first." 
+        } 
+      });
+    }
+
+    // 3. Embed question + find top 3 most similar chunks
+    const questionEmbedding = await generateEmbeddings(question);
+    
+    const scoredChunks = knowledgeChunks
+      .filter(k => k.embeddings && k.embeddings.length > 0)
+      .map(k => ({
+        ...k,
+        score: cosineSimilarity(questionEmbedding, k.embeddings!)
+      }))
+      .sort((a, b) => b.score - a.score)
+      .slice(0, 3);
+
+    const topChunks = scoredChunks.map(k => k.content);
+
+    // 4. Generate answer with Gemini using context
+    const answer = await generateAnswer(question, topChunks);
+
+    // 5. Save question + answer to DB
+    await convex.mutation(api.questions.createQuestion, {
+      profileId: profile._id,
+      visitorId: visitorEmail || visitorName || 'anonymous',
+      question,
+      answer,
+      isAnswered: true,
+      createdAt: Date.now(),
+      answeredAt: Date.now(),
+    });
+
+    // 6. Update analytics
+    await convex.mutation(api.analytics.incrementQuestions, { profileId: profile._id });
+
+    return NextResponse.json({
+      success: true,
+      data: { question, answer }
+    }, { status: 200 });
+
   } catch (error) {
     console.error('Error in /api/ask:', error);
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
   }
 }
