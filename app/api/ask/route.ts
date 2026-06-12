@@ -17,7 +17,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 1. Fetch profile by username
-    const profile = await convex.query(api.profiles.getProfileByUsername, { username });
+    const profile = await convex.query(api.profiles.byUsername, { username });
     if (!profile) {
       return NextResponse.json({ success: false, error: 'Profile not found' }, { status: 404 });
     }
@@ -64,7 +64,7 @@ export async function POST(request: NextRequest) {
     });
 
     // 6. Update analytics
-    await convex.mutation(api.analytics.incrementQuestions, { profileId: profile._id });
+    await convex.mutation(api.analytics.incrementQuestionCount, { profileId: profile._id });
 
     return NextResponse.json({
       success: true,

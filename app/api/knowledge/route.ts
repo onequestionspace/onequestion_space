@@ -1,106 +1,71 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
+import { ConvexHttpClient } from 'convex/browser';
+import { api } from '@/convex/_generated/api';
+import { generateEmbeddings, chunkText } from '@/lib/gemini';
 
-/**
- * GET /api/knowledge
- * Get all knowledge items for the current user
- */
+const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+
 export async function GET(request: NextRequest) {
   try {
     const { userId } = await auth();
-
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    // TODO: Implement the following:
-    // 1. Query Convex to get all knowledge items for userId
-    // 2. Return list of knowledge items
-    // 3. Implement pagination if needed
-
-    return NextResponse.json(
-      {
-        success: true,
-        data: [],
-      },
-      { status: 200 }
-    );
+    if (!userId) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    const items = await convex.query(api.knowledge.getKnowledgeByUserId, { userId });
+    return NextResponse.json({ success: true, data: items }, { status: 200 });
   } catch (error) {
     console.error('Error in GET /api/knowledge:', error);
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
   }
 }
 
-/**
- * POST /api/knowledge
- * Create a new knowledge item (text or file)
- */
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth();
+    if (!userId) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
-    if (!userId) {
-      return NextResponse.json(
-        { success: false, error: 'Unauthorized' },
-        { status: 401 }
-      );
+    const body = await request.json();
+    const { title, content } = body;
+
+    if (!title || !content) {
+      return NextResponse.json({ success: false, error: 'Title and content are required' }, { status: 400 });
     }
 
-    const formData = await request.formData();
-    const title = formData.get('title') as string;
-    const content = formData.get('content') as string;
-    const file = formData.get('file') as File | null;
-
-    // Validate inputs
-    if (!title || title.trim().length === 0) {
-      return NextResponse.json(
-        { success: false, error: 'Title is required' },
-        { status: 400 }
-      );
+    // Generate embeddings for the content
+    let embeddings: number[] = [];
+    try {
+      const chunks = chunkText(content);
+      const fullText = chunks.join(' ');
+      embeddings = await generateEmbeddings(fullText);
+    } catch (e) {
+      console.error('Embedding error:', e);
     }
 
-    if (!content && !file) {
-      return NextResponse.json(
-        { success: false, error: 'Either content or file is required' },
-        { status: 400 }
-      );
-    }
+    // Save to Convex
+    const id = await convex.mutation(api.knowledge.createKnowledge, {
+      userId,
+      title,
+      content,
+      embeddings: embeddings.length > 0 ? embeddings : undefined,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
 
-    // TODO: Implement the following:
-    // 1. If file: Upload to S3
-    // 2. If file: Extract text from file
-    // 3. Generate embeddings for content
-    // 4. Save knowledge item to Convex
-    // 5. Update user's knowledge base
-    // 6. Return created knowledge item
-
-    return NextResponse.json(
-      {
-        success: true,
-        data: {
-          id: 'placeholder-id',
-          userId,
-          title,
-          content: content || 'File content extracted',
-          fileUrl: file ? '/uploaded-file' : null,
-          fileType: file?.type || null,
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
-        },
-      },
-      { status: 201 }
-    );
+    return NextResponse.json({ success: true, data: { id, title, content } }, { status: 201 });
   } catch (error) {
     console.error('Error in POST /api/knowledge:', error);
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  try {
+    const { userId } = await auth();
+    if (!userId) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    const { id } = await request.json();
+    await convex.mutation(api.knowledge.deleteKnowledge, { id });
+    return NextResponse.json({ success: true }, { status: 200 });
+  } catch (error) {
+    console.error('Error in DELETE /api/knowledge:', error);
+    return NextResponse.json({ success: false, error: 'Internal server error' }, { status: 500 });
   }
 }
