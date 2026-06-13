@@ -56,7 +56,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
         body: JSON.stringify({ question, username }),
       });
       const data = await res.json();
-      const fullResponse = data.answer || 'I am thinking through your question. Please check back shortly.';
+      const fullResponse = data?.data?.answer || data?.answer || 'I am thinking through your question. Please check back shortly.';
 
       let current = '';
       const words = fullResponse.split(' ');
