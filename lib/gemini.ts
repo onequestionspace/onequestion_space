@@ -1,27 +1,31 @@
-import { GoogleGenerativeAI } from '@google/generative-ai';
-
-const apiKey = process.env.GEMINI_API_KEY || '';
-
-const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
-const embedModel = genAI?.getGenerativeModel({ model: 'text-embedding-004' });
-const chatModel = genAI?.getGenerativeModel({ model: 'gemini-1.5-flash' });
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
+const CHAT_MODEL = 'gemini-2.5-flash';
+const EMBED_MODEL = 'gemini-embedding-001';
 
 export function chunkText(text: string, chunkSize = 500, overlap = 50): string[] {
   const chunks: string[] = [];
   let i = 0;
   while (i < text.length) {
-    const chunk = text.slice(i, i + chunkSize);
-    chunks.push(chunk.trim());
+    chunks.push(text.slice(i, i + chunkSize).trim());
     i += chunkSize - overlap;
   }
   return chunks.filter(c => c.length > 20);
 }
 
 export async function generateEmbeddings(content: string): Promise<number[]> {
-  if (!embedModel) return [];
+  if (!GEMINI_API_KEY) return [];
   try {
-    const result = await embedModel.embedContent(content);
-    return result.embedding.values;
+    const res = await fetch(`${GEMINI_BASE}/${EMBED_MODEL}:embedContent?key=${GEMINI_API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: `models/${EMBED_MODEL}`,
+        content: { parts: [{ text: content }] }
+      }),
+    });
+    const data = await res.json();
+    return data.embedding?.values || [];
   } catch (error) {
     console.error('Gemini embedding error:', error);
     return [];
@@ -29,10 +33,13 @@ export async function generateEmbeddings(content: string): Promise<number[]> {
 }
 
 export async function generateAnswer(question: string, chunks: string[]): Promise<string> {
-  if (!chatModel) return "AI is not configured yet. Please check back soon.";
+  if (!GEMINI_API_KEY) return 'AI is not configured yet.';
   try {
-    const context = chunks.join('\n\n---\n\n');
-    const prompt = `You are a helpful AI assistant. Answer the question using ONLY the knowledge provided below. If the answer is not in the knowledge, say "I don't have information about that in my knowledge base."
+    const context = chunks.length > 0
+      ? chunks.join('\n\n---\n\n')
+      : 'No knowledge base uploaded yet.';
+
+    const prompt = `You are a helpful AI assistant representing the owner of this page. Answer the question using ONLY the knowledge provided below. If the answer is not in the knowledge base say "I don't have information about that yet."
 
 Knowledge Base:
 ${context}
@@ -41,11 +48,18 @@ Question: ${question}
 
 Answer concisely in 2-3 sentences:`;
 
-    const result = await chatModel.generateContent(prompt);
-    return result.response.text();
+    const res = await fetch(`${GEMINI_BASE}/${CHAT_MODEL}:generateContent?key=${GEMINI_API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }]
+      }),
+    });
+    const data = await res.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry I couldn't generate an answer right now.";
   } catch (error) {
     console.error('Gemini answer error:', error);
-    return "Sorry, I couldn't generate an answer right now.";
+    return "Sorry I couldn't generate an answer right now.";
   }
 }
 
