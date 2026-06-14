@@ -131,3 +131,18 @@ export const cancelSubscription = mutation({
     });
   },
 });
+
+export const addCredits = mutation({
+  args: { userId: v.string(), credits: v.number() },
+  handler: async (ctx, args) => {
+    const record = await ctx.db
+      .query('subscriptions')
+      .withIndex('by_userId', (q) => q.eq('userId', args.userId))
+      .unique();
+    if (!record) return;
+    await ctx.db.patch(record._id, {
+      messagesLimit: record.messagesLimit + args.credits,
+      updatedAt: Date.now(),
+    });
+  },
+});

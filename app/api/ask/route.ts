@@ -69,9 +69,10 @@ export async function POST(request: NextRequest) {
       answeredAt: Date.now(),
     });
 
-    // 6. Update analytics
+    // 6. Update analytics + usage
     await convex.mutation(api.analytics.incrementQuestionCount, { profileId: profile._id });
     await convex.mutation(api.analytics.incrementAnswerCount, { profileId: profile._id });
+    await convex.mutation(api.subscriptions.incrementMessagesUsed, { userId: profile.userId });
 
     return NextResponse.json({
       success: true,
