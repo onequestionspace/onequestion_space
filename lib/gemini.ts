@@ -73,7 +73,7 @@ Answer (max 50 words):`;
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: 120, temperature: 0.3 }
+        generationConfig: { maxOutputTokens: 250, temperature: 0.3 }
       }),
     });
     const data = await res.json();
