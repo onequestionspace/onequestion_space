@@ -6,6 +6,11 @@ import Image from 'next/image';
 import { MessageCircle, Sparkles } from 'lucide-react';
 
 export function Footer() {
+  const pathname = usePathname();
+  const segments = pathname.split('/').filter(Boolean);
+  const reserved = ['dashboard','blog','pricing','contact','features','waitlist','onboarding','privacy','terms','sign-in','sign-up','api'];
+  const isSpacePage = segments.length === 1 && !reserved.includes(segments[0]);
+  if (isSpacePage) return null;
   const footerLinks = [
     {
       title: 'Product',
