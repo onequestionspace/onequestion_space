@@ -4,7 +4,8 @@ import { useState, use, useRef, useEffect } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Brain, Sparkles, Copy, Check, Twitter, Github, Globe, Linkedin } from 'lucide-react';
+import { Send, Brain, Sparkles, Copy, Check, Globe } from 'lucide-react';
+import { FaXTwitter as XIcon, FaGithub as GithubIcon, FaLinkedin as LinkedinIcon } from 'react-icons/fa6';
 
 const BG_STYLES: Record<string, string> = {
   dark: 'bg-zinc-900',
@@ -132,9 +133,9 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
 
           {(social.twitter || social.github || social.website || social.linkedin) && (
             <div className='flex items-center justify-center gap-3 mb-5'>
-              {social.twitter && <a href={'https://twitter.com/' + social.twitter.replace('@','')} target='_blank' rel='noopener noreferrer' className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors'><Twitter className='w-3.5 h-3.5 text-white' /></a>}
-              {social.github && <a href={'https://github.com/' + social.github} target='_blank' rel='noopener noreferrer' className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors'><Github className='w-3.5 h-3.5 text-white' /></a>}
-              {social.linkedin && <a href={'https://linkedin.com/in/' + social.linkedin} target='_blank' rel='noopener noreferrer' className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors'><Linkedin className='w-3.5 h-3.5 text-white' /></a>}
+              {social.twitter && <a href={'https://twitter.com/' + social.twitter.replace('@','')} target='_blank' rel='noopener noreferrer' className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors'><XIcon className='w-3.5 h-3.5 text-white' /></a>}
+              {social.github && <a href={'https://github.com/' + social.github} target='_blank' rel='noopener noreferrer' className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors'><GithubIcon className='w-3.5 h-3.5 text-white' /></a>}
+              {social.linkedin && <a href={'https://linkedin.com/in/' + social.linkedin} target='_blank' rel='noopener noreferrer' className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors'><LinkedinIcon className='w-3.5 h-3.5 text-white' /></a>}
               {social.website && <a href={social.website} target='_blank' rel='noopener noreferrer' className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors'><Globe className='w-3.5 h-3.5 text-white' /></a>}
             </div>
           )}

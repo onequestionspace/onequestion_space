@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import { Check, Loader2, Save, Twitter, Github, Globe, Linkedin } from "lucide-react";
+import { Check, Loader2, Save, Globe } from "lucide-react";
+import { FaXTwitter as XIcon, FaGithub as GithubIcon, FaLinkedin as LinkedinIcon } from "react-icons/fa6";
 
 const THEME_COLORS = [
   { name: "Purple", value: "#a855f7" },
@@ -46,10 +47,10 @@ export function AppearanceTab() {
   const [themeBg, setThemeBg] = useState("dark");
   const [themeFont, setThemeFont] = useState("inter");
   const [themeCardStyle, setThemeCardStyle] = useState("glass");
-  const [twitter, setTwitter] = useState("");
-  const [github, setGithub] = useState("");
+  const [twitter, setXIcon] = useState("");
+  const [github, setGithubIcon] = useState("");
   const [website, setWebsite] = useState("");
-  const [linkedin, setLinkedin] = useState("");
+  const [linkedin, setLinkedinIcon] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
@@ -62,10 +63,10 @@ export function AppearanceTab() {
       if (profile.socialLinks) {
         try {
           const s = JSON.parse(profile.socialLinks);
-          setTwitter(s.twitter || "");
-          setGithub(s.github || "");
+          setXIcon(s.twitter || "");
+          setGithubIcon(s.github || "");
           setWebsite(s.website || "");
-          setLinkedin(s.linkedin || "");
+          setLinkedinIcon(s.linkedin || "");
         } catch {}
       }
     }
@@ -200,9 +201,9 @@ export function AppearanceTab() {
         <p className="text-xs text-muted-foreground mb-4">Show up on your space page.</p>
         <div className="space-y-3">
           {([
-            { Icon: Twitter, label: "X / Twitter", value: twitter, set: setTwitter, placeholder: "@username" },
-            { Icon: Github, label: "GitHub", value: github, set: setGithub, placeholder: "username" },
-            { Icon: Linkedin, label: "LinkedIn", value: linkedin, set: setLinkedin, placeholder: "username" },
+            { Icon: XIcon, label: "X / XIcon", value: twitter, set: setXIcon, placeholder: "@username" },
+            { Icon: GithubIcon, label: "GitHub", value: github, set: setGithubIcon, placeholder: "username" },
+            { Icon: LinkedinIcon, label: "LinkedIn", value: linkedin, set: setLinkedinIcon, placeholder: "username" },
             { Icon: Globe, label: "Website", value: website, set: setWebsite, placeholder: "https://yoursite.com" },
           ] as const).map(({ Icon, label, value, set, placeholder }) => (
             <div key={label} className="flex items-center gap-3">
