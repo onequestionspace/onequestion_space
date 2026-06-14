@@ -1,3 +1,7 @@
+// [unbreak alert] Local fix rules skipped. Compiler error trace:
+// app/api/knowledge/route.ts(49,7): error TS2353: Object literal may only specify known properties, and 'createdAt' does not exist in type '{ embeddings?: number[] | undefined; chunkIndex?: number | undefined; fileUrl?: string | undefined; fileType?: string | undefined; content: string; userId: string; title: string; }'.
+// app/api/upload/route.ts(37,41): error TS2339: Property 'create' does not exist on type '{ getKnowledgeByUserId: FunctionReference<"query", "public", { userId: string; }, { _id: Id<"knowledge">; _creationTime: number; embeddings?: number[] | undefined; chunkIndex?: number | undefined; ... 6 more ...; updatedAt: number; }[], string | undefined>; ... 4 more ...; getKnowledgeCount: FunctionReference<...>; }'.
+
 import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { ConvexHttpClient } from 'convex/browser';
@@ -46,8 +50,6 @@ export async function POST(request: NextRequest) {
       title,
       content,
       embeddings: embeddings.length > 0 ? embeddings : undefined,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
     });
 
     return NextResponse.json({ success: true, data: { id, title, content } }, { status: 201 });

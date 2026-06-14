@@ -34,9 +34,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Unsupported file type' }, { status: 400 });
     }
 
-    await convex.mutation(api.knowledge.create, {
+    await convex.mutation(api.knowledge.createKnowledge, {
       userId,
-      filename: file.name,
+      title: file.name,
       content,
       fileType,
     });
