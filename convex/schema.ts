@@ -9,6 +9,11 @@ export default defineSchema({
     bio: v.optional(v.string()),
     avatar: v.optional(v.string()),
     welcomeMessage: v.optional(v.string()),
+    themeColor: v.optional(v.string()),
+    themeBg: v.optional(v.string()),
+    themeFont: v.optional(v.string()),
+    themeCardStyle: v.optional(v.string()),
+    socialLinks: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })

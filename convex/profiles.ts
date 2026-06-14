@@ -88,6 +88,11 @@ export const update = mutation({
     bio: v.optional(v.string()),
     avatar: v.optional(v.string()),
     welcomeMessage: v.optional(v.string()),
+    themeColor: v.optional(v.string()),
+    themeBg: v.optional(v.string()),
+    themeFont: v.optional(v.string()),
+    themeCardStyle: v.optional(v.string()),
+    socialLinks: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -106,6 +111,11 @@ export const update = mutation({
       ...(args.bio !== undefined && { bio: args.bio }),
       ...(args.avatar !== undefined && { avatar: args.avatar }),
       ...(args.welcomeMessage !== undefined && { welcomeMessage: args.welcomeMessage }),
+      ...(args.themeColor !== undefined && { themeColor: args.themeColor }),
+      ...(args.themeBg !== undefined && { themeBg: args.themeBg }),
+      ...(args.themeFont !== undefined && { themeFont: args.themeFont }),
+      ...(args.themeCardStyle !== undefined && { themeCardStyle: args.themeCardStyle }),
+      ...(args.socialLinks !== undefined && { socialLinks: args.socialLinks }),
       updatedAt: Date.now(),
     });
 

@@ -4,14 +4,31 @@ import { useState, use, useRef, useEffect } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import {
-  Send, MessageCircle, Sparkles, Brain,
-  CheckCircle2, Share2, Copy, Check, TrendingUp
-} from 'lucide-react';
+import { Send, Brain, Sparkles, Copy, Check, Twitter, Github, Globe, Linkedin } from 'lucide-react';
+
+const BG_STYLES: Record<string, string> = {
+  dark: 'bg-zinc-900',
+  darker: 'bg-black',
+  midnight: 'bg-slate-950',
+  aurora: 'bg-gradient-to-br from-purple-950 to-blue-950',
+  sunset: 'bg-gradient-to-br from-orange-950 to-pink-950',
+  ocean: 'bg-gradient-to-br from-cyan-950 to-blue-950',
+};
+
+const FONT_STYLES: Record<string, string> = {
+  inter: 'font-sans',
+  mono: 'font-mono',
+  serif: 'font-serif',
+};
+
+const CARD_STYLES: Record<string, string> = {
+  glass: 'bg-white/5 backdrop-blur-xl border border-white/10',
+  solid: 'bg-zinc-900 border border-zinc-800',
+  minimal: 'bg-transparent',
+};
 
 export default function SpacePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = use(params);
-
   const [question, setQuestion] = useState('');
   const [aiResponse, setAiResponse] = useState('');
   const [isTyping, setIsTyping] = useState(false);
@@ -45,19 +62,16 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
     setSubmitted(true);
     setIsTyping(true);
     setAiResponse('');
-
     try {
       await createQuestion({ profileId: profile._id, question });
       await incrementQuestion({ profileId: profile._id });
-
       const res = await fetch('/api/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question, username }),
       });
       const data = await res.json();
-      const fullResponse = data?.data?.answer || data?.answer || 'I am thinking through your question. Please check back shortly.';
-
+      const fullResponse = data?.data?.answer || data?.answer || 'I am thinking through your question.';
       let current = '';
       const words = fullResponse.split(' ');
       for (let i = 0; i < words.length; i++) {
@@ -72,162 +86,119 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   };
 
   const copyLink = () => {
-    navigator.clipboard.writeText(`https://onequestion.space/${username}`);
+    navigator.clipboard.writeText('https://onequestion.space/' + username);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
 
-  if (profile === undefined) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-pulse text-muted-foreground">Loading...</div>
-      </div>
-    );
-  }
+  if (profile === undefined) return (
+    <div className='min-h-screen bg-black flex items-center justify-center'>
+      <div className='animate-pulse text-zinc-500'>Loading...</div>
+    </div>
+  );
 
-  if (profile === null) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-foreground mb-2">Space not found</h1>
-          <p className="text-muted-foreground">This space does not exist yet.</p>
-        </div>
+  if (profile === null) return (
+    <div className='min-h-screen bg-black flex items-center justify-center'>
+      <div className='text-center'>
+        <h1 className='text-2xl font-bold text-white mb-2'>Space not found</h1>
+        <p className='text-zinc-500'>This space does not exist yet.</p>
       </div>
-    );
-  }
+    </div>
+  );
 
+  const color = profile.themeColor || '#a855f7';
+  const bgClass = BG_STYLES[profile.themeBg || 'dark'];
+  const fontClass = FONT_STYLES[profile.themeFont || 'inter'];
+  const cardClass = CARD_STYLES[profile.themeCardStyle || 'glass'];
+  let social: Record<string, string> = {};
+  if (profile.socialLinks) { try { social = JSON.parse(profile.socialLinks); } catch {} }
   const initials = profile.displayName?.charAt(0)?.toUpperCase() || username.charAt(0).toUpperCase();
-  const welcomeMessage = profile.welcomeMessage || `Ask me anything about ${profile.displayName || username}.`;
+  const welcomeMessage = profile.welcomeMessage || 'Ask me anything about ' + (profile.displayName || username) + '.';
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="fixed inset-0 -z-10">
-        <div className="mesh-gradient opacity-30" />
-        <div className="dot-pattern" />
+    <div className={'min-h-screen ' + bgClass + ' ' + fontClass}>
+      <div className='fixed inset-0 -z-10 overflow-hidden pointer-events-none'>
+        <div className='absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full blur-[120px] opacity-20' style={{ backgroundColor: color }} />
       </div>
+      <div className='max-w-xl mx-auto px-4 py-16'>
 
-      <div className="max-w-2xl mx-auto px-4 py-16">
-
-        {/* Profile Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center mb-12"
-        >
-          {/* Avatar */}
-          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-primary via-pink to-accent flex items-center justify-center text-3xl font-bold text-white mx-auto mb-4 overflow-hidden ring-4 ring-primary/20">
-            {profile.avatar ? (
-              <img src={profile.avatar} alt={profile.displayName} className="w-full h-full object-cover" />
-            ) : initials}
+        <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className='text-center mb-10'>
+          <div className='w-24 h-24 rounded-full mx-auto mb-4 overflow-hidden flex items-center justify-center text-3xl font-bold text-white' style={{ background: profile.avatar ? undefined : color, boxShadow: '0 0 0 4px ' + color + '30' }}>
+            {profile.avatar ? <img src={profile.avatar} alt={profile.displayName} className='w-full h-full object-cover' /> : initials}
           </div>
+          <h1 className='text-2xl font-bold text-white mb-1'>{profile.displayName}</h1>
+          <p className='text-sm mb-3' style={{ color }}>{profile.username}</p>
+          {profile.bio && <p className='text-zinc-400 text-sm max-w-sm mx-auto mb-5 leading-relaxed'>{profile.bio}</p>}
 
-          <h1 className="text-2xl font-bold text-foreground mb-1">{profile.displayName}</h1>
-          <p className="text-sm text-primary mb-3">@{profile.username}</p>
-          {profile.bio && <p className="text-muted-foreground text-sm max-w-sm mx-auto mb-4">{profile.bio}</p>}
-
-          {/* Stats */}
-          {analytics && (
-            <div className="flex items-center justify-center gap-6 mb-4">
-              <div className="text-center">
-                <p className="text-lg font-bold text-foreground">{analytics.totalQuestions}</p>
-                <p className="text-xs text-muted-foreground">Questions</p>
-              </div>
-              <div className="w-px h-8 bg-border" />
-              <div className="text-center">
-                <p className="text-lg font-bold text-foreground">{analytics.totalVisitors}</p>
-                <p className="text-xs text-muted-foreground">Visitors</p>
-              </div>
-              {analytics.totalQuestions > 0 && (
-                <>
-                  <div className="w-px h-8 bg-border" />
-                  <div className="text-center">
-                    <p className="text-lg font-bold text-foreground">
-                      {Math.round((analytics.totalAnswers / analytics.totalQuestions) * 100)}%
-                    </p>
-                    <p className="text-xs text-muted-foreground">Response Rate</p>
-                  </div>
-                </>
-              )}
+          {(social.twitter || social.github || social.website || social.linkedin) && (
+            <div className='flex items-center justify-center gap-3 mb-5'>
+              {social.twitter && <a href={'https://twitter.com/' + social.twitter.replace('@','')} target='_blank' rel='noopener noreferrer' className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors'><Twitter className='w-3.5 h-3.5 text-white' /></a>}
+              {social.github && <a href={'https://github.com/' + social.github} target='_blank' rel='noopener noreferrer' className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors'><Github className='w-3.5 h-3.5 text-white' /></a>}
+              {social.linkedin && <a href={'https://linkedin.com/in/' + social.linkedin} target='_blank' rel='noopener noreferrer' className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors'><Linkedin className='w-3.5 h-3.5 text-white' /></a>}
+              {social.website && <a href={social.website} target='_blank' rel='noopener noreferrer' className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors'><Globe className='w-3.5 h-3.5 text-white' /></a>}
             </div>
           )}
 
-          {/* Share */}
-          <button
-            onClick={copyLink}
-            className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors"
-          >
-            {copied ? <Check className="w-3 h-3 text-green-500" /> : <Copy className="w-3 h-3" />}
-            {copied ? 'Link copied!' : 'Copy link'}
+          {analytics && (
+            <div className='flex items-center justify-center gap-6 mb-5'>
+              <div className='text-center'><p className='text-lg font-bold text-white'>{analytics.totalQuestions}</p><p className='text-xs text-zinc-500'>Questions</p></div>
+              <div className='w-px h-8 bg-white/10' />
+              <div className='text-center'><p className='text-lg font-bold text-white'>{analytics.totalVisitors}</p><p className='text-xs text-zinc-500'>Visitors</p></div>
+              {analytics.totalQuestions > 0 && (<>
+                <div className='w-px h-8 bg-white/10' />
+                <div className='text-center'><p className='text-lg font-bold text-white'>{Math.round((analytics.totalAnswers / analytics.totalQuestions) * 100)}%</p><p className='text-xs text-zinc-500'>Response Rate</p></div>
+              </>)}
+            </div>
+          )}
+          <button onClick={copyLink} className='inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors'>
+            {copied ? <Check className='w-3 h-3 text-green-500' /> : <Copy className='w-3 h-3' />}
+            {copied ? 'Copied!' : 'Copy link'}
           </button>
         </motion.div>
 
-        {/* Question Card */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="glass-card rounded-3xl p-8 border border-border mb-6"
-        >
-          {/* Welcome message */}
-          <div className="flex items-start gap-3 mb-6 p-4 rounded-2xl bg-primary/5 border border-primary/20">
-            <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
-              <Sparkles className="w-4 h-4 text-primary" />
+        <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className={'rounded-3xl p-8 mb-6 ' + cardClass}>
+          <div className='flex items-start gap-3 mb-6 p-4 rounded-2xl' style={{ backgroundColor: color + '15', border: '1px solid ' + color + '30' }}>
+            <div className='w-8 h-8 rounded-full flex items-center justify-center shrink-0' style={{ backgroundColor: color + '25' }}>
+              <Sparkles className='w-4 h-4' style={{ color }} />
             </div>
-            <p className="text-sm text-foreground leading-relaxed">{welcomeMessage}</p>
+            <p className='text-sm text-white/80 leading-relaxed'>{welcomeMessage}</p>
           </div>
 
-          <AnimatePresence mode="wait">
+          <AnimatePresence mode='wait'>
             {!submitted ? (
-              <motion.div key="form" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <textarea
-                  value={question}
-                  onChange={e => setQuestion(e.target.value)}
-                  placeholder="What would you like to know?"
-                  rows={4}
-                  className="w-full px-4 py-3 rounded-2xl bg-card border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none mb-4 text-sm"
-                  onKeyDown={e => { if (e.key === 'Enter' && e.metaKey) handleSubmit(); }}
-                />
-                <button
-                  onClick={handleSubmit}
-                  disabled={!question.trim()}
-                  className="w-full py-3 px-6 rounded-2xl bg-gradient-to-r from-primary to-pink text-white font-bold flex items-center justify-center gap-2 hover:shadow-glow-primary transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  <Send className="w-4 h-4" />
-                  Ask Question
+              <motion.div key='form' initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <textarea value={question} onChange={e => setQuestion(e.target.value)} placeholder='What would you like to know?' rows={4} className='w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-zinc-600 focus:outline-none resize-none mb-4 text-sm' onKeyDown={e => { if (e.key === 'Enter' && e.metaKey) handleSubmit(); }} />
+                <button onClick={handleSubmit} disabled={!question.trim()} className='w-full py-3 px-6 rounded-2xl text-white font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-40 hover:opacity-90' style={{ backgroundColor: color }}>
+                  <Send className='w-4 h-4' /> Ask Question
                 </button>
-                <p className="text-center text-xs text-muted-foreground mt-3">Press ⌘+Enter to submit</p>
+                <p className='text-center text-xs text-zinc-600 mt-3'>Press Cmd+Enter to submit</p>
               </motion.div>
             ) : (
-              <motion.div key="response" initial={{ opacity: 0 }} animate={{ opacity: 1 }} ref={responseRef}>
+              <motion.div key='response' initial={{ opacity: 0 }} animate={{ opacity: 1 }} ref={responseRef}>
                 {isTyping && !aiResponse && (
-                  <div className="flex items-center gap-3 p-4 rounded-2xl bg-card border border-border">
-                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
-                      <Brain className="w-4 h-4 text-primary" />
+                  <div className='flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10'>
+                    <div className='w-8 h-8 rounded-full flex items-center justify-center' style={{ backgroundColor: color + '25' }}>
+                      <Brain className='w-4 h-4' style={{ color }} />
                     </div>
-                    <div className="flex gap-1">
-                      <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '0ms' }} />
-                      <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '150ms' }} />
-                      <div className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{ animationDelay: '300ms' }} />
+                    <div className='flex gap-1'>
+                      {[0,150,300].map(d => <div key={d} className='w-2 h-2 rounded-full animate-bounce' style={{ backgroundColor: color, animationDelay: d + 'ms' }} />)}
                     </div>
                   </div>
                 )}
                 {aiResponse && (
-                  <div className="p-4 rounded-2xl bg-primary/5 border border-primary/20">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Brain className="w-4 h-4 text-primary" />
-                      <span className="text-xs font-medium text-primary">AI Response</span>
+                  <div className='p-4 rounded-2xl' style={{ backgroundColor: color + '10', border: '1px solid ' + color + '25' }}>
+                    <div className='flex items-center gap-2 mb-3'>
+                      <Brain className='w-4 h-4' style={{ color }} />
+                      <span className='text-xs font-medium' style={{ color }}>AI Response</span>
                     </div>
-                    <p className="text-sm text-foreground leading-relaxed">
+                    <p className='text-sm text-white/80 leading-relaxed'>
                       {aiResponse}
-                      {isTyping && <span className="inline-block w-1.5 h-4 ml-0.5 bg-primary animate-pulse rounded-sm" />}
+                      {isTyping && <span className='inline-block w-1.5 h-4 ml-0.5 animate-pulse rounded-sm' style={{ backgroundColor: color }} />}
                     </p>
                   </div>
                 )}
                 {!isTyping && aiResponse && (
-                  <button
-                    onClick={() => { setSubmitted(false); setAiResponse(''); setQuestion(''); }}
-                    className="w-full mt-4 py-2.5 rounded-2xl border border-border text-sm text-muted-foreground hover:text-foreground hover:bg-card transition-all"
-                  >
+                  <button onClick={() => { setSubmitted(false); setAiResponse(''); setQuestion(''); }} className='w-full mt-4 py-2.5 rounded-2xl border border-white/10 text-sm text-zinc-500 hover:text-white hover:bg-white/5 transition-all'>
                     Ask another question
                   </button>
                 )}
@@ -236,12 +207,9 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
           </AnimatePresence>
         </motion.div>
 
-        {/* Powered by */}
-        <p className="text-center text-xs text-muted-foreground">
+        <p className='text-center text-xs text-zinc-600'>
           Powered by{' '}
-          <a href="https://onequestion.space" className="text-primary hover:underline font-medium">
-            One Question
-          </a>
+          <a href='https://onequestion.space' className='hover:text-zinc-400 transition-colors font-medium' style={{ color }}>One Question</a>
         </p>
       </div>
     </div>

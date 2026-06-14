@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { AppearanceTab } from '@/components/AppearanceTab';
 import { redirect } from 'next/navigation';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { useQuery, useMutation } from 'convex/react';
@@ -267,8 +268,10 @@ export default function SettingsPage() {
             </div>
           )}
 
+          {activeTab === 'appearance' && <AppearanceTab />}
+
           {/* Coming soon tabs */}
-          {activeTab !== 'profile' && (
+          {activeTab !== 'profile' && activeTab !== 'appearance' && (
             <div className="glass-card rounded-2xl p-12 border border-border text-center">
               <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 {(() => { const T = tabs.find(t => t.id === activeTab)?.icon || Palette; return <T className="w-6 h-6 text-primary" />; })()}
