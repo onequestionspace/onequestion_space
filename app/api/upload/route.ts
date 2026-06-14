@@ -12,36 +12,35 @@ export async function POST(req: NextRequest) {
 
     const formData = await req.formData();
     const file = formData.get('file') as File;
-    
+    const type = formData.get('type') as string;
+
     if (!file) return NextResponse.json({ error: 'No file' }, { status: 400 });
 
     const fileType = file.type;
-    let content = '';
 
-    // Only parse text files with Gemini
-    if (fileType === 'text/plain') {
-      if (!process.env.GEMINI_API_KEY) {
-        return NextResponse.json({ error: 'GEMINI_API_KEY missing' }, { status: 500 });
-      }
-      content = await file.text();
-      // ... your Gemini processing here
-    } 
-    // Images/PDFs: skip Gemini, just store metadata
-    else if (fileType.startsWith('image/') || fileType === 'application/pdf') {
-      content = `[${fileType}] ${file.name} - ${file.size} bytes`;
-    } 
-    else {
-      return NextResponse.json({ error: 'Unsupported file type' }, { status: 400 });
+    // Handle avatar upload - convert to base64 data URL
+    if (type === 'avatar' || fileType.startsWith('image/')) {
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const base64 = buffer.toString('base64');
+      const dataUrl = 'data:' + fileType + ';base64,' + base64;
+      
+      return NextResponse.json({ success: true, url: dataUrl });
     }
 
-    await convex.mutation(api.knowledge.createKnowledge, {
-      userId,
-      title: file.name,
-      content,
-      fileType,
-    });
+    // Handle text file upload for knowledge base
+    if (fileType === 'text/plain') {
+      const content = await file.text();
+      await convex.mutation(api.knowledge.createKnowledge, {
+        userId,
+        title: file.name,
+        content,
+        fileType,
+      });
+      return NextResponse.json({ success: true });
+    }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ error: 'Unsupported file type' }, { status: 400 });
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
