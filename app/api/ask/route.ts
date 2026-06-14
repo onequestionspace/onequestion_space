@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { validateQuestion } from '@/lib/validations';
-import { generateEmbeddings, generateAnswer, cosineSimilarity } from '@/lib/gemini';
+import { generateEmbeddings, generateAnswer, cosineSimilarity, ProfileContext } from '@/lib/gemini';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
 
@@ -49,8 +49,14 @@ export async function POST(request: NextRequest) {
 
     const topChunks = scoredChunks.map(k => k.content);
 
-    // 4. Generate answer with Gemini using context
-    const answer = await generateAnswer(question, topChunks);
+    // 4. Generate answer with Gemini using context + profile personality
+    const profileContext: ProfileContext = {
+      displayName: profile.displayName,
+      bio: profile.bio,
+      welcomeMessage: profile.welcomeMessage,
+      username: profile.username,
+    };
+    const answer = await generateAnswer(question, topChunks, profileContext);
 
     // 5. Save question + answer to DB
     await convex.mutation(api.questions.createQuestion, {

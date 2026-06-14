@@ -32,27 +32,48 @@ export async function generateEmbeddings(content: string): Promise<number[]> {
   }
 }
 
-export async function generateAnswer(question: string, chunks: string[]): Promise<string> {
+export interface ProfileContext {
+  displayName?: string;
+  bio?: string;
+  welcomeMessage?: string;
+  username?: string;
+}
+
+export async function generateAnswer(question: string, chunks: string[], profile?: ProfileContext): Promise<string> {
   if (!GEMINI_API_KEY) return 'AI is not configured yet.';
   try {
     const context = chunks.length > 0
       ? chunks.join('\n\n---\n\n')
       : 'No knowledge base uploaded yet.';
 
-    const prompt = `You are a helpful AI assistant representing the owner of this page. Answer the question using ONLY the knowledge provided below. If the answer is not in the knowledge base say "I don't have information about that yet."
+    const name = profile?.displayName || profile?.username || 'the owner';
+    const bio = profile?.bio ? `Bio: ${profile.bio}` : '';
+    const tone = profile?.welcomeMessage ? `Tone guidance: ${profile.welcomeMessage}` : '';
+
+    const prompt = `You are an AI assistant for ${name}. Answer questions on their behalf using ONLY the knowledge base below.
+
+Rules:
+- Answer in 1-2 sentences maximum. Be direct and concise.
+- Never exceed 50 words.
+- If the answer is not in the knowledge base, say exactly: "I don't have information about that yet."
+- Do not make up information.
+- Speak as if you represent ${name} directly.
+${bio}
+${tone}
 
 Knowledge Base:
 ${context}
 
 Question: ${question}
 
-Answer concisely in 2-3 sentences:`;
+Answer (max 50 words):`;
 
     const res = await fetch(`${GEMINI_BASE}/${CHAT_MODEL}:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }]
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: { maxOutputTokens: 120, temperature: 0.3 }
       }),
     });
     const data = await res.json();
