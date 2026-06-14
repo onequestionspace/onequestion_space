@@ -69,13 +69,22 @@ export default function SettingsPage() {
     if (!file) return;
     setAvatarUploading(true);
     try {
-      const formData = new FormData();
-      formData.append('file', file);
-      formData.append('type', 'avatar');
-      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const base64 = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve((reader.result as string).split(',')[1]);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+      const res = await fetch('/api/avatar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ base64, mimeType: file.type }),
+      });
       const data = await res.json();
-      if (data.url) {
-        await updateProfile({ avatar: data.url });
+      if (data.dataUrl) {
+        await updateProfile({ avatar: data.dataUrl });
+      } else {
+        console.error('Avatar upload failed:', data.error);
       }
     } catch (e) { console.error(e); }
     setAvatarUploading(false);
