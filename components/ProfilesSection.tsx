@@ -35,7 +35,7 @@ export function ProfilesSection() {
         <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 leading-tight">
           Built for creators,
           <br />
-          <span className="gradient-text">founders and experts.</span>
+          <span className="text-white">founders and experts.</span>
         </h2>
         <p className="text-muted-foreground text-lg mb-12">
           Anyone who gets asked the same questions over and over needs a One Question space.

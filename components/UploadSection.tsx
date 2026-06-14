@@ -31,7 +31,7 @@ export function UploadSection() {
         <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 leading-tight">
           Upload once.
           <br />
-          <span className="gradient-text">Answer forever.</span>
+          <span className="text-white">Answer forever.</span>
         </h2>
         <p className="text-muted-foreground text-lg mb-12">
           Your knowledge does not disappear when you close your laptop. It lives in your space and works while you sleep.

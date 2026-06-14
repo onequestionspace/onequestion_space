@@ -16,7 +16,7 @@ export function ProfilePreview() {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            See It <span className="gradient-text-alt">In Action</span>
+            See It In Action
           </h2>
           <p className="text-xl text-muted-foreground">
             onequestion.space/<span className="text-primary">asym</span>

@@ -47,7 +47,7 @@ export function HowItWorks() {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            How It <span className="gradient-text">Works</span>
+            How It Works
           </h2>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
             Four simple steps to launch your AI-powered Q-Page

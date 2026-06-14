@@ -17,7 +17,7 @@ export function AnalyticsSection() {
         <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 leading-tight">
           Know exactly what
           <br />
-          <span className="gradient-text">people want to know.</span>
+          <span className="text-white">people want to know.</span>
         </h2>
         <p className="text-muted-foreground text-lg mb-12">
           Every question your visitors ask is tracked. See what your audience actually cares about and use that to create better content, products and offers.

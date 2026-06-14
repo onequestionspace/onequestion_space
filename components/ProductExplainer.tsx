@@ -26,7 +26,7 @@ export function ProductExplainer() {
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
-            What is <span className="gradient-text">One Question?</span>
+            What is One Question?
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
             Stop answering the same questions over and over. Create your space, upload your knowledge, and let AI handle it for you — 24/7.
