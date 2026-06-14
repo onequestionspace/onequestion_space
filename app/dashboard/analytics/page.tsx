@@ -36,7 +36,7 @@ export default function AnalyticsPage() {
   ];
 
   return (
-    <DashboardLayout>
+    <DashboardLayout title="Analytics">
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-2xl font-bold text-white mb-1">Analytics</h1>
