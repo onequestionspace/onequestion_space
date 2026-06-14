@@ -48,7 +48,13 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
 
   useEffect(() => {
     if (profile?._id) {
-      incrementVisitor({ profileId: profile._id }).catch(() => {});
+      const key = 'visited_' + profile._id;
+      const last = localStorage.getItem(key);
+      const now = Date.now();
+      if (!last || now - parseInt(last) > 86400000) {
+        incrementVisitor({ profileId: profile._id }).catch(() => {});
+        localStorage.setItem(key, now.toString());
+      }
     }
   }, [profile?._id]);
 
