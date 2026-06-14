@@ -15,6 +15,10 @@ export function Navbar() {
   const profile = useQuery(api.profiles.current);
   const { signOut } = useClerk();
   const pathname = usePathname();
+  const segments = pathname.split('/').filter(Boolean);
+  const reserved = ['dashboard','blog','pricing','contact','features','waitlist','onboarding','privacy','terms','sign-in','sign-up','api'];
+  const isSpacePage = segments.length === 1 && !reserved.includes(segments[0]);
+  if (isSpacePage) return null;
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
