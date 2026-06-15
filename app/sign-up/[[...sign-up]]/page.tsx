@@ -6,6 +6,17 @@ import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
 const clerkAppearance = {
+  variables: {
+    colorBackground: '#0f0f0f',
+    colorInputBackground: 'rgba(255,255,255,0.06)',
+    colorInputText: '#ffffff',
+    colorText: '#ffffff',
+    colorTextSecondary: '#a1a1aa',
+    colorPrimary: '#9333ea',
+    colorDanger: '#ef4444',
+    borderRadius: '0.75rem',
+    fontFamily: 'inherit',
+  },
   elements: {
     formButtonPrimary: "!bg-gradient-to-r !from-purple-600 !to-rose-500 !text-white !font-bold !text-sm !rounded-xl !py-3 !border-0 hover:!opacity-90 !transition-all",
     card: "!bg-transparent !shadow-none !border-none !p-0",
