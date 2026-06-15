@@ -37,7 +37,7 @@ const clerkAppearance = {
     otpCodeFieldInput: "!bg-white/8 !border !border-white/15 !text-white !rounded-xl",
     alertText: "!text-red-400",
     formFieldErrorText: "!text-red-400 !text-xs",
-    rootBox: "!w-full",
+    rootBox: "!w-full !max-w-full !overflow-hidden",
     form: "!gap-4",
   },
   layout: {

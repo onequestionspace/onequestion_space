@@ -9,7 +9,7 @@ export function AuthLayout({ children, title, subtitle }: {
   subtitle: string
 }) {
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-5 py-8 relative overflow-hidden w-full">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-8 relative overflow-x-hidden w-screen">
 
       {/* Background glows */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
