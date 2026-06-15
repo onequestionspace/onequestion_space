@@ -5,6 +5,34 @@ import { AuthLayout } from "@/components/AuthLayout";
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 
+const clerkAppearance = {
+  elements: {
+    formButtonPrimary: "!bg-gradient-to-r !from-purple-600 !to-rose-500 !text-white !font-bold !text-sm !rounded-xl !py-3 !border-0 hover:!opacity-90 !transition-all",
+    card: "!bg-transparent !shadow-none !border-none !p-0",
+    headerTitle: "!hidden",
+    headerSubtitle: "!hidden",
+    socialButtonsBlockButton: "!bg-white/8 !border !border-white/15 !text-white !rounded-xl !font-medium hover:!bg-white/15 !transition-all",
+    socialButtonsBlockButtonText: "!text-white !font-medium",
+    footerActionLink: "!text-purple-400 hover:!text-purple-300",
+    footerActionText: "!text-zinc-400",
+    formFieldInput: "!bg-white/8 !border !border-white/15 !text-white !rounded-xl !py-3 !px-4 focus:!border-purple-500/60 focus:!ring-2 focus:!ring-purple-500/20 !transition-all placeholder:!text-zinc-500",
+    formFieldLabel: "!text-zinc-300 !font-medium !text-sm",
+    dividerLine: "!bg-white/10",
+    dividerText: "!text-zinc-500 !text-xs",
+    identityPreviewText: "!text-white",
+    identityPreviewEditButton: "!text-purple-400",
+    formResendCodeLink: "!text-purple-400",
+    otpCodeFieldInput: "!bg-white/8 !border !border-white/15 !text-white !rounded-xl",
+    alertText: "!text-red-400",
+    formFieldErrorText: "!text-red-400 !text-xs",
+    rootBox: "!w-full",
+    form: "!gap-4",
+  },
+  layout: {
+    socialButtonsPlacement: 'top',
+  }
+};
+
 function SignUpContent() {
   const searchParams = useSearchParams();
   const username = searchParams.get('username') || '';
@@ -15,29 +43,16 @@ function SignUpContent() {
       subtitle={username ? 'Claiming onequestion.space/' + username : 'Join the future of knowledge sharing'}
     >
       {username && (
-        <div className="glass rounded-2xl p-4 border border-primary/30 mb-4 text-center">
-          <p className="text-xs text-muted-foreground mb-1">Your space will be</p>
-          <p className="text-primary font-bold">onequestion.space/{username}</p>
+        <div className="rounded-2xl p-4 border border-purple-500/30 bg-purple-500/10 mb-4 text-center">
+          <p className="text-xs text-zinc-400 mb-1">Your space will be</p>
+          <p className="text-purple-400 font-bold">onequestion.space/{username}</p>
         </div>
       )}
-      <div className="flex justify-center">
+      <div className="flex justify-center w-full">
         <SignUp
           forceRedirectUrl={username ? '/onboarding?username=' + username : '/onboarding'}
           signInForceRedirectUrl="/dashboard"
-          appearance={{
-            elements: {
-              formButtonPrimary: "bg-primary hover:bg-primary/90 text-sm font-bold",
-              card: "bg-transparent shadow-none border-none p-0",
-              headerTitle: "hidden",
-              headerSubtitle: "hidden",
-              socialButtonsBlockButton: "bg-card border-border text-foreground hover:bg-muted/50",
-              footerActionLink: "text-primary hover:text-pink",
-              formFieldInput: "bg-card border-border text-foreground focus:ring-primary",
-              formFieldLabel: "text-foreground font-medium",
-              dividerLine: "bg-border",
-              dividerText: "text-muted-foreground",
-            }
-          }}
+          appearance={clerkAppearance}
         />
       </div>
     </AuthLayout>

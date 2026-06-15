@@ -2,11 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 :root {
-  --primary: #a855f7;
-  --primary-light: #c084fc;
+  --primary: #9333ea;
+  --primary-light: #a855f7;
   --accent-red: #ef4444;
   --accent-yellow: #facc15;
-  --accent-pink: #ec4899;
+  --accent-pink: #e879f9;
   --muted: #27272a;
   --muted-foreground: #a1a1aa;
 }
@@ -107,7 +107,7 @@ html {
 
 /* Gradient text */
 .gradient-text {
-  background: linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #ef4444 100%);
+  background: linear-gradient(135deg, #9333ea 0%, #e879f9 50%, #f43f5e 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -129,7 +129,7 @@ html {
 
 /* Button hover animations */
 .btn-primary {
-  background: linear-gradient(135deg, #a855f7 0%, #ec4899 100%);
+  background: linear-gradient(135deg, #9333ea 0%, #f43f5e 100%);
   transition: all 0.3s ease;
 }
 
@@ -247,4 +247,18 @@ html {
   height: 80px;
   margin: -40px 0;
   pointer-events: none;
+}
+
+/* Warmer glow effects */
+.glow-primary {
+  box-shadow: 0 0 30px rgba(147, 51, 234, 0.5);
+}
+.shadow-glow {
+  box-shadow: 0 0 20px rgba(147, 51, 234, 0.4);
+}
+.shadow-glow-lg {
+  box-shadow: 0 0 40px rgba(147, 51, 234, 0.5), 0 0 80px rgba(232, 121, 249, 0.2);
+}
+.bg-gradient-primary {
+  background: linear-gradient(135deg, #9333ea 0%, #f43f5e 100%);
 }

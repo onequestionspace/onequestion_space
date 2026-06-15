@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
@@ -25,6 +25,7 @@ const MOTIVATIONAL = [
 export default function OnboardingPage() {
   const { isSignedIn, isLoaded, user } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
   const [launched, setLaunched] = useState(false);
@@ -44,13 +45,19 @@ export default function OnboardingPage() {
 
   useEffect(() => {
     if (user) {
+      const urlUsername = searchParams.get('username') || '';
+      const fallbackUsername = user.username || user.emailAddresses?.[0]?.emailAddress?.split('@')[0]?.toLowerCase().replace(/[^a-z0-9_]/g, '') || '';
       setTimeout(() => setForm(prev => ({
         ...prev,
         displayName: user.fullName || user.firstName || '',
-        username: user.username || user.emailAddresses?.[0]?.emailAddress?.split('@')[0]?.toLowerCase().replace(/[^a-z0-9_]/g, '') || '',
+        username: urlUsername || fallbackUsername,
       })), 0);
+      // Auto-check username availability if from URL
+      if (urlUsername) {
+        setTimeout(() => checkUsername(urlUsername), 500);
+      }
     }
-  }, [user]);
+  }, [user, searchParams]);
 
   useEffect(() => {
     if (profile && profile.bio) {
