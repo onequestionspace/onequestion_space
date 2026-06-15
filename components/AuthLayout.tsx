@@ -21,7 +21,7 @@ export function AuthLayout({ children, title, subtitle }: {
       <div className="absolute top-1/4 -left-20 w-64 h-64 bg-purple-600/15 rounded-full blur-3xl animate-pulse" />
       <div className="absolute bottom-1/4 -right-20 w-64 h-64 bg-fuchsia-500/10 rounded-full blur-3xl animate-pulse" />
 
-      <div className="w-full max-w-md space-y-6 relative z-10">
+      <div className="w-full max-w-md space-y-6 relative z-10 mx-auto">
 
         {/* Back + Logo */}
         <div className="flex flex-col items-center">
@@ -41,7 +41,7 @@ export function AuthLayout({ children, title, subtitle }: {
         </div>
 
         {/* Card */}
-        <div className="relative rounded-3xl p-8 border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl overflow-hidden">
+        <div className="relative rounded-3xl p-8 border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl overflow-hidden w-full">
           <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
             <Sparkles className="w-16 h-16 text-purple-400" />
           </div>

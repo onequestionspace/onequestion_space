@@ -64,6 +64,7 @@ function SignUpContent() {
         <SignUp
           forceRedirectUrl={username ? '/onboarding?username=' + username : '/onboarding'}
           signInForceRedirectUrl="/dashboard"
+          signInUrl="/sign-in"
           appearance={clerkAppearance}
         />
       </div>

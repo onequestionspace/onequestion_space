@@ -53,6 +53,7 @@ export default function SignInPage() {
         <SignIn
           forceRedirectUrl="/dashboard"
           signUpForceRedirectUrl="/dashboard"
+          signUpUrl="/sign-up"
           appearance={clerkAppearance}
         />
       </div>
