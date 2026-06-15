@@ -10,6 +10,7 @@ const clerkAppearance = {
     colorBackground: '#0f0f0f',
     colorInputBackground: 'rgba(255,255,255,0.06)',
     colorInputText: '#ffffff',
+    colorNeutral: '#ffffff',
     colorText: '#ffffff',
     colorTextSecondary: '#a1a1aa',
     colorPrimary: '#9333ea',
