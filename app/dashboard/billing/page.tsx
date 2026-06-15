@@ -1,6 +1,8 @@
 'use client';
+import { Suspense } from 'react';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { redirect } from 'next/navigation';
 import { DashboardLayout } from '@/components/DashboardLayout';
@@ -38,10 +40,28 @@ const CREDIT_PACKS = [
   { credits: 1000, label: 'Power Pack' },
 ];
 
-export default function BillingPage() {
+function BillingContent() {
   const { isSignedIn, isLoaded, userId } = useAuth();
   const [creditAmount, setCreditAmount] = useState(100);
   const [loading, setLoading] = useState('');
+  const [verifyStatus, setVerifyStatus] = useState('');
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const reference = searchParams.get('reference');
+    if (!reference) return;
+    setVerifyStatus('verifying');
+    fetch('/api/paystack/verify?reference=' + reference)
+      .then(r => r.json())
+      .then(data => {
+        if (data.success && data.data?.status === 'success') {
+          setVerifyStatus('success');
+        } else {
+          setVerifyStatus('failed');
+        }
+      })
+      .catch(() => setVerifyStatus('failed'));
+  }, [searchParams]);
 
   const subscription = useQuery(api.subscriptions.getSubscription, userId ? { userId } : 'skip');
 
@@ -99,6 +119,21 @@ export default function BillingPage() {
   return (
     <DashboardLayout title='Billing' description='Manage your plan and credits.'>
       <div className='max-w-3xl mx-auto space-y-8'>
+        {verifyStatus === 'verifying' && (
+          <div className='p-4 rounded-xl bg-primary/10 border border-primary/20 text-sm text-primary flex items-center gap-2'>
+            <Loader2 className='w-4 h-4 animate-spin' /> Verifying your payment...
+          </div>
+        )}
+        {verifyStatus === 'success' && (
+          <div className='p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-sm text-green-400 flex items-center gap-2'>
+            <Check className='w-4 h-4' /> Payment successful! Your credits have been added.
+          </div>
+        )}
+        {verifyStatus === 'failed' && (
+          <div className='p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400'>
+            Payment verification failed. Contact support if you were charged.
+          </div>
+        )}
 
         {/* Current usage */}
         <div className='glass-card rounded-2xl p-6 border border-border'>
@@ -237,5 +272,13 @@ export default function BillingPage() {
         </div>
       </div>
     </DashboardLayout>
+  );
+}
+
+export default function BillingPage() {
+  return (
+    <Suspense fallback={<div className='min-h-screen flex items-center justify-center text-muted-foreground'>Loading...</div>}>
+      <BillingContent />
+    </Suspense>
   );
 }
