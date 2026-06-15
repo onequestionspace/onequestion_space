@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, Suspense } from 'react';
+import { useState, useEffect, Suspense, useRef, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useMutation, useQuery } from 'convex/react';
@@ -62,16 +62,21 @@ function OnboardingContent() {
     }
   }, [profile, router]);
 
-  const checkUsername = async (val) => {
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const checkUsername = useCallback((val: string) => {
     if (!val || val.length < 3) { setUsernameAvailable(null); return; }
+    if (debounceRef.current) clearTimeout(debounceRef.current);
     setChecking(true);
-    try {
-      const res = await fetch('/api/check-username?username=' + val);
-      const data = await res.json();
-      setUsernameAvailable(data.available);
-    } catch { setUsernameAvailable(null); }
-    setChecking(false);
-  };
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch('/api/check-username?username=' + val);
+        const data = await res.json();
+        setUsernameAvailable(data.available);
+      } catch { setUsernameAvailable(null); }
+      setChecking(false);
+    }, 400);
+  }, []);
 
   const handleNext = async () => {
     if (step < steps.length - 1) {
@@ -255,6 +260,27 @@ function OnboardingContent() {
                   <p className="text-xs text-primary mb-1">Preview</p>
                   <p className="text-sm text-white">{form.welcomeMessage || 'Ask me anything about building in public!'}</p>
                 </div>
+              </div>
+            )}
+
+            {/* Live space preview — shown on last step */}
+            {step === steps.length - 1 && (
+              <div className='mt-6 p-4 rounded-2xl bg-white/5 border border-white/10'>
+                <p className='text-xs text-muted-foreground mb-3 flex items-center gap-1'><Sparkles className='w-3 h-3 text-primary' /> Live preview</p>
+                <div className='flex items-center gap-3'>
+                  <div className='w-10 h-10 rounded-full bg-gradient-to-br from-primary to-pink flex items-center justify-center text-white font-bold text-sm shrink-0'>
+                    {form.displayName?.charAt(0)?.toUpperCase() || '?'}
+                  </div>
+                  <div>
+                    <p className='text-sm font-bold text-white'>{form.displayName || 'Your Name'}</p>
+                    <p className='text-xs text-primary'>@{form.username || 'yourname'}</p>
+                  </div>
+                </div>
+                {form.bio && <p className='text-xs text-zinc-400 mt-2 leading-relaxed'>{form.bio}</p>}
+                <div className='mt-3 p-3 rounded-xl bg-primary/10 border border-primary/20'>
+                  <p className='text-xs text-white/70'>{form.welcomeMessage || 'Ask me anything!'}</p>
+                </div>
+                <p className='text-xs text-zinc-600 mt-3 text-center'>onequestion.space/{form.username}</p>
               </div>
             )}
 
