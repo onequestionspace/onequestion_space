@@ -1,15 +1,42 @@
 'use client';
 
-export function ProblemSection() {
-  const problems = [
-    { text: 'What do you do?' },
-    { text: 'How can I work with you?' },
-    { text: 'What are your prices?' },
-    { text: 'How do I contact you?' },
-    { text: 'What do you offer?' },
-    { text: 'Can you explain what you do?' },
-  ];
+import { useEffect, useState } from 'react';
 
+const problems = [
+  'What do you do?',
+  'How can I work with you?',
+  'What are your prices?',
+  'How do I contact you?',
+  'What do you offer?',
+  'Can you explain what you do?',
+];
+
+function FloatingCard({ text, delay }: { text: string; delay: number }) {
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setVisible(true), delay);
+    return () => clearTimeout(t);
+  }, [delay]);
+
+  return (
+    <div
+      className="glass rounded-2xl px-4 py-4 border border-white/8 text-left group hover:border-primary/30 transition-all duration-500"
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0) scale(1)' : 'translateY(16px) scale(0.97)',
+        transition: `opacity 0.6s cubic-bezier(0.22,1,0.36,1) ${delay}ms, transform 0.6s cubic-bezier(0.22,1,0.36,1) ${delay}ms`,
+      }}
+    >
+      <div className="flex items-center gap-3">
+        <div className="w-2 h-2 rounded-full bg-primary/60 shrink-0 animate-pulse" />
+        <p className="text-sm text-muted-foreground group-hover:text-white/80 transition-colors leading-snug">{text}</p>
+      </div>
+    </div>
+  );
+}
+
+export function ProblemSection() {
   return (
     <section className="relative py-24 overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(239,68,68,0.04),transparent_70%)]" />
@@ -26,16 +53,8 @@ export function ProblemSection() {
         </p>
 
         <div className="grid grid-cols-2 gap-3 mb-12">
-          {problems.map((p, i) => (
-            <div
-              key={i}
-              className="glass rounded-2xl px-4 py-4 border border-white/8 text-left group hover:border-red-500/30 transition-all duration-300"
-              style={{
-                opacity: 0.5 + i * 0.1,
-              }}
-            >
-              <p className="text-sm text-muted-foreground group-hover:text-white/80 transition-colors leading-snug">{p.text}</p>
-            </div>
+          {problems.map((text, i) => (
+            <FloatingCard key={i} text={text} delay={i * 120} />
           ))}
         </div>
 
