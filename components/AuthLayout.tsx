@@ -9,7 +9,7 @@ export function AuthLayout({ children, title, subtitle }: {
   subtitle: string
 }) {
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-5 py-8 relative overflow-hidden w-full">
 
       {/* Background glows */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
@@ -21,7 +21,7 @@ export function AuthLayout({ children, title, subtitle }: {
       <div className="absolute top-1/4 -left-20 w-64 h-64 bg-purple-600/15 rounded-full blur-3xl animate-pulse" />
       <div className="absolute bottom-1/4 -right-20 w-64 h-64 bg-fuchsia-500/10 rounded-full blur-3xl animate-pulse" />
 
-      <div className="w-full max-w-md space-y-6 relative z-10 mx-auto">
+      <div className="w-full max-w-md space-y-6 relative z-10 mx-auto self-center">
 
         {/* Back + Logo */}
         <div className="flex flex-col items-center">
