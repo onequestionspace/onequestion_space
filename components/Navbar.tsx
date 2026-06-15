@@ -42,8 +42,8 @@ export function Navbar() {
 
   const navLinks = [
     { name: 'Pricing', href: '/pricing' },
-    { name: 'Waitlist', href: '/waitlist' },
     { name: 'Blog', href: '/blog' },
+    { name: 'Contact', href: '/contact' },
   ];
 
   return (

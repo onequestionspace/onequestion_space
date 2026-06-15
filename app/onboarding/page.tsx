@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useMutation, useQuery } from 'convex/react';
@@ -22,7 +22,7 @@ const MOTIVATIONAL = [
   'One last thing and you are live.',
 ];
 
-export default function OnboardingPage() {
+function OnboardingContent() {
   const { isSignedIn, isLoaded, user } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -292,5 +292,12 @@ export default function OnboardingPage() {
         </div>
       </div>
     </div>
+  );
+}
+export default function OnboardingPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center"><div className="animate-pulse text-zinc-500">Loading...</div></div>}>
+      <OnboardingContent />
+    </Suspense>
   );
 }

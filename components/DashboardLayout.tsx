@@ -4,13 +4,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import {
-  LayoutDashboard,
-  User,
-  Settings,
-  ChevronDown,
-  Menu,
-  X,
-  ArrowLeft
+  LayoutDashboard, Brain, BarChart3,
+  Settings, Menu, X, ArrowLeft,
+  MessageSquare, CreditCard, User
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -19,98 +15,96 @@ interface DashboardLayoutProps {
   description?: string;
 }
 
-const settingsSubItems = [
-  { label: 'General', href: '/dashboard/settings' },
-  { label: 'Billing', href: '/dashboard/billing' },
+const navItems = [
+  { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Knowledge', href: '/dashboard/knowledge', icon: Brain },
+  { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
+  { label: 'Profile', href: '/dashboard/profile', icon: User },
+  { label: 'Settings', href: '/dashboard/settings', icon: Settings },
+  { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
 ];
 
 export function DashboardLayout({ children, title, description }: DashboardLayoutProps) {
   const pathname = usePathname();
   const [isOpen, setIsOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const closeMenu = () => setIsOpen(false);
-  const isSettingsActive = pathname.startsWith('/dashboard/settings') || pathname.startsWith('/dashboard/billing');
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="fixed inset-0 -z-10">
-        <div className="mesh-gradient opacity-50" />
-        <div className="dot-pattern" />
+      {/* Background */}
+      <div className="fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(147,51,234,0.12),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(232,121,249,0.08),transparent_50%)]" />
+        <div className="absolute inset-0 dot-pattern opacity-20" />
       </div>
 
-      {/* Solid black hamburger with pink/purple */}
+      {/* Mobile hamburger */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="lg:hidden fixed top-4 right-4 z-50 p-3 bg-black border-pink/40 rounded-xl shadow-lg shadow-pink/20"
+        className="lg:hidden fixed top-4 right-4 z-50 p-2.5 bg-zinc-900 border border-white/10 rounded-xl shadow-lg"
       >
-        {isOpen? <X className="w-6 h-6 text-pink" /> : <Menu className="w-6 h-6 text-purple" />}
+        {isOpen
+          ? <X className="w-5 h-5 text-white" />
+          : <Menu className="w-5 h-5 text-white" />
+        }
       </button>
 
-      {/* Solid black sidebar */}
-      <aside className={`fixed left-0 top-0 h-full w-64 bg-black border-r border-pink/20 p-6 z-40 transform transition-transform duration-200 ${
-        isOpen? 'translate-x-0' : '-translate-x-full'
+      {/* Sidebar */}
+      <aside className={`fixed left-0 top-0 h-full w-64 bg-zinc-950/95 border-r border-white/8 backdrop-blur-xl p-6 z-40 transform transition-transform duration-200 ${
+        isOpen ? 'translate-x-0' : '-translate-x-full'
       } lg:translate-x-0`}>
-        <Link href="/" onClick={closeMenu} className="flex items-center gap-2 mb-10">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-pink" />
-          <span className="text-xl font-bold text-foreground">OneQuestion</span>
+
+        {/* Logo */}
+        <Link href="/" onClick={closeMenu} className="flex items-center gap-2.5 mb-10">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-purple-600 to-fuchsia-500 flex items-center justify-center">
+            <MessageSquare className="w-4 h-4 text-white" />
+          </div>
+          <span className="text-sm font-bold text-white">One Question</span>
         </Link>
 
-        <nav className="space-y-2">
-          <div className="hidden lg:block">
-            <Link href="/dashboard" className={`flex items-center gap-3 px-4 py-3 rounded-xl ${pathname === '/dashboard' ? 'bg-gradient-to-r from-primary/20 to-pink/20 text-primary font-medium border-primary/30' : 'text-muted-foreground hover:text-foreground hover:bg-card'}`}>
-              <LayoutDashboard className="w-5 h-5" />
-              Dashboard
-            </Link>
-          </div>
-
-          <div className="lg:hidden space-y-2">
-            <Link href="/dashboard" onClick={closeMenu} className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-card">
-              <LayoutDashboard className="w-5 h-5" />
-              Dashboard
-            </Link>
-
-            <Link href="/dashboard/profile" onClick={closeMenu} className="flex items-center gap-3 px-4 py-3 rounded-xl text-muted-foreground hover:text-foreground hover:bg-card">
-              <User className="w-5 h-5" />
-              Profile
-            </Link>
-
-            <div>
-              <button onClick={() => setSettingsOpen(!settingsOpen)} className={`w-full flex items-center justify-between gap-3 px-4 py-3 rounded-xl ${isSettingsActive ? 'text-primary font-medium' : 'text-muted-foreground hover:text-foreground hover:bg-card'}`}>
-                <div className="flex items-center gap-3">
-                  <Settings className="w-5 h-5" />
-                  Settings
-                </div>
-                <ChevronDown className={`w-4 h-4 transition-transform ${settingsOpen? 'rotate-180' : ''}`} />
-              </button>
-
-              {settingsOpen && (
-                <div className="ml-11 mt-1 space-y-1">
-                  {settingsSubItems.map((item) => (
-                    <Link key={item.href} href={item.href} onClick={closeMenu} className={`block px-3 py-2 text-sm rounded-lg ${pathname === item.href ? 'text-primary font-medium' : 'text-muted-foreground hover:text-foreground'}`}>
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
+        {/* Nav */}
+        <nav className="space-y-1">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={closeMenu}
+                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                  isActive
+                    ? 'bg-purple-600/20 text-purple-400 border border-purple-500/20'
+                    : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                }`}
+              >
+                <item.icon className={`w-4 h-4 ${isActive ? 'text-purple-400' : 'text-zinc-500'}`} />
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
 
-        <div className="absolute bottom-6 left-6 right-6">
-          <Link href="/" onClick={closeMenu} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
-            <ArrowLeft className="w-4 h-4" />
+        {/* Bottom */}
+        <div className="absolute bottom-6 left-6 right-6 space-y-3">
+          <div className="h-px bg-white/8" />
+          <Link href="/" onClick={closeMenu} className="flex items-center gap-2 text-xs text-zinc-500 hover:text-white transition-colors">
+            <ArrowLeft className="w-3.5 h-3.5" />
             Back to Home
           </Link>
         </div>
       </aside>
 
-      {isOpen && <div className="lg:hidden fixed inset-0 bg-black/40 z-30" onClick={closeMenu} />}
+      {/* Overlay */}
+      {isOpen && (
+        <div className="lg:hidden fixed inset-0 bg-black/60 z-30 backdrop-blur-sm" onClick={closeMenu} />
+      )}
 
-      <main className="lg:pl-64 pt-20 lg:pt-0 p-6 lg:p-10">
+      {/* Main content */}
+      <main className="lg:pl-64 pt-16 lg:pt-0 p-4 lg:p-10">
         <div className="max-w-6xl mx-auto">
-          <div className="mb-10">
-            <h1 className="text-3xl font-bold text-foreground mb-2">{title}</h1>
-            {description && <p className="text-muted-foreground">{description}</p>}
+          <div className="mb-8">
+            <h1 className="text-2xl lg:text-3xl font-bold text-white mb-1">{title}</h1>
+            {description && <p className="text-zinc-400 text-sm">{description}</p>}
           </div>
           {children}
         </div>
