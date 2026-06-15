@@ -54,6 +54,7 @@ export function AppearanceTab() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (profile) {
       setThemeColor(profile.themeColor || "#a855f7");

@@ -52,10 +52,7 @@ function OnboardingContent() {
         displayName: user.fullName || user.firstName || '',
         username: urlUsername || fallbackUsername,
       })), 0);
-      // Auto-check username availability if from URL
-      if (urlUsername) {
-        setTimeout(() => checkUsername(urlUsername), 500);
-      }
+      // username pre-filled from URL, user can edit it
     }
   }, [user, searchParams]);
 

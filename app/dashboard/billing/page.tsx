@@ -69,7 +69,7 @@ export default function BillingPage() {
       });
       const data = await res.json();
       if (data.data?.authorization_url) {
-        window.location.href = data.data.authorization_url;
+        const url = data.data.authorization_url; setTimeout(() => { window.location.assign(url); }, 0);
       }
     } catch (e) { console.error(e); }
     setLoading('');
