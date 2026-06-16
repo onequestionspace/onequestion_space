@@ -41,7 +41,7 @@ export function AuthLayout({ children, title, subtitle }: {
         </div>
 
         {/* Card */}
-        <div className="relative rounded-3xl p-8 border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl overflow-hidden w-full">
+        <div className="relative rounded-3xl p-4 sm:p-8 border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl w-full">
           <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
             <Sparkles className="w-16 h-16 text-purple-400" />
           </div>

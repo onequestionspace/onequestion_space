@@ -4,8 +4,7 @@ import { useState, use, useRef, useEffect } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Brain, Sparkles, Copy, Check, Globe } from 'lucide-react';
-import { FaXTwitter as XIcon, FaGithub as GithubIcon, FaLinkedin as LinkedinIcon } from 'react-icons/fa6';
+import { Send, Brain, Sparkles, Copy, Check, Twitter, Github, Globe, Linkedin } from 'lucide-react';
 
 const BG_STYLES: Record<string, string> = {
   dark: 'bg-zinc-900',
@@ -128,7 +127,6 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
         <div className='absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full blur-[120px] opacity-20' style={{ backgroundColor: color }} />
       </div>
       <div className='max-w-xl mx-auto px-4 py-16'>
-
         <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className='text-center mb-10'>
           <div className='w-24 h-24 rounded-full mx-auto mb-4 overflow-hidden flex items-center justify-center text-3xl font-bold text-white' style={{ background: profile.avatar ? undefined : color, boxShadow: '0 0 0 4px ' + color + '30' }}>
             {profile.avatar ? <img src={profile.avatar} alt={profile.displayName} className='w-full h-full object-cover' /> : initials}
@@ -136,16 +134,14 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
           <h1 className='text-2xl font-bold text-white mb-1'>{profile.displayName}</h1>
           <p className='text-sm mb-3' style={{ color }}>{profile.username}</p>
           {profile.bio && <p className='text-zinc-400 text-sm max-w-sm mx-auto mb-5 leading-relaxed'>{profile.bio}</p>}
-
           {(social.twitter || social.github || social.website || social.linkedin) && (
             <div className='flex items-center justify-center gap-3 mb-5'>
-              {social.twitter && <a href={'https://twitter.com/' + social.twitter.replace('@','')} target='_blank' rel='noopener noreferrer' className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors'><XIcon className='w-3.5 h-3.5 text-white' /></a>}
-              {social.github && <a href={'https://github.com/' + social.github} target='_blank' rel='noopener noreferrer' className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors'><GithubIcon className='w-3.5 h-3.5 text-white' /></a>}
-              {social.linkedin && <a href={'https://linkedin.com/in/' + social.linkedin} target='_blank' rel='noopener noreferrer' className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors'><LinkedinIcon className='w-3.5 h-3.5 text-white' /></a>}
+              {social.twitter && <a href={'https://twitter.com/' + social.twitter.replace('@','')} target='_blank' rel='noopener noreferrer' className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors text-white text-xs font-bold'>X</a>}
+              {social.github && <a href={'https://github.com/' + social.github} target='_blank' rel='noopener noreferrer' className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors text-white text-xs font-bold'>GH</a>}
+              {social.linkedin && <a href={'https://linkedin.com/in/' + social.linkedin} target='_blank' rel='noopener noreferrer' className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors text-white text-xs font-bold'>in</a>}
               {social.website && <a href={social.website} target='_blank' rel='noopener noreferrer' className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors'><Globe className='w-3.5 h-3.5 text-white' /></a>}
             </div>
           )}
-
           {analytics && (
             <div className='flex items-center justify-center gap-6 mb-5'>
               <div className='text-center'><p className='text-lg font-bold text-white'>{analytics.totalQuestions}</p><p className='text-xs text-zinc-500'>Questions</p></div>
@@ -162,7 +158,6 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
             {copied ? 'Copied!' : 'Copy link'}
           </button>
         </motion.div>
-
         <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className={'rounded-3xl p-8 mb-6 ' + cardClass}>
           <div className='flex items-start gap-3 mb-6 p-4 rounded-2xl' style={{ backgroundColor: color + '15', border: '1px solid ' + color + '30' }}>
             <div className='w-8 h-8 rounded-full flex items-center justify-center shrink-0' style={{ backgroundColor: color + '25' }}>
@@ -170,7 +165,6 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
             </div>
             <p className='text-sm text-white/80 leading-relaxed'>{welcomeMessage}</p>
           </div>
-
           <AnimatePresence mode='wait'>
             {!submitted ? (
               <motion.div key='form' initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -213,7 +207,6 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
             )}
           </AnimatePresence>
         </motion.div>
-
         <p className='text-center text-xs text-zinc-600'>
           Powered by{' '}
           <a href='https://onequestion.space' className='hover:text-zinc-400 transition-colors font-medium' style={{ color }}>One Question</a>
