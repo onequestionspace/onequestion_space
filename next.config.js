@@ -17,10 +17,6 @@ const nextConfig = {
           source: '/.well-known/apple-developer-merchantid-domain-association',
           destination: '/api/well-known',
         },
-        {
-          source: '/.well-known/apple-developer-merchantid-domain-association',
-          destination: '/.well-known/apple-developer-merchantid-domain-association',
-        },
       ],
     };
   },
@@ -31,7 +27,7 @@ const nextConfig = {
         headers: [
           {
             key: 'Content-Type',
-            value: 'application/json',
+            value: 'application/text',
           },
         ],
       },
