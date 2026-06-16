@@ -7,7 +7,8 @@ import { useState } from 'react';
 import {
   LayoutDashboard, Brain, BarChart3,
   Settings, Menu, X, ArrowLeft,
-  MessageSquare, CreditCard, User
+  MessageSquare, CreditCard, User,
+  Sparkles, Inbox, Globe, Layers
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -23,6 +24,14 @@ const navItems = [
   { label: 'Profile', href: '/dashboard/profile', icon: User },
   { label: 'Settings', href: '/dashboard/settings', icon: Settings },
   { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
+  { label: 'Train AI', href: '/dashboard/train', icon: Sparkles },
+];
+
+const comingSoonItems = [
+  { label: 'Inbox', icon: Inbox, desc: 'Direct messages from visitors' },
+  { label: 'Custom Space', icon: Globe, desc: 'Custom domain + branding' },
+  { label: 'Widget Templates', icon: Layers, desc: 'Embed Q&A on any site' },
+  { label: 'Paywall DMs', icon: CreditCard, desc: 'Charge for direct access' },
 ];
 
 export function DashboardLayout({ children, title, description }: DashboardLayoutProps) {
@@ -85,6 +94,21 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
           })}
         </nav>
 
+        {/* Coming Soon */}
+        <div className='mt-6 pt-4 border-t border-white/8'>
+          <p className='text-xs text-zinc-600 font-medium uppercase tracking-widest mb-3 px-3'>Coming Soon</p>
+          {comingSoonItems.map(item => (
+            <div key={item.label} className='flex items-center gap-3 px-3 py-2 rounded-xl text-zinc-600 cursor-not-allowed'>
+              <item.icon className='w-4 h-4' />
+              <div>
+                <p className='text-xs font-medium'>{item.label}</p>
+                <p className='text-[10px] text-zinc-700'>{item.desc}</p>
+              </div>
+              <span className='ml-auto text-[9px] px-1.5 py-0.5 rounded-full bg-zinc-800 text-zinc-500'>Soon</span>
+            </div>
+          ))}
+        </div>
+
         {/* Bottom */}
         <div className="absolute bottom-6 left-6 right-6 space-y-3">
           <div className="h-px bg-white/8" />
@@ -94,8 +118,6 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
           </Link>
         </div>
       </aside>
-
-      <DashboardAI />
 
       {/* Overlay */}
       {isOpen && (
@@ -112,6 +134,7 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
           {children}
         </div>
       </main>
+      <DashboardAI />
     </div>
   );
 }

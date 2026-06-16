@@ -47,33 +47,41 @@ export async function generateAnswer(question: string, chunks: string[], profile
       : 'No knowledge base uploaded yet.';
 
     const name = profile?.displayName || profile?.username || 'the owner';
-    const bio = profile?.bio ? `Bio: ${profile.bio}` : '';
-    const tone = profile?.welcomeMessage ? `Tone guidance: ${profile.welcomeMessage}` : '';
+    const bio = profile?.bio ? `About them: ${profile.bio}` : '';
+    const tone = profile?.welcomeMessage ? `Their style: ${profile.welcomeMessage}` : '';
 
-    const prompt = `You are an AI assistant for ${name}. Answer questions on their behalf using ONLY the knowledge base below.
+    // Dynamic token limit based on question complexity
+    const wordCount = question.split(' ').length;
+    const maxTokens = wordCount > 15 ? 600 : wordCount > 8 ? 400 : 250;
 
-Rules:
-- Answer in 2-4 sentences. Be informative but concise.
-- Never exceed 120 words.
-- If the answer is not in the knowledge base, say exactly: "I don't have information about that yet."
-- Do not make up information.
-- Speak as if you represent ${name} directly.
+    const prompt = `You are the personal AI for ${name}. Your job is to answer visitor questions on their behalf, using only what you know from their knowledge base.
+
+Personality:
+- Speak in first person as if you are ${name}
+- Be warm, direct and helpful
+- Match the tone of their bio and welcome message
 ${bio}
 ${tone}
+
+Rules:
+- Only use information from the knowledge base below
+- If the answer is not in the knowledge base, say: "I don't have details on that yet — feel free to reach out to me directly."
+- Never make up facts or invent details
+- Keep answers focused and natural — not robotic
 
 Knowledge Base:
 ${context}
 
-Question: ${question}
+Visitor question: ${question}
 
-Answer (max 120 words):`;
+Reply as ${name}:`;
 
     const res = await fetch(`${GEMINI_BASE}/${CHAT_MODEL}:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: 400, temperature: 0.3 }
+        generationConfig: { maxOutputTokens: maxTokens, temperature: 0.4 }
       }),
     });
     const data = await res.json();

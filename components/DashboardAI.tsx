@@ -93,7 +93,7 @@ export function DashboardAI() {
       </button>
 
       {open && (
-        <div className='fixed bottom-20 right-6 z-50 w-80 h-96 glass-card rounded-2xl border border-border flex flex-col overflow-hidden shadow-2xl'>
+        <div className='fixed bottom-20 right-6 z-50 w-80 h-96 rounded-2xl border border-white/20 flex flex-col overflow-hidden shadow-2xl' style={{ backgroundColor: '#0f0f0f' }}>
           <div className='flex items-center gap-2 px-4 py-3 border-b border-border bg-card'>
             <div className='w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center'>
               <Sparkles className='w-3 h-3 text-primary' />
@@ -104,7 +104,7 @@ export function DashboardAI() {
           <div className='flex-1 overflow-y-auto p-3 space-y-3'>
             {messages.map((m, i) => (
               <div key={i} className={'flex ' + (m.role === 'user' ? 'justify-end' : 'justify-start')}>
-                <div className={'max-w-[85%] px-3 py-2 rounded-xl text-xs leading-relaxed ' + (m.role === 'user' ? 'bg-primary text-white' : 'bg-card border border-border text-foreground')}>
+                <div className={'max-w-[85%] px-3 py-2 rounded-xl text-xs leading-relaxed ' + (m.role === 'user' ? 'bg-primary text-white' : 'border border-white/10 text-white')} style={m.role === 'assistant' ? { backgroundColor: '#1a1a1a' } : {}}>
                   {m.content}
                 </div>
               </div>
@@ -118,14 +118,14 @@ export function DashboardAI() {
             )}
             <div ref={bottomRef} />
           </div>
-          <div className='flex items-center gap-2 px-3 py-2 border-t border-border'>
+          <div className='flex items-center gap-2 px-3 py-2 border-t border-white/10' style={{ backgroundColor: '#1a1a1a' }}>
             <input
               type='text'
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && send()}
               placeholder='Ask about your space...'
-              className='flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground focus:outline-none'
+              className='flex-1 bg-transparent text-xs text-white placeholder:text-zinc-500 focus:outline-none'
             />
             <button onClick={send} disabled={loading || !input.trim()} className='text-primary hover:opacity-70 transition-opacity disabled:opacity-30'>
               {loading ? <Loader2 className='w-3.5 h-3.5 animate-spin' /> : <Send className='w-3.5 h-3.5' />}

@@ -25,13 +25,13 @@ export default function PrivacyPage() {
     setQuestion('');
     setLoading(true);
     try {
-      const res = await fetch('/api/ask', {
+      const res = await fetch('/api/explore', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: q, username: 'onequestion_legal', context: 'privacy_policy' }),
+        body: JSON.stringify({ question: q, history: messages, knowledgeOverride: "\nOne Question Privacy Policy:\n\nDATA WE COLLECT:\n- Account info: name, email, username via Clerk authentication\n- Knowledge base content you upload (text, files)\n- Questions asked to your AI space by visitors\n- Analytics: visitor counts, question counts, response rates\n- Payment info processed securely via Paystack (we never store card details)\n\nHOW WE USE YOUR DATA:\n- To power your AI space and answer visitor questions\n- To show you analytics about your space performance\n- To process payments for credits and subscriptions\n- We never sell your data to third parties\n- We never use your knowledge base to train our models\n\nDATA STORAGE:\n- All data stored in Convex (real-time database) with encryption at rest\n- Authentication handled by Clerk with industry-standard security\n- Files and knowledge stored securely on our servers\n\nYOUR RIGHTS:\n- You can delete your account and all data at any time from Settings\n- You can delete individual knowledge items from your dashboard\n- You can export your data by contacting us at support@onequestion.space\n\nCOOKIES:\n- We use minimal cookies for authentication only\n- No advertising cookies or third-party trackers\n\nCONTACT:\n- Email: support@onequestion.space\n- X: @OneQuestion_Spa\n" }),
       });
       const data = await res.json();
-      setMessages(prev => [...prev, { role: 'ai', text: data.answer || 'I am processing your question. Please try again shortly.' }]);
+      setMessages(prev => [...prev, { role: 'ai', text: data.answer || 'I could not answer that. Try rephrasing.' }]);
     } catch {
       setMessages(prev => [...prev, { role: 'ai', text: 'Something went wrong. Please try again.' }]);
     }

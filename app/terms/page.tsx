@@ -25,13 +25,13 @@ export default function PrivacyPage() {
     setQuestion('');
     setLoading(true);
     try {
-      const res = await fetch('/api/ask', {
+      const res = await fetch('/api/explore', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: q, username: 'onequestion_legal', context: 'terms_of_service' }),
+        body: JSON.stringify({ question: q, history: messages, knowledgeOverride: "\nOne Question Terms of Service:\n\nACCEPTABLE USE:\n- You must be 13 or older to use One Question\n- Do not upload illegal, harmful, or misleading content to your knowledge base\n- Do not use One Question to impersonate others\n- Do not attempt to reverse engineer or abuse our AI systems\n- Commercial use is allowed on Pro and above plans\n\nYOUR CONTENT:\n- You own all content you upload to your knowledge base\n- By uploading, you grant us license to process it to power your AI\n- We do not claim ownership of your knowledge base content\n- You are responsible for ensuring your content does not violate others rights\n\nPAYMENTS AND REFUNDS:\n- Free plan: 50 AI credits per month, no payment required\n- Pro plan: dollar 9 per month for 500 credits, billed monthly via Paystack\n- Credits purchased are non-refundable once used\n- Unused subscription credits do not roll over to next month\n- Cancel anytime from your billing page\n\nACCOUNT TERMINATION:\n- You can delete your account at any time from Settings\n- We may suspend accounts that violate these terms\n- On deletion, all your data including knowledge base and questions is permanently removed\n\nLIMITATIONS:\n- One Question is provided as-is without warranty\n- We are not responsible for AI answers generated from your knowledge base\n- Service uptime target is 99.9% but not guaranteed\n\nCONTACT:\n- Email: support@onequestion.space\n- X: @OneQuestion_Spa\n- For urgent issues: contact us on X\n" }),
       });
       const data = await res.json();
-      setMessages(prev => [...prev, { role: 'ai', text: data.answer || 'I am processing your question. Please try again shortly.' }]);
+      setMessages(prev => [...prev, { role: 'ai', text: data.answer || 'I could not answer that. Try rephrasing.' }]);
     } catch {
       setMessages(prev => [...prev, { role: 'ai', text: 'Something went wrong. Please try again.' }]);
     }

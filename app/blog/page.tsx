@@ -33,10 +33,10 @@ export default function BlogPage() {
     setQuestion('');
     setLoading(true);
     try {
-      const res = await fetch('/api/ask', {
+      const res = await fetch('/api/explore', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: q, username: 'onequestion_team', context: 'blog_knowledge_base' }),
+        body: JSON.stringify({ question: q, history: messages }),
       });
       const data = await res.json();
       setMessages(prev => [...prev, { role: 'ai', text: data.answer || 'Great question. I am still learning. Try asking something else.' }]);
