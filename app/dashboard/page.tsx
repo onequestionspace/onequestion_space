@@ -37,11 +37,6 @@ export default function DashboardPage() {
     userId ? { userId } : 'skip'
   );
 
-  const knowledgeItems = useQuery(
-    api.knowledge.getKnowledgeByUserId,
-    userId ? { userId } : 'skip'
-  );
-
   const knowledgeCount = useQuery(
     api.knowledge.getKnowledgeCount,
     userId ? { userId } : 'skip'
@@ -206,27 +201,14 @@ export default function DashboardPage() {
               <h2 className='font-semibold text-foreground flex items-center gap-2'><BookOpen className='w-4 h-4 text-primary' /> Knowledge Base</h2>
               <Link href='/dashboard/knowledge' className='text-xs text-primary hover:underline flex items-center gap-1'>Manage <ChevronRight className='w-3 h-3' /></Link>
             </div>
-            {knowledgeItems && knowledgeItems.length > 0 ? (
-              <div className='space-y-3'>
-                {knowledgeItems.slice(0, 5).map((k) => (
-                  <div key={k._id} className='p-4 rounded-xl bg-card border border-border'>
-                    <div className='flex items-start justify-between gap-2'>
-                      <div className='min-w-0'>
-                        <p className='text-foreground text-sm font-medium line-clamp-1'>{k.title}</p>
-                        <p className='text-muted-foreground text-xs line-clamp-2 mt-0.5'>{k.content}</p>
-                      </div>
-                      <div className='shrink-0 w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center'>
-                        <Brain className='w-3.5 h-3.5 text-primary' />
-                      </div>
-                    </div>
-                    <p className='text-xs text-muted-foreground/50 flex items-center gap-1 mt-2'><Clock className='w-3 h-3' />{new Date(k.createdAt).toLocaleDateString()}</p>
-                  </div>
-                ))}
-                {knowledgeItems.length > 5 && (
-                  <Link href='/dashboard/knowledge' className='block text-center text-xs text-primary hover:underline py-2'>
-                    +{knowledgeItems.length - 5} more items
-                  </Link>
-                )}
+            {knowledgeCount && knowledgeCount > 0 ? (
+              <div className='text-center py-6'>
+                <div className='w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3'>
+                  <Brain className='w-7 h-7 text-primary' />
+                </div>
+                <p className='text-3xl font-bold text-foreground mb-1'>{knowledgeCount}</p>
+                <p className='text-sm text-muted-foreground mb-4'>knowledge items uploaded</p>
+                <Link href='/dashboard/knowledge' className='text-xs text-primary hover:underline'>View and manage all items</Link>
               </div>
             ) : (
               <div className='text-center py-10'>

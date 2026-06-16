@@ -1,4 +1,5 @@
 'use client';
+import { DashboardAI } from './DashboardAI';
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -93,6 +94,8 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
           </Link>
         </div>
       </aside>
+
+      <DashboardAI />
 
       {/* Overlay */}
       {isOpen && (
