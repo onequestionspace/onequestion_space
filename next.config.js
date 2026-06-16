@@ -13,8 +13,25 @@ const nextConfig = {
           source: '/api/:path*',
           destination: '/api/:path*',
         },
+        {
+          source: '/.well-known/apple-developer-merchantid-domain-association',
+          destination: '/.well-known/apple-developer-merchantid-domain-association',
+        },
       ],
     };
+  },
+  async headers() {
+    return [
+      {
+        source: '/.well-known/apple-developer-merchantid-domain-association',
+        headers: [
+          {
+            key: 'Content-Type',
+            value: 'application/json',
+          },
+        ],
+      },
+    ];
   },
 };
 
