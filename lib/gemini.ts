@@ -53,8 +53,8 @@ export async function generateAnswer(question: string, chunks: string[], profile
     const prompt = `You are an AI assistant for ${name}. Answer questions on their behalf using ONLY the knowledge base below.
 
 Rules:
-- Answer in 1-2 sentences maximum. Be direct and concise.
-- Never exceed 50 words.
+- Answer in 2-4 sentences. Be informative but concise.
+- Never exceed 120 words.
 - If the answer is not in the knowledge base, say exactly: "I don't have information about that yet."
 - Do not make up information.
 - Speak as if you represent ${name} directly.
@@ -66,14 +66,14 @@ ${context}
 
 Question: ${question}
 
-Answer (max 50 words):`;
+Answer (max 120 words):`;
 
     const res = await fetch(`${GEMINI_BASE}/${CHAT_MODEL}:generateContent?key=${GEMINI_API_KEY}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: 250, temperature: 0.3 }
+        generationConfig: { maxOutputTokens: 400, temperature: 0.3 }
       }),
     });
     const data = await res.json();
