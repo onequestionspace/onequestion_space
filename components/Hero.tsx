@@ -1,121 +1,169 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { AnimatedDemo } from '@/components/AnimatedDemo';
-import { ParticleBackground } from '@/components/ParticleBackground';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
+import { ArrowRight, Sparkles } from 'lucide-react';
 
-const AVATAR_COLORS = [
-  'from-purple-500 to-pink-500',
-  'from-fuchsia-500 to-rose-500',
-  'from-violet-500 to-purple-500',
-  'from-pink-500 to-rose-400',
-  'from-purple-600 to-fuchsia-500',
+const TYPING_PAIRS = [
+  { q: 'How can I work with you?', a: 'Book a discovery call from my site. I work with early-stage founders on product strategy.' },
+  { q: 'What do you charge?', a: 'My consulting starts at $200/hr. Drop a DM and we can discuss your specific needs.' },
+  { q: 'What tools do you use?', a: 'Next.js, Convex, Gemini AI — I build everything from my Android phone using Termux.' },
 ];
-
-const INITIALS = ['A', 'S', 'M', 'J', 'R'];
 
 export function Hero() {
   const { isSignedIn, isLoaded } = useAuth();
   const [username, setUsername] = useState('');
+  const [pairIndex, setPairIndex] = useState(0);
+  const [phase, setPhase] = useState<'typing-q' | 'show-q' | 'typing-a' | 'show-a'>('typing-q');
+  const [displayed, setDisplayed] = useState('');
 
   const waitlistData = useQuery(api.waitlist.getWaitlistCount);
   const count = (waitlistData?.count ?? 0) + 247;
 
-  const handleClaim = () => {
-    const cleanUsername = username.trim().toLowerCase();
-    if (isSignedIn) {
-      window.location.href = '/dashboard?username=' + cleanUsername;
-    } else {
-      window.location.href = '/sign-up?username=' + cleanUsername;
-    }
-  };
+  useEffect(() => {
+    const pair = TYPING_PAIRS[pairIndex];
+    let timeout: ReturnType<typeof setTimeout>;
+    let interval: ReturnType<typeof setInterval>;
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') handleClaim();
+    if (phase === 'typing-q') {
+      let i = 0;
+      setDisplayed('');
+      interval = setInterval(() => {
+        i++;
+        setDisplayed(pair.q.slice(0, i));
+        if (i >= pair.q.length) { clearInterval(interval); timeout = setTimeout(() => setPhase('show-q'), 400); }
+      }, 35);
+    } else if (phase === 'show-q') {
+      timeout = setTimeout(() => { setDisplayed(''); setPhase('typing-a'); }, 300);
+    } else if (phase === 'typing-a') {
+      let i = 0;
+      interval = setInterval(() => {
+        i++;
+        setDisplayed(pair.a.slice(0, i));
+        if (i >= pair.a.length) { clearInterval(interval); timeout = setTimeout(() => setPhase('show-a'), 2000); }
+      }, 18);
+    } else if (phase === 'show-a') {
+      timeout = setTimeout(() => {
+        setPairIndex(p => (p + 1) % TYPING_PAIRS.length);
+        setPhase('typing-q');
+      }, 500);
+    }
+    return () => { clearInterval(interval); clearTimeout(timeout); };
+  }, [phase, pairIndex]);
+
+  const handleClaim = () => {
+    const u = username.trim().toLowerCase();
+    window.location.href = isSignedIn ? '/dashboard?username=' + u : '/sign-up?username=' + u;
   };
 
   return (
-    <section className="relative flex items-center justify-center overflow-hidden pt-16 pb-12">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(147,51,234,0.22),transparent_50%)]" />
-      <div className="absolute inset-0 mesh-background mesh-animated" />
-      <div className="absolute inset-0 dot-pattern opacity-40" />
-      <ParticleBackground />
-      <div className="absolute top-1/4 left-10 w-72 h-72 bg-purple-600/20 rounded-full blur-3xl animate-pulse-slow" />
-      <div className="absolute bottom-1/4 right-10 w-96 h-96 bg-fuchsia-500/15 rounded-full blur-3xl animate-pulse-slow" />
+    <section className='relative min-h-screen flex items-center justify-center overflow-hidden pt-20 pb-16'>
+      {/* Background */}
+      <div className='absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(147,51,234,0.25),transparent)]' />
+      <div className='absolute inset-0 dot-pattern opacity-30' />
+      <div className='absolute top-1/3 left-1/4 w-64 h-64 bg-purple-600/15 rounded-full blur-3xl' />
+      <div className='absolute top-1/3 right-1/4 w-64 h-64 bg-fuchsia-500/10 rounded-full blur-3xl' />
 
-      <div className="relative z-10 max-w-2xl mx-auto px-4 text-center">
+      <div className='relative z-10 max-w-5xl mx-auto px-4'>
+        <div className='grid grid-cols-1 lg:grid-cols-2 gap-12 items-center'>
 
-        {/* Live badge */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-400"></span>
-          </span>
-          <span className="text-sm text-muted-foreground">Spaces going live every day</span>
-        </div>
-
-        <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-6 leading-[1.1] tracking-tight">
-          Answer once.
-          <br />
-          <span className="gradient-text">Let AI handle the rest.</span>
-        </h1>
-
-        <p className="text-sm md:text-lg text-muted-foreground mb-8 max-w-xl mx-auto leading-relaxed">
-          Create a personal AI trained on your knowledge. Share one link. Let visitors ask anything — your AI answers instantly.
-        </p>
-
-        {/* Social proof — real count */}
-        <div className="flex items-center justify-center gap-3 mb-6">
-          <div className="flex -space-x-2">
-            {INITIALS.map((initial, i) => (
-              <div
-                key={i}
-                className={`w-8 h-8 rounded-full bg-gradient-to-br ${AVATAR_COLORS[i]} flex items-center justify-center text-white text-xs font-bold border-2 border-background`}
-              >
-                {initial}
-              </div>
-            ))}
-          </div>
-          <div className="text-left">
-            <p className="text-white text-sm font-semibold">{count > 0 ? count.toLocaleString() + '+' : '200+'} creators</p>
-            <p className="text-muted-foreground text-xs">already have their space</p>
-          </div>
-        </div>
-
-        {/* Username input */}
-        <div className="max-w-xs mx-auto mb-3">
-          <div className="flex items-center bg-white/10 backdrop-blur-sm border border-purple-500/40 rounded-full px-5 py-3 mb-3 focus-within:border-purple-400/70 transition-colors">
-            <span className="text-muted-foreground text-sm whitespace-nowrap shrink-0">onequestion.space/</span>
-            <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
-              onKeyDown={handleKeyDown}
-              placeholder="yourname"
-              className="flex-1 bg-transparent text-white ml-1 outline-none placeholder:text-muted-foreground text-sm"
-            />
-          </div>
-
-          {isLoaded && (
-            <div className="relative group">
-              <div className="absolute -inset-0.5 bg-gradient-to-r from-purple-600 via-fuchsia-500 to-rose-500 rounded-full blur opacity-60 group-hover:opacity-90 transition duration-300" />
+          {/* Left — copy */}
+          <div>
+            <div className='inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold mb-8'>
+              <span className='w-1.5 h-1.5 rounded-full bg-primary animate-pulse' />
+              {count}+ spaces live
+            </div>
+            <h1 className='text-5xl md:text-6xl font-black text-white leading-[1.05] tracking-tight mb-6'>
+              Your AI.<br />
+              Your answers.<br />
+              <span className='bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent'>Always on.</span>
+            </h1>
+            <p className='text-zinc-400 text-lg leading-relaxed mb-8 max-w-md'>
+              Upload your knowledge once. Let AI answer every visitor question instantly — in your voice, 24/7.
+            </p>
+            <div className='flex items-center bg-white/5 border border-white/10 rounded-2xl px-4 py-3 mb-4 focus-within:border-primary/50 transition-all max-w-sm'>
+              <span className='text-zinc-500 text-sm whitespace-nowrap shrink-0'>onequestion.space/</span>
+              <input
+                type='text'
+                value={username}
+                onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
+                onKeyDown={e => e.key === 'Enter' && handleClaim()}
+                placeholder='yourname'
+                className='flex-1 bg-transparent text-white ml-1 outline-none placeholder:text-zinc-600 text-sm'
+              />
+            </div>
+            {isLoaded && (
               <button
                 onClick={handleClaim}
-                className="relative w-full py-3.5 px-6 rounded-full bg-gradient-to-r from-purple-600 to-rose-500 text-white font-bold text-sm hover:-translate-y-0.5 transition-transform"
+                className='w-full max-w-sm py-3.5 rounded-2xl bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 hover:-translate-y-0.5 transition-all shadow-lg shadow-purple-500/20'
               >
-                Claim Your Space →
+                Claim your space <ArrowRight className='w-4 h-4' />
               </button>
+            )}
+            <p className='text-zinc-600 text-xs mt-3 max-w-sm'>Free forever. No credit card required.</p>
+          </div>
+
+          {/* Right — live demo card */}
+          <div className='relative'>
+            <div className='absolute -inset-4 bg-gradient-to-r from-purple-600/20 to-fuchsia-600/20 rounded-3xl blur-2xl' />
+            <div className='relative rounded-3xl border border-white/10 overflow-hidden' style={{ background: 'rgba(15,15,15,0.9)', backdropFilter: 'blur(20px)' }}>
+              {/* Space header */}
+              <div className='px-6 py-5 border-b border-white/8 flex items-center gap-3'>
+                <div className='w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-fuchsia-500 flex items-center justify-center text-white font-bold text-sm'>A</div>
+                <div>
+                  <p className='text-white text-sm font-semibold'>Asym Alwali</p>
+                  <p className='text-zinc-500 text-xs'>onequestion.space/asym</p>
+                </div>
+                <div className='ml-auto flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-green-500/10 text-green-400 border border-green-500/15'>
+                  <span className='w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse' />
+                  AI Active
+                </div>
+              </div>
+              {/* Chat */}
+              <div className='p-5 space-y-3 min-h-[200px] flex flex-col justify-end'>
+                {(phase === 'show-q' || phase === 'typing-a' || phase === 'show-a') && (
+                  <div className='flex justify-end'>
+                    <div className='max-w-[75%] px-4 py-2.5 rounded-2xl bg-white/8 border border-white/8'>
+                      <p className='text-white text-sm'>{TYPING_PAIRS[pairIndex].q}</p>
+                    </div>
+                  </div>
+                )}
+                <div className='flex justify-start gap-2.5'>
+                  <div className='w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center shrink-0 mt-0.5'>
+                    <Sparkles className='w-3.5 h-3.5 text-primary' />
+                  </div>
+                  <div className='max-w-[75%] px-4 py-2.5 rounded-2xl bg-primary/10 border border-primary/20'>
+                    {(phase === 'typing-q' || phase === 'show-q') ? (
+                      <div className='flex gap-1 py-1'>
+                        {[0,1,2].map(i => <div key={i} className='w-1.5 h-1.5 rounded-full bg-primary animate-bounce' style={{ animationDelay: i*150 + 'ms' }} />)}
+                      </div>
+                    ) : (
+                      <p className='text-white text-sm leading-relaxed'>
+                        {displayed}
+                        {phase === 'typing-a' && <span className='inline-block w-0.5 h-4 bg-primary ml-0.5 animate-pulse' />}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+              {/* Input bar */}
+              <div className='px-5 py-4 border-t border-white/8 flex items-center gap-3'>
+                {phase === 'typing-q' ? (
+                  <div className='flex-1 text-sm text-white'>
+                    {displayed}
+                    <span className='inline-block w-0.5 h-4 bg-white/60 ml-0.5 animate-pulse' />
+                  </div>
+                ) : (
+                  <div className='flex-1 text-sm text-zinc-600'>Ask a question...</div>
+                )}
+                <div className='w-8 h-8 rounded-xl bg-primary/20 flex items-center justify-center'>
+                  <ArrowRight className='w-3.5 h-3.5 text-primary' />
+                </div>
+              </div>
             </div>
-          )}
-        </div>
-
-        <p className="text-xs text-muted-foreground mb-10">Free forever. No credit card required.</p>
-
-        <div className="max-w-xs mx-auto px-2">
-          <AnimatedDemo />
+          </div>
         </div>
       </div>
     </section>

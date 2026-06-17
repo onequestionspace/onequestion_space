@@ -2,6 +2,7 @@
 
 import { Hero } from '@/components/Hero';
 import { ProblemSection } from '@/components/ProblemSection';
+import { BentoSection } from '@/components/BentoSection';
 import { HowItWorksSection } from '@/components/HowItWorksSection';
 import { PricingSection } from '@/components/PricingSection';
 import { CTASection } from '@/components/CTASection';
@@ -13,6 +14,9 @@ export default function Home() {
       <Hero />
       <FadeInSection delay={0}>
         <ProblemSection />
+      </FadeInSection>
+      <FadeInSection delay={0}>
+        <BentoSection />
       </FadeInSection>
       <FadeInSection delay={0}>
         <HowItWorksSection />
