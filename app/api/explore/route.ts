@@ -28,11 +28,11 @@ Creators, founders, consultants, developers — anyone who wants to let AI answe
 
 export async function POST(req: NextRequest) {
   try {
-    const { question, history, knowledgeOverride } = await req.json();
+    const { question, history, knowledgeOverride, demoMode } = await req.json();
     if (!question) return NextResponse.json({ error: 'Missing question' }, { status: 400 });
 
     const wordCount = question.split(' ').length;
-    const maxTokens = wordCount > 15 ? 600 : 350;
+    const maxTokens = demoMode ? 60 : wordCount > 15 ? 600 : 350;
 
     const contents = [
       ...(history || []).map((m: any) => ({
@@ -43,7 +43,9 @@ export async function POST(req: NextRequest) {
     ];
 
     const activeKnowledge = knowledgeOverride || KNOWLEDGE;
-    const systemPrompt = `You are the Knowledge Explorer AI for One Question. Answer questions about One Question, bootstrapping, building in public, AI, and startup building using the knowledge below. Be insightful, energetic and direct. You can go beyond the knowledge base for general startup/AI questions but always tie it back to One Question's story.\n\nKNOWLEDGE BASE:\n${activeKnowledge}`;
+    const systemPrompt = demoMode
+      ? `You are the Knowledge Explorer AI for One Question. Answer questions using the knowledge below. Be energetic and direct. Keep your answer to 1-2 sentences max — sharp and punchy.\n\nKNOWLEDGE BASE:\n${activeKnowledge}`
+      : `You are the Knowledge Explorer AI for One Question. Answer questions about One Question, bootstrapping, building in public, AI, and startup building using the knowledge below. Be insightful, energetic and direct. You can go beyond the knowledge base for general startup and AI questions but always tie it back to One Question story.\n\nKNOWLEDGE BASE:\n${activeKnowledge}`;
 
     const res = await fetch(GEMINI_BASE + '/' + MODEL + ':generateContent?key=' + GEMINI_API_KEY, {
       method: 'POST',
