@@ -6,10 +6,11 @@ import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { ArrowRight, Sparkles } from 'lucide-react';
 
-const TYPING_PAIRS = [
-  { q: 'How can I work with you?', a: 'Book a discovery call from my site. I work with early-stage founders on product strategy.' },
-  { q: 'What do you charge?', a: 'My consulting starts at $200/hr. Drop a DM and we can discuss your specific needs.' },
-  { q: 'What tools do you use?', a: 'Next.js, Convex, Gemini AI — I build everything from my Android phone using Termux.' },
+const DEMO_QUESTIONS = [
+  'How can I work with Asym?',
+  'What tools does Asym use to build?',
+  'What is One Question?',
+  'How do you build without a laptop?',
 ];
 
 export function Hero() {
@@ -23,7 +24,7 @@ export function Hero() {
   const count = (waitlistData?.count ?? 0) + 247;
 
   useEffect(() => {
-    const pair = TYPING_PAIRS[pairIndex];
+    const question = DEMO_QUESTIONS[pairIndex];
     let timeout: ReturnType<typeof setTimeout>;
     let interval: ReturnType<typeof setInterval>;
 
@@ -32,21 +33,41 @@ export function Hero() {
       setDisplayed('');
       interval = setInterval(() => {
         i++;
-        setDisplayed(pair.q.slice(0, i));
-        if (i >= pair.q.length) { clearInterval(interval); timeout = setTimeout(() => setPhase('show-q'), 400); }
+        setDisplayed(question.slice(0, i));
+        if (i >= question.length) {
+          clearInterval(interval);
+          timeout = setTimeout(() => setPhase('show-q'), 400);
+        }
       }, 35);
     } else if (phase === 'show-q') {
-      timeout = setTimeout(() => { setDisplayed(''); setPhase('typing-a'); }, 300);
-    } else if (phase === 'typing-a') {
-      let i = 0;
-      interval = setInterval(() => {
-        i++;
-        setDisplayed(pair.a.slice(0, i));
-        if (i >= pair.a.length) { clearInterval(interval); timeout = setTimeout(() => setPhase('show-a'), 2000); }
-      }, 18);
+      setDisplayed('');
+      setPhase('typing-a');
+      // Fetch real answer from Knowledge Explorer
+      fetch('/api/explore', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question, history: [] }),
+      })
+        .then(r => r.json())
+        .then(data => {
+          const answer = data.answer || 'Let me think about that...';
+          let i = 0;
+          interval = setInterval(() => {
+            i++;
+            setDisplayed(answer.slice(0, i));
+            if (i >= answer.length) {
+              clearInterval(interval);
+              timeout = setTimeout(() => setPhase('show-a'), 2500);
+            }
+          }, 16);
+        })
+        .catch(() => {
+          setDisplayed('One Question lets your AI answer this automatically.');
+          timeout = setTimeout(() => setPhase('show-a'), 2000);
+        });
     } else if (phase === 'show-a') {
       timeout = setTimeout(() => {
-        setPairIndex(p => (p + 1) % TYPING_PAIRS.length);
+        setPairIndex(p => (p + 1) % DEMO_QUESTIONS.length);
         setPhase('typing-q');
       }, 500);
     }
@@ -116,10 +137,13 @@ export function Hero() {
                   <p className='text-white text-sm font-semibold'>Asym Alwali</p>
                   <p className='text-zinc-500 text-xs'>onequestion.space/asym</p>
                 </div>
-                <div className='ml-auto flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-green-500/10 text-green-400 border border-green-500/15'>
+                <div className='ml-auto flex flex-col items-end gap-1'>
+              <div className='flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-green-500/10 text-green-400 border border-green-500/15'>
                   <span className='w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse' />
                   AI Active
                 </div>
+              <span className='text-zinc-600 text-[10px]'>Knowledge Explorer</span>
+              </div>
               </div>
               {/* Chat */}
               <div className='p-5 space-y-3 min-h-[200px] flex flex-col justify-end'>
