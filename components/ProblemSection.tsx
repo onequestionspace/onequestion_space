@@ -1,7 +1,9 @@
 'use client';
 
 const dms = [
+  { name: 'Asym A.', msg: 'How do you build without a laptop?', time: '1m ago' },
   { name: 'Sarah K.', msg: 'Hey what exactly do you do?', time: '2m ago' },
+  { name: 'Paraja M.', msg: 'What is One Question about?', time: '4m ago' },
   { name: 'James O.', msg: 'How much do you charge?', time: '5m ago' },
   { name: 'Amina B.', msg: 'Can we work together?', time: '8m ago' },
   { name: 'Raj P.', msg: 'What services do you offer?', time: '11m ago' },
@@ -16,12 +18,23 @@ const dms = [
 const col1 = [...dms, ...dms];
 const col2 = [...dms.slice(5), ...dms.slice(0, 5), ...dms.slice(5), ...dms.slice(0, 5)];
 
+const AVATAR_MAP: Record<string, string> = {
+  'Asym A.': '/founders/asym.png',
+  'Paraja M.': '/founders/paraja.png',
+};
+
+function getDiceBear(name: string) {
+  const seed = encodeURIComponent(name);
+  return 'https://api.dicebear.com/9.x/notionists/svg?seed=' + seed + '&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf';
+}
+
 function DmBubble({ name, msg, time }: { name: string; msg: string; time: string }) {
-  const initials = name.split(' ').map(n => n[0]).join('');
+  const avatar = AVATAR_MAP[name] || getDiceBear(name);
+  const isReal = !!AVATAR_MAP[name];
   return (
     <div className="flex items-start gap-2.5 mb-3">
-      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent-pink flex items-center justify-center text-white text-xs font-bold shrink-0">
-        {initials}
+      <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-white/10">
+        <img src={avatar} alt={name} className="w-full h-full object-cover" />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
