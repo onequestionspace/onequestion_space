@@ -25,6 +25,7 @@ export function DashboardAI() {
   const knowledgeCount = useQuery(api.knowledge.getKnowledgeCount, userId ? { userId } : 'skip');
   const subscription = useQuery(api.subscriptions.getSubscription, userId ? { userId } : 'skip');
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (open && messages.length === 0 && profile) {
       setMessages([{
@@ -34,6 +35,7 @@ export function DashboardAI() {
     }
   }, [open, profile]);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);

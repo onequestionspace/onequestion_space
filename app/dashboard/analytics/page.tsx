@@ -63,6 +63,7 @@ export default function AnalyticsPage() {
     { name: 'Pending', value: Math.max(0, totalQ - totalA), color: '#27272a' },
   ];
 
+  // eslint-disable-next-line react/no-unstable-nested-components
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       return (

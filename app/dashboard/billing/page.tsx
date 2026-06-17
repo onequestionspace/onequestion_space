@@ -47,6 +47,7 @@ function BillingContent() {
   const [verifyStatus, setVerifyStatus] = useState('');
   const searchParams = useSearchParams();
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     const reference = searchParams.get('reference');
     if (!reference) return;

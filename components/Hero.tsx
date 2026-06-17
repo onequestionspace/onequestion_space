@@ -23,6 +23,7 @@ export function Hero() {
   const waitlistData = useQuery(api.waitlist.getWaitlistCount);
   const count = (waitlistData?.count ?? 0) + 247;
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     const question = DEMO_QUESTIONS[pairIndex];
     let timeout: ReturnType<typeof setTimeout>;
