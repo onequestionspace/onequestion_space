@@ -51,41 +51,37 @@ export default function RootLayout({
     >
       <body className={`${inter.className} antialiased`}>
         <ClerkProvider
-          appearance={{
-            layout: {
-              logoImageUrl: '/logo.png',
-              logoLinkUrl: '/',
-            },
-            variables: {
-              colorPrimary: '#a855f7',
-              colorBackground: '#0a0a0a',
-              colorText: '#ffffff',
-              colorInputBackground: '#1a1a1a',
-              colorInputText: '#ffffff',
-            },
-          }}
-        >
-          <ConvexClientProvider>
-            <div className="flex flex-col min-h-screen mesh-background">
-              <Navbar />
-              <main className="flex-1">{children}</main>
-              <Footer />
-            </div>
-          </ConvexClientProvider>
-      
-      {/* Google Analytics */}
-      <Script
-        src="https://www.googletagmanager.com/gtag/js?id=G-Z0LXJWVJL9"
-        strategy="afterInteractive"
-      />
-      <Script id="google-analytics" strategy="afterInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-Z0LXJWVJL9');
-        `}
-      </Script>
+        appearance={{
+          variables: {
+            colorBackground: '#0f0f0f',
+            colorPrimary: '#9333ea',
+            colorText: '#ffffff',
+            colorTextSecondary: '#a1a1aa',
+            colorInputBackground: 'rgba(255,255,255,0.06)',
+            colorInputText: '#ffffff',
+          },
+        }}
+      >
+        <ConvexClientProvider>
+          <div className="flex flex-col min-h-screen mesh-background">
+            <Navbar />
+            <main className="flex-1">{children}</main>
+            <Footer />
+          </div>
+        </ConvexClientProvider>
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-Z0LXJWVJL9"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-Z0LXJWVJL9');
+          `}
+        </Script>
       </ClerkProvider>
     </body>
     </html>
