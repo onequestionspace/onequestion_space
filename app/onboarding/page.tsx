@@ -45,7 +45,7 @@ export default function OnboardingPage() {
     }
   }, [profile, router]);
 
-  const checkUsername = async (val) => {
+  const checkUsername = async (val: string) => {
     if (!val || val.length < 3) { setUsernameAvailable(null); return; }
     setChecking(true);
     try {
