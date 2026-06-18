@@ -1,3 +1,4 @@
+import Script from 'next/script';
 import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
@@ -72,7 +73,21 @@ export default function RootLayout({
             </div>
           </ConvexClientProvider>
         </ClerkProvider>
-      </body>
+      
+      {/* Google Analytics */}
+      <Script
+        src="https://www.googletagmanager.com/gtag/js?id=G-Z0LXJWVJL9"
+        strategy="afterInteractive"
+      />
+      <Script id="google-analytics" strategy="afterInteractive">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-Z0LXJWVJL9');
+        `}
+      </Script>
+    </body>
     </html>
   );
 }
