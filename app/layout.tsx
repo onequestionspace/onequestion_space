@@ -72,7 +72,7 @@ export default function RootLayout({
               <Footer />
             </div>
           </ConvexClientProvider>
-        
+      
       {/* Google Analytics */}
       <Script
         src="https://www.googletagmanager.com/gtag/js?id=G-Z0LXJWVJL9"
