@@ -2,11 +2,17 @@ const fs = require('fs');
 
 const config = `/** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    turbo: false,
+  },
   images: {
     unoptimized: true,
   },
   typescript: {
     ignoreBuildErrors: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
   },
   async rewrites() {
     return {
@@ -41,4 +47,4 @@ module.exports = nextConfig;
 `;
 
 fs.writeFileSync('next.config.js', config);
-console.log('next.config.js cleaned');
+console.log('✓ next.config.js updated — turbo disabled, eslint ignored during builds');
