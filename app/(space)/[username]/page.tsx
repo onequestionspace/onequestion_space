@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, use, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -55,7 +56,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
         localStorage.setItem(key, now.toString());
       }
     }
-  }, [profile?._id]);
+  }, [profile?._id, incrementVisitor]);
 
   useEffect(() => {
     if (responseRef.current) {
@@ -129,7 +130,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
       <div className='max-w-xl mx-auto px-4 py-16'>
         <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className='text-center mb-10'>
           <div className='w-24 h-24 rounded-full mx-auto mb-4 overflow-hidden flex items-center justify-center text-3xl font-bold text-white' style={{ background: profile.avatar ? undefined : color, boxShadow: '0 0 0 4px ' + color + '30' }}>
-            {profile.avatar ? <img src={profile.avatar} alt={profile.displayName} className='w-full h-full object-cover' /> : initials}
+            {profile.avatar ? <Image src={profile.avatar} alt={profile.displayName} className='w-full h-full object-cover'  width={48} height={48} /> : initials}
           </div>
           <h1 className='text-2xl font-bold text-white mb-1'>{profile.displayName}</h1>
           <p className='text-sm mb-3' style={{ color }}>{profile.username}</p>

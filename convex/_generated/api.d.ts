@@ -9,6 +9,7 @@
  */
 
 import type * as analytics from "../analytics.js";
+import type * as blogs from "../blogs.js";
 import type * as knowledge from "../knowledge.js";
 import type * as profiles from "../profiles.js";
 import type * as questions from "../questions.js";
@@ -24,6 +25,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   analytics: typeof analytics;
+  blogs: typeof blogs;
   knowledge: typeof knowledge;
   profiles: typeof profiles;
   questions: typeof questions;

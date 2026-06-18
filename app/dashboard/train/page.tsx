@@ -32,10 +32,8 @@ export default function TrainPage() {
   const [done, setDone] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const createKnowledge = useMutation(api.knowledge.createKnowledge);
-
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
-    setMessages([{ role: 'assistant', content: 'Hi! I am going to help you train your AI. I will ask you a series of questions and turn your answers into knowledge your AI can use. Ready? Here is the first question:\n\n' + QUESTIONS[0] }]);
+    setTimeout(() => setMessages([{ role: 'assistant', content: 'Hi! I am going to help you train your AI. I will ask you a series of questions and turn your answers into knowledge your AI can use. Ready? Here is the first question:\n\n' + QUESTIONS[0] }]), 0);
   }, []);
 
   useEffect(() => {

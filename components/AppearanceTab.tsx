@@ -54,9 +54,9 @@ export function AppearanceTab() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (profile) {
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       setThemeColor(profile.themeColor || "#a855f7");
       setThemeBg(profile.themeBg || "dark");
       setThemeFont(profile.themeFont || "inter");
@@ -71,6 +71,7 @@ export function AppearanceTab() {
         } catch {}
       }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile]);
 
   const handleSave = async () => {

@@ -11,6 +11,18 @@ import {
   LineChart, Line, CartesianGrid, PieChart, Pie, Cell
 } from 'recharts';
 
+
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className='bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2'>
+        <p className='text-xs text-zinc-400'>{label}</p>
+        <p className='text-sm font-bold text-white'>{payload[0].value} questions</p>
+      </div>
+    );
+  }
+  return null;
+};
 export default function AnalyticsPage() {
   const { isSignedIn, isLoaded, userId } = useAuth();
   const profile = useQuery(api.profiles.current);
@@ -62,19 +74,6 @@ export default function AnalyticsPage() {
     { name: 'Answered', value: totalA, color: '#a855f7' },
     { name: 'Pending', value: Math.max(0, totalQ - totalA), color: '#27272a' },
   ];
-
-  // eslint-disable-next-line react/no-unstable-nested-components
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className='bg-zinc-900 border border-zinc-800 rounded-xl px-3 py-2'>
-          <p className='text-xs text-zinc-400'>{label}</p>
-          <p className='text-sm font-bold text-white'>{payload[0].value} questions</p>
-        </div>
-      );
-    }
-    return null;
-  };
 
   return (
     <DashboardLayout title='Analytics' description='Real-time stats for your space'>

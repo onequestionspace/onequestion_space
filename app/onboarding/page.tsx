@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useMutation, useQuery } from 'convex/react';
@@ -38,7 +39,8 @@ export default function OnboardingPage() {
   }, [user]);
 
   useEffect(() => {
-    if (profile && profile.bio && profile.welcomeMessage) {
+    if (!profile) return;
+    if (profile.bio && profile.welcomeMessage) {
       router.replace('/dashboard');
     }
   }, [profile, router]);
@@ -113,7 +115,7 @@ export default function OnboardingPage() {
 
       <div className="w-full max-w-md mx-auto">
         <div className="flex items-center justify-center gap-2 mb-8">
-          <img src="/logo.png" alt="One Question" className="w-8 h-8 rounded-xl" />
+          <Image src="/logo.png" alt="One Question" className="w-8 h-8 rounded-xl" width={32} height={32} />
           <span className="text-lg font-bold text-white">One Question</span>
         </div>
 
@@ -161,7 +163,7 @@ export default function OnboardingPage() {
                     <div className="flex justify-between text-xs text-muted-foreground mt-1"><span>1 min</span><span>15 min</span><span>30 min</span></div>
                   </div>
                   <motion.div className="rounded-2xl p-4 bg-primary/10 border border-primary/30 text-center" animate={{ scale: [1, 1.02, 1] }} transition={{ duration: 0.3 }} key={hoursPerMonth}>
-                    <p className="text-xs text-muted-foreground mb-1">You're spending</p>
+                    <p className="text-xs text-muted-foreground mb-1">You&apos;re spending</p>
                     <p className="text-3xl font-black text-white">{hoursPerMonth} hours</p>
                     <p className="text-xs text-muted-foreground">per month answering the same questions</p>
                   </motion.div>
@@ -176,7 +178,7 @@ export default function OnboardingPage() {
               <div className="glass rounded-3xl p-8 border border-white/10">
                 <div className="text-center mb-8">
                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 0.5 }} className="text-5xl mb-4">😮</motion.div>
-                  <h2 className="text-2xl font-bold text-white mb-2">Here's the real cost</h2>
+                  <h2 className="text-2xl font-bold text-white mb-2">Here&apos;s the real cost</h2>
                   <p className="text-sm text-muted-foreground">Based on your numbers</p>
                 </div>
                 <div className="space-y-3 mb-8">
@@ -211,7 +213,7 @@ export default function OnboardingPage() {
                   <div className="text-3xl">🔥</div>
                   <div>
                     <h2 className="text-xl font-bold text-white">Claim your space</h2>
-                    <p className="text-sm text-muted-foreground">Pick your unique URL — once it's gone it's gone</p>
+                    <p className="text-sm text-muted-foreground">Pick your unique URL — once it&apos;s gone it&apos;s gone</p>
                   </div>
                 </div>
                 <div className="space-y-3">
@@ -327,7 +329,7 @@ export default function OnboardingPage() {
             {step === 7 && (
               <div className="text-center">
                 <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 0.6 }} className="text-7xl mb-6">🎉</motion.div>
-                <h1 className="text-3xl font-bold text-white mb-2">You're live!</h1>
+                <h1 className="text-3xl font-bold text-white mb-2">You&apos;re live!</h1>
                 <p className="text-muted-foreground mb-8">Share your space. Let your AI do the work.</p>
                 <div className="glass rounded-2xl p-5 border border-primary/30 mb-4">
                   <p className="text-xs text-muted-foreground mb-2">Your space</p>

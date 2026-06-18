@@ -23,7 +23,6 @@ export function Hero() {
   const waitlistData = useQuery(api.waitlist.getWaitlistCount);
   const count = (waitlistData?.count ?? 0) + 247;
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     const question = DEMO_QUESTIONS[pairIndex];
     let timeout: ReturnType<typeof setTimeout>;
@@ -31,7 +30,7 @@ export function Hero() {
 
     if (phase === 'typing-q') {
       let i = 0;
-      setDisplayed('');
+      setTimeout(() => setDisplayed(''), 0);
       interval = setInterval(() => {
         i++;
         setDisplayed(question.slice(0, i));

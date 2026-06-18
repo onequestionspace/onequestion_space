@@ -1,0 +1,17 @@
+
+/data/data/com.termux/files/home/onequestion_space/app/(space)/[username]/page.tsx
+   58:6   warning  React Hook useEffect has a missing dependency: 'incrementVisitor'. Either include it or remove the dependency array                                                                                                                                                                      react-hooks/exhaustive-deps
+  132:31  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/data/data/com.termux/files/home/onequestion_space/app/api/og/answer/route.tsx
+  38:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  38:11  warning  img elements must have an alt prop, either with meaningful text, or an empty string for decorative images                                                                                                                                                                                jsx-a11y/alt-text
+
+/data/data/com.termux/files/home/onequestion_space/app/dashboard/settings/page.tsx
+  153:23  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/data/data/com.termux/files/home/onequestion_space/app/onboarding/page.tsx
+  117:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+✖ 6 problems (0 errors, 6 warnings)
+

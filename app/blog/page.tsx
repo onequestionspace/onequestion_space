@@ -2,7 +2,9 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Send, BookOpen, Sparkles, Brain, Zap, Users, Code } from 'lucide-react';
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
+import { ArrowLeft, Send, BookOpen, Sparkles, Brain, Zap, Users, Code, Calendar, Tag, ArrowRight } from 'lucide-react';
 
 const TOPICS = [
   { icon: Brain, label: 'AI & Knowledge', q: 'How does One Question use AI to answer questions?' },
@@ -26,6 +28,7 @@ export default function BlogPage() {
     { role: 'ai', text: 'Welcome to the One Question Knowledge Explorer. Ask me anything about AI, building in public, bootstrapping, or how One Question works.' }
   ]);
   const [loading, setLoading] = useState(false);
+  const blogs = useQuery(api.blogs.getPublishedBlogs);
 
   const handleSubmit = async (q: string) => {
     if (!q.trim()) return;
@@ -107,7 +110,6 @@ export default function BlogPage() {
                 </div>
               )}
             </div>
-
             <div className="border-t border-white/10 p-3 flex gap-2">
               <input
                 value={question}
@@ -126,7 +128,7 @@ export default function BlogPage() {
             </div>
           </div>
 
-          <div className="glass rounded-2xl p-4 border border-white/10">
+          <div className="glass rounded-2xl p-4 border border-white/10 mb-8">
             <p className="text-xs text-muted-foreground mb-3">Popular questions</p>
             <div className="flex flex-wrap gap-2">
               {SUGGESTED.map((q, i) => (
@@ -136,6 +138,61 @@ export default function BlogPage() {
               ))}
             </div>
           </div>
+
+          <div className="mb-4">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-white">From the Blog</h2>
+              <span className="text-xs text-muted-foreground">Latest posts</span>
+            </div>
+
+            {blogs === undefined && (
+              <div className="space-y-3">
+                {[1,2,3].map(i => (
+                  <div key={i} className="glass rounded-2xl p-4 border border-white/10 animate-pulse">
+                    <div className="h-4 bg-white/10 rounded mb-2 w-3/4" />
+                    <div className="h-3 bg-white/5 rounded mb-1 w-full" />
+                    <div className="h-3 bg-white/5 rounded w-2/3" />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {blogs && blogs.length === 0 && (
+              <div className="glass rounded-2xl p-6 border border-white/10 text-center">
+                <BookOpen className="w-8 h-8 text-muted-foreground mx-auto mb-2" />
+                <p className="text-muted-foreground text-sm">No posts yet. Check back soon.</p>
+              </div>
+            )}
+
+            {blogs && blogs.length > 0 && (
+              <div className="space-y-3">
+                {blogs.map((blog) => (
+                  <Link key={blog._id} href={'/blog/' + blog.slug} className="block glass rounded-2xl p-4 border border-white/10 hover:border-primary/30 transition-all group">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-white font-semibold text-sm mb-1 group-hover:text-primary transition-colors line-clamp-2">{blog.title}</h3>
+                        <p className="text-muted-foreground text-xs leading-relaxed line-clamp-2 mb-2">{blog.excerpt}</p>
+                        <div className="flex items-center gap-3">
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Calendar className="w-3 h-3" />
+                            {new Date(blog.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                          </div>
+                          {blog.tags && blog.tags.length > 0 && (
+                            <div className="flex items-center gap-1">
+                              <Tag className="w-3 h-3 text-muted-foreground" />
+                              <span className="text-xs text-primary">{blog.tags[0]}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors flex-shrink-0 mt-1" />
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+
         </div>
       </main>
     </div>

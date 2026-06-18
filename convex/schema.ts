@@ -71,6 +71,21 @@ export default defineSchema({
   })
     .index('by_userId', ['userId']),
 
+  blogs: defineTable({
+    title: v.string(),
+    slug: v.string(),
+    excerpt: v.string(),
+    content: v.string(),
+    coverImage: v.optional(v.string()),
+    tags: v.optional(v.array(v.string())),
+    author: v.string(),
+    published: v.boolean(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index('by_slug', ['slug'])
+    .index('by_published', ['published']),
+
   waitlist: defineTable({
     name: v.optional(v.string()),
     username: v.optional(v.string()),

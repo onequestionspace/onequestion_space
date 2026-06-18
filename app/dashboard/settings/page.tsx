@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { AppearanceTab } from '@/components/AppearanceTab';
 import { redirect } from 'next/navigation';
@@ -150,7 +151,7 @@ export default function SettingsPage() {
               <div className="relative group shrink-0">
                 <div className="w-20 h-20 rounded-full bg-gradient-to-br from-purple-600 via-fuchsia-500 to-rose-500 flex items-center justify-center text-2xl font-bold text-white overflow-hidden ring-2 ring-purple-500/30">
                   {profile?.avatar
-                    ? <img src={profile.avatar} alt="avatar" className="w-full h-full object-cover" />
+                    ? <Image src={profile.avatar} alt="avatar" className="w-full h-full object-cover"  width={48} height={48} />
                     : initials
                   }
                 </div>

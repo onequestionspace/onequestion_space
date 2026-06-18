@@ -25,14 +25,14 @@ export function DashboardAI() {
   const knowledgeCount = useQuery(api.knowledge.getKnowledgeCount, userId ? { userId } : 'skip');
   const subscription = useQuery(api.subscriptions.getSubscription, userId ? { userId } : 'skip');
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     if (open && messages.length === 0 && profile) {
-      setMessages([{
+      setTimeout(() => setMessages([{
         role: 'assistant',
         content: 'Hey ' + (profile?.displayName || 'there') + '! I know your space inside out. Ask me anything.',
-      }]);
+      }]), 0);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, profile]);
 
   // eslint-disable-next-line react-hooks/set-state-in-effect

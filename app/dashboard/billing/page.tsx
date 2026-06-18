@@ -46,12 +46,10 @@ function BillingContent() {
   const [loading, setLoading] = useState('');
   const [verifyStatus, setVerifyStatus] = useState('');
   const searchParams = useSearchParams();
-
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     const reference = searchParams.get('reference');
     if (!reference) return;
-    setVerifyStatus('verifying');
+    setTimeout(() => setVerifyStatus('verifying'), 0);
     fetch('/api/paystack/verify?reference=' + reference)
       .then(r => r.json())
       .then(data => {

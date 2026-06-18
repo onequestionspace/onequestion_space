@@ -25,7 +25,7 @@ export async function GET(req: Request) {
       }}>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ display: 'flex', fontSize: 32, opacity: 0.6, marginBottom: 20 }}>
-            {name}'s answer on OneQuestion
+            {name}&apos;s answer on OneQuestion
           </div>
           <div style={{ display: 'flex', fontSize: 56, fontWeight: 700, marginBottom: 40, lineHeight: 1.2 }}>
             {q}
@@ -35,7 +35,8 @@ export async function GET(req: Request) {
           </div>
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-          <img src={logoUrl} width={48} height={48} style={{ marginRight: 16 }} />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={logoUrl} width={48} height={48} style={{ marginRight: 16 }} alt="" />
           <div style={{ fontSize: 24, opacity: 0.5 }}>
             onequestion.space
           </div>
