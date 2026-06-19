@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { useQuery } from 'convex/react';
+import { useUser } from '@clerk/nextjs';
 import { api } from '@/convex/_generated/api';
 import { ArrowLeft, Send, BookOpen, Sparkles, Brain, Zap, Users, Code, Calendar, Tag, ArrowRight } from 'lucide-react';
 
@@ -28,6 +29,7 @@ export default function BlogPage() {
     { role: 'ai', text: 'Welcome to the One Question Knowledge Explorer. Ask me anything about AI, building in public, bootstrapping, or how One Question works.' }
   ]);
   const [loading, setLoading] = useState(false);
+  const { isSignedIn } = useUser();
   const blogs = useQuery(api.blogs.getPublishedBlogs);
 
   const handleSubmit = async (q: string) => {
@@ -142,7 +144,13 @@ export default function BlogPage() {
           <div className="mb-4">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold text-white">From the Blog</h2>
-              <span className="text-xs text-muted-foreground">Latest posts</span>
+              {isSignedIn ? (
+                <Link href="/dashboard/blogs" className="text-xs px-3 py-1.5 rounded-full bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20 transition-colors">
+                  + Write a post
+                </Link>
+              ) : (
+                <span className="text-xs text-muted-foreground">Latest posts</span>
+              )}
             </div>
 
             {blogs === undefined && (
