@@ -28,6 +28,126 @@ const CARD_STYLES: Record<string, string> = {
   minimal: 'bg-transparent',
 };
 
+
+// ── Animated Background Components ──────────────────────────────────────────
+function ParticlesBackground({ color }: { color: string }) {
+  return (
+    <div className='fixed inset-0 -z-10 overflow-hidden pointer-events-none'>
+      {Array.from({ length: 20 }).map((_, i) => (
+        <div
+          key={i}
+          className='absolute rounded-full opacity-20 animate-float'
+          style={{
+            width: Math.random() * 4 + 2 + 'px',
+            height: Math.random() * 4 + 2 + 'px',
+            backgroundColor: color,
+            left: Math.random() * 100 + '%',
+            top: Math.random() * 100 + '%',
+            animationDuration: Math.random() * 10 + 8 + 's',
+            animationDelay: Math.random() * 5 + 's',
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function BubblesBackground({ color }: { color: string }) {
+  return (
+    <div className='fixed inset-0 -z-10 overflow-hidden pointer-events-none'>
+      {Array.from({ length: 12 }).map((_, i) => (
+        <div
+          key={i}
+          className='absolute rounded-full animate-rise'
+          style={{
+            width: Math.random() * 60 + 20 + 'px',
+            height: Math.random() * 60 + 20 + 'px',
+            border: '1px solid ' + color + '30',
+            backgroundColor: color + '08',
+            left: Math.random() * 100 + '%',
+            bottom: '-100px',
+            animationDuration: Math.random() * 12 + 10 + 's',
+            animationDelay: Math.random() * 8 + 's',
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+function NetBackground({ color }: { color: string }) {
+  return (
+    <svg className='fixed inset-0 -z-10 w-full h-full pointer-events-none opacity-20' xmlns='http://www.w3.org/2000/svg'>
+      <defs>
+        <pattern id='net' x='0' y='0' width='60' height='60' patternUnits='userSpaceOnUse'>
+          <path d='M 60 0 L 0 0 0 60' fill='none' stroke={color} strokeWidth='0.5' />
+        </pattern>
+      </defs>
+      <rect width='100%' height='100%' fill='url(#net)' />
+      {Array.from({ length: 8 }).map((_, i) => (
+        <circle
+          key={i}
+          cx={Math.random() * 100 + '%'}
+          cy={Math.random() * 100 + '%'}
+          r='3'
+          fill={color}
+          opacity='0.4'
+        />
+      ))}
+    </svg>
+  );
+}
+
+function AuroraBackground({ color }: { color: string }) {
+  return (
+    <div className='fixed inset-0 -z-10 overflow-hidden pointer-events-none'>
+      <div className='absolute -top-40 -left-40 w-96 h-96 rounded-full blur-[120px] opacity-30 animate-aurora-1' style={{ backgroundColor: color }} />
+      <div className='absolute top-1/2 -right-40 w-80 h-80 rounded-full blur-[100px] opacity-20 animate-aurora-2' style={{ backgroundColor: color }} />
+      <div className='absolute -bottom-40 left-1/3 w-72 h-72 rounded-full blur-[80px] opacity-25 animate-aurora-3' style={{ backgroundColor: color }} />
+    </div>
+  );
+}
+
+function MatrixBackground({ color }: { color: string }) {
+  const chars = '01アイウエオカキクケコサシスセソ';
+  return (
+    <div className='fixed inset-0 -z-10 overflow-hidden pointer-events-none'>
+      {Array.from({ length: 15 }).map((_, i) => (
+        <div
+          key={i}
+          className='absolute top-0 text-xs font-mono animate-matrix flex flex-col gap-2'
+          style={{
+            color: color,
+            opacity: 0.15,
+            left: (i * 7) + '%',
+            animationDuration: Math.random() * 8 + 6 + 's',
+            animationDelay: Math.random() * 4 + 's',
+          }}
+        >
+          {Array.from({ length: 20 }).map((_, j) => (
+            <span key={j}>{chars[Math.floor(Math.random() * chars.length)]}</span>
+          ))}
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SpaceBackground({ themeBg, color }: { themeBg: string; color: string }) {
+  switch (themeBg) {
+    case 'particles': return <ParticlesBackground color={color} />;
+    case 'bubbles': return <BubblesBackground color={color} />;
+    case 'net': return <NetBackground color={color} />;
+    case 'aurora': return <AuroraBackground color={color} />;
+    case 'matrix': return <MatrixBackground color={color} />;
+    default: return (
+      <div className='fixed inset-0 -z-10 overflow-hidden pointer-events-none'>
+        <div className='absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full blur-[120px] opacity-20' style={{ backgroundColor: color }} />
+      </div>
+    );
+  }
+}
+
 export default function SpacePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = use(params);
   const [question, setQuestion] = useState('');

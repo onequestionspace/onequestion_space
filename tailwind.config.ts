@@ -46,13 +46,40 @@ const config: Config = {
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
       animation: {
+        'float': 'float 10s ease-in-out infinite',
+        'rise': 'rise 12s ease-in infinite',
+        'aurora-1': 'aurora1 8s ease-in-out infinite',
+        'aurora-2': 'aurora2 10s ease-in-out infinite',
+        'aurora-3': 'aurora3 12s ease-in-out infinite',
+        'matrix': 'matrix 8s linear infinite',
         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'float': 'float 6s ease-in-out infinite',
       },
       keyframes: {
         float: {
-          '0%, 100%': { transform: 'translateY(0)' },
-          '50%': { transform: 'translateY(-10px)' },
+          '0%, 100%': { transform: 'translateY(0px) translateX(0px)' },
+          '25%': { transform: 'translateY(-20px) translateX(10px)' },
+          '50%': { transform: 'translateY(-10px) translateX(-10px)' },
+          '75%': { transform: 'translateY(-30px) translateX(5px)' },
+        },
+        rise: {
+          '0%': { transform: 'translateY(0) scale(1)', opacity: '0.3' },
+          '100%': { transform: 'translateY(-110vh) scale(1.5)', opacity: '0' },
+        },
+        aurora1: {
+          '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
+          '50%': { transform: 'translate(80px, 40px) scale(1.2)' },
+        },
+        aurora2: {
+          '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
+          '50%': { transform: 'translate(-60px, -30px) scale(1.1)' },
+        },
+        aurora3: {
+          '0%, 100%': { transform: 'translate(0, 0) scale(1)' },
+          '50%': { transform: 'translate(40px, -50px) scale(1.3)' },
+        },
+        matrix: {
+          '0%': { transform: 'translateY(-100%)' },
+          '100%': { transform: 'translateY(100vh)' },
         },
       },
     },
