@@ -25,6 +25,10 @@ const BG_STYLES: Record<string, string> = {
   aurora: 'bg-gradient-to-br from-purple-950 to-blue-950',
   sunset: 'bg-gradient-to-br from-orange-950 to-pink-950',
   ocean: 'bg-gradient-to-br from-cyan-950 to-blue-950',
+  particles: 'bg-zinc-950',
+  bubbles: 'bg-zinc-950',
+  net: 'bg-zinc-950',
+  matrix: 'bg-black',
 };
 
 const FONT_STYLES: Record<string, string> = {
