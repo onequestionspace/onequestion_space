@@ -357,30 +357,30 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
                     </p>
                   </div>
                 )}
-                {!isTyping && aiResponse && profile?._id && (
+                {!isTyping && aiResponse && profile?._id && !aiResponse.includes("knowledge base content yet") && (
                   <div className='mt-4 p-4 rounded-2xl bg-white/3 border border-white/8'>
                     <p className='text-xs text-zinc-500 mb-3 text-center'>Was this helpful?</p>
                     <div className='flex items-center justify-center gap-3'>
                       {[
-                        { emoji: '🔥', label: 'Fire' },
-                        { emoji: '❤️', label: 'Love' },
-                        { emoji: '🧠', label: 'Insightful' },
-                        { emoji: '👏', label: 'Clap' },
-                        { emoji: '😮', label: 'Wow' },
-                      ].map(({ emoji, label }) => (
+                        { emoji: '🔥', key: 'fire', label: 'Fire' },
+                        { emoji: '❤️', key: 'love', label: 'Love' },
+                        { emoji: '🧠', key: 'brain', label: 'Insightful' },
+                        { emoji: '👏', key: 'clap', label: 'Clap' },
+                        { emoji: '😮', key: 'wow', label: 'Wow' },
+                      ].map(({ emoji, key, label }) => (
                         <button
-                          key={emoji}
+                          key={key}
                           onClick={async () => {
                             if (reacted) return;
-                            setReacted(emoji);
-                            await addReaction({ profileId: profile._id, emoji, visitorId });
+                            setReacted(key);
+                            await addReaction({ profileId: profile._id, emoji: key, visitorId });
                           }}
                           title={label}
-                          className={'flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ' + (reacted === emoji ? 'bg-white/10 scale-110' : reacted ? 'opacity-30' : 'hover:bg-white/8 hover:scale-105')}
+                          className={'flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ' + (reacted === key ? 'bg-white/10 scale-110' : reacted ? 'opacity-30' : 'hover:bg-white/8 hover:scale-105')}
                         >
                           <span className='text-xl'>{emoji}</span>
                           <span className='text-xs text-zinc-500'>
-                            {(reactions?.[emoji] || 0) + (reacted === emoji ? 1 : 0)}
+                            {(reactions?.[key] || 0) + (reacted === key ? 1 : 0)}
                           </span>
                         </button>
                       ))}

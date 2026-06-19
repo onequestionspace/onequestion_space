@@ -9,9 +9,15 @@ export const getReactions = query({
       .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
       .collect();
 
-    const counts: Record<string, number> = {};
+    const counts: Record<string, number> = {
+      fire: 0,
+      love: 0,
+      brain: 0,
+      clap: 0,
+      wow: 0,
+    };
     for (const r of reactions) {
-      counts[r.emoji] = (counts[r.emoji] || 0) + 1;
+      if (r.emoji in counts) counts[r.emoji]++;
     }
     return counts;
   },
@@ -24,7 +30,6 @@ export const addReaction = mutation({
     visitorId: v.string(),
   },
   handler: async (ctx, args) => {
-    // Check if visitor already reacted with this emoji
     const existing = await ctx.db
       .query('reactions')
       .withIndex('by_profileId_emoji', (q) =>
