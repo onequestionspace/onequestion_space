@@ -22,7 +22,7 @@ export async function GET(request: NextRequest) {
       if (type === 'credits' && credits) {
         await convex.mutation(api.subscriptions.addCredits, { userId, credits });
       } else if (type === 'subscription' && plan) {
-        await convex.mutation(api.subscriptions.updateSubscription, { userId, plan, status: 'active' });
+        await convex.mutation(api.subscriptions.updateSubscription, { userId, plan: plan as 'free' | 'starter' | 'pro' | 'business' | 'enterprise', status: 'active' });
       }
     }
 

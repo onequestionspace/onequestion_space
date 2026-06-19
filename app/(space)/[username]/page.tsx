@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Brain, Sparkles, Copy, Check, XIcon, Github, Globe, Linkedin } from 'lucide-react';
+import { Send, Brain, Sparkles, Copy, Check, XIcon, GitBranch, Globe, ExternalLink } from 'lucide-react';
 
 const BG_STYLES: Record<string, string> = {
   dark: 'bg-zinc-900',
