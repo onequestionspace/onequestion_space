@@ -13,6 +13,7 @@ import type * as blogs from "../blogs.js";
 import type * as knowledge from "../knowledge.js";
 import type * as profiles from "../profiles.js";
 import type * as questions from "../questions.js";
+import type * as reactions from "../reactions.js";
 import type * as subscriptions from "../subscriptions.js";
 import type * as waitlist from "../waitlist.js";
 import type * as whoami from "../whoami.js";
@@ -29,6 +30,7 @@ declare const fullApi: ApiFromModules<{
   knowledge: typeof knowledge;
   profiles: typeof profiles;
   questions: typeof questions;
+  reactions: typeof reactions;
   subscriptions: typeof subscriptions;
   waitlist: typeof waitlist;
   whoami: typeof whoami;

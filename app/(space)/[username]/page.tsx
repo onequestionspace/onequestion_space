@@ -7,6 +7,17 @@ import { api } from '@/convex/_generated/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Brain, Sparkles, Copy, Check, XIcon, GitBranch, Globe, ExternalLink } from 'lucide-react';
 
+const stripMarkdown = (text: string) => {
+  return text
+    .split('**').join('')
+    .split('##').join('')
+    .split('# ').join('')
+    .split('* ').join('')
+    .split('__').join('')
+    .replace(/^[#]+\s/gm, '')
+    .trim();
+};
+
 const BG_STYLES: Record<string, string> = {
   dark: 'bg-zinc-900',
   darker: 'bg-black',
@@ -163,6 +174,19 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
     profile?._id ? { profileId: profile._id } : 'skip'
   );
   const createQuestion = useMutation(api.questions.createQuestion);
+  const addReaction = useMutation(api.reactions.addReaction);
+  const reactions = useQuery(
+    api.reactions.getReactions,
+    profile?._id ? { profileId: profile._id } : 'skip'
+  );
+  const [reacted, setReacted] = useState<string | null>(null);
+  const visitorId = typeof window !== 'undefined'
+    ? (localStorage.getItem('visitor_id') || (() => {
+        const id = Math.random().toString(36).slice(2);
+        localStorage.setItem('visitor_id', id);
+        return id;
+      })())
+    : 'anon';
   const incrementVisitor = useMutation(api.analytics.incrementVisitorCount);
   const incrementQuestion = useMutation(api.analytics.incrementQuestionCount);
 
@@ -198,7 +222,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
         body: JSON.stringify({ question, username }),
       });
       const data = await res.json();
-      const fullResponse = data?.data?.answer || data?.answer || 'I am thinking through your question.';
+      const fullResponse = stripMarkdown(data?.data?.answer || data?.answer || 'I am thinking through your question.');
       let current = '';
       const words = fullResponse.split(' ');
       for (let i = 0; i < words.length; i++) {
@@ -297,6 +321,13 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
               </motion.div>
             ) : (
               <motion.div key='response' initial={{ opacity: 0 }} animate={{ opacity: 1 }} ref={responseRef}>
+                {/* Question bubble */}
+                <div className='flex justify-end mb-4'>
+                  <div className='max-w-[85%] px-4 py-3 rounded-2xl bg-white/8 border border-white/10'>
+                    <p className='text-xs text-zinc-500 mb-1'>You asked</p>
+                    <p className='text-sm text-white leading-relaxed'>{question}</p>
+                  </div>
+                </div>
                 {isTyping && !aiResponse && (
                   <div className='flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10'>
                     <div className='w-8 h-8 rounded-full flex items-center justify-center' style={{ backgroundColor: color + '25' }}>
@@ -309,9 +340,12 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
                 )}
                 {aiResponse && (
                   <div className='p-4 rounded-2xl' style={{ backgroundColor: color + '10', border: '1px solid ' + color + '25' }}>
-                    <div className='flex items-center gap-2 mb-3'>
-                      <Brain className='w-4 h-4' style={{ color }} />
-                      <span className='text-xs font-medium' style={{ color }}>AI Response</span>
+                    <div className='flex items-center justify-between gap-2 mb-3'>
+                      <div className='flex items-center gap-2'>
+                        <Brain className='w-4 h-4' style={{ color }} />
+                        <span className='text-xs font-medium' style={{ color }}>AI Response</span>
+                      </div>
+                      <span className='text-xs text-zinc-600'>{aiResponse.split(' ').length} tokens</span>
                     </div>
                     <p className='text-sm text-white/80 leading-relaxed'>
                       {aiResponse}
@@ -319,8 +353,43 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
                     </p>
                   </div>
                 )}
+                {!isTyping && aiResponse && profile?._id && (
+                  <div className='mt-4 p-4 rounded-2xl bg-white/3 border border-white/8'>
+                    <p className='text-xs text-zinc-500 mb-3 text-center'>Was this helpful?</p>
+                    <div className='flex items-center justify-center gap-3'>
+                      {[
+                        { emoji: '🔥', label: 'Fire' },
+                        { emoji: '❤️', label: 'Love' },
+                        { emoji: '🧠', label: 'Insightful' },
+                        { emoji: '👏', label: 'Clap' },
+                        { emoji: '😮', label: 'Wow' },
+                      ].map(({ emoji, label }) => (
+                        <button
+                          key={emoji}
+                          onClick={async () => {
+                            if (reacted) return;
+                            setReacted(emoji);
+                            await addReaction({ profileId: profile._id, emoji, visitorId });
+                          }}
+                          title={label}
+                          className={'flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ' + (reacted === emoji ? 'bg-white/10 scale-110' : reacted ? 'opacity-30' : 'hover:bg-white/8 hover:scale-105')}
+                        >
+                          <span className='text-xl'>{emoji}</span>
+                          <span className='text-xs text-zinc-500'>
+                            {(reactions?.[emoji] || 0) + (reacted === emoji ? 1 : 0)}
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                    {reacted && (
+                      <p className='text-xs text-center mt-3' style={{ color }}>
+                        Thanks for the reaction!
+                      </p>
+                    )}
+                  </div>
+                )}
                 {!isTyping && aiResponse && (
-                  <button onClick={() => { setSubmitted(false); setAiResponse(''); setQuestion(''); }} className='w-full mt-4 py-2.5 rounded-2xl border border-white/10 text-sm text-zinc-500 hover:text-white hover:bg-white/5 transition-all'>
+                  <button onClick={() => { setSubmitted(false); setAiResponse(''); setQuestion(''); setReacted(null); }} className='w-full mt-4 py-2.5 rounded-2xl border border-white/10 text-sm text-zinc-500 hover:text-white hover:bg-white/5 transition-all'>
                     Ask another question
                   </button>
                 )}

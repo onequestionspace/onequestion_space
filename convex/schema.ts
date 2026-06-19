@@ -86,6 +86,15 @@ export default defineSchema({
     .index('by_slug', ['slug'])
     .index('by_published', ['published']),
 
+  reactions: defineTable({
+    profileId: v.id('profiles'),
+    emoji: v.string(),
+    visitorId: v.string(),
+    createdAt: v.number(),
+  })
+    .index('by_profileId', ['profileId'])
+    .index('by_profileId_emoji', ['profileId', 'emoji']),
+
   waitlist: defineTable({
     name: v.optional(v.string()),
     username: v.optional(v.string()),
