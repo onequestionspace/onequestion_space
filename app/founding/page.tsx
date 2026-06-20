@@ -12,7 +12,7 @@ const PERKS = [
   { icon: Star, text: 'Your name in the product as a founder' },
   { icon: MessageSquare, text: 'Direct line to Asym — shape the roadmap' },
   { icon: Zap, text: 'Early access to every new feature' },
-  { icon: Users, text: 'Private founders community on GitHub' },
+  { icon: Users, text: 'Private Discord community — founders only' },
 ];
 
 export default function FoundingPage() {
@@ -187,6 +187,21 @@ export default function FoundingPage() {
           </div>
 
           {/* Footer note */}
+          <div className="glass rounded-2xl p-4 border border-white/10 mb-6 flex items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-semibold text-white mb-0.5">Join the Discord</p>
+              <p className="text-xs text-muted-foreground">Founders + community. Building in public together.</p>
+            </div>
+            <a
+              href="https://discord.gg/6bPCJtgXm"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-4 py-2 rounded-full bg-indigo-500 text-white text-xs font-bold hover:opacity-90 transition-opacity shrink-0"
+            >
+              Join
+            </a>
+          </div>
+
           <p className="text-center text-xs text-muted-foreground">
             Built by <a href="https://x.com/Asym_Alwali" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">@Asym_Alwali</a> · Yobe, Nigeria · Android only
           </p>
