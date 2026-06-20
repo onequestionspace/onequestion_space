@@ -193,7 +193,7 @@ export default function FoundingPage() {
               <p className="text-xs text-muted-foreground">Founders + community. Building in public together.</p>
             </div>
             <a
-              href="https://discord.gg/6bPCJtgXm"
+              href="https://discord.gg/JuQJQRTDYP"
               target="_blank"
               rel="noopener noreferrer"
               className="px-4 py-2 rounded-full bg-indigo-500 text-white text-xs font-bold hover:opacity-90 transition-opacity shrink-0"
