@@ -7,7 +7,7 @@
 Built entirely from an Android phone using Termux. No laptop. No office. Just constraints and shipping.
 
 → **Live:** [onequestion.space](https://onequestion.space)  
-→ **Founder:** [@Asym_Alwali](https://x.com/Asym_Alwali) · Kaduna, Nigeria  
+→ **Founder:** [@Asym_Alwali](https://x.com/Asym_Alwali) · Yobe, Nigeria  
 → **Co-founder:** [@MuhammadParaja](https://x.com/MuhammadParaja)  
 → **Brand:** Chimera
 
@@ -73,7 +73,7 @@ This project is built 100% from a phone:
 
 - **Device:** Android (Termux)
 - **No laptop** — ever
-- **Internet:** Starlink data bundles, Kaduna Nigeria
+- **Internet:** Starlink data bundles, Yobe Nigeria
 - **CI:** GitHub Actions catches TypeScript errors before they hit production
 - **Deploy:** push to main → Vercel auto-deploys
 

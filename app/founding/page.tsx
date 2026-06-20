@@ -188,7 +188,7 @@ export default function FoundingPage() {
 
           {/* Footer note */}
           <p className="text-center text-xs text-muted-foreground">
-            Built by <a href="https://x.com/Asym_Alwali" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">@Asym_Alwali</a> · Kaduna, Nigeria · Android only
+            Built by <a href="https://x.com/Asym_Alwali" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">@Asym_Alwali</a> · Yobe, Nigeria · Android only
           </p>
 
         </div>

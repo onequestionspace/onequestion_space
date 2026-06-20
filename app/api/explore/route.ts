@@ -5,7 +5,7 @@ const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 const MODEL = 'gemini-2.5-flash';
 
 const KNOWLEDGE = `
-One Question is an AI-powered personal Q&A platform built by Asym Alwali, a 19-year-old CS student from Kaduna, Nigeria. He builds entirely from an Android phone using Termux — no laptop.
+One Question is an AI-powered personal Q&A platform built by Asym Alwali, a 19-year-old CS student from Yobe, Nigeria. He builds entirely from an Android phone using Termux — no laptop.
 
 HOW IT WORKS:
 Users claim a username at onequestion.space, upload their knowledge (bio, FAQs, projects, services), and share their space link. Visitors ask questions and the AI answers instantly using the uploaded knowledge.
