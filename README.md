@@ -1,117 +1,118 @@
 # One Question
 
-"Your knowledge. Your answers. Your space."
+> Your AI. Your answers. Always on.
 
-One Question is a platform where anyone creates their own AI-powered Q&A page. Users upload knowledge once, and AI answers visitor questions using that knowledge.
+**One Question** is an AI-powered personal Q&A platform. Claim a username, upload your knowledge once, and let AI answer every visitor question instantly — in your voice, 24/7.
+
+Built entirely from an Android phone using Termux. No laptop. No office. Just constraints and shipping.
+
+→ **Live:** [onequestion.space](https://onequestion.space)  
+→ **Founder:** [@Asym_Alwali](https://x.com/Asym_Alwali) · Kaduna, Nigeria  
+→ **Co-founder:** [@MuhammadParaja](https://x.com/MuhammadParaja)  
+→ **Brand:** Chimera
+
+---
+
+## What it does
+
+1. You claim `onequestion.space/yourname`
+2. You upload your knowledge — bio, FAQs, projects, services
+3. Visitors ask questions
+4. AI answers instantly using your knowledge, in your voice
+5. You never have to answer the same question twice
+
+---
 
 ## Tech Stack
 
-- Next.js App Router
-- TypeScript
-- Tailwind CSS
-- Convex
-- Clerk
-- OpenAI
-- Paystack
-- Vercel
-- GitHub
-- shadcn/ui
+| Layer | Tool |
+|-------|------|
+| Framework | Next.js 16 (webpack — Turbopack breaks on Android) |
+| Database | Convex (real-time) |
+| Auth | Clerk |
+| AI Answers | Gemini 2.5 Flash |
+| Embeddings | Gemini Embedding 001 (3072 dims) |
+| Styling | Tailwind CSS + shadcn/ui |
+| Payments | Paystack |
+| Deployment | Vercel |
 
-## Getting Started
+---
 
-1.  **Clone the repository:**
+## Running locally
 
-    ```bash
-    git clone https://github.com/onequestionspace/stackblitz-starters-cnscawrq.git one-question
-    cd one-question
-    ```
+```bash
+git clone https://github.com/onequestionspace/onequestion_space.git
+cd onequestion_space
+npm install
+```
 
-2.  **Install dependencies:**
+Create `.env.local`:
 
-    ```bash
-    npm install
-    ```
+```env
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_...
+CLERK_SECRET_KEY=sk_...
+NEXT_PUBLIC_CONVEX_URL=https://...
+CONVEX_DEPLOY_KEY=...
+GEMINI_API_KEY=...
+PAYSTACK_SECRET_KEY=sk_...
+NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=pk_...
+```
 
-3.  **Set up environment variables:**
+```bash
+npx convex dev --once
+npx next dev --webpack --port 3000
+```
 
-    Create a `.env.local` file in the root of your project and add the following:
+> Note: always use `--webpack`. Turbopack is not supported on Android/Termux.
 
-    ```
-    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_...
-    CLERK_SECRET_KEY=sk_test_...
-    
-    CONVEX_DEPLOYMENT_URL=https://...
-    
-    OPENAI_API_KEY=sk-...
-    
-    PAYSTACK_SECRET_KEY=sk_test_...
-    NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=pk_test_...
-    ```
+---
 
-4.  **Run the development server:**
+## Build constraints
 
-    ```bash
-    npm run dev
-    ```
+This project is built 100% from a phone:
 
-    Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Device:** Android (Termux)
+- **No laptop** — ever
+- **Internet:** Starlink data bundles, Kaduna Nigeria
+- **CI:** GitHub Actions catches TypeScript errors before they hit production
+- **Deploy:** push to main → Vercel auto-deploys
 
-## Project Structure
+Constraints force better decisions. Shipping beats perfection.
+
+---
+
+## Project structure
 
 ```
 app/
-├── dashboard/
-│   ├── page.tsx
-│   ├── knowledge/page.tsx
-│   ├── analytics/page.tsx
-│   ├── billing/page.tsx
-│   └── settings/page.tsx
-├── pricing/page.tsx
-├── waitlist/page.tsx
-├── [username]/page.tsx
+├── (space)/[username]/   — public AI Q&A space
+├── dashboard/            — user dashboard
+│   ├── train/            — AI training chat
+│   ├── knowledge/        — knowledge base manager
+│   ├── analytics/        — real-time stats
+│   ├── blogs/            — blog editor
+│   └── settings/         — appearance + profile
+├── blog/                 — Knowledge Explorer + blog
+├── founding/             — founding members page
 └── api/
-    ├── ask/route.ts
-    ├── upload/route.ts
-    ├── waitlist/route.ts
-    └── paystack/
-        ├── initialize/route.ts
-        ├── verify/route.ts
-        └── webhook/route.ts
-
-components/
-├── AskForm.tsx
-├── AnswerFeed.tsx
-├── ShareCard.tsx
-├── Navbar.tsx
-├── Footer.tsx
-├── UploadKnowledge.tsx
-└── ui/
+    ├── ask/              — main AI answer route
+    ├── knowledge/        — knowledge save + embed
+    └── paystack/         — payments
 
 convex/
 ├── schema.ts
 ├── profiles.ts
-├── questions.ts
 ├── knowledge.ts
+├── questions.ts
 ├── analytics.ts
+├── blogs.ts
+├── reactions.ts
+├── founding.ts
 └── subscriptions.ts
-
-lib/
-├── openai.ts
-├── paystack.ts
-├── clerk.ts
-├── utils.ts
-└── validations.ts
-
-hooks/
-types/
-constants/
 ```
 
-## Contributing
+---
 
-TODO: Add contributing guidelines.
+## Status
 
-## License
-
-TODO: Add license information.
-
+Actively building in public. Follow the journey on X → [@Asym_Alwali](https://x.com/Asym_Alwali)
