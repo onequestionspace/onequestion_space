@@ -105,6 +105,16 @@ export default defineSchema({
     .index('by_userId', ['userId'])
     .index('by_username', ['username']),
 
+  earlyAdopters: defineTable({
+    userId: v.string(),
+    username: v.string(),
+    displayName: v.string(),
+    claimedAt: v.number(),
+    spotNumber: v.number(),
+  })
+    .index('by_userId', ['userId'])
+    .index('by_username', ['username']),
+
   waitlist: defineTable({
     name: v.optional(v.string()),
     username: v.optional(v.string()),

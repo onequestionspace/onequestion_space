@@ -10,6 +10,7 @@
 
 import type * as analytics from "../analytics.js";
 import type * as blogs from "../blogs.js";
+import type * as earlyAdopters from "../earlyAdopters.js";
 import type * as founding from "../founding.js";
 import type * as knowledge from "../knowledge.js";
 import type * as profiles from "../profiles.js";
@@ -28,6 +29,7 @@ import type {
 declare const fullApi: ApiFromModules<{
   analytics: typeof analytics;
   blogs: typeof blogs;
+  earlyAdopters: typeof earlyAdopters;
   founding: typeof founding;
   knowledge: typeof knowledge;
   profiles: typeof profiles;
