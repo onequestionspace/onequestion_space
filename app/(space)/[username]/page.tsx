@@ -295,12 +295,12 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
           <div className='flex items-center justify-center gap-2 mb-3 flex-wrap'>
             <p className='text-sm' style={{ color }}>{profile.username}</p>
             {profile.userId === FOUNDER_ID && (
-              <span className='inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'>
+              <span className='inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/40'>
                 👑 Founder
               </span>
             )}
             {profile.userId !== FOUNDER_ID && foundingMember && (
-              <span className='inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold' style={{ backgroundColor: color + '20', color, border: '1px solid ' + color + '40' }}>
+              <span className='inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-500/10 text-yellow-400 border border-yellow-500/30'>
                 👑 Founding Member
               </span>
             )}

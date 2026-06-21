@@ -105,7 +105,7 @@ export default function FoundingPage() {
                 >
                   {member ? (
                     <div className="text-center">
-                      <p className="text-xs font-bold text-primary">#{number}</p>
+                      <p className="text-xs font-bold text-yellow-400">👑 #{number}</p>
                       <p className="text-xs text-white/60 truncate px-1">{member.displayName.split(' ')[0]}</p>
                     </div>
                   ) : (
