@@ -7,6 +7,11 @@ import { api } from '@/convex/_generated/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Brain, Sparkles, Copy, Check, XIcon, GitBranch, Globe, ExternalLink } from 'lucide-react';
 
+const COFOUNDER_IDS = [
+  'user_3EhKmuVyC1AhoBDlL7QNssllwgu',
+  'user_3Ev3UAWNTTDAlVWSYFGGsEI6qQz',
+];
+
 const stripMarkdown = (text: string) => {
   return text
     .split('**').join('')
@@ -299,6 +304,11 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
             {!foundingMember && earlyAdopter && (
               <span className='inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-white/10 text-white border border-white/20'>
                 ⚡ Early Adopter
+              </span>
+            )}
+            {COFOUNDER_IDS.includes(profile.userId) && (
+              <span className='inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30'>
+                🤝 Co-Founder
               </span>
             )}
           </div>
