@@ -179,6 +179,14 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   );
   const createQuestion = useMutation(api.questions.createQuestion);
   const addReaction = useMutation(api.reactions.addReaction);
+  const foundingMember = useQuery(
+    api.founding.isFoundingMember,
+    profile?._id ? { userId: profile.userId } : 'skip'
+  );
+  const earlyAdopter = useQuery(
+    api.earlyAdopters.isEarlyAdopter,
+    profile?._id ? { userId: profile.userId } : 'skip'
+  );
   const reactions = useQuery(
     api.reactions.getReactions,
     profile?._id ? { profileId: profile._id } : 'skip'
@@ -281,7 +289,19 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
             {profile.avatar ? <Image src={profile.avatar} alt={profile.displayName} className='w-full h-full object-cover'  width={48} height={48} /> : initials}
           </div>
           <h1 className='text-2xl font-bold text-white mb-1'>{profile.displayName}</h1>
-          <p className='text-sm mb-3' style={{ color }}>{profile.username}</p>
+          <div className='flex items-center justify-center gap-2 mb-3 flex-wrap'>
+            <p className='text-sm' style={{ color }}>{profile.username}</p>
+            {foundingMember && (
+              <span className='inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold' style={{ backgroundColor: color + '20', color, border: '1px solid ' + color + '40' }}>
+                👑 Founder
+              </span>
+            )}
+            {!foundingMember && earlyAdopter && (
+              <span className='inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-white/10 text-white border border-white/20'>
+                ⚡ Early Adopter
+              </span>
+            )}
+          </div>
           {profile.bio && <p className='text-zinc-400 text-sm max-w-sm mx-auto mb-5 leading-relaxed'>{profile.bio}</p>}
           {(social.twitter || social.github || social.website || social.linkedin) && (
             <div className='flex items-center justify-center gap-3 mb-5'>
