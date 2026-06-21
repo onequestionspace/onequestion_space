@@ -7,10 +7,8 @@ import { api } from '@/convex/_generated/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Brain, Sparkles, Copy, Check, XIcon, GitBranch, Globe, ExternalLink } from 'lucide-react';
 
-const COFOUNDER_IDS = [
-  'user_3EhKmuVyC1AhoBDlL7QNssllwgu',
-  'user_3Ev3UAWNTTDAlVWSYFGGsEI6qQz',
-];
+const COFOUNDER_IDS = ['user_3Ev3UAWNTTDAlVWSYFGGsEI6qQz'];
+const FOUNDER_ID = 'user_3EhKmuVyC1AhoBDlL7QNssllwgu';
 
 const stripMarkdown = (text: string) => {
   return text
@@ -296,9 +294,14 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
           <h1 className='text-2xl font-bold text-white mb-1'>{profile.displayName}</h1>
           <div className='flex items-center justify-center gap-2 mb-3 flex-wrap'>
             <p className='text-sm' style={{ color }}>{profile.username}</p>
-            {foundingMember && (
-              <span className='inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold' style={{ backgroundColor: color + '20', color, border: '1px solid ' + color + '40' }}>
+            {profile.userId === FOUNDER_ID && (
+              <span className='inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'>
                 👑 Founder
+              </span>
+            )}
+            {profile.userId !== FOUNDER_ID && foundingMember && (
+              <span className='inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold' style={{ backgroundColor: color + '20', color, border: '1px solid ' + color + '40' }}>
+                👑 Founding Member
               </span>
             )}
             {!foundingMember && earlyAdopter && (
