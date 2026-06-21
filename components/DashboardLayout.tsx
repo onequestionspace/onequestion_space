@@ -1,4 +1,6 @@
 'use client';
+import { useUser } from '@clerk/nextjs';
+import { Shield } from 'lucide-react';
 import { DashboardAI } from './DashboardAI';
 
 import Link from 'next/link';
@@ -36,6 +38,8 @@ const comingSoonItems = [
 
 export function DashboardLayout({ children, title, description }: DashboardLayoutProps) {
   const pathname = usePathname();
+  const { user } = useUser();
+  const isAdmin = user?.id === 'user_3EhKmuVyC1AhoBDlL7QNssllwgu' || user?.id === 'user_3Ev3UAWNTTDAlVWSYFGGsEI6qQz';
   const [isOpen, setIsOpen] = useState(false);
   const closeMenu = () => setIsOpen(false);
 
