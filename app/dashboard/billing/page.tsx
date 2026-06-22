@@ -10,13 +10,15 @@ import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Check, Zap, Loader2, Sparkles, Plus, Minus } from 'lucide-react';
 
-const CREDIT_PRICE = 0.018; // $0.018 per credit — so 500 = $9
+const CREDIT_PRICE = 27; // NGN per credit — 500 credits = NGN 13,500 (~$9)
+const USD_TO_NGN = 1500; // approximate rate for display/conversion
 
 const PLANS = [
   {
     id: 'free',
     name: 'Free',
     price: 0,
+    priceNGN: 0,
     credits: 50,
     color: '#71717a',
     features: ['50 AI answers/month', 'Basic analytics', 'Space customization', 'Knowledge base'],
@@ -25,6 +27,7 @@ const PLANS = [
     id: 'pro',
     name: 'Pro',
     price: 9,
+    priceNGN: 13500,
     credits: 500,
     color: '#a855f7',
     features: ['500 AI answers/month', 'Advanced analytics', 'Priority AI processing', 'Remove One Question branding', 'Custom welcome message'],
@@ -44,6 +47,7 @@ function BillingContent() {
   const { isSignedIn, isLoaded, userId } = useAuth();
   const [creditAmount, setCreditAmount] = useState(100);
   const [loading, setLoading] = useState('');
+  const [error, setError] = useState('');
   const [verifyStatus, setVerifyStatus] = useState('');
   const searchParams = useSearchParams();
   useEffect(() => {
@@ -71,9 +75,9 @@ function BillingContent() {
   const limit = subscription?.messagesLimit ?? 50;
   const plan = subscription?.plan ?? 'free';
   const usagePercent = Math.min(Math.round((used / limit) * 100), 100);
-  const creditCost = Math.round(creditAmount * CREDIT_PRICE * 100) / 100;
+  const creditCost = Math.round(creditAmount * CREDIT_PRICE);
 
-  const handleUpgrade = async (planId: string, price: number) => {
+  const handleUpgrade = async (planId: string, priceNGN: number) => {
     if (!userId) return;
     setLoading(planId);
     try {
@@ -81,7 +85,7 @@ function BillingContent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: price * 100,
+          amount: priceNGN * 100, // kobo
           email: '',
           metadata: { userId, plan: planId, type: 'subscription' },
         }),
@@ -97,27 +101,44 @@ function BillingContent() {
   const handleBuyCredits = async () => {
     if (!userId) return;
     setLoading('credits');
+    setError('');
     try {
       const res = await fetch('/api/paystack/initialize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: Math.round(creditCost * 100),
-          email: '',
-          metadata: { userId, credits: creditAmount, type: 'credits' },
+          amount: Math.round(creditAmount * CREDIT_PRICE * 100),
+          metadata: { credits: creditAmount, type: 'credits' },
         }),
       });
       const data = await res.json();
+      if (!res.ok || !data.success) {
+        setError(data.error || 'Failed to start checkout. Please try again.');
+        setLoading('');
+        return;
+      }
       if (data.data?.authorization_url) {
         window.location.href = data.data.authorization_url;
+      } else {
+        setError('No checkout URL returned. Please try again.');
+        setLoading('');
       }
-    } catch (e) { console.error(e); }
-    setLoading('');
+    } catch (e) {
+      console.error(e);
+      setError('Something went wrong. Please check your connection and try again.');
+      setLoading('');
+    }
   };
 
   return (
     <DashboardLayout title='Billing' description='Manage your plan and credits.'>
       <div className='max-w-3xl mx-auto space-y-8'>
+
+        {error && (
+          <div className='p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm'>
+            {error}
+          </div>
+        )}
         {verifyStatus === 'verifying' && (
           <div className='p-4 rounded-xl bg-primary/10 border border-primary/20 text-sm text-primary flex items-center gap-2'>
             <Loader2 className='w-4 h-4 animate-spin' /> Verifying your payment...
@@ -166,7 +187,7 @@ function BillingContent() {
                   <div className='text-xs font-bold px-2 py-0.5 rounded-full mb-3 inline-block' style={{ backgroundColor: '#a855f720', color: '#a855f7' }}>Recommended</div>
                 )}
                 <div className='flex items-end gap-1 mb-1'>
-                  <span className='text-2xl font-bold text-foreground'>{p.price === 0 ? 'Free' : '$' + p.price}</span>
+                  <span className='text-2xl font-bold text-foreground'>{p.price === 0 ? 'Free' : '₦' + p.priceNGN.toLocaleString()}</span>
                   {p.price > 0 && <span className='text-muted-foreground text-sm mb-0.5'>/month</span>}
                 </div>
                 <p className='text-xs text-muted-foreground mb-4'>{p.credits} AI credits included</p>
@@ -182,7 +203,7 @@ function BillingContent() {
                   <div className='w-full py-2.5 rounded-xl border border-border text-center text-sm text-muted-foreground'>Current Plan</div>
                 ) : (
                   <button
-                    onClick={() => handleUpgrade(p.id, p.price)}
+                    onClick={() => handleUpgrade(p.id, p.priceNGN)}
                     disabled={loading === p.id}
                     className='w-full py-2.5 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all disabled:opacity-50'
                     style={{ backgroundColor: p.color }}
@@ -214,7 +235,7 @@ function BillingContent() {
               >
                 <p className='text-sm font-bold text-foreground'>{pack.credits}</p>
                 <p className='text-xs text-muted-foreground'>{pack.label}</p>
-                <p className='text-xs font-medium mt-1' style={{ color: '#a855f7' }}>${Math.round(pack.credits * CREDIT_PRICE * 100) / 100}</p>
+                <p className='text-xs font-medium mt-1' style={{ color: '#a855f7' }}>₦{(pack.credits * CREDIT_PRICE).toLocaleString()}</p>
               </button>
             ))}
           </div>
@@ -255,7 +276,7 @@ function BillingContent() {
                 <p className='text-sm font-bold text-foreground'>{creditAmount} credits</p>
                 <p className='text-xs text-muted-foreground'>One-time purchase · Never expires</p>
               </div>
-              <p className='text-2xl font-bold text-foreground'>${creditCost}</p>
+              <p className='text-2xl font-bold text-foreground'>₦{creditCost.toLocaleString()}</p>
             </div>
           </div>
 
