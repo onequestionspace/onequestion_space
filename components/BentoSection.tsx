@@ -17,12 +17,12 @@ export function BentoSection() {
         {/* Row 1 — big + small */}
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-4'>
           {/* Big card */}
-          <div className='md:col-span-2 rounded-3xl border border-white/8 p-8 relative overflow-hidden group hover:border-primary/30 transition-all duration-300' style={{ background: 'linear-gradient(135deg,rgba(147,51,234,0.08),rgba(255,255,255,0.02))' }}>
+          <div className='md:col-span-2 rounded-3xl border border-white/8 p-6 relative overflow-hidden group hover:border-primary/30 transition-all duration-300 min-w-0' style={{ background: 'linear-gradient(135deg,rgba(147,51,234,0.08),rgba(255,255,255,0.02))' }}>
             <div className='absolute -right-12 -top-12 w-56 h-56 bg-primary/10 rounded-full blur-3xl group-hover:bg-primary/20 transition-all duration-500' />
             <Brain className='w-8 h-8 text-primary mb-5 relative z-10' />
             <h3 className='text-xl font-bold text-white mb-3 relative z-10'>Semantic AI Knowledge</h3>
             <p className='text-zinc-400 text-sm leading-relaxed mb-6 relative z-10'>Your AI uses vector embeddings to find the most relevant answer — not keyword matching. The more you upload, the smarter it gets.</p>
-            <div className='flex flex-wrap gap-2 relative z-10'>
+            <div className='flex flex-wrap gap-2 relative z-10 max-w-full'>
               {['PDF upload', 'Text training', 'Auto embeddings', 'Context search'].map(tag => (
                 <span key={tag} className='px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-medium'>{tag}</span>
               ))}
