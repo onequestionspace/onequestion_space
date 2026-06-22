@@ -19,10 +19,7 @@ const nextConfig = {
           source: '/api/:path*',
           destination: '/api/:path*',
         },
-        {
-          source: '/.well-known/apple-developer-merchantid-domain-association',
-          destination: '/api/well-known',
-        },
+
       ],
     };
   },
