@@ -52,9 +52,14 @@ export async function generateAnswer(question: string, chunks: string[], profile
 
     // Dynamic token limit based on question complexity
     const wordCount = question.split(' ').length;
-    const maxTokens = wordCount > 15 ? 600 : wordCount > 8 ? 400 : 250;
+    const maxTokens = wordCount > 15 ? 300 : wordCount > 8 ? 200 : 150;
 
     const prompt = `You are the personal AI for ${name}. Your job is to answer visitor questions on their behalf, using only what you know from their knowledge base.
+
+Critical formatting rules:
+- Never use markdown — no **bold**, no ##headers, no bullet lists
+- Write in plain conversational sentences only
+- Keep it natural like a real person texting back
 
 Personality:
 - Speak in first person as if you are ${name}
