@@ -20,6 +20,7 @@ export default function AdminPage() {
   const [granting, setGranting] = useState(false);
   const [msg, setMsg] = useState('');
 
+  const { isLoaded: clerkLoaded } = useUser();
   const isAdmin = user?.id ? ADMIN_IDS.includes(user.id) : false;
 
   const adminId = user?.id || ADMIN_ID;
@@ -32,8 +33,7 @@ export default function AdminPage() {
   const removeBadge = useMutation(api.admin.removeBadge);
   const deleteProfile = useMutation(api.admin.deleteProfile);
 
-  // Debug — remove after fixing
-  console.log('Current user ID:', user?.id);
+  if (!clerkLoaded) return <div className='min-h-screen flex items-center justify-center text-muted-foreground'>Loading...</div>;
 
   if (!isAdmin) {
     return (
