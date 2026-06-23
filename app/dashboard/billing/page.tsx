@@ -3,6 +3,7 @@ import { Suspense } from 'react';
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
+import { useUser } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { useQuery } from 'convex/react';
@@ -41,6 +42,7 @@ const CREDIT_PACKS = [
 
 function BillingContent() {
   const { isSignedIn, isLoaded, userId } = useAuth();
+  const { user } = useUser();
   const [creditAmount, setCreditAmount] = useState(100);
   const [loading, setLoading] = useState('');
   const [error, setError] = useState('');
@@ -78,6 +80,7 @@ function BillingContent() {
       const res = await fetch('/api/paystack/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user?.emailAddresses?.[0]?.emailAddress }),
       });
       const data = await res.json();
       if (data.data?.authorization_url) {
