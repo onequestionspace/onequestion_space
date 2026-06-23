@@ -1,24 +1,21 @@
 'use client';
 import { Suspense } from 'react';
-
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { redirect } from 'next/navigation';
 import { DashboardLayout } from '@/components/DashboardLayout';
-import { useQuery, useMutation } from 'convex/react';
+import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Check, Zap, Loader2, Sparkles, Plus, Minus } from 'lucide-react';
 
-const CREDIT_PRICE = 27; // NGN per credit — 500 credits = NGN 13,500 (~$9)
-const USD_TO_NGN = 1500; // approximate rate for display/conversion
+const CREDIT_PRICE_USD = 0.018;
 
 const PLANS = [
   {
     id: 'free',
     name: 'Free',
     price: 0,
-    priceNGN: 0,
     credits: 50,
     color: '#71717a',
     features: ['50 AI answers/month', 'Basic analytics', 'Space customization', 'Knowledge base'],
@@ -27,7 +24,6 @@ const PLANS = [
     id: 'pro',
     name: 'Pro',
     price: 9,
-    priceNGN: 13500,
     credits: 500,
     color: '#a855f7',
     features: ['500 AI answers/month', 'Advanced analytics', 'Priority AI processing', 'Remove One Question branding', 'Custom welcome message'],
@@ -50,6 +46,7 @@ function BillingContent() {
   const [error, setError] = useState('');
   const [verifyStatus, setVerifyStatus] = useState('');
   const searchParams = useSearchParams();
+
   useEffect(() => {
     const reference = searchParams.get('reference');
     if (!reference) return;
@@ -57,11 +54,8 @@ function BillingContent() {
     fetch('/api/paystack/verify?reference=' + reference)
       .then(r => r.json())
       .then(data => {
-        if (data.success && data.data?.status === 'success') {
-          setVerifyStatus('success');
-        } else {
-          setVerifyStatus('failed');
-        }
+        if (data.success && data.data?.status === 'success') setVerifyStatus('success');
+        else setVerifyStatus('failed');
       })
       .catch(() => setVerifyStatus('failed'));
   }, [searchParams]);
@@ -75,24 +69,23 @@ function BillingContent() {
   const limit = subscription?.messagesLimit ?? 50;
   const plan = subscription?.plan ?? 'free';
   const usagePercent = Math.min(Math.round((used / limit) * 100), 100);
-  const creditCost = Math.round(creditAmount * CREDIT_PRICE);
+  const creditCostUSD = (creditAmount * CREDIT_PRICE_USD).toFixed(2);
 
-  const handleUpgrade = async (planId: string, priceNGN: number) => {
-    if (!userId) return;
+  const handleUpgrade = async (planId: string, priceUSD: number) => {
+    if (!userId || priceUSD === 0) return;
     setLoading(planId);
     try {
       const res = await fetch('/api/paystack/initialize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: priceNGN * 100, // kobo
-          email: '',
+          amount: priceUSD * 100,
           metadata: { userId, plan: planId, type: 'subscription' },
         }),
       });
       const data = await res.json();
       if (data.data?.authorization_url) {
-        const url = data.data.authorization_url; setTimeout(() => { window.location.assign(url); }, 0);
+        window.location.assign(data.data.authorization_url);
       }
     } catch (e) { console.error(e); }
     setLoading('');
@@ -107,7 +100,7 @@ function BillingContent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          amount: Math.round(creditAmount * CREDIT_PRICE * 100),
+          amount: Math.round(creditAmount * CREDIT_PRICE_USD * 100),
           metadata: { credits: creditAmount, type: 'credits' },
         }),
       });
@@ -135,9 +128,7 @@ function BillingContent() {
       <div className='max-w-3xl mx-auto space-y-8'>
 
         {error && (
-          <div className='p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm'>
-            {error}
-          </div>
+          <div className='p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm'>{error}</div>
         )}
         {verifyStatus === 'verifying' && (
           <div className='p-4 rounded-xl bg-primary/10 border border-primary/20 text-sm text-primary flex items-center gap-2'>
@@ -155,21 +146,21 @@ function BillingContent() {
           </div>
         )}
 
-        {/* Current usage */}
+        {/* Usage */}
         <div className='glass-card rounded-2xl p-6 border border-border'>
           <div className='flex items-center justify-between mb-4'>
-            <h3 className='font-semibold text-foreground'>Current Usage</h3>
-            <span className='text-xs px-3 py-1 rounded-full bg-primary/10 text-primary font-medium capitalize'>{plan} plan</span>
+            <div>
+              <h3 className='font-semibold text-foreground'>Usage</h3>
+              <p className='text-xs text-muted-foreground mt-0.5'>Current billing period</p>
+            </div>
+            <span className='text-xs px-2.5 py-1 rounded-full font-medium capitalize' style={{ backgroundColor: '#a855f720', color: '#a855f7' }}>{plan}</span>
           </div>
           <div className='flex items-end gap-2 mb-3'>
             <span className='text-4xl font-bold text-foreground'>{used}</span>
             <span className='text-lg text-muted-foreground mb-1'>/ {limit} credits</span>
           </div>
           <div className='w-full h-3 bg-card rounded-full overflow-hidden mb-2'>
-            <div
-              className='h-full rounded-full transition-all'
-              style={{ width: usagePercent + '%', backgroundColor: usagePercent > 80 ? '#ef4444' : usagePercent > 50 ? '#f97316' : '#a855f7' }}
-            />
+            <div className='h-full rounded-full transition-all' style={{ width: usagePercent + '%', backgroundColor: usagePercent > 80 ? '#ef4444' : usagePercent > 50 ? '#f97316' : '#a855f7' }} />
           </div>
           <p className='text-xs text-muted-foreground'>{limit - used} credits remaining · Each AI answer uses 1 credit</p>
         </div>
@@ -179,16 +170,13 @@ function BillingContent() {
           <h3 className='font-semibold text-foreground mb-4'>Plans</h3>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             {PLANS.map(p => (
-              <div
-                key={p.id}
-                className={'glass-card rounded-2xl p-6 border-2 transition-all ' + (plan === p.id ? 'border-primary' : 'border-border')}
-              >
+              <div key={p.id} className={'glass-card rounded-2xl p-6 border-2 transition-all ' + (plan === p.id ? 'border-primary' : 'border-border')}>
                 {p.recommended && (
                   <div className='text-xs font-bold px-2 py-0.5 rounded-full mb-3 inline-block' style={{ backgroundColor: '#a855f720', color: '#a855f7' }}>Recommended</div>
                 )}
                 <div className='flex items-end gap-1 mb-1'>
-                  <span className='text-2xl font-bold text-foreground'>{p.price === 0 ? 'Free' : '₦' + p.priceNGN.toLocaleString()}</span>
-                  {p.price > 0 && <span className='text-muted-foreground text-sm mb-0.5'>/month</span>}
+                  <span className='text-3xl font-black text-foreground'>{p.price === 0 ? 'Free' : '$' + p.price}</span>
+                  {p.price > 0 && <span className='text-muted-foreground text-sm mb-1'>/month</span>}
                 </div>
                 <p className='text-xs text-muted-foreground mb-4'>{p.credits} AI credits included</p>
                 <ul className='space-y-2 mb-6'>
@@ -203,13 +191,13 @@ function BillingContent() {
                   <div className='w-full py-2.5 rounded-xl border border-border text-center text-sm text-muted-foreground'>Current Plan</div>
                 ) : (
                   <button
-                    onClick={() => handleUpgrade(p.id, p.priceNGN)}
-                    disabled={loading === p.id}
+                    onClick={() => handleUpgrade(p.id, p.price)}
+                    disabled={loading === p.id || p.price === 0}
                     className='w-full py-2.5 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all disabled:opacity-50'
                     style={{ backgroundColor: p.color }}
                   >
                     {loading === p.id ? <Loader2 className='w-4 h-4 animate-spin' /> : <Zap className='w-4 h-4' />}
-                    Upgrade to {p.name}
+                    {p.price === 0 ? 'Current Plan' : 'Upgrade to ' + p.name}
                   </button>
                 )}
               </div>
@@ -225,7 +213,6 @@ function BillingContent() {
           </div>
           <p className='text-xs text-muted-foreground mb-6'>Top up anytime. Credits never expire. $0.018 per credit.</p>
 
-          {/* Quick packs */}
           <div className='grid grid-cols-3 gap-2 mb-6'>
             {CREDIT_PACKS.map(pack => (
               <button
@@ -235,12 +222,11 @@ function BillingContent() {
               >
                 <p className='text-sm font-bold text-foreground'>{pack.credits}</p>
                 <p className='text-xs text-muted-foreground'>{pack.label}</p>
-                <p className='text-xs font-medium mt-1' style={{ color: '#a855f7' }}>₦{(pack.credits * CREDIT_PRICE).toLocaleString()}</p>
+                <p className='text-xs font-medium mt-1' style={{ color: '#a855f7' }}>{'$' + (pack.credits * CREDIT_PRICE_USD).toFixed(2)}</p>
               </button>
             ))}
           </div>
 
-          {/* Custom amount */}
           <div className='mb-6'>
             <p className='text-xs text-muted-foreground mb-3'>Or choose a custom amount</p>
             <div className='flex items-center gap-3'>
@@ -255,41 +241,32 @@ function BillingContent() {
                 <Plus className='w-4 h-4 text-muted-foreground' />
               </button>
             </div>
-            <input
-              type='range'
-              min={10}
-              max={2000}
-              step={10}
-              value={creditAmount}
-              onChange={e => setCreditAmount(Number(e.target.value))}
-              className='w-full mt-3 accent-purple-500'
-            />
-            <div className='flex justify-between text-xs text-muted-foreground mt-1'>
-              <span>10</span><span>2000</span>
-            </div>
+            <input type='range' min={10} max={2000} step={10} value={creditAmount} onChange={e => setCreditAmount(Number(e.target.value))} className='w-full mt-3 accent-purple-500' />
+            <div className='flex justify-between text-xs text-muted-foreground mt-1'><span>10</span><span>2000</span></div>
           </div>
 
-          {/* Summary + pay */}
           <div className='p-4 rounded-xl bg-primary/5 border border-primary/20 mb-4'>
             <div className='flex items-center justify-between'>
               <div>
                 <p className='text-sm font-bold text-foreground'>{creditAmount} credits</p>
                 <p className='text-xs text-muted-foreground'>One-time purchase · Never expires</p>
               </div>
-              <p className='text-2xl font-bold text-foreground'>₦{creditCost.toLocaleString()}</p>
+              <p className='text-2xl font-bold text-foreground'>{'$' + creditCostUSD}</p>
             </div>
           </div>
 
           <button
             onClick={handleBuyCredits}
             disabled={loading === 'credits'}
-            className='w-full py-3 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all disabled:opacity-50 bg-gradient-to-r from-primary to-pink'
+            className='w-full py-3 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all disabled:opacity-50'
+            style={{ backgroundColor: '#a855f7' }}
           >
             {loading === 'credits' ? <Loader2 className='w-4 h-4 animate-spin' /> : <Zap className='w-4 h-4' />}
-            Buy {creditAmount} Credits for ${creditCost}
+            Buy {creditAmount} Credits for {'$' + creditCostUSD}
           </button>
           <p className='text-center text-xs text-muted-foreground mt-3'>Powered by Paystack · Secure payment</p>
         </div>
+
       </div>
     </DashboardLayout>
   );
@@ -297,7 +274,7 @@ function BillingContent() {
 
 export default function BillingPage() {
   return (
-    <Suspense fallback={<div className='min-h-screen flex items-center justify-center text-muted-foreground'>Loading...</div>}>
+    <Suspense>
       <BillingContent />
     </Suspense>
   );
