@@ -75,17 +75,15 @@ function BillingContent() {
     if (!userId || priceUSD === 0) return;
     setLoading(planId);
     try {
-      const res = await fetch('/api/paystack/initialize', {
+      const res = await fetch('/api/paystack/subscribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          amount: priceUSD * 100,
-          metadata: { userId, plan: planId, type: 'subscription' },
-        }),
       });
       const data = await res.json();
       if (data.data?.authorization_url) {
         window.location.assign(data.data.authorization_url);
+      } else {
+        setError(data.error || 'Failed to start checkout.');
       }
     } catch (e) { console.error(e); }
     setLoading('');
