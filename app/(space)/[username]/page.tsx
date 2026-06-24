@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { motion, AnimatePresence } from 'framer-motion';
+import Link from 'next/link';
 import { Send, Sparkles, Copy, Check, Globe, MessageCircle } from 'lucide-react';
 
 const COFOUNDER_IDS = ['user_3Ev3UAWNTTDAlVWSYFGGsEI6qQz'];
@@ -415,7 +416,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
               <div className='w-7 h-7 rounded-full overflow-hidden flex items-center justify-center text-xs font-bold text-white shrink-0' style={{ backgroundColor: color }}>
                 {profile.avatar ? <img src={profile.avatar} alt="" className="w-full h-full object-cover" /> : initials}
               </div>
-              <p className='text-sm text-white/75 leading-relaxed italic'>"{welcomeMessage}"</p>
+              <p className='text-sm text-white/75 leading-relaxed italic'>&ldquo;{welcomeMessage}&rdquo;</p>
             </div>
           </div>
           <AnimatePresence mode='wait'>
@@ -478,13 +479,13 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
         </p>
         <div className='mt-12 text-center border-t border-white/5 pt-8'>
           <p className='text-xs text-zinc-600 mb-1'>Powered by</p>
-          <a href='/' className='text-sm font-bold' style={{ color }}>One Question ✦</a>
+          <Link href='/' className='text-sm font-bold' style={{ color }}>One Question ✦</Link>
           <p className='text-xs text-zinc-600 mt-3'>
             <span className='inline-flex items-center gap-1'>
               <span className='w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse' />
               Want your own space?
             </span>{' '}
-            <a href='/sign-up' className='underline hover:text-zinc-400 transition-colors'>Claim yours free →</a>
+            <Link href='/sign-up' className='underline hover:text-zinc-400 transition-colors'>Claim yours free →</Link>
           </p>
         </div>
       </div>
