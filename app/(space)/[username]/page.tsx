@@ -414,7 +414,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
             <p className='text-xs font-medium mb-3 tracking-wide uppercase opacity-50 text-white'>{profile.displayName?.split(' ')[0] || username} reads every question</p>
             <div className='flex items-start gap-3 p-4 rounded-2xl' style={{ backgroundColor: color + '12', border: '1px solid ' + color + '25' }}>
               <div className='w-7 h-7 rounded-full overflow-hidden flex items-center justify-center text-xs font-bold text-white shrink-0' style={{ backgroundColor: color }}>
-                {profile.avatar ? <img src={profile.avatar} alt="" className="w-full h-full object-cover" /> : initials}
+                {profile.avatar ? <Image src={profile.avatar} alt={profile.displayName || username} width={32} height={32} className="w-full h-full object-cover" /> : initials}
               </div>
               <p className='text-sm text-white/75 leading-relaxed italic'>&ldquo;{welcomeMessage}&rdquo;</p>
             </div>
@@ -439,7 +439,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
                 {isTyping && !aiResponse && (
                   <div className='flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10'>
                     <div className='w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white overflow-hidden shrink-0' style={{ backgroundColor: color }}>
-                      {profile.avatar ? <img src={profile.avatar} alt="" className="w-full h-full object-cover" /> : initials}
+                      {profile.avatar ? <Image src={profile.avatar} alt={profile.displayName || username} width={32} height={32} className="w-full h-full object-cover" /> : initials}
                     </div>
                     <div className='flex gap-1'>
                       {[0,150,300].map(d => <div key={d} className='w-2 h-2 rounded-full animate-bounce' style={{ backgroundColor: color, animationDelay: d + 'ms' }} />)}
@@ -451,7 +451,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
                     <div className='flex items-center justify-between gap-2 mb-3'>
                       <div className='flex items-center gap-2'>
                         <div className='w-6 h-6 rounded-full overflow-hidden flex items-center justify-center text-xs font-bold text-white shrink-0' style={{ backgroundColor: color }}>
-                          {profile.avatar ? <img src={profile.avatar} alt="" className="w-full h-full object-cover" /> : initials}
+                          {profile.avatar ? <Image src={profile.avatar} alt={profile.displayName || username} width={32} height={32} className="w-full h-full object-cover" /> : initials}
                         </div>
                         <span className='text-xs font-medium text-zinc-400'>{profile.displayName?.split(' ')[0] || username}</span>
                       </div>
