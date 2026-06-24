@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Brain, Sparkles, Copy, Check, XIcon, GitBranch, Globe, ExternalLink } from 'lucide-react';
+import { Send, Sparkles, Copy, Check, Globe, MessageCircle } from 'lucide-react';
 
 const COFOUNDER_IDS = ['user_3Ev3UAWNTTDAlVWSYFGGsEI6qQz'];
 const FOUNDER_ID = 'user_3EhKmuVyC1AhoBDlL7QNssllwgu';
@@ -22,16 +22,18 @@ const stripMarkdown = (text: string) => {
 };
 
 const BG_STYLES: Record<string, string> = {
-  dark: 'bg-zinc-900',
-  darker: 'bg-black',
-  midnight: 'bg-slate-950',
-  aurora: 'bg-gradient-to-br from-purple-950 to-blue-950',
-  sunset: 'bg-gradient-to-br from-orange-950 to-pink-950',
-  ocean: 'bg-gradient-to-br from-cyan-950 to-blue-950',
-  particles: 'bg-zinc-950',
-  bubbles: 'bg-zinc-950',
-  net: 'bg-zinc-950',
-  matrix: 'bg-black',
+  dark: 'bg-[#0f0c1a]',
+  darker: 'bg-[#080608]',
+  midnight: 'bg-gradient-to-br from-[#0a0f1e] to-[#0d0b1a]',
+  aurora: 'bg-gradient-to-br from-[#0d0b1a] to-[#1a0d2e]',
+  dusk: 'bg-gradient-to-br from-[#12081e] to-[#1a0e10]',
+  galaxy: 'bg-gradient-to-br from-[#080612] to-[#0d0b1a]',
+  ocean: 'bg-gradient-to-br from-[#071018] to-[#0a1628]',
+  dawn: 'bg-gradient-to-br from-[#1a0e2e] to-[#2e1a0e]',
+  fog: 'bg-gradient-to-br from-[#e8e4f0] to-[#f0eef8]',
+  sand: 'bg-gradient-to-br from-[#f5efe6] to-[#ede8df]',
+  parchment: 'bg-gradient-to-br from-[#faf6f0] to-[#f5f0e8]',
+  sunset: 'bg-gradient-to-br from-[#1a0d10] to-[#0f0c1a]',
 };
 
 const FONT_STYLES: Record<string, string> = {
@@ -189,7 +191,12 @@ function SpaceBackground({ themeBg, color }: { themeBg: string; color: string })
     case 'matrix': return <MatrixBackground color={color} />;
     default: return (
       <div className='fixed inset-0 -z-10 overflow-hidden pointer-events-none'>
-        <div className='absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full blur-[120px] opacity-20' style={{ backgroundColor: color }} />
+        <div className='absolute top-[-10%] left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full blur-[140px] opacity-25' style={{ backgroundColor: color }} />
+        <div className='absolute bottom-0 right-[-10%] w-[400px] h-[400px] rounded-full blur-[120px] opacity-10' style={{ backgroundColor: color }} />
+        <div className='absolute top-1/2 left-[-10%] w-[300px] h-[300px] rounded-full blur-[100px] opacity-8' style={{ backgroundColor: color }} />
+        {(profile.themeBg === 'fog' || profile.themeBg === 'sand' || profile.themeBg === 'parchment') && (
+          <div className='absolute inset-0 bg-gradient-to-b from-white/40 to-transparent' />
+        )}
       </div>
     );
   }
@@ -256,13 +263,17 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
     try {
       await createQuestion({ profileId: profile._id, question });
       await incrementQuestion({ profileId: profile._id });
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 25000);
       const res = await fetch('/api/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question, username }),
+        signal: controller.signal,
       });
+      clearTimeout(timeout);
       const data = await res.json();
-      const fullResponse = stripMarkdown(data?.data?.answer || data?.answer || 'I am thinking through your question.');
+      const fullResponse = stripMarkdown(data?.data?.answer || data?.answer || 'Give me a moment — try asking again.');
       let current = '';
       const words = fullResponse.split(' ');
       for (let i = 0; i < words.length; i++) {
@@ -270,8 +281,12 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
         setAiResponse(current);
         await new Promise(r => setTimeout(r, 40 + Math.random() * 30));
       }
-    } catch {
-      setAiResponse('Something went wrong. Please try again.');
+    } catch (e: unknown) {
+      if (e instanceof Error && e.name === 'AbortError') {
+        setAiResponse('Taking longer than usual. Please try again.');
+      } else {
+        setAiResponse('Something went wrong. Please try again.');
+      }
     }
     setIsTyping(false);
   };
@@ -299,6 +314,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
 
   const color = profile.themeColor || '#a855f7';
   const bgClass = BG_STYLES[profile.themeBg || 'dark'];
+  const themeEffect = (profile as Record<string, unknown>).themeEffect as string || 'none';
   const fontClass = FONT_STYLES[profile.themeFont || 'inter'];
   const cardClass = CARD_STYLES[profile.themeCardStyle || 'glass'];
   let social: Record<string, string> = {};
@@ -306,19 +322,24 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   const initials = profile.displayName?.charAt(0)?.toUpperCase() || username.charAt(0).toUpperCase();
   const welcomeMessage = profile.welcomeMessage || 'Ask me anything about ' + (profile.displayName || username) + '.';
 
+  const isLight = ['fog','sand','parchment'].includes(profile.themeBg || '');
   return (
-    <div className={'min-h-screen ' + bgClass + ' ' + fontClass}>
+    <div className={'min-h-screen ' + bgClass + ' ' + fontClass + (isLight ? ' text-zinc-900' : ' text-white')}>
       <div className='fixed inset-0 -z-10 overflow-hidden pointer-events-none'>
         <div className='absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full blur-[120px] opacity-20' style={{ backgroundColor: color }} />
       </div>
       <div className='max-w-xl mx-auto px-4 py-16'>
         <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} className='text-center mb-10'>
-          <div className='w-24 h-24 rounded-full mx-auto mb-4 overflow-hidden flex items-center justify-center text-3xl font-bold text-white' style={{ background: profile.avatar ? undefined : color, boxShadow: '0 0 0 4px ' + color + '30' }}>
-            {profile.avatar ? <Image src={profile.avatar} alt={profile.displayName} className='w-full h-full object-cover'  width={48} height={48} /> : initials}
+          <div className='relative w-28 h-28 mx-auto mb-5'>
+            <div className='absolute inset-0 rounded-full animate-ping opacity-20' style={{ backgroundColor: color }} />
+            <div className='absolute inset-0 rounded-full opacity-30 scale-110' style={{ boxShadow: '0 0 40px ' + color + '60' }} />
+            <div className='relative w-28 h-28 rounded-full overflow-hidden flex items-center justify-center text-4xl font-bold text-white' style={{ background: profile.avatar ? undefined : color, boxShadow: '0 0 0 3px ' + color + '50, 0 0 0 6px ' + color + '20' }}>
+              {profile.avatar ? <Image src={profile.avatar} alt={profile.displayName} className='w-full h-full object-cover' width={112} height={112} /> : initials}
+            </div>
           </div>
-          <h1 className='text-2xl font-bold text-white mb-1'>{profile.displayName}</h1>
+          <h1 className='text-3xl font-bold text-white mb-1 tracking-tight'>{profile.displayName}</h1>
           <div className='flex items-center justify-center gap-2 mb-3 flex-wrap'>
-            <p className='text-sm' style={{ color }}>{profile.username}</p>
+            <p className='text-sm font-medium opacity-70' style={{ color }}>@{profile.username}</p>
             {profile.userId === FOUNDER_ID && (
               <span className='inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/40'>
                 👑 Founder
@@ -342,11 +363,31 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
           </div>
           {profile.bio && <p className='text-zinc-400 text-sm max-w-sm mx-auto mb-5 leading-relaxed'>{profile.bio}</p>}
           {(social.twitter || social.github || social.website || social.linkedin) && (
-            <div className='flex items-center justify-center gap-3 mb-5'>
-              {social.twitter && <a href={'https://twitter.com/' + social.twitter.replace('@','')} target='_blank' rel='noopener noreferrer' className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors text-white text-xs font-bold'>X</a>}
-              {social.github && <a href={'https://github.com/' + social.github} target='_blank' rel='noopener noreferrer' className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors text-white text-xs font-bold'>GH</a>}
-              {social.linkedin && <a href={'https://linkedin.com/in/' + social.linkedin} target='_blank' rel='noopener noreferrer' className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors text-white text-xs font-bold'>in</a>}
-              {social.website && <a href={social.website} target='_blank' rel='noopener noreferrer' className='w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors'><Globe className='w-3.5 h-3.5 text-white' /></a>}
+            <div className='flex items-center justify-center gap-2 mb-5'>
+              {social.twitter && (
+                <a href={'https://twitter.com/' + social.twitter.replace('@','')} target='_blank' rel='noopener noreferrer' className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/8 hover:bg-white/15 transition-all text-white text-xs font-medium border border-white/10'>
+                  <svg className='w-3 h-3' viewBox='0 0 24 24' fill='currentColor'><path d='M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.632 5.905-5.632zm-1.161 17.52h1.833L7.084 4.126H5.117z'/></svg>
+                  {social.twitter.replace('@','')}
+                </a>
+              )}
+              {social.github && (
+                <a href={'https://github.com/' + social.github} target='_blank' rel='noopener noreferrer' className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/8 hover:bg-white/15 transition-all text-white text-xs font-medium border border-white/10'>
+                  <svg className='w-3 h-3' viewBox='0 0 24 24' fill='currentColor'><path d='M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0 1 12 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z'/></svg>
+                  {social.github}
+                </a>
+              )}
+              {social.linkedin && (
+                <a href={'https://linkedin.com/in/' + social.linkedin} target='_blank' rel='noopener noreferrer' className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/8 hover:bg-white/15 transition-all text-white text-xs font-medium border border-white/10'>
+                  <svg className='w-3 h-3' viewBox='0 0 24 24' fill='currentColor'><path d='M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 0 1-2.063-2.065 2.064 2.064 0 1 1 2.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z'/></svg>
+                  {social.linkedin}
+                </a>
+              )}
+              {social.website && (
+                <a href={social.website} target='_blank' rel='noopener noreferrer' className='flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/8 hover:bg-white/15 transition-all text-white text-xs font-medium border border-white/10'>
+                  <Globe className='w-3 h-3' />
+                  Website
+                </a>
+              )}
             </div>
           )}
           {analytics && (
@@ -360,40 +401,44 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
               </>)}
             </div>
           )}
-          <button onClick={copyLink} className='inline-flex items-center gap-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors'>
-            {copied ? <Check className='w-3 h-3 text-green-500' /> : <Copy className='w-3 h-3' />}
-            {copied ? 'Copied!' : 'Copy link'}
-          </button>
+          <div className='flex items-center justify-center gap-3'>
+            <button onClick={copyLink} className='inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-zinc-400 hover:text-white transition-all'>
+              {copied ? <Check className='w-3 h-3 text-green-400' /> : <Copy className='w-3 h-3' />}
+              {copied ? 'Copied!' : 'Share this space'}
+            </button>
+          </div>
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className={'rounded-3xl p-8 mb-6 ' + cardClass}>
-          <div className='flex items-start gap-3 mb-6 p-4 rounded-2xl' style={{ backgroundColor: color + '15', border: '1px solid ' + color + '30' }}>
-            <div className='w-8 h-8 rounded-full flex items-center justify-center shrink-0' style={{ backgroundColor: color + '25' }}>
-              <Sparkles className='w-4 h-4' style={{ color }} />
+          <div className='mb-5'>
+            <p className='text-xs font-medium mb-3 tracking-wide uppercase opacity-50 text-white'>{profile.displayName?.split(' ')[0] || username} reads every question</p>
+            <div className='flex items-start gap-3 p-4 rounded-2xl' style={{ backgroundColor: color + '12', border: '1px solid ' + color + '25' }}>
+              <div className='w-7 h-7 rounded-full overflow-hidden flex items-center justify-center text-xs font-bold text-white shrink-0' style={{ backgroundColor: color }}>
+                {profile.avatar ? <img src={profile.avatar} alt="" className="w-full h-full object-cover" /> : initials}
+              </div>
+              <p className='text-sm text-white/75 leading-relaxed italic'>"{welcomeMessage}"</p>
             </div>
-            <p className='text-sm text-white/80 leading-relaxed'>{welcomeMessage}</p>
           </div>
           <AnimatePresence mode='wait'>
             {!submitted ? (
               <motion.div key='form' initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <textarea value={question} onChange={e => setQuestion(e.target.value)} placeholder='What would you like to know?' rows={4} className='w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-zinc-600 focus:outline-none resize-none mb-4 text-sm' onKeyDown={e => { if (e.key === 'Enter' && e.metaKey) handleSubmit(); }} />
+                <textarea value={question} onChange={e => setQuestion(e.target.value)} placeholder={'What do you want to ask ' + (profile.displayName?.split(' ')[0] || username) + '?'} rows={4} className='w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-zinc-600 focus:outline-none resize-none mb-4 text-sm' onKeyDown={e => { if (e.key === 'Enter' && e.metaKey) handleSubmit(); }} />
                 <button onClick={handleSubmit} disabled={!question.trim()} className='w-full py-3 px-6 rounded-2xl text-white font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-40 hover:opacity-90' style={{ backgroundColor: color }}>
-                  <Send className='w-4 h-4' /> Ask Question
+                  <Send className='w-4 h-4' /> Send
                 </button>
-                <p className='text-center text-xs text-zinc-600 mt-3'>Press Cmd+Enter to submit</p>
+
               </motion.div>
             ) : (
               <motion.div key='response' initial={{ opacity: 0 }} animate={{ opacity: 1 }} ref={responseRef}>
                 {/* Question bubble */}
                 <div className='flex justify-end mb-4'>
                   <div className='max-w-[85%] px-4 py-3 rounded-2xl bg-white/8 border border-white/10'>
-                    <p className='text-xs text-zinc-500 mb-1'>You asked</p>
                     <p className='text-sm text-white leading-relaxed'>{question}</p>
                   </div>
                 </div>
                 {isTyping && !aiResponse && (
                   <div className='flex items-center gap-3 p-4 rounded-2xl bg-white/5 border border-white/10'>
-                    <div className='w-8 h-8 rounded-full flex items-center justify-center' style={{ backgroundColor: color + '25' }}>
-                      <Brain className='w-4 h-4' style={{ color }} />
+                    <div className='w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white overflow-hidden shrink-0' style={{ backgroundColor: color }}>
+                      {profile.avatar ? <img src={profile.avatar} alt="" className="w-full h-full object-cover" /> : initials}
                     </div>
                     <div className='flex gap-1'>
                       {[0,150,300].map(d => <div key={d} className='w-2 h-2 rounded-full animate-bounce' style={{ backgroundColor: color, animationDelay: d + 'ms' }} />)}
@@ -404,8 +449,10 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
                   <div className='p-4 rounded-2xl' style={{ backgroundColor: color + '10', border: '1px solid ' + color + '25' }}>
                     <div className='flex items-center justify-between gap-2 mb-3'>
                       <div className='flex items-center gap-2'>
-                        <Brain className='w-4 h-4' style={{ color }} />
-                        <span className='text-xs font-medium' style={{ color }}>{profile.displayName || username} replied</span>
+                        <div className='w-6 h-6 rounded-full overflow-hidden flex items-center justify-center text-xs font-bold text-white shrink-0' style={{ backgroundColor: color }}>
+                          {profile.avatar ? <img src={profile.avatar} alt="" className="w-full h-full object-cover" /> : initials}
+                        </div>
+                        <span className='text-xs font-medium text-zinc-400'>{profile.displayName?.split(' ')[0] || username}</span>
                       </div>
                       
                     </div>
@@ -415,44 +462,10 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
                     </p>
                   </div>
                 )}
-                {!isTyping && aiResponse && profile?._id && !aiResponse.includes("knowledge base content yet") && (
-                  <div className='mt-4 p-4 rounded-2xl bg-white/3 border border-white/8'>
-                    <p className='text-xs text-zinc-500 mb-3 text-center'>Was this helpful?</p>
-                    <div className='flex items-center justify-center gap-3'>
-                      {[
-                        { emoji: '🔥', key: 'fire', label: 'Fire' },
-                        { emoji: '❤️', key: 'love', label: 'Love' },
-                        { emoji: '🧠', key: 'brain', label: 'Insightful' },
-                        { emoji: '👏', key: 'clap', label: 'Clap' },
-                        { emoji: '😮', key: 'wow', label: 'Wow' },
-                      ].map(({ emoji, key, label }) => (
-                        <button
-                          key={key}
-                          onClick={async () => {
-                            if (reacted) return;
-                            setReacted(key);
-                            await addReaction({ profileId: profile._id, emoji: key, visitorId });
-                          }}
-                          title={label}
-                          className={'flex flex-col items-center gap-1 px-3 py-2 rounded-xl transition-all ' + (reacted === key ? 'bg-white/10 scale-110' : reacted ? 'opacity-30' : 'hover:bg-white/8 hover:scale-105')}
-                        >
-                          <span className='text-xl'>{emoji}</span>
-                          <span className='text-xs text-zinc-500'>
-                            {(reactions?.[key] || 0) + (reacted === key ? 1 : 0)}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                    {reacted && (
-                      <p className='text-xs text-center mt-3' style={{ color }}>
-                        Thanks for the reaction!
-                      </p>
-                    )}
-                  </div>
-                )}
+
                 {!isTyping && aiResponse && (
-                  <button onClick={() => { setSubmitted(false); setAiResponse(''); setQuestion(''); setReacted(null); }} className='w-full mt-4 py-2.5 rounded-2xl border border-white/10 text-sm text-zinc-500 hover:text-white hover:bg-white/5 transition-all'>
-                    Ask another question
+                  <button onClick={() => { setSubmitted(false); setAiResponse(''); setQuestion(''); }} className='w-full mt-4 py-2.5 rounded-2xl border border-white/10 text-sm text-zinc-500 hover:text-white hover:bg-white/5 transition-all'>
+                    ← Ask something else
                   </button>
                 )}
               </motion.div>
@@ -463,6 +476,17 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
           Powered by{' '}
           <a href='https://onequestion.space' className='hover:text-zinc-400 transition-colors font-medium' style={{ color }}>One Question</a>
         </p>
+        <div className='mt-12 text-center border-t border-white/5 pt-8'>
+          <p className='text-xs text-zinc-600 mb-1'>Powered by</p>
+          <a href='/' className='text-sm font-bold' style={{ color }}>One Question ✦</a>
+          <p className='text-xs text-zinc-600 mt-3'>
+            <span className='inline-flex items-center gap-1'>
+              <span className='w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse' />
+              Want your own space?
+            </span>{' '}
+            <a href='/sign-up' className='underline hover:text-zinc-400 transition-colors'>Claim yours free →</a>
+          </p>
+        </div>
       </div>
     </div>
   );
