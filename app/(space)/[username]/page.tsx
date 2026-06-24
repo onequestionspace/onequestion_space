@@ -473,10 +473,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
             )}
           </AnimatePresence>
         </motion.div>
-        <p className='text-center text-xs text-zinc-600'>
-          Powered by{' '}
-          <a href='https://onequestion.space' className='hover:text-zinc-400 transition-colors font-medium' style={{ color }}>One Question</a>
-        </p>
+
         <div className='mt-12 text-center border-t border-white/5 pt-8'>
           <p className='text-xs text-zinc-600 mb-1'>Powered by</p>
           <Link href='/' className='text-sm font-bold' style={{ color }}>One Question ✦</Link>
