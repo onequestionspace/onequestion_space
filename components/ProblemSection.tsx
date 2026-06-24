@@ -1,3 +1,4 @@
+import Image from 'next/image';
 'use client';
 
 const dms = [
@@ -34,7 +35,7 @@ function DmBubble({ name, msg, time }: { name: string; msg: string; time: string
   return (
     <div className="flex items-start gap-2.5 mb-3">
       <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-white/10">
-        <img src={avatar} alt={name} className="w-full h-full object-cover" />
+        <Image src={avatar} alt={name} width={32} height={32} className="w-full h-full object-cover" />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">

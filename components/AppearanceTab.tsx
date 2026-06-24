@@ -60,22 +60,22 @@ export function AppearanceTab() {
 
   useEffect(() => {
     if (profile) {
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-      setThemeColor(profile.themeColor || "#a855f7");
-      setThemeBg(profile.themeBg || "dark");
-      setThemeFont(profile.themeFont || "inter");
-      setThemeCardStyle(profile.themeCardStyle || "glass");
-      if (profile.socialLinks) {
-        try {
-          const s = JSON.parse(profile.socialLinks);
-          setXIcon(s.twitter || "");
-          setGithubIcon(s.github || "");
-          setWebsite(s.website || "");
-          setLinkedinIcon(s.linkedin || "");
-        } catch {}
-      }
+      setTimeout(() => {
+        setThemeColor(profile.themeColor || "#a855f7");
+        setThemeBg(profile.themeBg || "dark");
+        setThemeFont(profile.themeFont || "inter");
+        setThemeCardStyle(profile.themeCardStyle || "glass");
+        if (profile.socialLinks) {
+          try {
+            const s = JSON.parse(profile.socialLinks);
+            setXIcon(s.twitter || "");
+            setGithubIcon(s.github || "");
+            setWebsite(s.website || "");
+            setLinkedinIcon(s.linkedin || "");
+          } catch {}
+        }
+      }, 0);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile]);
 
   const handleSave = async () => {

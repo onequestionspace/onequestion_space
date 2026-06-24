@@ -79,7 +79,7 @@ export function Navbar() {
                       onClick={() => setIsProfileOpen(!isProfileOpen)}
                       className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-pink flex items-center justify-center text-white text-xs font-bold hover:shadow-glow transition-all overflow-hidden"
                     >
-                      {profile?.avatar ? <img src={profile.avatar} alt="avatar" className="w-full h-full object-cover" /> : (profile?.displayName?.charAt(0)?.toUpperCase() || "U")}
+                      {profile?.avatar ? <Image src={profile.avatar} alt="avatar" width={32} height={32} className="w-full h-full object-cover" /> : (profile?.displayName?.charAt(0)?.toUpperCase() || "U")}
                     </button>
                     {isProfileOpen && (
                       <div className="absolute right-0 top-10 w-48 glass rounded-2xl border border-white/10 shadow-xl p-2 space-y-1">
@@ -87,7 +87,7 @@ export function Navbar() {
                           <LayoutDashboard className="w-4 h-4 text-primary" />
                           Dashboard
                         </Link>
-                        <Link href="/dashboard/profile" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-white hover:bg-white/10 transition-colors">
+                        <Link href="/dashboard/profile" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-white hover:bg-white/10 transition-colors">
                           <User className="w-4 h-4 text-muted-foreground" />
                           Profile
                         </Link>
@@ -149,7 +149,7 @@ export function Navbar() {
                   <LayoutDashboard className="w-4 h-4 text-primary" />
                   Dashboard
                 </Link>
-                <Link href="/dashboard/profile" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-white hover:bg-white/10 transition-colors">
+                <Link href="/dashboard/profile" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-white hover:bg-white/10 transition-colors">
                           <User className="w-4 h-4 text-muted-foreground" />
                           Profile
                         </Link>

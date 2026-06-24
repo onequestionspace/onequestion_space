@@ -47,8 +47,10 @@ export function Hero() {
         }
       }, 35);
     } else if (phase === 'show-q') {
-      setDisplayed('');
-      setPhase('typing-a');
+      setTimeout(() => {
+        setDisplayed('');
+        setPhase('typing-a');
+      }, 0);
       // Fetch real answer from Knowledge Explorer
       fetch('/api/explore', {
         method: 'POST',

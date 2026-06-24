@@ -1,3 +1,4 @@
+import Image from 'next/image';
 "use client";
 
 import { useState, useRef } from "react";
@@ -75,11 +76,7 @@ export function AvatarUpload({ currentAvatar, displayName, onSuccess }: AvatarUp
         onClick={() => fileRef.current?.click()}
       >
         {preview ? (
-          <img
-            src={preview}
-            alt="Avatar"
-            className="w-24 h-24 rounded-full object-cover border-2 border-white/20"
-          />
+          <Image src={preview} alt="Avatar" width={80} height={80} className="w-24 h-24 rounded-full object-cover border-2 border-white/20" />
         ) : (
           <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-2xl font-bold border-2 border-white/20">
             {initials}

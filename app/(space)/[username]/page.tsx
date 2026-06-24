@@ -48,21 +48,30 @@ const CARD_STYLES: Record<string, string> = {
 
 
 // ── Animated Background Components ──────────────────────────────────────────
+const PARTICLES = Array.from({ length: 20 }).map(() => ({
+  width: Math.random() * 4 + 2,
+  height: Math.random() * 4 + 2,
+  left: Math.random() * 100,
+  top: Math.random() * 100,
+  duration: Math.random() * 10 + 8,
+  delay: Math.random() * 5,
+}));
+
 function ParticlesBackground({ color }: { color: string }) {
   return (
     <div className='fixed inset-0 -z-10 overflow-hidden pointer-events-none'>
-      {Array.from({ length: 20 }).map((_, i) => (
+      {PARTICLES.map((p, i) => (
         <div
           key={i}
           className='absolute rounded-full opacity-20 animate-float'
           style={{
-            width: Math.random() * 4 + 2 + 'px',
-            height: Math.random() * 4 + 2 + 'px',
+            width: p.width + 'px',
+            height: p.height + 'px',
             backgroundColor: color,
-            left: Math.random() * 100 + '%',
-            top: Math.random() * 100 + '%',
-            animationDuration: Math.random() * 10 + 8 + 's',
-            animationDelay: Math.random() * 5 + 's',
+            left: p.left + '%',
+            top: p.top + '%',
+            animationDuration: p.duration + 's',
+            animationDelay: p.delay + 's',
           }}
         />
       ))}
@@ -70,28 +79,41 @@ function ParticlesBackground({ color }: { color: string }) {
   );
 }
 
+const BUBBLES = Array.from({ length: 12 }).map(() => ({
+  width: Math.random() * 60 + 20,
+  height: Math.random() * 60 + 20,
+  left: Math.random() * 100,
+  duration: Math.random() * 12 + 10,
+  delay: Math.random() * 8,
+}));
+
 function BubblesBackground({ color }: { color: string }) {
   return (
     <div className='fixed inset-0 -z-10 overflow-hidden pointer-events-none'>
-      {Array.from({ length: 12 }).map((_, i) => (
+      {BUBBLES.map((b, i) => (
         <div
           key={i}
           className='absolute rounded-full animate-rise'
           style={{
-            width: Math.random() * 60 + 20 + 'px',
-            height: Math.random() * 60 + 20 + 'px',
+            width: b.width + 'px',
+            height: b.height + 'px',
             border: '1px solid ' + color + '30',
             backgroundColor: color + '08',
-            left: Math.random() * 100 + '%',
+            left: b.left + '%',
             bottom: '-100px',
-            animationDuration: Math.random() * 12 + 10 + 's',
-            animationDelay: Math.random() * 8 + 's',
+            animationDuration: b.duration + 's',
+            animationDelay: b.delay + 's',
           }}
         />
       ))}
     </div>
   );
 }
+
+const NET_CIRCLES = Array.from({ length: 8 }).map(() => ({
+  cx: Math.random() * 100,
+  cy: Math.random() * 100,
+}));
 
 function NetBackground({ color }: { color: string }) {
   return (
@@ -102,11 +124,11 @@ function NetBackground({ color }: { color: string }) {
         </pattern>
       </defs>
       <rect width='100%' height='100%' fill='url(#net)' />
-      {Array.from({ length: 8 }).map((_, i) => (
+      {NET_CIRCLES.map((c, i) => (
         <circle
           key={i}
-          cx={Math.random() * 100 + '%'}
-          cy={Math.random() * 100 + '%'}
+          cx={c.cx + '%'}
+          cy={c.cy + '%'}
           r='3'
           fill={color}
           opacity='0.4'
@@ -126,6 +148,13 @@ function AuroraBackground({ color }: { color: string }) {
   );
 }
 
+const MATRIX_CHARS = '01アイウエオカキクケコサシスセソ';
+const MATRIX_COLS = Array.from({ length: 15 }).map(() => ({
+  duration: Math.random() * 8 + 6,
+  delay: Math.random() * 4,
+  chars: Array.from({ length: 20 }).map(() => MATRIX_CHARS[Math.floor(Math.random() * MATRIX_CHARS.length)]),
+}));
+
 function MatrixBackground({ color }: { color: string }) {
   const chars = '01アイウエオカキクケコサシスセソ';
   return (
@@ -138,12 +167,12 @@ function MatrixBackground({ color }: { color: string }) {
             color: color,
             opacity: 0.15,
             left: (i * 7) + '%',
-            animationDuration: Math.random() * 8 + 6 + 's',
-            animationDelay: Math.random() * 4 + 's',
+            animationDuration: MATRIX_COLS[i].duration + 's',
+            animationDelay: MATRIX_COLS[i].delay + 's',
           }}
         >
-          {Array.from({ length: 20 }).map((_, j) => (
-            <span key={j}>{chars[Math.floor(Math.random() * chars.length)]}</span>
+          {MATRIX_COLS[i].chars.map((ch: string, j: number) => (
+            <span key={j}>{ch}</span>
           ))}
         </div>
       ))}
@@ -195,13 +224,9 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
     profile?._id ? { profileId: profile._id } : 'skip'
   );
   const [reacted, setReacted] = useState<string | null>(null);
-  const visitorId = typeof window !== 'undefined'
-    ? (localStorage.getItem('visitor_id') || (() => {
-        const id = Math.random().toString(36).slice(2);
-        localStorage.setItem('visitor_id', id);
-        return id;
-      })())
-    : 'anon';
+  const [visitorId, setVisitorId] = useState('');
+
+  const _visitorId = visitorId || 'anon';
   const incrementVisitor = useMutation(api.analytics.incrementVisitorCount);
   const incrementQuestion = useMutation(api.analytics.incrementQuestionCount);
 
@@ -380,9 +405,9 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
                     <div className='flex items-center justify-between gap-2 mb-3'>
                       <div className='flex items-center gap-2'>
                         <Brain className='w-4 h-4' style={{ color }} />
-                        <span className='text-xs font-medium' style={{ color }}>AI Response</span>
+                        <span className='text-xs font-medium' style={{ color }}>{profile.displayName || username} replied</span>
                       </div>
-                      <span className='text-xs text-zinc-600'>{aiResponse.split(' ').length} tokens</span>
+                      
                     </div>
                     <p className='text-sm text-white/80 leading-relaxed'>
                       {aiResponse}

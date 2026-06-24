@@ -35,7 +35,6 @@ export function DashboardAI() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, profile]);
 
-  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);

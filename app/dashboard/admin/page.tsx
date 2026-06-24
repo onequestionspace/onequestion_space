@@ -41,7 +41,7 @@ export default function AdminPage() {
         <div className="text-center py-20">
           <Shield className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
           <p className="text-white font-bold text-xl mb-2">Access Denied</p>
-          <p className="text-muted-foreground text-sm">You don't have permission to view this page.</p>
+          <p className="text-muted-foreground text-sm">You don&apos;t have permission to view this page.</p>
           <p className="text-xs text-muted-foreground mt-4 font-mono">Your ID: {user?.id}</p>
         </div>
       </DashboardLayout>
