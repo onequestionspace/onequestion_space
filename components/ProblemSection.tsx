@@ -1,5 +1,5 @@
-import Image from 'next/image';
 'use client';
+import Image from 'next/image';
 
 const dms = [
   { name: 'Asym A.', msg: 'How do you build without a laptop?', time: '1m ago' },

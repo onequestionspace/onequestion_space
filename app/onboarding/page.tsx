@@ -70,10 +70,7 @@ export default function OnboardingPage() {
     if (step === 4) { await updateProfile({ bio: form.bio }); setStep(5); return; }
     if (step === 5) { await updateProfile({ welcomeMessage: form.welcomeMessage }); setStep(6); return; }
     if (step === 6) { await updateProfile({ themeColor: form.themeColor }); setStep(7); return; }
-    if (step === 7) { setStep(8); return; }
-    if (step === 8) { setStep(9); return; }
-    if (step === 9) { setStep(10); return; }
-    if (step === 10) { router.push('/dashboard'); return; }
+    if (step === 7) { router.push('/dashboard'); return; }
     setStep(s => s + 1);
   };
 
@@ -104,7 +101,7 @@ export default function OnboardingPage() {
 
   if (!isSignedIn) { router.replace('/'); return null; }
 
-  const SETUP_STEPS = [2, 3, 4, 5, 6];
+  const SETUP_STEPS = [2, 3, 4, 5, 6, 7];
   const isSetupStep = SETUP_STEPS.includes(step);
   const setupIndex = SETUP_STEPS.indexOf(step);
   const setupProgress = isSetupStep ? ((setupIndex + 1) / SETUP_STEPS.length) * 100 : 0;
