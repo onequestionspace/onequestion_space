@@ -14,6 +14,10 @@ export default defineSchema({
     themeFont: v.optional(v.string()),
     themeCardStyle: v.optional(v.string()),
     socialLinks: v.optional(v.string()),
+    vibeQuote: v.optional(v.string()),
+    links: v.optional(v.string()),
+    themeEffect: v.optional(v.string()),
+    pinnedQuestions: v.optional(v.array(v.string())),
     createdAt: v.number(),
     updatedAt: v.number(),
   })

@@ -93,6 +93,10 @@ export const update = mutation({
     themeFont: v.optional(v.string()),
     themeCardStyle: v.optional(v.string()),
     socialLinks: v.optional(v.string()),
+    vibeQuote: v.optional(v.string()),
+    links: v.optional(v.string()),
+    themeEffect: v.optional(v.string()),
+    pinnedQuestions: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -116,6 +120,10 @@ export const update = mutation({
       ...(args.themeFont !== undefined && { themeFont: args.themeFont }),
       ...(args.themeCardStyle !== undefined && { themeCardStyle: args.themeCardStyle }),
       ...(args.socialLinks !== undefined && { socialLinks: args.socialLinks }),
+      ...(args.vibeQuote !== undefined && { vibeQuote: args.vibeQuote }),
+      ...(args.links !== undefined && { links: args.links }),
+      ...(args.themeEffect !== undefined && { themeEffect: args.themeEffect }),
+      ...(args.pinnedQuestions !== undefined && { pinnedQuestions: args.pinnedQuestions }),
       updatedAt: Date.now(),
     });
 

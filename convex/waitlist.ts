@@ -31,3 +31,10 @@ export const getWaitlistCount = query({
     return { count: all.length };
   },
 });
+
+export const getWaitlist = query({
+  args: {},
+  handler: async (ctx) => {
+    return await ctx.db.query('waitlist').order('desc').collect();
+  },
+});
