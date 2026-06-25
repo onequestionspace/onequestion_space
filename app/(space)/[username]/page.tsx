@@ -228,7 +228,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
     profile?._id ? { userId: profile.userId } : 'skip'
   );
 
-  const pinnedIds = (profile as Record<string, unknown>).pinnedQuestions as string[] || [];
+  const pinnedIds: string[] = profile ? ((profile as Record<string, unknown>).pinnedQuestions as string[] || []) : [];
   const allQuestions = useQuery(
     api.questions.getRecentQuestions,
     profile?._id ? { profileId: profile._id, limit: 50 } : 'skip'
@@ -329,9 +329,9 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   if (profile.socialLinks) { try { social = JSON.parse(profile.socialLinks); } catch {} }
   const initials = profile.displayName?.charAt(0)?.toUpperCase() || username.charAt(0).toUpperCase();
   const welcomeMessage = profile.welcomeMessage || 'Ask me anything about ' + (profile.displayName || username) + '.';
-  const vibeQuote = (profile as Record<string, unknown>).vibeQuote as string || '';
+  const vibeQuote = profile ? ((profile as Record<string, unknown>).vibeQuote as string || '') : '';
   let spaceLinks: {title: string, url: string}[] = [];
-  try { spaceLinks = JSON.parse((profile as Record<string, unknown>).links as string || '[]'); } catch {}
+  try { spaceLinks = profile ? JSON.parse((profile as Record<string, unknown>).links as string || '[]') : []; } catch {}
 
 
   const isLight = ['fog','sand','parchment'].includes(profile.themeBg || '');
