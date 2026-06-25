@@ -51,7 +51,7 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (!profile) return;
     if (profile.bio && profile.welcomeMessage) {
-      router.replace('/dashboard');
+      router.replace('/dashboard/studio');
     }
   }, [profile, router]);
 
@@ -82,7 +82,7 @@ export default function OnboardingPage() {
     if (step === 4.6) { await updateProfile({ goals: form.goals }); setStep(5); return; }
     if (step === 5) { await updateProfile({ welcomeMessage: form.welcomeMessage }); setStep(6); return; }
     if (step === 6) { await updateProfile({ themeColor: form.themeColor }); setStep(7); return; }
-    if (step === 7) { router.push('/dashboard'); return; }
+    if (step === 7) { router.push('/dashboard/studio'); return; }
     setStep(s => s + 1);
   };
 
@@ -398,7 +398,7 @@ export default function OnboardingPage() {
                   </button>
                 </div>
 
-                <button onClick={() => router.push("/dashboard")} className="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary to-pink text-white font-bold flex items-center justify-center gap-2">
+                <button onClick={() => router.push("/dashboard/studio")} className="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary to-pink text-white font-bold flex items-center justify-center gap-2">
                   Go to dashboard <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
