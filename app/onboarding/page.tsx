@@ -22,7 +22,17 @@ export default function OnboardingPage() {
   const createProfile = useMutation(api.profiles.createIfMissing);
   const updateProfile = useMutation(api.profiles.update);
 
-  const [form, setForm] = useState({ username: '', displayName: '', bio: '', welcomeMessage: '', themeColor: '#a855f7' });
+  const [form, setForm] = useState({
+    username: '',
+    displayName: '',
+    bio: '',
+    welcomeMessage: '',
+    themeColor: '#a855f7',
+    vibe: [],
+    goalTitle: '',
+    goalProgress: 0,
+    goalDeadline: '2026-12-31'
+  });
   const [questionsPerWeek, setQuestionsPerWeek] = useState(10);
   const [minutesPerAnswer, setMinutesPerAnswer] = useState(5);
   const hoursPerMonth = Math.round((questionsPerWeek * 4 * minutesPerAnswer) / 60);
@@ -67,7 +77,9 @@ export default function OnboardingPage() {
       setStep(3); return;
     }
     if (step === 3) { await updateProfile({ displayName: form.displayName }); setStep(4); return; }
-    if (step === 4) { await updateProfile({ bio: form.bio }); setStep(5); return; }
+    if (step === 4) { await updateProfile({ bio: form.bio }); setStep(4.5); return; }
+    if (step === 4.5) { await updateProfile({ vibe: form.vibe }); setStep(4.6); return; }
+    if (step === 4.6) { await updateProfile({ goals: form.goals }); setStep(5); return; }
     if (step === 5) { await updateProfile({ welcomeMessage: form.welcomeMessage }); setStep(6); return; }
     if (step === 6) { await updateProfile({ themeColor: form.themeColor }); setStep(7); return; }
     if (step === 7) { router.push('/dashboard'); return; }
@@ -78,6 +90,8 @@ export default function OnboardingPage() {
     if (step === 2) return form.username.length >= 3 && usernameAvailable !== false;
     if (step === 3) return form.displayName.length >= 2;
     if (step === 4) return form.bio.length >= 10;
+    if (step === 4.5) return form.vibe && form.vibe.length > 0;
+    if (step === 4.6) return form.goalTitle && form.goalTitle.length > 3;
     if (step === 5) return form.welcomeMessage.length >= 5;
     return true;
   };
@@ -101,10 +115,11 @@ export default function OnboardingPage() {
 
   if (!isSignedIn) { router.replace('/'); return null; }
 
-  const SETUP_STEPS = [2, 3, 4, 5, 6, 7];
+  const SETUP_STEPS = [2, 3, 4, 4.5, 4.6, 5, 6, 7];
   const isSetupStep = SETUP_STEPS.includes(step);
   const setupIndex = SETUP_STEPS.indexOf(step);
   const setupProgress = isSetupStep ? ((setupIndex + 1) / SETUP_STEPS.length) * 100 : 0;
+
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-10 overflow-x-hidden">
       <div className="fixed inset-0 -z-10">
@@ -242,7 +257,7 @@ export default function OnboardingPage() {
               <div className="glass rounded-3xl p-8 border border-white/10">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="text-3xl">👋</div>
-                  <div><h2 className="text-xl font-bold text-white">What should we call you?</h2><p className="text-sm text-muted-foreground">Your public display name</p></div>
+                  <div><h2 className="text-xl font-bold text-white">What name should we use?</h2><p className="text-sm text-muted-foreground">Your public display name</p></div>
                 </div>
                 <input type="text" value={form.displayName} onChange={e => setForm(f => ({ ...f, displayName: e.target.value }))} placeholder="Your full name" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-primary/50 transition-all" autoFocus />
                 <button onClick={handleNext} disabled={!canNext()} className="w-full mt-6 py-3.5 rounded-xl bg-gradient-to-r from-primary to-pink text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
@@ -255,11 +270,52 @@ export default function OnboardingPage() {
               <div className="glass rounded-3xl p-8 border border-white/10">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="text-3xl">✨</div>
-                  <div><h2 className="text-xl font-bold text-white">Tell the world about yourself</h2><p className="text-sm text-muted-foreground">One line that makes people want to ask you something</p></div>
+                  <div><h2 className="text-xl font-bold text-white">What makes you interesting?</h2><p className="text-sm text-muted-foreground">One line that makes people want to ask you something</p></div>
                 </div>
                 <textarea value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value.slice(0, 160) }))} placeholder="e.g. Building AI products and sharing what I learn along the way." rows={4} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-primary/50 transition-all resize-none text-sm" autoFocus />
                 <p className="text-xs text-muted-foreground text-right mt-1">{form.bio.length}/160</p>
                 <button onClick={handleNext} disabled={!canNext()} className="w-full mt-4 py-3.5 rounded-xl bg-gradient-to-r from-primary to-pink text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+                  Continue <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            {step === 4.5 && (
+              <div className="glass rounded-3xl p-8 border border-white/10">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="text-3xl">🎯</div>
+                  <div><h2 className="text-xl font-bold text-white">What are you building?</h2><p className="text-sm text-muted-foreground">Help visitors understand your vibe</p></div>
+                </div>
+                <div className="flex flex-wrap gap-2 mb-4">
+                  {["🚀 AI","🛠️ SaaS","📝 Content","🎨 Design","💼 Freelance","🏗️ Indie Hacker","📚 Education","🎮 Gaming","🌱 Sustainability","🧠 Web3"].map(tag => (
+                    <button key={tag} onClick={() => setForm(f => ({...f, vibe: f.vibe?.includes(tag) ? f.vibe.filter(t => t !== tag) : [...(f.vibe||[]), tag]}))}
+                      className={"px-3 py-1.5 rounded-full text-xs font-medium transition-all border " + (form.vibe?.includes(tag) ? "bg-primary/20 border-primary/50 text-white" : "bg-white/5 border-white/10 text-zinc-400 hover:text-white")}>{tag}</button>
+                  ))}
+                </div>
+                <button onClick={handleNext} disabled={!canNext()} className="w-full mt-4 py-3.5 rounded-xl bg-gradient-to-r from-primary to-pink text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+                  Continue <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
+            {step === 4.6 && (
+              <div className="glass rounded-3xl p-8 border border-white/10">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="text-3xl">🏆</div>
+                  <div><h2 className="text-xl font-bold text-white">What&apos;s your 2026 goal?</h2><p className="text-sm text-muted-foreground">Set a public goal to keep yourself accountable</p></div>
+                </div>
+                <div className="space-y-3">
+                  <input type="text" value={form.goalTitle || ""} onChange={e => setForm(f => ({...f, goalTitle: e.target.value}))} placeholder="e.g. Reach 10K users" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-zinc-500 focus:outline-none focus:border-primary/50 transition-all" autoFocus />
+                  <div>
+                    <div className="flex justify-between text-sm text-zinc-400 mb-1"><span>Progress</span><span>{form.goalProgress || 0}%</span></div>
+                    <input type="range" min="0" max="100" value={form.goalProgress || 0} onChange={e => setForm(f => ({...f, goalProgress: Number(e.target.value)}))} className="w-full accent-primary" />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs text-zinc-500">Deadline</span>
+                    <input type="date" value={form.goalDeadline || "2026-12-31"} onChange={e => setForm(f => ({...f, goalDeadline: e.target.value}))} />
+                  </div>
+                </div>
+                <button onClick={handleNext} disabled={!canNext()} className="w-full mt-6 py-3.5 rounded-xl bg-gradient-to-r from-primary to-pink text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
                   Continue <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -273,9 +329,17 @@ export default function OnboardingPage() {
                 </div>
                 <input type="text" value={form.welcomeMessage} onChange={e => setForm(f => ({ ...f, welcomeMessage: e.target.value }))} placeholder="Ask me anything about building in public!" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-primary/50 transition-all" autoFocus />
                 {form.welcomeMessage && (
-                  <div className="mt-3 glass rounded-2xl p-4 border border-primary/20 bg-primary/5">
-                    <p className="text-xs text-primary mb-1">Preview</p>
-                    <p className="text-sm text-white">{form.welcomeMessage}</p>
+                  <div className="mt-4 p-4 rounded-2xl bg-gradient-to-br from-primary/5 to-pink/5 border border-primary/20">
+                    <p className="text-xs text-primary font-medium mb-2">✨ Your space preview</p>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-sm font-bold text-white" style={{ backgroundColor: form.themeColor }}>
+                        {form.displayName?.charAt(0) || "?"}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-white">{form.displayName || "Your Name"}</p>
+                        <p className="text-xs text-zinc-400 italic">&quot;{form.welcomeMessage}&quot;</p>
+                      </div>
+                    </div>
                   </div>
                 )}
                 <button onClick={handleNext} disabled={!canNext()} className="w-full mt-6 py-3.5 rounded-xl bg-gradient-to-r from-primary to-pink text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
@@ -301,38 +365,41 @@ export default function OnboardingPage() {
                     <input type="color" value={form.themeColor} onChange={e => setForm(f => ({ ...f, themeColor: e.target.value }))} className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
                   </label>
                 </div>
-                <div className="rounded-2xl p-4 border border-white/10 mb-6 flex items-center gap-3" style={{ backgroundColor: form.themeColor + '15', borderColor: form.themeColor + '30' }}>
-                  <div className="w-8 h-8 rounded-full flex items-center justify-center" style={{ backgroundColor: form.themeColor + '25' }}>
-                    <Sparkles className="w-4 h-4" style={{ color: form.themeColor }} />
-                  </div>
-                  <p className="text-sm text-white/80">Preview — your space will use this color</p>
-                </div>
-                <button onClick={handleNext} className="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary to-pink text-white font-bold flex items-center justify-center gap-2">
-                  Looks good <ArrowRight className="w-4 h-4" />
+                <button onClick={handleNext} disabled={!canNext()} className="w-full mt-4 py-3.5 rounded-xl bg-gradient-to-r from-primary to-pink text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+                  Continue <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             )}
 
             {step === 7 && (
-              <div className="text-center">
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 0.6 }} className="text-7xl mb-6">🎉</motion.div>
-                <h1 className="text-3xl font-bold text-white mb-2">You&apos;re live!</h1>
-                <p className="text-muted-foreground mb-8">Share your space. Let your AI do the work.</p>
-                <div className="glass rounded-2xl p-5 border border-primary/30 mb-4">
-                  <p className="text-xs text-muted-foreground mb-2">Your space</p>
-                  <p className="text-primary font-bold text-lg mb-4">onequestion.space/{form.username}</p>
-                  <div className="flex gap-2">
-                    <button onClick={copyLink} className="flex-1 py-3 rounded-xl bg-gradient-to-r from-primary to-pink text-white font-bold flex items-center justify-center gap-2">
-                      {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                      {copied ? 'Copied!' : 'Copy link'}
-                    </button>
-                    <button onClick={shareToX} className="flex-1 py-3 rounded-xl border border-white/10 text-white font-bold flex items-center justify-center gap-2 hover:bg-white/5 transition-all">
-                      <Share2 className="w-4 h-4" /> Share on X
-                    </button>
+              <div className="glass rounded-3xl p-8 border border-white/10 text-center">
+                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", duration: 0.6 }} className="text-6xl mb-4">🚀</motion.div>
+                <h2 className="text-2xl font-bold text-white mb-2">Your space is ready!</h2>
+                <p className="text-sm text-muted-foreground mb-6">onequestion.space/{form.username} is live</p>
+
+                <div className="flex items-center justify-center gap-3 mb-6">
+                  <div className="px-4 py-3 rounded-xl bg-white/5 border border-white/10">
+                    <p className="text-xs text-muted-foreground">Your vibe</p>
+                    <p className="text-sm text-white font-medium">{form.vibe?.join(" ") || "✨ Personal"}</p>
+                  </div>
+                  <div className="px-4 py-3 rounded-xl bg-white/5 border border-white/10">
+                    <p className="text-xs text-muted-foreground">Color</p>
+                    <div className="w-6 h-6 rounded-full mt-1" style={{ backgroundColor: form.themeColor }} />
                   </div>
                 </div>
-                <button onClick={() => router.push('/dashboard')} className="w-full py-3 rounded-xl border border-white/10 text-white text-sm hover:bg-white/5 transition-all">
-                  Go to dashboard →
+
+                <div className="flex flex-col gap-3 mb-6">
+                  <button onClick={copyLink} className="w-full py-3 rounded-xl bg-white/10 border border-white/20 text-white font-medium flex items-center justify-center gap-2 hover:bg-white/20 transition-all">
+                    {copied ? <Check className="w-4 h-4 text-green-400" /> : <Copy className="w-4 h-4" />}
+                    {copied ? "Copied!" : "Copy your space link"}
+                  </button>
+                  <button onClick={shareToX} className="w-full py-3 rounded-xl bg-black/40 border border-white/10 text-white font-medium flex items-center justify-center gap-2 hover:bg-black/60 transition-all">
+                    <Share2 className="w-4 h-4" /> Share on X
+                  </button>
+                </div>
+
+                <button onClick={() => router.push("/dashboard")} className="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary to-pink text-white font-bold flex items-center justify-center gap-2">
+                  Go to dashboard <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             )}

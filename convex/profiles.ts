@@ -83,6 +83,7 @@ export const byUsername = query({
 
 export const update = mutation({
   args: {
+    tags: v.optional(v.array(v.string())),
     username: v.optional(v.string()),
     displayName: v.optional(v.string()),
     bio: v.optional(v.string()),

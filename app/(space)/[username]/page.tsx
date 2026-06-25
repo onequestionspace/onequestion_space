@@ -302,6 +302,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   const copyLink = () => {
     navigator.clipboard.writeText('https://onequestion.space/' + username);
     setCopied(true);
+    toast.success("✨ Link copied! Share the knowledge.");
     setTimeout(() => setCopied(false), 2000);
   };
 
@@ -479,7 +480,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
           <AnimatePresence mode='wait'>
             {!submitted ? (
               <motion.div key='form' initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <textarea value={question} onChange={e => setQuestion(e.target.value)} placeholder={'What do you want to ask ' + (profile.displayName?.split(' ')[0] || username) + '?'} rows={4} className='w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-zinc-600 focus:outline-none resize-none mb-4 text-sm' onKeyDown={e => { if (e.key === 'Enter' && e.metaKey) handleSubmit(); }} />
+                <textarea autoFocus  value={question} onChange={e => setQuestion(e.target.value)} placeholder={'What do you want to ask ' + (profile.displayName?.split(' ')[0] || username) + '?'} rows={4} className='w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-zinc-600 focus:outline-none resize-none mb-4 text-sm' onKeyDown={e => { if (e.key === 'Enter' && e.metaKey) handleSubmit(); }} />
                 <button onClick={handleSubmit} disabled={!question.trim()} className='w-full py-3 px-6 rounded-2xl text-white font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-40 hover:opacity-90' style={{ backgroundColor: color }}>
                   <Send className='w-4 h-4' /> Send
                 </button>
