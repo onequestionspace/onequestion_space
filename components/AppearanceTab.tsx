@@ -20,15 +20,19 @@ const THEME_COLORS = [
 
 const BACKGROUNDS = [
   { id: "dark", label: "Void", preview: "#0f0c1a" },
-  { id: "midnight", label: "Midnight", preview: "linear-gradient(135deg,#0a0f1e,#0d0b1a)" },
-  { id: "aurora", label: "Aurora", preview: "linear-gradient(135deg,#0d0b1a,#1a0d2e)" },
-  { id: "dusk", label: "Dusk", preview: "linear-gradient(135deg,#12081e,#1a0e10)" },
-  { id: "galaxy", label: "Galaxy", preview: "linear-gradient(135deg,#080612,#0d0b1a)" },
-  { id: "ocean", label: "Ocean", preview: "linear-gradient(135deg,#071018,#0a1628)" },
-  { id: "dawn", label: "Dawn 🌅", preview: "linear-gradient(135deg,#1a0e2e,#2e1a0e)" },
-  { id: "fog", label: "Fog ☁️", preview: "linear-gradient(135deg,#e8e4f0,#f0eef8)" },
+  { id: "midnight", label: "Midnight", preview: "linear-gradient(135deg,#080c18,#0d1428)" },
+  { id: "galaxy", label: "Galaxy", preview: "linear-gradient(135deg,#06040e,#120824)" },
+  { id: "aurora", label: "Aurora", preview: "linear-gradient(160deg,#0a0818 0%,#1a0535 50%,#0d1028 100%)" },
+  { id: "dusk", label: "Dusk", preview: "linear-gradient(160deg,#130818 0%,#2d0b3a 50%,#180830 100%)" },
+  { id: "ocean", label: "Ocean", preview: "linear-gradient(160deg,#04111a 0%,#062040 50%,#091828 100%)" },
+  { id: "sunset", label: "Sunset", preview: "linear-gradient(160deg,#180810 0%,#3d1020 50%,#200818 100%)" },
+  { id: "dawn", label: "Dawn", preview: "linear-gradient(160deg,#1a0e1a 0%,#3d1535 50%,#200a18 100%)" },
+  { id: "rose", label: "Rose 🌸", preview: "linear-gradient(135deg,#f7e5e4,#f0d8e8)" },
+  { id: "mint", label: "Mint 🌿", preview: "linear-gradient(135deg,#e4f5ee,#d8f0e8)" },
+  { id: "slate", label: "Slate 🌫️", preview: "linear-gradient(135deg,#e8eaf2,#dde0f0)" },
   { id: "sand", label: "Sand 🏜️", preview: "linear-gradient(135deg,#f5efe6,#ede8df)" },
-  { id: "parchment", label: "Parchment 📜", preview: "linear-gradient(135deg,#faf6f0,#f5f0e8)" },
+  { id: "parchment", label: "Parchment", preview: "linear-gradient(135deg,#faf6f0,#f5f0e8)" },
+  { id: "fog", label: "Fog ☁️", preview: "linear-gradient(135deg,#eeeaf6,#e8e4f2)" },
 ];
 
 const FLOAT_EFFECTS = [

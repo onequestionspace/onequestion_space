@@ -24,17 +24,20 @@ const stripMarkdown = (text: string) => {
 
 const BG_STYLES: Record<string, string> = {
   dark: 'bg-[#0f0c1a]',
-  darker: 'bg-[#080608]',
-  midnight: 'bg-gradient-to-br from-[#0a0f1e] to-[#0d0b1a]',
-  aurora: 'bg-gradient-to-br from-[#0d0b1a] to-[#1a0d2e]',
-  dusk: 'bg-gradient-to-br from-[#12081e] to-[#1a0e10]',
-  galaxy: 'bg-gradient-to-br from-[#080612] to-[#0d0b1a]',
-  ocean: 'bg-gradient-to-br from-[#071018] to-[#0a1628]',
-  dawn: 'bg-gradient-to-br from-[#1a0e2e] to-[#2e1a0e]',
-  fog: 'bg-gradient-to-br from-[#e8e4f0] to-[#f0eef8]',
-  sand: 'bg-gradient-to-br from-[#f5efe6] to-[#ede8df]',
-  parchment: 'bg-gradient-to-br from-[#faf6f0] to-[#f5f0e8]',
-  sunset: 'bg-gradient-to-br from-[#1a0d10] to-[#0f0c1a]',
+  darker: 'bg-[#06040f]',
+  midnight: 'bg-[#080c18]',
+  aurora: 'bg-[#0a0818]',
+  dusk: 'bg-[#130818]',
+  galaxy: 'bg-[#06040e]',
+  ocean: 'bg-[#04111a]',
+  dawn: 'bg-[#1a0e1a]',
+  fog: 'bg-[#eeeaf6]',
+  sand: 'bg-[#f5efe6]',
+  parchment: 'bg-[#faf6f0]',
+  sunset: 'bg-[#180810]',
+  rose: 'bg-[#f7e5e4]',
+  mint: 'bg-[#e4f5ee]',
+  slate: 'bg-[#e8eaf2]',
 };
 
 const FONT_STYLES: Record<string, string> = {
@@ -183,21 +186,18 @@ function MatrixBackground({ color }: { color: string }) {
   );
 }
 
-function SpaceBackground({ themeBg, color }: { themeBg: string; color: string }) {
-  switch (themeBg) {
+function SpaceBackground({ themeEffect, color }: { themeEffect: string; color: string }) {
+  switch (themeEffect) {
     case 'particles': return <ParticlesBackground color={color} />;
     case 'bubbles': return <BubblesBackground color={color} />;
     case 'net': return <NetBackground color={color} />;
-    case 'aurora': return <AuroraBackground color={color} />;
     case 'matrix': return <MatrixBackground color={color} />;
     default: return (
       <div className='fixed inset-0 -z-10 overflow-hidden pointer-events-none'>
         <div className='absolute top-[-10%] left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full blur-[140px] opacity-25' style={{ backgroundColor: color }} />
         <div className='absolute bottom-0 right-[-10%] w-[400px] h-[400px] rounded-full blur-[120px] opacity-10' style={{ backgroundColor: color }} />
         <div className='absolute top-1/2 left-[-10%] w-[300px] h-[300px] rounded-full blur-[100px] opacity-8' style={{ backgroundColor: color }} />
-        {(profile.themeBg === 'fog' || profile.themeBg === 'sand' || profile.themeBg === 'parchment') && (
-          <div className='absolute inset-0 bg-gradient-to-b from-white/40 to-transparent' />
-        )}
+        <div className='absolute inset-0 bg-gradient-to-b from-white/40 to-transparent opacity-0' />
       </div>
     );
   }
@@ -334,9 +334,10 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   try { spaceLinks = profile ? JSON.parse((profile as Record<string, unknown>).links as string || '[]') : []; } catch {}
 
 
-  const isLight = ['fog','sand','parchment'].includes(profile.themeBg || '');
+  const isLight = ['fog','sand','parchment','rose','mint','slate'].includes(profile.themeBg || '');
   return (
-    <div className={'min-h-screen ' + bgClass + ' ' + fontClass + (isLight ? ' text-zinc-900' : ' text-white')}>
+    <div className={'min-h-screen ' + bgClass + ' ' + fontClass + (isLight ? ' text-zinc-800' : ' text-white')}>
+      <SpaceBackground themeEffect={themeEffect} color={color} />
       <div className='fixed inset-0 -z-10 overflow-hidden pointer-events-none'>
         <div className='absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full blur-[120px] opacity-20' style={{ backgroundColor: color }} />
       </div>

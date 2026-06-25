@@ -2,7 +2,7 @@
 
 import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useState } from 'react';
-import { redirect } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
@@ -16,6 +16,7 @@ import {
 export default function DashboardPage() {
   const { isSignedIn, isLoaded, userId } = useAuth();
   const [copied, setCopied] = useState(false);
+  const router = useRouter();
 
   const profile = useQuery(api.profiles.current);
   const createProfile = useMutation(api.profiles.createIfMissing);
@@ -53,6 +54,15 @@ export default function DashboardPage() {
       getOrCreateAnalytics({ profileId: profile._id }).catch(console.error);
     }
   }, [profile?._id, getOrCreateAnalytics]);
+
+  // Redirect incomplete spaces to Studio
+  useEffect(() => {
+    if (!profile || knowledgeCount === undefined) return;
+    const isIncomplete = !profile.bio || !profile.welcomeMessage || !knowledgeCount;
+    if (isIncomplete) {
+      router.replace('/dashboard/studio');
+    }
+  }, [profile, knowledgeCount, router]);
 
   useEffect(() => {
     if (userId && subscription === null) {
