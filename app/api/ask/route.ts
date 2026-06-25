@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
         score: cosineSimilarity(questionEmbedding, k.embeddings!)
       }))
       .sort((a, b) => b.score - a.score)
-      .slice(0, 3);
+      .slice(0, 5);
 
     const topChunks = scoredChunks.map(k => k.content);
 

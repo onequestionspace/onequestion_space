@@ -3,14 +3,20 @@ const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 const CHAT_MODEL = 'gemini-2.5-flash';
 const EMBED_MODEL = 'gemini-embedding-001';
 
-export function chunkText(text: string, chunkSize = 500, overlap = 50): string[] {
+// Chunk by WORDS not characters — more accurate for semantic search
+export function chunkText(text: string, wordSize = 200, overlap = 50): string[] {
+  const words = text.split(/\s+/).filter(Boolean);
+  if (words.length <= wordSize) return [words.join(' ')];
+
   const chunks: string[] = [];
   let i = 0;
-  while (i < text.length) {
-    chunks.push(text.slice(i, i + chunkSize).trim());
-    i += chunkSize - overlap;
+  while (i < words.length) {
+    const chunk = words.slice(i, i + wordSize).join(' ');
+    if (chunk.trim().length > 20) chunks.push(chunk);
+    if (i + wordSize >= words.length) break;
+    i += wordSize - overlap;
   }
-  return chunks.filter(c => c.length > 20);
+  return chunks;
 }
 
 export async function generateEmbeddings(content: string): Promise<number[]> {
@@ -21,7 +27,8 @@ export async function generateEmbeddings(content: string): Promise<number[]> {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: `models/${EMBED_MODEL}`,
-        content: { parts: [{ text: content }] }
+        content: { parts: [{ text: content }] },
+        taskType: 'RETRIEVAL_QUERY',
       }),
     });
     const data = await res.json();
@@ -39,45 +46,43 @@ export interface ProfileContext {
   username?: string;
 }
 
-export async function generateAnswer(question: string, chunks: string[], profile?: ProfileContext): Promise<string> {
+export async function generateAnswer(
+  question: string,
+  chunks: string[],
+  profile?: ProfileContext
+): Promise<string> {
   if (!GEMINI_API_KEY) return 'AI is not configured yet.';
+
   try {
+    const name = profile?.displayName || profile?.username || 'the owner';
+    const bio = profile?.bio || '';
+    const welcome = profile?.welcomeMessage || '';
+
     const context = chunks.length > 0
       ? chunks.join('\n\n---\n\n')
-      : 'No knowledge base uploaded yet.';
+      : '';
 
-    const name = profile?.displayName || profile?.username || 'the owner';
-    const bio = profile?.bio ? `About them: ${profile.bio}` : '';
-    const tone = profile?.welcomeMessage ? `Their style: ${profile.welcomeMessage}` : '';
-
-    // Dynamic token limit based on question complexity
+    // Dynamic token limit
     const wordCount = question.split(' ').length;
-    const maxTokens = wordCount > 15 ? 300 : wordCount > 8 ? 200 : 150;
+    const maxTokens = wordCount > 15 ? 800 : wordCount > 8 ? 600 : 400;
 
-    const prompt = `You are the personal AI for ${name}. Your job is to answer visitor questions on their behalf, using only what you know from their knowledge base.
+    const prompt = `You are ${name}. A visitor is asking you a question on your personal AI space. Answer as yourself — in your own voice, naturally, like you are personally replying.
 
-Critical formatting rules:
-- Never use markdown — no **bold**, no ##headers, no bullet lists
-- Write in plain conversational sentences only
-- Keep it natural like a real person texting back
-
-Personality:
-- Speak in first person as if you are ${name}
-- Be warm, direct and helpful
-- Match the tone of their bio and welcome message
-${bio}
-${tone}
+${bio ? `About you: ${bio}` : ''}
+${welcome ? `Your usual tone: ${welcome}` : ''}
 
 Rules:
-- Only use information from the knowledge base below
-- If the answer is not in the knowledge base, say: "I don't have details on that yet — feel free to reach out to me directly."
-- Never make up facts or invent details
-- Keep answers focused and natural — not robotic
+- Speak in first person as ${name} — say "I", "my", "me"
+- Be warm, direct and specific — reference real details from your knowledge
+- No markdown — no bold, no bullet points, no headers
+- Write like a real person texting back, not a report
+- If the answer is not in your knowledge, say exactly: "I don't have details on that yet — feel free to reach out to me directly"
+- Never say "based on the knowledge" or "according to the information" — just answer naturally
+- Keep it focused, 2 to 4 sentences unless the question needs more
 
-Knowledge Base:
-${context}
+${context ? `Your knowledge:\n${context}` : 'You have no knowledge uploaded yet — tell the visitor to check back soon.'}
 
-Visitor question: ${question}
+Visitor asks: ${question}
 
 Reply as ${name}:`;
 
@@ -86,22 +91,108 @@ Reply as ${name}:`;
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: maxTokens, temperature: 0.4 }
+        generationConfig: {
+          maxOutputTokens: maxTokens,
+          temperature: 0.7,
+        },
       }),
     });
+
     const data = await res.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry I couldn't generate an answer right now.";
+    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+    if (!raw) throw new Error('Gemini empty response');
+
+    // Strip any markdown that sneaks through
+    return raw
+      .replace(/\*\*/g, '')
+      .replace(/^#{1,6}\s/gm, '')
+      .replace(/^\*\s/gm, '')
+      .replace(/^-\s/gm, '')
+      .replace(/__/g, '')
+      .trim();
+
   } catch (error) {
     console.error('Gemini answer error:', error);
-    return "Sorry I couldn't generate an answer right now.";
+    try {
+      return await generateAnswerGroq(question, chunks, profile);
+    } catch (groqError) {
+      console.error('Groq fallback error:', groqError);
+      return "Sorry, I could not generate an answer right now.";
+    }
   }
 }
 
 export function cosineSimilarity(a: number[], b: number[]): number {
-  if (!a.length || !b.length) return 0;
-  const dot = a.reduce((sum, val, i) => sum + val * b[i], 0);
-  const magA = Math.sqrt(a.reduce((sum, val) => sum + val * val, 0));
-  const magB = Math.sqrt(b.reduce((sum, val) => sum + val * val, 0));
-  if (magA === 0 || magB === 0) return 0;
-  return dot / (magA * magB);
+  if (!a.length || !b.length || a.length !== b.length) return 0;
+  let dot = 0, magA = 0, magB = 0;
+  for (let i = 0; i < a.length; i++) {
+    dot += a[i] * b[i];
+    magA += a[i] * a[i];
+    magB += b[i] * b[i];
+  }
+  const denom = Math.sqrt(magA) * Math.sqrt(magB);
+  return denom === 0 ? 0 : dot / denom;
+}
+
+// ── Groq fallback ────────────────────────────────────────────────────────────
+const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
+const GROQ_BASE = 'https://api.groq.com/openai/v1/chat/completions';
+
+export async function generateAnswerGroq(
+  question: string,
+  chunks: string[],
+  profile?: ProfileContext
+): Promise<string> {
+  if (!GROQ_API_KEY) throw new Error('No Groq key');
+
+  const name = profile?.displayName || profile?.username || 'the owner';
+  const bio = profile?.bio || '';
+  const welcome = profile?.welcomeMessage || '';
+  const context = chunks.length > 0 ? chunks.join('\n\n---\n\n') : '';
+
+  const systemPrompt = `You are ${name}. A visitor is asking you a question on your personal AI space. Answer as yourself — in your own voice, naturally, like you are personally replying.
+
+${bio ? `About you: ${bio}` : ''}
+${welcome ? `Your usual tone: ${welcome}` : ''}
+
+Rules:
+- Speak in first person as ${name} — say "I", "my", "me"
+- Be warm, direct and specific — reference real details from your knowledge
+- No markdown — no bold, no bullet points, no headers
+- Write like a real person texting back, not a report
+- If the answer is not in your knowledge, say exactly: "I don't have details on that yet — feel free to reach out to me directly"
+- Never say "based on the knowledge" or "according to the information" — just answer naturally
+- Keep it focused, 2 to 4 sentences unless the question needs more
+
+${context ? `Your knowledge:\n${context}` : 'You have no knowledge uploaded yet.'}`;
+
+  const res = await fetch(GROQ_BASE, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${GROQ_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: 'llama-3.3-70b-versatile',
+      messages: [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: question },
+      ],
+      temperature: 0.7,
+      max_tokens: 400,
+    }),
+  });
+
+  if (!res.ok) throw new Error(`Groq error: ${res.status}`);
+  const data = await res.json();
+  const raw = data.choices?.[0]?.message?.content || '';
+
+  return raw
+    .replace(/\*\*/g, '')
+    .replace(/^#{1,6}\s/gm, '')
+    .replace(/^\*\s/gm, '')
+    .replace(/^-\s/gm, '')
+    .replace(/__/g, '')
+    .trim();
 }
