@@ -227,6 +227,8 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
     api.earlyAdopters.isEarlyAdopter,
     profile?._id ? { userId: profile.userId } : 'skip'
   );
+
+  const pinnedIds = (profile as Record<string, unknown>).pinnedQuestions as string[] || [];
   const allQuestions = useQuery(
     api.questions.getRecentQuestions,
     profile?._id ? { profileId: profile._id, limit: 50 } : 'skip'
@@ -330,7 +332,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   const vibeQuote = (profile as Record<string, unknown>).vibeQuote as string || '';
   let spaceLinks: {title: string, url: string}[] = [];
   try { spaceLinks = JSON.parse((profile as Record<string, unknown>).links as string || '[]'); } catch {}
-  const pinnedIds = (profile as Record<string, unknown>).pinnedQuestions as string[] || [];
+
 
   const isLight = ['fog','sand','parchment'].includes(profile.themeBg || '');
   return (
