@@ -41,14 +41,16 @@ export default function StudioPage() {
 
   useEffect(() => {
     if (!profile) return;
-    setDisplayName(profile.displayName || '');
-    setBio(profile.bio || '');
-    setWelcomeMessage(profile.welcomeMessage || '');
-    setVibeQuote((profile as Record<string, unknown>).vibeQuote as string || '');
-    try {
-      setLinks(JSON.parse((profile as Record<string, unknown>).links as string || '[]'));
-    } catch { setLinks([]); }
-    setPinnedQuestions((profile as Record<string, unknown>).pinnedQuestions as string[] || []);
+    setTimeout(() => {
+      setDisplayName(profile.displayName || '');
+      setBio(profile.bio || '');
+      setWelcomeMessage(profile.welcomeMessage || '');
+      setVibeQuote((profile as Record<string, unknown>).vibeQuote as string || '');
+      try {
+        setLinks(JSON.parse((profile as Record<string, unknown>).links as string || '[]'));
+      } catch { setLinks([]); }
+      setPinnedQuestions((profile as Record<string, unknown>).pinnedQuestions as string[] || []);
+    }, 0);
   }, [profile]);
 
   const save = async (fields: Record<string, unknown>) => {
