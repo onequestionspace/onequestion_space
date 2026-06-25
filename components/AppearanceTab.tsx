@@ -78,7 +78,7 @@ export function AppearanceTab() {
         setThemeBg(profile.themeBg || "dark");
         setThemeFont(profile.themeFont || "inter");
         setThemeCardStyle(profile.themeCardStyle || "glass");
-        setThemeEffect(profile.themeBg && ["particles","bubbles","net","matrix"].includes(profile.themeBg) ? profile.themeBg : "none");
+        setThemeEffect((profile as Record<string, unknown>).themeEffect as string || "none");
         if (profile.socialLinks) {
           try {
             const s = JSON.parse(profile.socialLinks);

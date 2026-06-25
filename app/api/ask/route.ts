@@ -22,6 +22,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Profile not found' }, { status: 404 });
     }
 
+    // 1b. Check subscription limit
+    const subscription = await convex.query(api.subscriptions.getSubscription, { userId: profile.userId });
+    if (subscription) {
+      const used = subscription.messagesUsed ?? 0;
+      const limit = subscription.messagesLimit ?? 50;
+      if (used >= limit) {
+        return NextResponse.json({
+          success: false,
+          error: 'Monthly AI answer limit reached. Upgrade your plan to continue.',
+          limitReached: true,
+        }, { status: 429 });
+      }
+    }
+
     // 2. Fetch all knowledge chunks for this user
     const knowledgeChunks = await convex.query(api.knowledge.getKnowledgeByUserId, { userId: profile.userId });
     
