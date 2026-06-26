@@ -25,7 +25,7 @@ export function CTASection() {
         </h2>
 
         <p className="text-lg text-muted-foreground mb-10 max-w-md mx-auto">
-          Join creators, businesses, and teams already saving time with AI-powered Q&A pages.
+          Claim your space. Upload what you know. Your AI handles the rest — 24/7, in your voice.
         </p>
 
         <div className="flex flex-col items-center gap-4 mb-8">
@@ -44,7 +44,7 @@ export function CTASection() {
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-muted-foreground text-sm">
             <div className="flex items-center gap-1.5">
               <Check className="w-4 h-4 text-primary shrink-0" />
-              <span>Free 14-day trial</span>
+              <span>Free forever plan</span>
             </div>
             <div className="flex items-center gap-1.5">
               <Check className="w-4 h-4 text-primary shrink-0" />

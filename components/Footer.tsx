@@ -110,7 +110,7 @@ export function Footer() {
             <span>&copy; {new Date().getFullYear()} One Question. All rights reserved.</span>
             <span className="w-1 h-1 rounded-full bg-white/10" />
             <span className="flex items-center gap-1">
-              Made with <Sparkles className="w-3 h-3 text-primary" /> for Creators
+              Built with <Sparkles className="w-3 h-3 text-primary" /> for Creators
             </span>
           </div>
 

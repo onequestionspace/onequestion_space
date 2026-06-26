@@ -88,7 +88,7 @@ export default function DashboardPage() {
     : 0;
 
   const stats = [
-    { label: 'Total Questions', value: analytics?.totalQuestions?.toString() ?? '0', icon: MessageSquare, color: '#a855f7' },
+    { label: 'Total Questions', value: analytics?.totalQuestions?.toString() ?? '0', icon: MessageSquare, color: '#f59e0b' },
     { label: 'Profile Visitors', value: analytics?.totalVisitors?.toString() ?? '0', icon: Users, color: '#3b82f6' },
     { label: 'AI Answers', value: analytics?.totalAnswers?.toString() ?? '0', icon: Zap, color: '#22c55e' },
     { label: 'Knowledge Items', value: knowledgeCount?.toString() ?? '0', icon: Brain, color: '#f97316' },
@@ -173,6 +173,18 @@ export default function DashboardPage() {
           ))}
         </div>
 
+        {/* Streak card */}
+        {knowledgeCount && knowledgeCount > 0 && (
+          <div className='glass-card rounded-2xl p-5 border border-border flex items-center gap-4'>
+            <div className='w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-xl shrink-0'>🔥</div>
+            <div>
+              <p className='text-sm font-bold text-foreground'>Keep uploading knowledge</p>
+              <p className='text-xs text-muted-foreground'>You have {knowledgeCount} knowledge item{knowledgeCount === 1 ? '' : 's'} — the more you add, the smarter your AI gets.</p>
+            </div>
+            <Link href='/dashboard/knowledge' className='ml-auto text-xs font-bold text-primary hover:text-primary/80 transition-colors shrink-0'>Add more →</Link>
+          </div>
+        )}
+
         {/* Middle row: Response Rate + Usage */}
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
 
@@ -197,7 +209,7 @@ export default function DashboardPage() {
             </div>
             <p className='text-4xl font-bold text-foreground mb-2'>{messagesUsed}<span className='text-lg text-muted-foreground font-normal'>/{messagesLimit}</span></p>
             <div className='w-full h-2 bg-card rounded-full overflow-hidden'>
-              <div className='h-full rounded-full transition-all' style={{ width: usagePercent + '%', backgroundColor: usagePercent > 80 ? '#ef4444' : usagePercent > 50 ? '#f97316' : '#a855f7' }} />
+              <div className='h-full rounded-full transition-all' style={{ width: usagePercent + '%', backgroundColor: usagePercent > 80 ? '#ef4444' : usagePercent > 50 ? '#f97316' : '#f59e0b' }} />
             </div>
             <p className='text-xs text-muted-foreground mt-2'>{subscription?.plan ?? 'free'} plan · {messagesLimit - messagesUsed} remaining</p>
           </div>

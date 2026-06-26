@@ -50,7 +50,7 @@ export function Navbar() {
       <div className="max-w-2xl mx-auto">
         <div className="flex items-center justify-between px-4 py-2.5 rounded-full bg-background/80 backdrop-blur-xl border border-white/15 shadow-lg max-w-lg mx-auto">
           <Link href="/" className="flex items-center gap-2 group">
-            <Image src="/logo.png" alt="One Question" width={32} height={32} className="rounded-xl group-hover:scale-110 transition-transform" />
+            <Image src="/logo.png" alt="One Question" width={32} height={32} className="rounded-xl group-hover:scale-110 transition-transform ring-0 border-0" />
             <span className="text-sm font-bold text-white tracking-tight">One Question</span>
           </Link>
 

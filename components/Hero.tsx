@@ -147,6 +147,11 @@ export function Hero() {
               />
             </div>
 
+            {username && (
+              <p className='text-xs text-primary/80 mb-2 ml-1'>
+                Your space → <span className='font-bold text-primary'>onequestion.space/{username}</span>
+              </p>
+            )}
             {isLoaded && (
               <button
                 onClick={handleClaim}

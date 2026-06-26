@@ -308,7 +308,18 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
             )}
           </div>
 
-          {profile.bio && <p className='text-zinc-400 text-sm max-w-xs mx-auto mb-5 leading-relaxed'>{profile.bio}</p>}
+          {profile.bio && <p className='text-zinc-400 text-sm max-w-xs mx-auto mb-3 leading-relaxed'>{profile.bio}</p>}
+          <div className='flex items-center justify-center gap-3 mb-5 flex-wrap'>
+            <span className='text-xs text-zinc-600'>
+              Joined {new Date(profile._creationTime).toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
+            </span>
+            {analytics && analytics.totalQuestions > 0 && (
+              <span className='text-xs text-zinc-600'>·</span>
+            )}
+            {analytics && analytics.totalQuestions > 0 && (
+              <span className='text-xs text-zinc-600'>{analytics.totalQuestions} questions answered</span>
+            )}
+          </div>
 
           {/* Socials */}
           {(social.twitter || social.github || social.website || social.linkedin) && (
@@ -524,7 +535,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
                         </div>
                         <button onClick={copyAnswer} className='flex items-center gap-1.5 text-xs opacity-40 hover:opacity-70 transition-opacity'>
                           {copiedAnswer ? <Check className='w-3 h-3 text-green-400' /> : <Copy className='w-3 h-3' />}
-                          {copiedAnswer ? 'Copied' : 'Copy answer'}
+                          {copiedAnswer ? 'Copied ✓' : 'Copy answer'}
                         </button>
                       </motion.div>
                     )}
