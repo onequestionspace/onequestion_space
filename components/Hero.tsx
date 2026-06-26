@@ -47,11 +47,7 @@ export function Hero() {
         }
       }, 35);
     } else if (phase === 'show-q') {
-      setTimeout(() => {
-        setDisplayed('');
-        setPhase('typing-a');
-      }, 0);
-      // Fetch real answer from Knowledge Explorer
+      setTimeout(() => { setDisplayed(''); setPhase('typing-a'); }, 0);
       fetch('/api/explore', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -90,30 +86,56 @@ export function Hero() {
 
   return (
     <section className='relative min-h-screen flex items-center justify-center overflow-hidden pt-20 pb-16'>
-      {/* Background */}
-      <div className='absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(147,51,234,0.25),transparent)]' />
-      <div className='absolute inset-0 dot-pattern opacity-30' />
-      <div className='absolute top-1/3 left-1/4 w-64 h-64 bg-purple-600/15 rounded-full blur-3xl' />
-      <div className='absolute top-1/3 right-1/4 w-64 h-64 bg-fuchsia-500/10 rounded-full blur-3xl' />
+
+      {/* Background — amber glow, no purple */}
+      <div className='absolute inset-0 bg-[radial-gradient(ellipse_70%_40%_at_50%_-10%,rgba(245,158,11,0.15),transparent)]' />
+      <div className='absolute inset-0' style={{
+        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px)',
+        backgroundSize: '32px 32px',
+      }} />
+      {/* Grain texture */}
+      <div className='absolute inset-0 opacity-[0.03] pointer-events-none' style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+        backgroundRepeat: 'repeat',
+        backgroundSize: '128px 128px',
+      }} />
+      <div className='absolute top-1/3 left-1/4 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl' />
+      <div className='absolute bottom-1/3 right-1/4 w-56 h-56 bg-orange-500/8 rounded-full blur-3xl' />
 
       <div className='relative z-10 max-w-5xl mx-auto px-4'>
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-12 items-center'>
 
-          {/* Left — copy */}
+          {/* Left */}
           <div>
-            <div className='inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-semibold mb-8'>
-              <span className='w-1.5 h-1.5 rounded-full bg-primary animate-pulse' />
-              {count}+ spaces live
+            {/* Built from phone badge */}
+            <div className='inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold mb-6 animate-snap-in'>
+              <span className='text-base'>📱</span>
+              Built from an Android phone · Nigeria
             </div>
+
             <h1 className='text-5xl md:text-6xl font-black text-white leading-[1.05] tracking-tight mb-6'>
               Your AI.<br />
-              Your answers.<br />
-              <span className='bg-gradient-to-r from-purple-400 via-fuchsia-400 to-pink-400 bg-clip-text text-transparent'>Always on.</span>
+              Your voice.<br />
+              <span className='bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent'>Always on.</span>
             </h1>
-            <p className='text-zinc-400 text-lg leading-relaxed mb-8 max-w-md'>
+
+            <p className='text-zinc-400 text-lg leading-relaxed mb-3 max-w-md'>
               Upload your knowledge once. Let AI answer every visitor question instantly — in your voice, 24/7.
             </p>
-            <div className='flex items-center bg-white/5 border border-white/10 rounded-2xl px-4 py-3 mb-4 focus-within:border-primary/50 transition-all max-w-sm'>
+
+            {/* Social proof pill */}
+            <div className='flex items-center gap-2 mb-8'>
+              <div className='flex -space-x-2'>
+                {['A','P','K','M','T'].map((l, i) => (
+                  <div key={i} className='w-7 h-7 rounded-full border-2 border-background flex items-center justify-center text-[10px] font-bold text-white' style={{ backgroundColor: ['#f59e0b','#ef4444','#3b82f6','#22c55e','#a855f7'][i] }}>
+                    {l}
+                  </div>
+                ))}
+              </div>
+              <p className='text-zinc-500 text-xs'><span className='text-white font-semibold'>{count}+</span> spaces live</p>
+            </div>
+
+            <div className='flex items-center bg-zinc-900 border border-zinc-700 rounded-2xl px-4 py-3 mb-4 focus-within:border-amber-500/50 transition-all max-w-sm'>
               <span className='text-zinc-500 text-sm whitespace-nowrap shrink-0'>onequestion.space/</span>
               <input
                 type='text'
@@ -124,79 +146,102 @@ export function Hero() {
                 className='flex-1 bg-transparent text-white ml-1 outline-none placeholder:text-zinc-600 text-sm'
               />
             </div>
+
             {isLoaded && (
               <button
                 onClick={handleClaim}
-                className='w-full max-w-sm py-3.5 rounded-2xl bg-gradient-to-r from-purple-600 to-fuchsia-600 text-white font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 hover:-translate-y-0.5 transition-all shadow-lg shadow-purple-500/20'
+                className='group w-full max-w-sm py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-black text-sm flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-lg shadow-amber-500/20'
               >
-                Claim your space <ArrowRight className='w-4 h-4' />
+                Claim your space free
+                <ArrowRight className='w-4 h-4 group-hover:translate-x-1 transition-transform' />
               </button>
             )}
-            <p className='text-zinc-600 text-xs mt-3 max-w-sm'>Free forever. No credit card required.</p>
+            <p className='text-zinc-600 text-xs mt-3 max-w-sm'>Free forever · No credit card · 2 min setup</p>
           </div>
 
-          {/* Right — live demo card */}
+          {/* Right — live demo */}
           <div className='relative'>
-            <div className='absolute -inset-4 bg-gradient-to-r from-purple-600/20 to-fuchsia-600/20 rounded-3xl blur-2xl' />
-            <div className='relative rounded-3xl border border-white/10 overflow-hidden' style={{ background: 'rgba(15,15,15,0.9)', backdropFilter: 'blur(20px)' }}>
+            <div className='absolute -inset-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-3xl blur-2xl' />
+            <div className='relative rounded-3xl border border-zinc-800 overflow-hidden bg-zinc-950'>
+
+              {/* Terminal-style header bar */}
+              <div className='px-4 py-3 border-b border-zinc-800 flex items-center gap-2 bg-zinc-900'>
+                <div className='flex gap-1.5'>
+                  <div className='w-3 h-3 rounded-full bg-red-500/70' />
+                  <div className='w-3 h-3 rounded-full bg-amber-500/70' />
+                  <div className='w-3 h-3 rounded-full bg-green-500/70' />
+                </div>
+                <span className='text-zinc-500 text-xs mx-auto font-mono'>onequestion.space/asym</span>
+              </div>
+
               {/* Space header */}
-              <div className='px-6 py-5 border-b border-white/8 flex items-center gap-3'>
-                <div className='w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-fuchsia-500 flex items-center justify-center text-white font-bold text-sm'>A</div>
+              <div className='px-6 py-4 border-b border-zinc-800/50 flex items-center gap-3'>
+                <div className='w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-black font-black text-sm'>A</div>
                 <div>
-                  <p className='text-white text-sm font-semibold'>Asym Alwali</p>
-                  <p className='text-zinc-500 text-xs'>onequestion.space/asym</p>
+                  <p className='text-white text-sm font-bold'>Asym Alwali</p>
+                  <p className='text-zinc-500 text-xs'>19yo · Building from Nigeria 🇳🇬</p>
                 </div>
-                <div className='ml-auto flex flex-col items-end gap-1'>
-              <div className='flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-green-500/10 text-green-400 border border-green-500/15'>
+                <div className='ml-auto flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-full bg-green-500/10 text-green-400 border border-green-500/15'>
                   <span className='w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse' />
-                  AI Active
+                  Live
                 </div>
-              <span className='text-zinc-600 text-[10px]'>Knowledge Explorer</span>
               </div>
-              </div>
+
               {/* Chat */}
               <div className='p-5 space-y-3 min-h-[200px] max-h-[260px] overflow-y-auto flex flex-col justify-end'>
                 {(phase === 'show-q' || phase === 'typing-a' || phase === 'show-a') && (
                   <div className='flex justify-end'>
-                    <div className='max-w-[75%] px-4 py-2.5 rounded-2xl bg-white/8 border border-white/8'>
+                    <div className='max-w-[75%] px-4 py-2.5 rounded-2xl bg-zinc-800 border border-zinc-700'>
                       <p className='text-white text-sm'>{TYPING_PAIRS[pairIndex].q}</p>
                     </div>
                   </div>
                 )}
                 <div className='flex justify-start gap-2.5'>
-                  <div className='w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center shrink-0 mt-0.5'>
-                    <Sparkles className='w-3.5 h-3.5 text-primary' />
+                  <div className='w-7 h-7 rounded-full bg-amber-500/20 flex items-center justify-center shrink-0 mt-0.5'>
+                    <Sparkles className='w-3.5 h-3.5 text-amber-400' />
                   </div>
-                  <div className='max-w-[75%] px-4 py-2.5 rounded-2xl bg-primary/10 border border-primary/20'>
+                  <div className='max-w-[75%] px-4 py-2.5 rounded-2xl bg-amber-500/10 border border-amber-500/20'>
                     {(phase === 'typing-q' || phase === 'show-q') ? (
                       <div className='flex gap-1 py-1'>
-                        {[0,1,2].map(i => <div key={i} className='w-1.5 h-1.5 rounded-full bg-primary animate-bounce' style={{ animationDelay: i*150 + 'ms' }} />)}
+                        {[0,1,2].map(i => <div key={i} className='w-1.5 h-1.5 rounded-full bg-amber-400 animate-bounce' style={{ animationDelay: i*150 + 'ms' }} />)}
                       </div>
                     ) : (
                       <p className='text-white text-sm leading-relaxed'>
                         {displayed}
-                        {phase === 'typing-a' && <span className='inline-block w-0.5 h-4 bg-primary ml-0.5 animate-pulse' />}
+                        {phase === 'typing-a' && <span className='inline-block w-0.5 h-4 bg-amber-400 ml-0.5 animate-pulse' />}
                       </p>
                     )}
                   </div>
                 </div>
               </div>
+
               {/* Input bar */}
-              <div className='px-5 py-4 border-t border-white/8 flex items-center gap-3'>
+              <div className='px-5 py-4 border-t border-zinc-800 flex items-center gap-3'>
                 {phase === 'typing-q' ? (
-                  <div className='flex-1 text-sm text-white'>
+                  <div className='flex-1 text-sm text-white font-mono'>
                     {displayed}
                     <span className='inline-block w-0.5 h-4 bg-white/60 ml-0.5 animate-pulse' />
                   </div>
                 ) : (
-                  <div className='flex-1 text-sm text-zinc-600'>Ask a question...</div>
+                  <div className='flex-1 text-sm text-zinc-600'>Ask anything...</div>
                 )}
-                <div className='w-8 h-8 rounded-xl bg-primary/20 flex items-center justify-center'>
-                  <ArrowRight className='w-3.5 h-3.5 text-primary' />
+                <div className='w-8 h-8 rounded-xl bg-amber-500/20 flex items-center justify-center'>
+                  <ArrowRight className='w-3.5 h-3.5 text-amber-400' />
                 </div>
               </div>
             </div>
+
+            {/* Floating stat cards */}
+            <div className='absolute -bottom-4 -left-4 bg-zinc-900 border border-zinc-700 rounded-2xl px-4 py-3 shadow-xl animate-slide-up'>
+              <p className='text-xs text-zinc-500'>Response time</p>
+              <p className='text-white font-black text-lg'>&lt;2s</p>
+            </div>
+            <div className='absolute -top-4 -right-4 bg-zinc-900 border border-zinc-700 rounded-2xl px-4 py-3 shadow-xl animate-slide-up'>
+              <p className='text-xs text-zinc-500'>Built from</p>
+              <p className='text-white font-black text-lg'>📱 Phone</p>
+            </div>
           </div>
+
         </div>
       </div>
     </section>

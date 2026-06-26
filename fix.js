@@ -1,95 +1,70 @@
 const fs = require('fs');
-let c = fs.readFileSync('components/DashboardAI.tsx', 'utf8');
+let c = fs.readFileSync('tailwind.config.ts', 'utf8');
 
-// 1. Update Mode type
 c = c.replace(
-  `type Mode = 'assistant' | 'interview';`,
-  `type Mode = 'assistant' | 'interview' | 'brain';`
+  `        primary: {
+          DEFAULT: '#a855f7',
+          light: '#c084fc',
+          dark: '#7c3aed',
+        },`,
+  `        primary: {
+          DEFAULT: '#f59e0b',
+          light: '#fbbf24',
+          dark: '#d97706',
+        },
+        purple: {
+          DEFAULT: '#a855f7',
+          light: '#c084fc',
+          dark: '#7c3aed',
+        },`
 );
 
-// 2. Add brain case to startMode
 c = c.replace(
-  `    if (newMode === 'assistant') {
-      setMessages([{
-        role: 'assistant',
-        content: 'Hey ' + (profile?.displayName || 'there') + '! I know your space inside out. Ask me anything.',
-      }]);
-    } else {
-      sendInterview([]);
-    }`,
-  `    if (newMode === 'assistant') {
-      setMessages([{
-        role: 'assistant',
-        content: 'Hey ' + (profile?.displayName || 'there') + '! I know your space inside out. Ask me anything.',
-      }]);
-    } else if (newMode === 'brain') {
-      setMessages([{
-        role: 'assistant',
-        content: 'Second Brain mode. Dump any thought, idea, note, or link — I will save it to your knowledge base and help you expand on it.',
-      }]);
-    } else {
-      sendInterview([]);
-    }`
+  `        'glow': '0 0 20px rgba(168, 85, 247, 0.4)',
+        'glow-lg': '0 0 40px rgba(168, 85, 247, 0.5)',
+        'glow-pink': '0 0 20px rgba(236, 72, 153, 0.4)',
+        'glow-multi': '0 0 20px rgba(168, 85, 247, 0.3), 0 0 40px rgba(236, 72, 153, 0.2)',`,
+  `        'glow': '0 0 20px rgba(245, 158, 11, 0.4)',
+        'glow-lg': '0 0 40px rgba(245, 158, 11, 0.5)',
+        'glow-pink': '0 0 20px rgba(236, 72, 153, 0.4)',
+        'glow-multi': '0 0 20px rgba(245, 158, 11, 0.3), 0 0 40px rgba(251, 191, 36, 0.2)',`
 );
 
-// 3. Add brain handling in send()
 c = c.replace(
-  `    if (mode === 'interview') {
-      await sendInterview(newMessages);
-      return;
-    }`,
-  `    if (mode === 'interview') {
-      await sendInterview(newMessages);
-      return;
-    }
-
-    if (mode === 'brain') {
-      try {
-        const res = await fetch('/api/dashboard-ai', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mode: 'brain', messages: newMessages }),
-        });
-        const data = await res.json();
-        setMessages(m => [...m, {
-          role: 'assistant',
-          content: (data.saved ? '💾 Saved! ' : '') + (data.content || 'Saved to your knowledge base.'),
-        }]);
-      } catch {
-        setMessages(m => [...m, { role: 'assistant', content: 'Something went wrong. Try again.' }]);
-      }
-      setLoading(false);
-      return;
-    }`
+  `        'gradient-primary': 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)',
+        'gradient-multi': 'linear-gradient(135deg, #a855f7 0%, #ec4899 50%, #ef4444 100%)',
+        'gradient-alt': 'linear-gradient(135deg, #facc15 0%, #ec4899 50%, #a855f7 100%)',`,
+  `        'gradient-primary': 'linear-gradient(135deg, #f59e0b 0%, #ef4444 100%)',
+        'gradient-multi': 'linear-gradient(135deg, #f59e0b 0%, #ef4444 50%, #ec4899 100%)',
+        'gradient-alt': 'linear-gradient(135deg, #facc15 0%, #f59e0b 50%, #ef4444 100%)',`
 );
 
-// 4. Add Brain button in header
+// Add snap animation + grain
 c = c.replace(
-  `              <button
-                onClick={() => startMode('interview')}
-                className={'text-xs px-2 py-0.5 rounded-lg transition-all flex items-center gap-1 ' + (mode === 'interview' ? 'bg-primary text-white' : 'text-zinc-400 hover:text-white')}
-              >
-                <Brain className='w-3 h-3' /> Train
-              </button>`,
-  `              <button
-                onClick={() => startMode('interview')}
-                className={'text-xs px-2 py-0.5 rounded-lg transition-all flex items-center gap-1 ' + (mode === 'interview' ? 'bg-primary text-white' : 'text-zinc-400 hover:text-white')}
-              >
-                <Brain className='w-3 h-3' /> Train
-              </button>
-              <button
-                onClick={() => startMode('brain')}
-                className={'text-xs px-2 py-0.5 rounded-lg transition-all ' + (mode === 'brain' ? 'bg-primary text-white' : 'text-zinc-400 hover:text-white')}
-              >
-                🧠
-              </button>`
+  `        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',`,
+  `        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'snap-in': 'snapIn 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+        'slide-up': 'slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',`
 );
 
-// 5. Update placeholder
 c = c.replace(
-  `placeholder={mode === 'interview' ? 'Answer the question...' : 'Ask about your space...'}`,
-  `placeholder={mode === 'interview' ? 'Answer the question...' : mode === 'brain' ? 'Dump a thought, idea, or note...' : 'Ask about your space...'}`
+  `        matrix: {
+          '0%': { transform: 'translateY(-100%)' },
+          '100%': { transform: 'translateY(100vh)' },
+        },`,
+  `        matrix: {
+          '0%': { transform: 'translateY(-100%)' },
+          '100%': { transform: 'translateY(100vh)' },
+        },
+        snapIn: {
+          '0%': { transform: 'scale(0.95)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        slideUp: {
+          '0%': { transform: 'translateY(16px)', opacity: '0' },
+          '100%': { transform: 'translateY(0)', opacity: '1' },
+        },`
 );
 
-fs.writeFileSync('components/DashboardAI.tsx', c);
+fs.writeFileSync('tailwind.config.ts', c);
 console.log('done');
