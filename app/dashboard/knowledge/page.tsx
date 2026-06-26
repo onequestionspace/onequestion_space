@@ -121,7 +121,7 @@ export default function KnowledgePage() {
         </div>
         <button
           onClick={() => { setIsAdding(true); setUploadError(''); }}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-pink text-white text-sm font-bold hover:shadow-glow-primary transition-all"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r bg-primary text-white text-sm font-bold hover:shadow-glow-primary transition-all"
         >
           <Plus className="w-4 h-4" />
           Add Knowledge
@@ -226,7 +226,7 @@ export default function KnowledgePage() {
             <button
               onClick={activeTab === 'text' ? handleTextSubmit : handleFileSubmit}
               disabled={uploading || !form.title.trim() || (activeTab === 'text' ? !form.content.trim() : !selectedFile)}
-              className="w-full py-3 rounded-xl bg-primary text-white font-bold text-sm flex items-center justify-center gap-2 hover:shadow-glow-primary transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full py-3 rounded-xl bg-primary text-black font-bold text-sm flex items-center justify-center gap-2 hover:shadow-glow-primary transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
               {uploading ? 'Saving...' : 'Save to Knowledge Base'}
@@ -341,7 +341,7 @@ export default function KnowledgePage() {
           </p>
           <button
             onClick={() => setIsAdding(true)}
-            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-primary to-pink text-white text-sm font-bold hover:shadow-glow-primary transition-all"
+            className="px-6 py-2.5 rounded-xl bg-gradient-to-r bg-primary text-white text-sm font-bold hover:shadow-glow-primary transition-all"
           >
             Add your first knowledge
           </button>

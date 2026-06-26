@@ -39,9 +39,8 @@ export function Navbar() {
   }, []);
 
   const navLinks = [
-    { name: 'Pricing', href: '/pricing' },
     { name: 'Blog', href: '/blog' },
-    { name: 'Contact', href: '/contact' },
+    { name: 'Pricing', href: '/pricing' },
   ];
 
   if (isSpacePage) return null;
@@ -77,7 +76,7 @@ export function Navbar() {
                   <div className="relative">
                     <button
                       onClick={() => setIsProfileOpen(!isProfileOpen)}
-                      className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-pink flex items-center justify-center text-white text-xs font-bold hover:shadow-glow transition-all overflow-hidden"
+                      className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-black text-xs font-bold hover:shadow-glow transition-all overflow-hidden"
                     >
                       {profile?.avatar ? <Image src={profile.avatar} alt="avatar" width={32} height={32} className="w-full h-full object-cover" /> : (profile?.displayName?.charAt(0)?.toUpperCase() || "U")}
                     </button>
@@ -115,7 +114,7 @@ export function Navbar() {
                   <Link href="/sign-in" className="text-xs font-medium text-muted-foreground hover:text-white transition-colors px-3 py-1.5 rounded-full hover:bg-white/10">
                     Log in
                   </Link>
-                  <Link href="/sign-up" className="text-xs font-bold px-4 py-1.5 rounded-full bg-white text-black hover:bg-primary hover:text-white transition-all flex items-center gap-1">
+                  <Link href="/sign-up" className="text-xs font-bold px-4 py-1.5 rounded-full bg-primary text-black hover:bg-primary/90 transition-all flex items-center gap-1">
                     Sign up free
                     <ChevronRight className="w-3 h-3" />
                   </Link>
@@ -167,7 +166,7 @@ export function Navbar() {
                 <Link href="/sign-in" onClick={() => setIsMobileMenuOpen(false)} className="block text-center text-sm font-medium text-muted-foreground py-2">
                   Log in
                 </Link>
-                <Link href="/sign-up" onClick={() => setIsMobileMenuOpen(false)} className="block text-center py-3 rounded-full bg-white text-black font-bold text-sm">
+                <Link href="/sign-up" onClick={() => setIsMobileMenuOpen(false)} className="block text-center py-3 rounded-full bg-primary text-black font-bold text-sm">
                   Sign up free
                 </Link>
               </div>

@@ -61,7 +61,7 @@ export default function WaitlistPage() {
 
           <div className="glass-card rounded-2xl p-8 border border-border">
             <div className="text-center mb-8">
-              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary to-pink mb-4">
+              <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br bg-primary mb-4">
                 <Sparkles className="w-8 h-8 text-white" />
               </div>
               <h1 className="text-3xl font-bold text-foreground mb-2">Join the Waitlist</h1>
@@ -72,7 +72,7 @@ export default function WaitlistPage() {
 
             {submitted ? (
               <div className="text-center space-y-4 py-4">
-                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br from-primary to-pink mb-2">
+                <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-gradient-to-br bg-primary mb-2">
                   <Check className="w-8 h-8 text-white" />
                 </div>
                 <h2 className="text-2xl font-bold">🎉 You are In</h2>
@@ -171,7 +171,7 @@ export default function WaitlistPage() {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full py-3 px-6 rounded-full bg-gradient-to-r from-primary to-pink text-white font-semibold hover:shadow-glow-primary transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full py-3 px-6 rounded-full bg-gradient-to-r bg-primary text-white font-semibold hover:shadow-glow-primary transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {loading ? 'Reserving...' : 'Claim Early Access'}
                 </button>

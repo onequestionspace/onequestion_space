@@ -10,7 +10,7 @@ export function ProfilePreview() {
     <section className="relative py-24 overflow-hidden">
       {/* Background gradients */}
       <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-accent-pink/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-primary/8 rounded-full blur-3xl" />
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
@@ -52,7 +52,7 @@ export function ProfilePreview() {
             </div>
 
             {/* Sample Answer */}
-            <div className="bg-gradient-to-br from-primary/10 to-accent-pink/10 rounded-2xl p-6 border border-primary/20">
+            <div className="bg-gradient-to-br from-primary/10 to-primary/8 rounded-2xl p-6 border border-primary/20">
               <p className="text-muted-foreground text-sm mb-3">
                 <span className="text-primary font-medium">Question:</span> How do you prioritize features?
               </p>

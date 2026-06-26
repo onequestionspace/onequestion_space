@@ -22,7 +22,7 @@ const CONTACTS = [
     handle: '@Asym_Alwali',
     description: 'Follow the build in public journey',
     href: 'https://twitter.com/Asym_Alwali',
-    color: 'from-primary to-pink',
+    color: 'from-primary to-primary/60',
   },
   {
     icon: XIcon,
@@ -30,7 +30,7 @@ const CONTACTS = [
     handle: '@OneQuestion_Spa',
     description: 'Product updates and announcements',
     href: 'https://twitter.com/OneQuestion_Spa',
-    color: 'from-pink to-accent-red',
+    color: 'from-primary/80 to-accent-red',
   },
   {
     icon: GithubIcon,
@@ -66,7 +66,7 @@ export default function ContactPage() {
           </Link>
 
           <div className="glass rounded-2xl p-6 border border-white/10 text-center mb-6">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-pink mx-auto mb-4 flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br bg-primary mx-auto mb-4 flex items-center justify-center">
               <MessageCircle className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-white mb-1">Get In Touch</h1>
@@ -94,7 +94,7 @@ export default function ContactPage() {
           <div className="glass rounded-2xl p-5 border border-white/10 mt-6 text-center">
             <p className="text-white font-semibold mb-1">Building something together?</p>
             <p className="text-muted-foreground text-sm mb-4">We are open to collaborations, partnerships and feedback from the community.</p>
-            <a href="mailto:hello@onequestion.space" className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r from-primary to-pink text-white font-semibold text-sm hover:shadow-glow transition-all">
+            <a href="mailto:hello@onequestion.space" className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full bg-gradient-to-r bg-primary text-white font-semibold text-sm hover:shadow-glow transition-all">
               <Mail className="w-4 h-4" />
               Send us an email
             </a>

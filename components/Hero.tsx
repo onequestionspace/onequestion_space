@@ -127,7 +127,7 @@ export function Hero() {
             <div className='flex items-center gap-2 mb-8'>
               <div className='flex -space-x-2'>
                 {['A','P','K','M','T'].map((l, i) => (
-                  <div key={i} className='w-7 h-7 rounded-full border-2 border-background flex items-center justify-center text-[10px] font-bold text-white' style={{ backgroundColor: ['#f59e0b','#ef4444','#3b82f6','#22c55e','#a855f7'][i] }}>
+                  <div key={i} className='w-7 h-7 rounded-full border-2 border-background flex items-center justify-center text-[10px] font-bold text-white' style={{ backgroundColor: ['#f59e0b','#ef4444','#3b82f6','#22c55e','#f97316'][i] }}>
                     {l}
                   </div>
                 ))}

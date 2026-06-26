@@ -24,12 +24,12 @@ const steps = [
 export function HowItWorksSection() {
   return (
     <section className='relative py-24 overflow-hidden'>
-      <div className='absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(147,51,234,0.06),transparent_70%)]' />
+
       <div className='relative z-10 max-w-4xl mx-auto px-4'>
         <div className='text-center mb-16'>
           <p className='text-primary text-sm font-semibold uppercase tracking-widest mb-4'>How it works</p>
-          <h2 className='text-4xl md:text-5xl font-extrabold text-white leading-tight'>
-            Up and running<br /><span className='gradient-text'>in under 5 minutes.</span>
+          <h2 className='text-4xl md:text-5xl font-black text-white leading-tight tracking-tight'>
+            Up and running<br /><span className='text-primary'>in under 5 minutes.</span>
           </h2>
         </div>
         <div className='grid grid-cols-1 md:grid-cols-3 gap-6'>

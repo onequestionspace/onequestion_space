@@ -159,7 +159,7 @@ export default function TrainPage() {
                 <button
                   onClick={saveToKnowledge}
                   disabled={saving}
-                  className='w-full py-3 rounded-xl bg-gradient-to-r from-primary to-pink text-white text-sm font-bold flex items-center justify-center gap-2'
+                  className='w-full py-3 rounded-xl bg-gradient-to-r bg-primary text-white text-sm font-bold flex items-center justify-center gap-2'
                 >
                   {saving ? <Loader2 className='w-4 h-4 animate-spin' /> : <Brain className='w-4 h-4' />}
                   Save to Knowledge Base

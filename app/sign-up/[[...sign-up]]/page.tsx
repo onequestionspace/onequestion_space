@@ -19,21 +19,21 @@ const clerkAppearance = {
     fontFamily: 'inherit',
   },
   elements: {
-    formButtonPrimary: "!bg-gradient-to-r !from-purple-600 !to-rose-500 !text-white !font-bold !text-sm !rounded-xl !py-3 !border-0 hover:!opacity-90 !transition-all",
+    formButtonPrimary: "!bg-gradient-to-r !bg-primary !text-white !font-bold !text-sm !rounded-xl !py-3 !border-0 hover:!opacity-90 !transition-all",
     card: "!bg-transparent !shadow-none !border-none !p-0",
     headerTitle: "!hidden",
     headerSubtitle: "!hidden",
     socialButtonsBlockButton: "!bg-white/8 !border !border-white/15 !text-white !rounded-xl !font-medium hover:!bg-white/15 !transition-all",
     socialButtonsBlockButtonText: "!text-white !font-medium",
-    footerActionLink: "!text-purple-400 hover:!text-purple-300",
+    footerActionLink: "!text-primary hover:!text-primary/80",
     footerActionText: "!text-zinc-400",
-    formFieldInput: "!bg-white/8 !border !border-white/15 !text-white !rounded-xl !py-3 !px-4 focus:!border-purple-500/60 focus:!ring-2 focus:!ring-purple-500/20 !transition-all placeholder:!text-zinc-500",
+    formFieldInput: "!bg-white/8 !border !border-white/15 !text-white !rounded-xl !py-3 !px-4 focus:!border-primary/60 focus:!ring-2 focus:!ring-primary/20 !transition-all placeholder:!text-zinc-500",
     formFieldLabel: "!text-zinc-300 !font-medium !text-sm",
     dividerLine: "!bg-white/10",
     dividerText: "!text-zinc-500 !text-xs",
     identityPreviewText: "!text-white",
-    identityPreviewEditButton: "!text-purple-400",
-    formResendCodeLink: "!text-purple-400",
+    identityPreviewEditButton: "!text-primary",
+    formResendCodeLink: "!text-primary",
     otpCodeFieldInput: "!bg-white/8 !border !border-white/15 !text-white !rounded-xl",
     alertText: "!text-red-400",
     formFieldErrorText: "!text-red-400 !text-xs",
@@ -55,9 +55,9 @@ function SignUpContent() {
       subtitle={username ? 'Claiming onequestion.space/' + username : 'Join the future of knowledge sharing'}
     >
       {username && (
-        <div className="rounded-2xl p-4 border border-purple-500/30 bg-purple-500/10 mb-4 text-center">
+        <div className="rounded-2xl p-4 border border-primary/30 bg-primary/10 mb-4 text-center">
           <p className="text-xs text-zinc-400 mb-1">Your space will be</p>
-          <p className="text-purple-400 font-bold">onequestion.space/{username}</p>
+          <p className="text-primary font-bold">onequestion.space/{username}</p>
         </div>
       )}
       <div className="flex justify-center w-full">

@@ -5,7 +5,7 @@ import { useRef, useEffect, useState } from 'react';
 const profiles = [
   {
     initials: 'SC',
-    gradient: 'from-pink-500 to-rose-500',
+    gradient: 'from-primary to-primary/60',
     type: 'Creator',
     name: 'Sarah',
     username: 'sarahcreates',
@@ -15,7 +15,7 @@ const profiles = [
   },
   {
     initials: 'AA',
-    gradient: 'from-purple-600 to-fuchsia-500',
+    gradient: 'from-primary to-primary/60',
     type: 'Founder',
     name: 'Asym Alwali',
     username: 'asym_alwali',
@@ -82,7 +82,7 @@ export function ProfilesSection() {
                   <div className="flex items-center gap-3 mt-0.5 flex-wrap">
                     <a
                       href={`https://onequestion.space/${p.username}`}
-                      className="text-purple-400 text-xs hover:text-purple-300 transition-colors"
+                      className="text-primary text-xs hover:text-primary/80 transition-colors"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
@@ -97,7 +97,7 @@ export function ProfilesSection() {
               <div className="space-y-2">
                 {p.questions.map((q, j) => (
                   <div key={j} className="flex items-center gap-2 bg-white/5 rounded-xl px-3 py-2.5 hover:bg-white/8 transition-colors">
-                    <span className="text-purple-400 text-xs font-bold">Q</span>
+                    <span className="text-primary text-xs font-bold">Q</span>
                     <p className="text-white/80 text-xs">{q}</p>
                   </div>
                 ))}

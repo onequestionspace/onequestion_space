@@ -18,8 +18,8 @@ export function AuthLayout({ children, title, subtitle }: {
         <div className="absolute inset-0 dot-pattern opacity-30" />
       </div>
 
-      <div className="absolute top-1/4 -left-20 w-64 h-64 bg-purple-600/15 rounded-full blur-3xl animate-pulse" />
-      <div className="absolute bottom-1/4 -right-20 w-64 h-64 bg-fuchsia-500/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute top-1/4 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+      <div className="absolute bottom-1/4 -right-20 w-64 h-64 bg-primary/8 rounded-full blur-3xl animate-pulse" />
 
       <div className="w-full max-w-md space-y-6 relative z-10 mx-auto self-center">
 
@@ -31,7 +31,7 @@ export function AuthLayout({ children, title, subtitle }: {
           </Link>
 
           <Link href="/" className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-600 to-fuchsia-500 flex items-center justify-center shadow-lg">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br bg-primary flex items-center justify-center shadow-lg">
               <Image src="/logo.png" alt="One Question" width={32} height={32} className="rounded-xl" />
             </div>
           </Link>
@@ -43,9 +43,9 @@ export function AuthLayout({ children, title, subtitle }: {
         {/* Card */}
         <div className="relative rounded-3xl p-4 sm:p-8 border border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl w-full">
           <div className="absolute top-0 right-0 p-4 opacity-5 pointer-events-none">
-            <Sparkles className="w-16 h-16 text-purple-400" />
+            <Sparkles className="w-16 h-16 text-primary" />
           </div>
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-600/5 via-transparent to-fuchsia-500/5 pointer-events-none rounded-3xl" />
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/3 pointer-events-none rounded-3xl" />
           <div className="relative z-10">
             {children}
           </div>
@@ -54,9 +54,9 @@ export function AuthLayout({ children, title, subtitle }: {
         {/* Footer */}
         <p className="text-center text-xs text-zinc-500">
           By continuing, you agree to our{' '}
-          <Link href="/terms" className="text-purple-400 hover:text-purple-300 transition-colors">Terms of Service</Link>
+          <Link href="/terms" className="text-primary hover:text-primary/80 transition-colors">Terms of Service</Link>
           {' '}and{' '}
-          <Link href="/privacy" className="text-purple-400 hover:text-purple-300 transition-colors">Privacy Policy</Link>.
+          <Link href="/privacy" className="text-primary hover:text-primary/80 transition-colors">Privacy Policy</Link>.
         </p>
       </div>
     </div>

@@ -81,12 +81,12 @@ export default function StudioPage() {
   const completionChecks = checks(profile as Record<string, unknown> | null);
   const score = Math.round((completionChecks.filter(c => c.done).length / completionChecks.length) * 100);
 
-  const inputClass = "w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-purple-500/40 focus:border-purple-500/40 transition-all placeholder:text-zinc-600 resize-none";
+  const inputClass = "w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 transition-all placeholder:text-zinc-600 resize-none";
   const saveBtn = (fields: Record<string, unknown>) => (
     <button
       onClick={() => save(fields)}
       disabled={saving}
-      className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold bg-gradient-to-r from-purple-600 to-rose-500 hover:opacity-90 transition-all disabled:opacity-50 mt-4"
+      className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold bg-gradient-to-r bg-primary hover:opacity-90 transition-all disabled:opacity-50 mt-4"
     >
       {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
       {saved ? 'Saved!' : 'Save'}
@@ -107,19 +107,19 @@ export default function StudioPage() {
         <div className="mb-6 rounded-2xl p-4 border border-white/8 bg-white/3">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-purple-400" />
+              <Sparkles className="w-4 h-4 text-primary" />
               <span className="text-sm font-semibold text-white">Space Completion</span>
               <span className="text-xs text-zinc-500">· {score}%</span>
             </div>
             {spaceUrl && (
-              <Link href={spaceUrl} target="_blank" className="flex items-center gap-1.5 text-xs text-purple-400 hover:text-purple-300 transition-colors">
+              <Link href={spaceUrl} target="_blank" className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors">
                 <ExternalLink className="w-3 h-3" /> View live
               </Link>
             )}
           </div>
           <div className="w-full h-1.5 bg-white/8 rounded-full overflow-hidden mb-3">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-purple-600 to-rose-500 transition-all duration-700"
+              className="h-full rounded-full bg-gradient-to-r bg-primary transition-all duration-700"
               style={{ width: score + '%' }}
             />
           </div>
@@ -149,7 +149,7 @@ export default function StudioPage() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all shrink-0 border ${
                     activeTab === tab.id
-                      ? 'bg-purple-600/20 text-purple-400 border-purple-500/20'
+                      ? 'bg-primary/20 text-primary border-primary/20'
                       : 'text-zinc-500 hover:text-white bg-white/3 border-white/8'
                   }`}
                 >
@@ -165,7 +165,7 @@ export default function StudioPage() {
               {activeTab === 'profile' && (
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="w-14 h-14 rounded-full overflow-hidden bg-purple-600/20 flex items-center justify-center text-xl font-bold text-white shrink-0">
+                    <div className="w-14 h-14 rounded-full overflow-hidden bg-primary/20 flex items-center justify-center text-xl font-bold text-white shrink-0">
                       {profile.avatar
                         ? <Image src={profile.avatar} alt={profile.displayName || ''} width={56} height={56} className="w-full h-full object-cover" />
                         : profile.displayName?.[0]?.toUpperCase() || '?'}
@@ -173,7 +173,7 @@ export default function StudioPage() {
                     <div>
                       <p className="text-sm font-medium text-white">{profile.displayName}</p>
                       <p className="text-xs text-zinc-500">@{profile.username}</p>
-                      <Link href="/dashboard/settings" className="text-xs text-purple-400 hover:text-purple-300 mt-0.5 block">Change photo →</Link>
+                      <Link href="/dashboard/settings" className="text-xs text-primary hover:text-primary/80 mt-0.5 block">Change photo →</Link>
                     </div>
                   </div>
                   <div>
@@ -201,8 +201,8 @@ export default function StudioPage() {
                     <textarea value={vibeQuote} onChange={e => setVibeQuote(e.target.value.slice(0, 200))} rows={3} className={inputClass} placeholder="Building the future from a phone in Nigeria." />
                   </div>
                   {vibeQuote && (
-                    <div className="p-3 rounded-xl bg-purple-600/10 border border-purple-500/20">
-                      <p className="text-xs text-purple-400 mb-1">Preview</p>
+                    <div className="p-3 rounded-xl bg-primary/10 border border-primary/20">
+                      <p className="text-xs text-primary mb-1">Preview</p>
                       <p className="text-sm text-white italic">&ldquo;{vibeQuote}&rdquo;</p>
                     </div>
                   )}
@@ -240,7 +240,7 @@ export default function StudioPage() {
                     ))}
                   </div>
                   {links.length < 5 && (
-                    <button onClick={() => setLinks([...links, { title: '', url: '' }])} className="flex items-center gap-2 px-4 py-2 rounded-xl border border-dashed border-white/15 text-zinc-500 hover:text-white hover:border-purple-500/40 transition-all text-xs w-full justify-center">
+                    <button onClick={() => setLinks([...links, { title: '', url: '' }])} className="flex items-center gap-2 px-4 py-2 rounded-xl border border-dashed border-white/15 text-zinc-500 hover:text-white hover:border-primary/40 transition-all text-xs w-full justify-center">
                       <Plus className="w-3.5 h-3.5" /> Add Link
                     </button>
                   )}
@@ -261,7 +261,7 @@ export default function StudioPage() {
                         return (
                           <div
                             key={q._id}
-                            className={`p-3 rounded-xl border transition-all cursor-pointer ${isPinned ? 'border-purple-500/40 bg-purple-500/8' : 'border-white/8 hover:border-purple-500/20 bg-white/3'}`}
+                            className={`p-3 rounded-xl border transition-all cursor-pointer ${isPinned ? 'border-primary/40 bg-primary/8' : 'border-white/8 hover:border-primary/20 bg-white/3'}`}
                             onClick={() => {
                               if (isPinned) setPinnedQuestions(pinnedQuestions.filter(id => id !== q._id));
                               else if (pinnedQuestions.length < 3) setPinnedQuestions([...pinnedQuestions, q._id]);
@@ -272,7 +272,7 @@ export default function StudioPage() {
                                 <p className="text-xs font-medium text-white line-clamp-1">{q.question}</p>
                                 {q.answer && <p className="text-xs text-zinc-500 line-clamp-1 mt-0.5">{q.answer}</p>}
                               </div>
-                              <div className={`w-4 h-4 rounded-full border shrink-0 flex items-center justify-center ${isPinned ? 'border-purple-500 bg-purple-500' : 'border-white/20'}`}>
+                              <div className={`w-4 h-4 rounded-full border shrink-0 flex items-center justify-center ${isPinned ? 'border-primary bg-primary' : 'border-white/20'}`}>
                                 {isPinned && <Check className="w-2.5 h-2.5 text-white" />}
                               </div>
                             </div>
@@ -318,7 +318,7 @@ export default function StudioPage() {
                     {showPreview ? 'Hide' : 'Show'}
                   </button>
                   {spaceUrl && (
-                    <Link href={spaceUrl} target="_blank" className="flex items-center gap-1.5 text-xs text-purple-400 hover:text-purple-300 transition-colors px-2 py-1 rounded-lg hover:bg-purple-500/10">
+                    <Link href={spaceUrl} target="_blank" className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors px-2 py-1 rounded-lg hover:bg-primary/10">
                       <ExternalLink className="w-3 h-3" /> Open
                     </Link>
                   )}

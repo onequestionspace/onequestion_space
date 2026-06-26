@@ -78,7 +78,7 @@ export function AvatarUpload({ currentAvatar, displayName, onSuccess }: AvatarUp
         {preview ? (
           <Image src={preview} alt="Avatar" width={80} height={80} className="w-24 h-24 rounded-full object-cover border-2 border-white/20" />
         ) : (
-          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-2xl font-bold border-2 border-white/20">
+          <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center text-white text-2xl font-bold border-2 border-white/20">
             {initials}
           </div>
         )}

@@ -9,14 +9,14 @@ const steps = [
     number: '01',
     title: 'Upload Your Knowledge',
     description: 'Add your FAQs, documents, bio, pricing, anything you want your AI to know about you.',
-    color: 'from-primary to-pink',
+    color: 'from-primary to-primary/60',
   },
   {
     icon: Brain,
     number: '02',
     title: 'AI Learns Your Voice',
     description: 'Your AI studies everything you upload and learns to answer in your style and tone.',
-    color: 'from-pink to-accent-red',
+    color: 'from-primary/80 to-accent-red',
   },
   {
     icon: Zap,

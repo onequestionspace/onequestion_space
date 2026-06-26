@@ -242,7 +242,7 @@ function BillingContent() {
                 <Plus className='w-4 h-4 text-muted-foreground' />
               </button>
             </div>
-            <input type='range' min={10} max={2000} step={10} value={creditAmount} onChange={e => setCreditAmount(Number(e.target.value))} className='w-full mt-3 accent-purple-500' />
+            <input type='range' min={10} max={2000} step={10} value={creditAmount} onChange={e => setCreditAmount(Number(e.target.value))} className='w-full mt-3 accent-amber-500' />
             <div className='flex justify-between text-xs text-muted-foreground mt-1'><span>10</span><span>2000</span></div>
           </div>
 

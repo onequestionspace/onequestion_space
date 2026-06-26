@@ -53,7 +53,7 @@ export default function PrivacyPage() {
           </Link>
 
           <div className="glass rounded-2xl p-6 border border-white/10 text-center mb-6">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-pink mx-auto mb-4 flex items-center justify-center">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br bg-primary mx-auto mb-4 flex items-center justify-center">
               <FileText className="w-8 h-8 text-white" />
             </div>
             <h1 className="text-2xl font-bold text-white mb-1">Privacy Assistant</h1>
@@ -99,7 +99,7 @@ export default function PrivacyPage() {
               <button
                 onClick={() => handleSubmit(question)}
                 disabled={loading || !question.trim()}
-                className="w-9 h-9 rounded-full bg-gradient-to-r from-primary to-pink flex items-center justify-center disabled:opacity-50"
+                className="w-9 h-9 rounded-full bg-gradient-to-r bg-primary flex items-center justify-center disabled:opacity-50"
               >
                 <Send className="w-4 h-4 text-white" />
               </button>

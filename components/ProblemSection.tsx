@@ -119,7 +119,7 @@ export function ProblemSection() {
 
       <div className="relative z-10 max-w-2xl mx-auto px-4 text-center mt-12">
         <div className="relative inline-block">
-          <div className="absolute -inset-1 bg-gradient-to-r from-primary/40 to-pink/40 rounded-2xl blur-md" />
+          <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-primary/10 rounded-2xl blur-md" />
           <div className="relative glass rounded-2xl px-8 py-5 border border-white/20">
             <p className="text-white font-bold text-xl">There is a better way.</p>
             <p className="text-muted-foreground text-sm mt-1">One space. Every question answered. Automatically.</p>

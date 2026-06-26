@@ -22,16 +22,16 @@ const FEATURES = [
   },
   {
     icon: Palette,
-    color: 'text-fuchsia-400',
-    bg: 'bg-fuchsia-400/10',
+    color: 'text-primary',
+    bg: 'bg-primary/10',
     title: 'Full Customization',
     desc: 'Colors, fonts, backgrounds, social links. Particles, bubbles, matrix animations. Your space, your brand.',
     tags: ['Theme colors', 'Animated backgrounds', 'Custom fonts'],
   },
   {
     icon: BarChart3,
-    color: 'text-purple-400',
-    bg: 'bg-purple-400/10',
+    color: 'text-primary',
+    bg: 'bg-primary/10',
     title: 'Real-time Analytics',
     desc: 'See every question, visitor and response rate in real time. Know exactly what people want to know about you.',
     tags: ['Live stats', 'Question history', 'Response rate'],
@@ -93,7 +93,7 @@ export default function FeaturesPage() {
             <p className="text-primary text-sm font-semibold uppercase tracking-widest mb-4">Features</p>
             <h1 className="text-4xl md:text-5xl font-black text-white leading-tight mb-4">
               Everything you need to let<br />
-              <span className="bg-gradient-to-r from-primary to-pink-500 bg-clip-text text-transparent">AI speak for you.</span>
+              <span className="bg-gradient-to-r text-primary">AI speak for you.</span>
             </h1>
             <p className="text-muted-foreground text-base max-w-xl mx-auto">
               One Question is built for creators, founders, and professionals who want AI to answer questions about them 24/7.
@@ -123,7 +123,7 @@ export default function FeaturesPage() {
           <div className="glass rounded-2xl p-6 border border-primary/20 text-center">
             <h2 className="text-white font-bold text-lg mb-2">Ready to claim your space?</h2>
             <p className="text-muted-foreground text-sm mb-4">Free forever. No credit card required.</p>
-            <Link href="/" className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-primary to-pink-500 text-white font-bold text-sm hover:opacity-90 transition-opacity">
+            <Link href="/" className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r bg-primary text-white font-bold text-sm hover:opacity-90 transition-opacity">
               Claim your space <ArrowRight className="w-4 h-4" />
             </Link>
           </div>

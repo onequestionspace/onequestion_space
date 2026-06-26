@@ -10,7 +10,7 @@ export function BentoSection() {
         <div className='text-center mb-16'>
           <p className='text-primary text-sm font-semibold uppercase tracking-widest mb-4'>Everything you need</p>
           <h2 className='text-4xl md:text-5xl font-black text-white leading-tight'>
-            Built for people who<br /><span className='bg-gradient-to-r from-purple-400 to-fuchsia-400 bg-clip-text text-transparent'>value their time.</span>
+            Built for people who<br /><span className='bg-gradient-to-r text-primary'>value their time.</span>
           </h2>
         </div>
 
@@ -30,19 +30,19 @@ export function BentoSection() {
           </div>
 
           {/* Analytics */}
-          <div className='rounded-3xl border border-white/8 p-6 relative overflow-hidden group hover:border-purple-400/30 transition-all duration-300' style={{ background: 'rgba(255,255,255,0.02)' }}>
-            <BarChart3 className='w-6 h-6 text-purple-400 mb-4' />
+          <div className='rounded-3xl border border-white/8 p-6 relative overflow-hidden group hover:border-primary/30 transition-all duration-300' style={{ background: 'rgba(255,255,255,0.02)' }}>
+            <BarChart3 className='w-6 h-6 text-primary mb-4' />
             <h3 className='text-base font-bold text-white mb-2'>Real Analytics</h3>
             <p className='text-zinc-500 text-xs leading-relaxed mb-4'>See every question, visitor and response rate in real time.</p>
             <div className='space-y-3'>
-              {[['Questions', '142', '#a855f7'], ['Visitors', '89', '#e879f9'], ['Rate', '98%', '#22c55e']].map(([label, val, color]) => (
+              {[['Questions', '142', '#f59e0b'], ['Visitors', '89', '#fbbf24'], ['Rate', '98%', '#22c55e']].map(([label, val, color]) => (
                 <div key={label} className='flex items-center justify-between'>
                   <span className='text-zinc-600 text-xs'>{label}</span>
                   <span className='text-sm font-bold' style={{ color }}>{val}</span>
                 </div>
               ))}
               <div className='w-full h-1.5 bg-white/5 rounded-full overflow-hidden'>
-                <div className='h-full rounded-full bg-gradient-to-r from-purple-500 to-fuchsia-500' style={{ width: '98%' }} />
+                <div className='h-full rounded-full bg-gradient-to-r bg-primary' style={{ width: '98%' }} />
               </div>
             </div>
           </div>
@@ -50,12 +50,12 @@ export function BentoSection() {
 
         {/* Row 2 — three equal */}
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4 mb-4'>
-          <div className='rounded-3xl border border-white/8 p-6 relative overflow-hidden group hover:border-fuchsia-400/30 transition-all duration-300' style={{ background: 'rgba(255,255,255,0.02)' }}>
-            <Palette className='w-6 h-6 text-fuchsia-400 mb-4' />
+          <div className='rounded-3xl border border-white/8 p-6 relative overflow-hidden group hover:border-primary/30 transition-all duration-300' style={{ background: 'rgba(255,255,255,0.02)' }}>
+            <Palette className='w-6 h-6 text-primary mb-4' />
             <h3 className='text-base font-bold text-white mb-2'>Full Customization</h3>
             <p className='text-zinc-500 text-xs leading-relaxed mb-4'>Colors, fonts, backgrounds, social links. Your space, your brand.</p>
             <div className='flex gap-2'>
-              {['#a855f7','#3b82f6','#22c55e','#f97316','#ec4899'].map(c => (
+              {['#f59e0b','#3b82f6','#22c55e','#ef4444','#f97316'].map(c => (
                 <div key={c} className='w-7 h-7 rounded-full border-2 border-white/10 hover:scale-110 transition-transform cursor-pointer' style={{ backgroundColor: c }} />
               ))}
             </div>

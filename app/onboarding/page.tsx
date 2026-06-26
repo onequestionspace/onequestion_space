@@ -125,8 +125,8 @@ export default function OnboardingPage() {
       <div className="fixed inset-0 -z-10">
         <div className="mesh-gradient opacity-40" />
         <div className="dot-pattern" />
-        <div className="absolute top-1/4 -left-20 w-64 h-64 bg-purple-600/15 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 -right-20 w-64 h-64 bg-fuchsia-500/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute top-1/4 -left-20 w-64 h-64 bg-primary/10 rounded-full blur-3xl animate-pulse" />
+        <div className="absolute bottom-1/4 -right-20 w-64 h-64 bg-primary/8 rounded-full blur-3xl animate-pulse" />
       </div>
 
       <div className="w-full max-w-md mx-auto">
@@ -138,13 +138,13 @@ export default function OnboardingPage() {
         {isSetupStep && (
           <div className="mb-6">
             <div className="w-full h-1.5 bg-white/10 rounded-full mb-3">
-              <motion.div className="h-1.5 rounded-full bg-gradient-to-r from-primary to-pink" animate={{ width: setupProgress + '%' }} transition={{ duration: 0.4 }} />
+              <motion.div className="h-1.5 rounded-full bg-gradient-to-r bg-primary" animate={{ width: setupProgress + '%' }} transition={{ duration: 0.4 }} />
             </div>
             <div className="flex items-center justify-between px-1">
               <p className="text-xs text-muted-foreground">Setting up your space · {setupIndex + 1} of {SETUP_STEPS.length}</p>
               <div className="flex gap-1">
                 {SETUP_STEPS.map((_, i) => (
-                  <motion.div key={i} animate={{ width: i === setupIndex ? 20 : 6 }} className={'h-1.5 rounded-full ' + (i < setupIndex ? 'bg-primary' : i === setupIndex ? 'bg-gradient-to-r from-primary to-pink' : 'bg-white/10')} />
+                  <motion.div key={i} animate={{ width: i === setupIndex ? 20 : 6 }} className={'h-1.5 rounded-full ' + (i < setupIndex ? 'bg-primary' : i === setupIndex ? 'bg-gradient-to-r bg-primary' : 'bg-white/10')} />
                 ))}
               </div>
             </div>
@@ -167,7 +167,7 @@ export default function OnboardingPage() {
                       <label className="text-sm text-zinc-300 font-medium">Questions you get per week</label>
                       <span className="text-primary font-bold text-sm">{questionsPerWeek}</span>
                     </div>
-                    <input type="range" min="1" max="100" value={questionsPerWeek} onChange={e => setQuestionsPerWeek(Number(e.target.value))} className="w-full accent-purple-500" />
+                    <input type="range" min="1" max="100" value={questionsPerWeek} onChange={e => setQuestionsPerWeek(Number(e.target.value))} className="w-full accent-amber-500" />
                     <div className="flex justify-between text-xs text-muted-foreground mt-1"><span>1</span><span>50</span><span>100+</span></div>
                   </div>
                   <div>
@@ -175,7 +175,7 @@ export default function OnboardingPage() {
                       <label className="text-sm text-zinc-300 font-medium">Minutes to answer each one</label>
                       <span className="text-primary font-bold text-sm">{minutesPerAnswer} min</span>
                     </div>
-                    <input type="range" min="1" max="30" value={minutesPerAnswer} onChange={e => setMinutesPerAnswer(Number(e.target.value))} className="w-full accent-purple-500" />
+                    <input type="range" min="1" max="30" value={minutesPerAnswer} onChange={e => setMinutesPerAnswer(Number(e.target.value))} className="w-full accent-amber-500" />
                     <div className="flex justify-between text-xs text-muted-foreground mt-1"><span>1 min</span><span>15 min</span><span>30 min</span></div>
                   </div>
                   <motion.div className="rounded-2xl p-4 bg-primary/10 border border-primary/30 text-center" animate={{ scale: [1, 1.02, 1] }} transition={{ duration: 0.3 }} key={hoursPerMonth}>
@@ -184,7 +184,7 @@ export default function OnboardingPage() {
                     <p className="text-xs text-muted-foreground">per month answering the same questions</p>
                   </motion.div>
                 </div>
-                <button onClick={() => setStep(1)} className="w-full mt-6 py-3.5 rounded-xl bg-gradient-to-r from-primary to-pink text-white font-bold flex items-center justify-center gap-2">
+                <button onClick={() => setStep(1)} className="w-full mt-6 py-3.5 rounded-xl bg-gradient-to-r bg-primary text-white font-bold flex items-center justify-center gap-2">
                   Show me what that costs me <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -217,7 +217,7 @@ export default function OnboardingPage() {
                   <p className="text-sm text-green-400 font-medium">One Question gives you <span className="font-black">{hoursPerYear} hours back</span> every year</p>
                   <p className="text-xs text-muted-foreground mt-1">Your AI answers 24/7. You do other things.</p>
                 </div>
-                <button onClick={() => setStep(2)} className="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary to-pink text-white font-bold flex items-center justify-center gap-2">
+                <button onClick={() => setStep(2)} className="w-full py-3.5 rounded-xl bg-gradient-to-r bg-primary text-white font-bold flex items-center justify-center gap-2">
                   Set up my space now <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -247,7 +247,7 @@ export default function OnboardingPage() {
                     {usernameAvailable === false && <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-red-400">That username is taken. Try another one.</motion.p>}
                   </AnimatePresence>
                 </div>
-                <button onClick={handleNext} disabled={!canNext() || saving} className="w-full mt-6 py-3.5 rounded-xl bg-gradient-to-r from-primary to-pink text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+                <button onClick={handleNext} disabled={!canNext() || saving} className="w-full mt-6 py-3.5 rounded-xl bg-gradient-to-r bg-primary text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
                   {saving ? <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : <><span>Claim it</span><ArrowRight className="w-4 h-4" /></>}
                 </button>
               </div>
@@ -260,7 +260,7 @@ export default function OnboardingPage() {
                   <div><h2 className="text-xl font-bold text-white">What name should we use?</h2><p className="text-sm text-muted-foreground">Your public display name</p></div>
                 </div>
                 <input type="text" value={form.displayName} onChange={e => setForm(f => ({ ...f, displayName: e.target.value }))} placeholder="Your full name" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-primary/50 transition-all" autoFocus />
-                <button onClick={handleNext} disabled={!canNext()} className="w-full mt-6 py-3.5 rounded-xl bg-gradient-to-r from-primary to-pink text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+                <button onClick={handleNext} disabled={!canNext()} className="w-full mt-6 py-3.5 rounded-xl bg-gradient-to-r bg-primary text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
                   Continue <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -274,7 +274,7 @@ export default function OnboardingPage() {
                 </div>
                 <textarea value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value.slice(0, 160) }))} placeholder="e.g. Building AI products and sharing what I learn along the way." rows={4} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-primary/50 transition-all resize-none text-sm" autoFocus />
                 <p className="text-xs text-muted-foreground text-right mt-1">{form.bio.length}/160</p>
-                <button onClick={handleNext} disabled={!canNext()} className="w-full mt-4 py-3.5 rounded-xl bg-gradient-to-r from-primary to-pink text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+                <button onClick={handleNext} disabled={!canNext()} className="w-full mt-4 py-3.5 rounded-xl bg-gradient-to-r bg-primary text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
                   Continue <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -292,7 +292,7 @@ export default function OnboardingPage() {
                       className={"px-3 py-1.5 rounded-full text-xs font-medium transition-all border " + (form.vibe?.includes(tag) ? "bg-primary/20 border-primary/50 text-white" : "bg-white/5 border-white/10 text-zinc-400 hover:text-white")}>{tag}</button>
                   ))}
                 </div>
-                <button onClick={handleNext} disabled={!canNext()} className="w-full mt-4 py-3.5 rounded-xl bg-gradient-to-r from-primary to-pink text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+                <button onClick={handleNext} disabled={!canNext()} className="w-full mt-4 py-3.5 rounded-xl bg-gradient-to-r bg-primary text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
                   Continue <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -315,7 +315,7 @@ export default function OnboardingPage() {
                     <input type="date" value={form.goalDeadline || "2026-12-31"} onChange={e => setForm(f => ({...f, goalDeadline: e.target.value}))} />
                   </div>
                 </div>
-                <button onClick={handleNext} disabled={!canNext()} className="w-full mt-6 py-3.5 rounded-xl bg-gradient-to-r from-primary to-pink text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+                <button onClick={handleNext} disabled={!canNext()} className="w-full mt-6 py-3.5 rounded-xl bg-gradient-to-r bg-primary text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
                   Continue <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -329,7 +329,7 @@ export default function OnboardingPage() {
                 </div>
                 <input type="text" value={form.welcomeMessage} onChange={e => setForm(f => ({ ...f, welcomeMessage: e.target.value }))} placeholder="Ask me anything about building in public!" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-primary/50 transition-all" autoFocus />
                 {form.welcomeMessage && (
-                  <div className="mt-4 p-4 rounded-2xl bg-gradient-to-br from-primary/5 to-pink/5 border border-primary/20">
+                  <div className="mt-4 p-4 rounded-2xl bg-gradient-to-br from-primary/5 to-primary/3 border border-primary/20">
                     <p className="text-xs text-primary font-medium mb-2">✨ Your space preview</p>
                     <div className="flex items-center gap-3">
                       <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center text-sm font-bold text-white" style={{ backgroundColor: form.themeColor }}>
@@ -342,7 +342,7 @@ export default function OnboardingPage() {
                     </div>
                   </div>
                 )}
-                <button onClick={handleNext} disabled={!canNext()} className="w-full mt-6 py-3.5 rounded-xl bg-gradient-to-r from-primary to-pink text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+                <button onClick={handleNext} disabled={!canNext()} className="w-full mt-6 py-3.5 rounded-xl bg-gradient-to-r bg-primary text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
                   Almost done <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -365,7 +365,7 @@ export default function OnboardingPage() {
                     <input type="color" value={form.themeColor} onChange={e => setForm(f => ({ ...f, themeColor: e.target.value }))} className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
                   </label>
                 </div>
-                <button onClick={handleNext} disabled={!canNext()} className="w-full mt-4 py-3.5 rounded-xl bg-gradient-to-r from-primary to-pink text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
+                <button onClick={handleNext} disabled={!canNext()} className="w-full mt-4 py-3.5 rounded-xl bg-gradient-to-r bg-primary text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
                   Continue <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
@@ -398,7 +398,7 @@ export default function OnboardingPage() {
                   </button>
                 </div>
 
-                <button onClick={() => router.push("/dashboard/studio")} className="w-full py-3.5 rounded-xl bg-gradient-to-r from-primary to-pink text-white font-bold flex items-center justify-center gap-2">
+                <button onClick={() => router.push("/dashboard/studio")} className="w-full py-3.5 rounded-xl bg-gradient-to-r bg-primary text-white font-bold flex items-center justify-center gap-2">
                   Go to dashboard <ArrowRight className="w-4 h-4" />
                 </button>
               </div>

@@ -9,21 +9,21 @@ const steps = [
     title: 'Create Your Space',
     description: 'Set up your Q-Page in seconds with a custom username',
     icon: Sparkles,
-    color: 'from-primary to-accent-pink',
+    color: 'from-primary to-primary/60',
   },
   {
     number: 2,
     title: 'Upload Knowledge',
     description: 'Share your expertise, documents, and FAQs',
     icon: Upload,
-    color: 'from-accent-pink to-accent-red',
+    color: 'from-primary/80 to-accent-red',
   },
   {
     number: 3,
     title: 'Share Your Link',
     description: 'Get a unique URL to share with your audience',
     icon: LinkIcon,
-    color: 'from-accent-yellow to-accent-pink',
+    color: 'from-accent-yellow to-primary',
   },
   {
     number: 4,
@@ -101,7 +101,7 @@ export function HowItWorks() {
           {/* Animated progress line */}
           <div className="mt-8 max-w-xs mx-auto h-px bg-white/10 relative overflow-hidden rounded-full">
             <div
-              className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-accent-pink to-accent-yellow rounded-full"
+              className="absolute inset-y-0 left-0 bg-gradient-to-r from-primary via-primary/80 to-accent-yellow rounded-full"
               style={{
                 width: lineWidth + '%',
                 transition: 'width 0.05s linear',

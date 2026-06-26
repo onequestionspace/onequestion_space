@@ -82,7 +82,7 @@ export default function FoundingPage() {
             </div>
             <h1 className="text-4xl font-black text-white mb-4 leading-tight">
               Be a Founding<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-pink-500">Member</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r text-primary">Member</span>
             </h1>
             <p className="text-muted-foreground text-base leading-relaxed">
               One Question is being built in public by a 19-year-old from Nigeria on an Android phone. Join as a founder and help shape what it becomes.
@@ -174,7 +174,7 @@ export default function FoundingPage() {
                 <p className="text-white font-semibold mb-2">Claim your founding spot</p>
                 <p className="text-muted-foreground text-xs mb-4">Sign in to claim. One click. No form.</p>
                 <SignInButton mode="modal" forceRedirectUrl="/founding">
-                  <button className="w-full py-3 rounded-xl bg-gradient-to-r from-primary to-pink-500 text-white font-bold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+                  <button className="w-full py-3 rounded-xl bg-gradient-to-r text-primary text-white font-bold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
                     <Crown className="w-4 h-4" />
                     Sign in to claim spot
                   </button>
@@ -186,7 +186,7 @@ export default function FoundingPage() {
                 <button
                   onClick={handleClaim}
                   disabled={claiming}
-                  className="w-full py-3 rounded-xl bg-gradient-to-r from-primary to-pink-500 text-white font-bold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="w-full py-3 rounded-xl bg-gradient-to-r text-primary text-white font-bold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   <Crown className="w-4 h-4" />
                   {claiming ? 'Claiming...' : 'Claim my founding spot'}

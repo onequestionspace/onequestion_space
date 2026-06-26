@@ -21,7 +21,7 @@ export function TeamSection() {
       handle: '@Asym_Alwali',
       link: 'https://twitter.com/Asym_Alwali',
       avatar: '/founders/asym.png',
-      gradient: 'from-primary to-accent-pink',
+      gradient: 'from-primary to-primary/60',
     },
     {
       name: 'Paraja',
@@ -30,7 +30,7 @@ export function TeamSection() {
       handle: '@Paraja',
       link: 'https://x.com/MuhammadParaja',
       avatar: '/founders/paraja.png',
-      gradient: 'from-accent-pink to-accent-red',
+      gradient: 'from-primary/80 to-accent-red',
     },
   ];
 

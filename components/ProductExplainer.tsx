@@ -38,7 +38,7 @@ export function ProductExplainer() {
             const Icon = feature.icon;
             return (
               <div key={index} className="glass rounded-2xl p-6 border border-white/10 card-hover">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-pink flex items-center justify-center mb-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center mb-4">
                   <Icon className="w-6 h-6 text-white" />
                 </div>
                 <h3 className="text-lg font-bold text-white mb-2">{feature.title}</h3>

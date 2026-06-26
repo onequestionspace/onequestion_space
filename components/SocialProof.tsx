@@ -21,7 +21,7 @@ export function SocialProof() {
     {
       number: '24/7',
       label: 'AI Availability',
-      color: 'text-accent-pink',
+      color: 'text-primary',
     },
     {
       number: '100%',

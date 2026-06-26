@@ -23,7 +23,7 @@ export function ProfileDropdown() {
         onClick={() => setOpen(!open)}
         className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary"
       >
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-pink flex items-center justify-center text-white font-bold">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br bg-primary flex items-center justify-center text-white font-bold">
           {displayName?.charAt(0)}
         </div>
         <span>{displayName}</span>

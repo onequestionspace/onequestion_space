@@ -131,12 +131,12 @@ export default function DashboardPage() {
                   <p className='text-sm font-semibold text-foreground'>Your space is {score}% complete</p>
                   <p className='text-xs text-muted-foreground'>Finish your space to attract more visitors</p>
                 </div>
-                <Link href='/dashboard/studio' className='text-xs font-bold text-white px-3 py-1.5 rounded-lg bg-gradient-to-r from-primary to-pink hover:opacity-90 transition-all'>
+                <Link href='/dashboard/studio' className='text-xs font-bold text-white px-3 py-1.5 rounded-lg bg-gradient-to-r bg-primary hover:opacity-90 transition-all'>
                   Open Studio →
                 </Link>
               </div>
               <div className='w-full h-1.5 bg-card rounded-full overflow-hidden'>
-                <div className='h-full rounded-full bg-gradient-to-r from-primary to-pink transition-all' style={{ width: score + `%` }} />
+                <div className='h-full rounded-full bg-gradient-to-r bg-primary transition-all' style={{ width: score + `%` }} />
               </div>
             </div>
           );
@@ -152,7 +152,7 @@ export default function DashboardPage() {
                 <h3 className='text-foreground font-semibold mb-1'>Finish setting up your space</h3>
                 <p className='text-muted-foreground text-sm mb-4'>Your AI has no knowledge yet. Upload content so it can start answering questions.</p>
                 <div className='flex flex-wrap gap-3'>
-                  <Link href='/dashboard/knowledge' className='px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-pink text-white text-sm font-medium'>Upload Knowledge</Link>
+                  <Link href='/dashboard/knowledge' className='px-4 py-2 rounded-xl bg-gradient-to-r bg-primary text-white text-sm font-medium'>Upload Knowledge</Link>
                   <Link href='/dashboard/settings' className='px-4 py-2 rounded-xl bg-card border border-border text-foreground text-sm font-medium'>Edit Profile</Link>
                 </div>
               </div>
@@ -184,7 +184,7 @@ export default function DashboardPage() {
             </div>
             <p className='text-4xl font-bold text-foreground mb-2'>{responseRate}%</p>
             <div className='w-full h-2 bg-card rounded-full overflow-hidden'>
-              <div className='h-full rounded-full bg-gradient-to-r from-primary to-pink transition-all' style={{ width: responseRate + '%' }} />
+              <div className='h-full rounded-full bg-gradient-to-r bg-primary transition-all' style={{ width: responseRate + '%' }} />
             </div>
             <p className='text-xs text-muted-foreground mt-2'>{analytics?.totalAnswers ?? 0} of {analytics?.totalQuestions ?? 0} questions answered</p>
           </div>

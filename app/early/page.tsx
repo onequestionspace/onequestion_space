@@ -76,7 +76,7 @@ export default function EarlyPage() {
             </div>
             <h1 className="text-4xl font-black text-white mb-4 leading-tight">
               Early Adopter<br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-pink-500">Program</span>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r text-primary">Program</span>
             </h1>
             <p className="text-muted-foreground text-base leading-relaxed">
               The founding round is closed. But you can still get in early and shape what One Question becomes.
@@ -102,7 +102,7 @@ export default function EarlyPage() {
             </div>
             <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
               <div
-                className="h-full bg-gradient-to-r from-primary to-pink-500 rounded-full transition-all"
+                className="h-full bg-gradient-to-r text-primary rounded-full transition-all"
                 style={{ width: pctClaimed + '%' }}
               />
             </div>
@@ -176,7 +176,7 @@ export default function EarlyPage() {
                 <p className="text-white font-semibold mb-2">Claim your early adopter spot</p>
                 <p className="text-muted-foreground text-xs mb-4">Sign in to claim. One click. No form.</p>
                 <SignInButton mode="modal" forceRedirectUrl="/early">
-                  <button className="w-full py-3 rounded-xl bg-gradient-to-r from-primary to-pink-500 text-white font-bold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+                  <button className="w-full py-3 rounded-xl bg-gradient-to-r text-primary text-white font-bold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
                     <Zap className="w-4 h-4" />
                     Sign in to claim spot
                   </button>
@@ -188,7 +188,7 @@ export default function EarlyPage() {
                 <button
                   onClick={handleClaim}
                   disabled={claiming}
-                  className="w-full py-3 rounded-xl bg-gradient-to-r from-primary to-pink-500 text-white font-bold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50"
+                  className="w-full py-3 rounded-xl bg-gradient-to-r text-primary text-white font-bold text-sm hover:opacity-90 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   <Zap className="w-4 h-4" />
                   {claiming ? 'Claiming...' : 'Claim my early adopter spot'}
