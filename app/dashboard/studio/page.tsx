@@ -86,7 +86,7 @@ export default function StudioPage() {
     <button
       onClick={() => save(fields)}
       disabled={saving}
-      className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-bold bg-gradient-to-r bg-primary hover:opacity-90 transition-all disabled:opacity-50 mt-4"
+      className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-black text-sm font-bold bg-primary hover:opacity-90 transition-all disabled:opacity-50 mt-4"
     >
       {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
       {saved ? 'Saved!' : 'Save'}
@@ -100,7 +100,7 @@ export default function StudioPage() {
   );
 
   return (
-    <DashboardLayout title="Space Studio ✦" description="Your space updates as you build">
+    <DashboardLayout title="Space Studio" description="Build your space — changes go live instantly">
       <div className="max-w-7xl mx-auto">
 
         {/* Completion bar */}
@@ -108,8 +108,8 @@ export default function StudioPage() {
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-sm font-semibold text-white">Space Completion</span>
-              <span className="text-xs text-zinc-500">· {score}%</span>
+              <span className="text-sm font-semibold text-white">Your space is {score}% ready</span>
+              
             </div>
             {spaceUrl && (
               <Link href={spaceUrl} target="_blank" className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors">
@@ -182,11 +182,11 @@ export default function StudioPage() {
                   </div>
                   <div>
                     <label className="text-xs font-medium text-zinc-400 mb-1.5 block">Bio <span className="text-zinc-600">{bio.length}/160</span></label>
-                    <textarea value={bio} onChange={e => setBio(e.target.value.slice(0, 160))} rows={3} className={inputClass} placeholder="One line that makes people want to ask you something" />
+                    <textarea value={bio} onChange={e => setBio(e.target.value.slice(0, 160))} rows={3} className={inputClass} placeholder="CS student building from a phone in Nigeria" />
                   </div>
                   <div>
                     <label className="text-xs font-medium text-zinc-400 mb-1.5 block">AI Welcome Message</label>
-                    <input value={welcomeMessage} onChange={e => setWelcomeMessage(e.target.value)} className={inputClass} placeholder="Ask me anything about building in public!" />
+                    <input value={welcomeMessage} onChange={e => setWelcomeMessage(e.target.value)} className={inputClass} placeholder="Ask me anything — I reply fast." />
                     <p className="text-xs text-zinc-600 mt-1">First thing visitors see on your space</p>
                   </div>
                   {saveBtn({ displayName, bio, welcomeMessage })}
@@ -198,7 +198,7 @@ export default function StudioPage() {
                   <div>
                     <label className="text-xs font-medium text-zinc-400 mb-1.5 block">Vibe Quote <span className="text-zinc-600">{vibeQuote.length}/200</span></label>
                     <p className="text-xs text-zinc-600 mb-2">One sentence that shows your personality. Shows prominently on your space.</p>
-                    <textarea value={vibeQuote} onChange={e => setVibeQuote(e.target.value.slice(0, 200))} rows={3} className={inputClass} placeholder="Building the future from a phone in Nigeria." />
+                    <textarea value={vibeQuote} onChange={e => setVibeQuote(e.target.value.slice(0, 200))} rows={3} className={inputClass} placeholder="Building from a phone. Ask me anything." />
                   </div>
                   {vibeQuote && (
                     <div className="p-3 rounded-xl bg-primary/10 border border-primary/20">
@@ -301,7 +301,7 @@ export default function StudioPage() {
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                  <span className="text-xs text-zinc-400 font-medium">Live Preview</span>
+                  <span className="text-xs text-zinc-400 font-medium">Your space — live</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <button
