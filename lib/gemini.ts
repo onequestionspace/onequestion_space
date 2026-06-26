@@ -99,9 +99,14 @@ Reply as ${name}:`;
     });
 
     const data = await res.json();
-    const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    console.error('Gemini raw response:', JSON.stringify(data).slice(0, 300));
+    const candidate = data.candidates?.[0];
+    const raw = candidate?.content?.parts?.[0]?.text || '';
+    const finishReason = candidate?.finishReason;
+    const tokenCount = data.usageMetadata?.candidatesTokenCount ?? 0;
 
     if (!raw) throw new Error('Gemini empty response');
+    if (finishReason === 'MAX_TOKENS' && tokenCount < 50) throw new Error('Gemini rate limited');
 
     // Strip any markdown that sneaks through
     return raw
@@ -180,7 +185,7 @@ ${context ? `Your knowledge:\n${context}` : 'You have no knowledge uploaded yet.
         { role: 'user', content: question },
       ],
       temperature: 0.7,
-      max_tokens: 400,
+      max_tokens: 1024,
     }),
   });
 

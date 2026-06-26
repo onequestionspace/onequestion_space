@@ -22,12 +22,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Profile not found' }, { status: 404 });
     }
 
-    // 1b. Check subscription limit
+    // 1b. Check subscription limit (admins bypass)
+    const ADMIN_IDS = ['user_3EhKmuVyC1AhoBDlL7QNssllwgu'];
+    const isAdmin = ADMIN_IDS.includes(profile.userId);
     const subscription = await convex.query(api.subscriptions.getSubscription, { userId: profile.userId });
-    if (subscription) {
+    if (subscription && !isAdmin) {
       const used = subscription.messagesUsed ?? 0;
       const limit = subscription.messagesLimit ?? 50;
-      if (used >= limit) {
+      if (limit !== -1 && used >= limit) {
         return NextResponse.json({
           success: false,
           error: 'Monthly AI answer limit reached. Upgrade your plan to continue.',
