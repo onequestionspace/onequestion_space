@@ -131,3 +131,19 @@ export const update = mutation({
     return await ctx.db.get(profile._id);
   },
 });
+
+export const getRecentProfiles = query({
+  args: { limit: v.optional(v.number()) },
+  handler: async (ctx, args) => {
+    const profiles = await ctx.db
+      .query("profiles")
+      .order("desc")
+      .take(args.limit ?? 5);
+    return profiles.map(p => ({
+      username: p.username,
+      displayName: p.displayName,
+      avatar: p.avatar,
+      initials: p.displayName?.charAt(0)?.toUpperCase() || p.username?.charAt(0)?.toUpperCase() || '?',
+    }));
+  },
+});
