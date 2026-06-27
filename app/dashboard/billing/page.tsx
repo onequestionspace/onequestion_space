@@ -125,25 +125,25 @@ function BillingContent() {
   };
 
   return (
-    <DashboardLayout title='Billing' description='Manage your plan and credits.'>
-      <div className='max-w-3xl mx-auto space-y-8'>
+    <DashboardLayout title='Billing' description='Honest pricing. No surprises. You only pay when it is worth it.'>
+      <div className="max-w-3xl mx-auto space-y-8"><div className="p-4 rounded-xl bg-amber-500/8 border border-amber-500/20 flex items-start gap-3"><span className="text-lg shrink-0">🇳🇬</span><div><p className="text-amber-400 text-xs font-semibold">You will see prices in Nigerian Naira at checkout</p><p className="text-zinc-500 text-xs mt-0.5">I am based in Nigeria and use Paystack. Your Visa or Mastercard works perfectly — it converts automatically at your bank rate. No hidden fees.</p></div></div>
 
         {error && (
           <div className='p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm'>{error}</div>
         )}
         {verifyStatus === 'verifying' && (
           <div className='p-4 rounded-xl bg-primary/10 border border-primary/20 text-sm text-primary flex items-center gap-2'>
-            <Loader2 className='w-4 h-4 animate-spin' /> Verifying your payment...
+            <Loader2 className='w-4 h-4 animate-spin' /> Checking your payment — give me a second...
           </div>
         )}
         {verifyStatus === 'success' && (
           <div className='p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-sm text-green-400 flex items-center gap-2'>
-            <Check className='w-4 h-4' /> Payment successful! Your credits have been added.
+            <Check className='w-4 h-4' /> Payment confirmed. Your AI just got more runway. Go use it.
           </div>
         )}
         {verifyStatus === 'failed' && (
           <div className='p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400'>
-            Payment verification failed. Contact support if you were charged.
+            Something went wrong verifying your payment. If you were charged, message me directly and I will sort it out — asym@onequestion.space
           </div>
         )}
 
@@ -152,7 +152,7 @@ function BillingContent() {
           <div className='flex items-center justify-between mb-4'>
             <div>
               <h3 className='font-semibold text-foreground'>Usage</h3>
-              <p className='text-xs text-muted-foreground mt-0.5'>Current billing period</p>
+              <p className='text-xs text-muted-foreground mt-0.5'>What you have used this month</p>
             </div>
             <span className='text-xs px-2.5 py-1 rounded-full font-medium capitalize' style={{ backgroundColor: '#a855f720', color: '#a855f7' }}>{plan}</span>
           </div>
@@ -163,7 +163,7 @@ function BillingContent() {
           <div className='w-full h-3 bg-card rounded-full overflow-hidden mb-2'>
             <div className='h-full rounded-full transition-all' style={{ width: usagePercent + '%', backgroundColor: usagePercent > 80 ? '#ef4444' : usagePercent > 50 ? '#f97316' : '#a855f7' }} />
           </div>
-          <p className='text-xs text-muted-foreground'>{limit - used} credits remaining · Each AI answer uses 1 credit</p>
+          <p className='text-xs text-muted-foreground'>{limit - used} credits left this month · every question your AI answers uses one</p>
         </div>
 
         {/* Plans */}
@@ -212,7 +212,7 @@ function BillingContent() {
             <Sparkles className='w-4 h-4 text-primary' />
             <h3 className='font-semibold text-foreground'>Buy One Question Credits</h3>
           </div>
-          <p className='text-xs text-muted-foreground mb-6'>Top up anytime. Credits never expire. $0.018 per credit.</p>
+          <p className='text-xs text-muted-foreground mb-6'>Run out mid-month? Top up here. Credits never expire — they roll over forever. I priced these at cost.</p>
 
           <div className='grid grid-cols-3 gap-2 mb-6'>
             {CREDIT_PACKS.map(pack => (
@@ -229,7 +229,7 @@ function BillingContent() {
           </div>
 
           <div className='mb-6'>
-            <p className='text-xs text-muted-foreground mb-3'>Or choose a custom amount</p>
+            <p className='text-xs text-muted-foreground mb-3'>Need a different number? Set it here.</p>
             <div className='flex items-center gap-3'>
               <button onClick={() => setCreditAmount(Math.max(10, creditAmount - 10))} className='w-9 h-9 rounded-xl border border-border flex items-center justify-center hover:bg-card transition-colors'>
                 <Minus className='w-4 h-4 text-muted-foreground' />
@@ -250,7 +250,7 @@ function BillingContent() {
             <div className='flex items-center justify-between'>
               <div>
                 <p className='text-sm font-bold text-foreground'>{creditAmount} credits</p>
-                <p className='text-xs text-muted-foreground'>One-time purchase · Never expires</p>
+                <p className='text-xs text-muted-foreground'>One time. No subscription. Never expires.</p>
               </div>
               <p className='text-2xl font-bold text-foreground'>{'$' + creditCostUSD}</p>
             </div>
@@ -265,7 +265,7 @@ function BillingContent() {
             {loading === 'credits' ? <Loader2 className='w-4 h-4 animate-spin' /> : <Zap className='w-4 h-4' />}
             Buy {creditAmount} Credits for {'$' + creditCostUSD}
           </button>
-          <p className='text-center text-xs text-muted-foreground mt-3'>Powered by Paystack · Secure payment</p>
+          <p className='text-center text-xs text-muted-foreground mt-3'>Payments go through Paystack — you might see Naira at checkout. Your international card works fine.</p>
         </div>
 
       </div>
