@@ -96,7 +96,7 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout
-      title={'Welcome back, ' + (profile?.displayName || 'Creator') + ' 👋'}
+      title={'Good to see you, ' + (profile?.displayName || 'friend') + ' 👋'}
       description={'onequestion.space/' + profile?.username}
     >
       <div className='max-w-6xl mx-auto space-y-8'>
@@ -129,7 +129,7 @@ export default function DashboardPage() {
               <div className='flex items-center justify-between mb-3'>
                 <div>
                   <p className='text-sm font-semibold text-foreground'>Your space is {score}% complete</p>
-                  <p className='text-xs text-muted-foreground'>Finish your space to attract more visitors</p>
+                  <p className='text-xs text-muted-foreground'>A complete space gets more questions. Takes 2 minutes.</p>
                 </div>
                 <Link href='/dashboard/studio' className='text-xs font-bold text-white px-3 py-1.5 rounded-lg bg-gradient-to-r bg-primary hover:opacity-90 transition-all'>
                   Open Studio →
@@ -149,8 +149,8 @@ export default function DashboardPage() {
             <div className='flex items-start gap-4'>
               <AlertCircle className='w-6 h-6 text-primary shrink-0 mt-0.5' />
               <div>
-                <h3 className='text-foreground font-semibold mb-1'>Finish setting up your space</h3>
-                <p className='text-muted-foreground text-sm mb-4'>Your AI has no knowledge yet. Upload content so it can start answering questions.</p>
+                <h3 className='text-foreground font-semibold mb-1'>Your AI is waiting to learn from you</h3>
+                <p className='text-muted-foreground text-sm mb-4'>Right now if someone visits your space, your AI has nothing to say. Upload anything — your bio, what you do, FAQs, projects. The more you give it, the more it sounds like you.</p>
                 <div className='flex flex-wrap gap-3'>
                   <Link href='/dashboard/knowledge' className='px-4 py-2 rounded-xl bg-gradient-to-r bg-primary text-white text-sm font-medium'>Upload Knowledge</Link>
                   <Link href='/dashboard/settings' className='px-4 py-2 rounded-xl bg-card border border-border text-foreground text-sm font-medium'>Edit Profile</Link>
@@ -178,7 +178,7 @@ export default function DashboardPage() {
           <div className='glass-card rounded-2xl p-5 border border-border flex items-center gap-4'>
             <div className='w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-xl shrink-0'>🔥</div>
             <div>
-              <p className='text-sm font-bold text-foreground'>Keep uploading knowledge</p>
+              <p className='text-sm font-bold text-foreground'>The more you teach it, the better it gets</p>
               <p className='text-xs text-muted-foreground'>You have {knowledgeCount} knowledge item{knowledgeCount === 1 ? '' : 's'} — the more you add, the smarter your AI gets.</p>
             </div>
             <Link href='/dashboard/knowledge' className='ml-auto text-xs font-bold text-primary hover:text-primary/80 transition-colors shrink-0'>Add more →</Link>
@@ -242,8 +242,8 @@ export default function DashboardPage() {
             ) : (
               <div className='text-center py-10'>
                 <MessageSquare className='w-10 h-10 text-muted-foreground/20 mx-auto mb-3' />
-                <p className='text-sm text-muted-foreground'>No questions yet</p>
-                <p className='text-xs text-muted-foreground/50 mt-1'>Share your space to get started</p>
+                <p className='text-sm text-muted-foreground'>No questions yet — your AI is ready though</p>
+                <p className='text-xs text-muted-foreground/50 mt-1'>Share your link and the first question will land here.</p>
               </div>
             )}
           </div>
@@ -266,8 +266,8 @@ export default function DashboardPage() {
             ) : (
               <div className='text-center py-10'>
                 <Brain className='w-10 h-10 text-muted-foreground/20 mx-auto mb-3' />
-                <p className='text-sm text-muted-foreground'>No knowledge uploaded yet</p>
-                <Link href='/dashboard/knowledge' className='text-xs text-primary hover:underline mt-1 block'>Upload your first item</Link>
+                <p className='text-sm text-muted-foreground'>Your AI has nothing to work with yet</p>
+                <Link href='/dashboard/knowledge' className='text-xs text-primary hover:underline mt-1 block'>Upload anything — a bio, your FAQs, what you do. Start there.</Link>
               </div>
             )}
           </div>
