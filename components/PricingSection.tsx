@@ -1,6 +1,6 @@
 'use client';
-import { motion, useInView } from 'framer-motion';
-import { useRef } from 'react';
+import { motion, useInView, AnimatePresence } from 'framer-motion';
+import { useRef, useState, useEffect } from 'react';
 
 import Link from 'next/link';
 import { Check, Zap } from 'lucide-react';
@@ -21,6 +21,69 @@ const PRO_FEATURES = [
   'Remove One Question branding',
   'Buy extra credits anytime',
 ];
+
+
+const FAQS = [
+  { q: 'Is the free plan actually free?', a: 'Yes. No credit card, no trial period, no expiry. 50 AI answers a month forever. I hate fake free tiers.' },
+  { q: 'What happens if I hit my limit?', a: 'Your space stays live — visitors just see a friendly message that answers are paused. You can buy extra credits or upgrade anytime.' },
+  { q: 'Can I cancel Pro anytime?', a: 'Yes. One click. No emails asking why. No retention flow. Just cancel.' },
+  { q: 'Why $9?', a: "Honest answer: it covers Gemini API costs, Convex, Vercel, and lets me keep building. It's not a number a VC told me — it's what makes sense." },
+  { q: 'Why does a 19-year-old from Nigeria get to build this?', a: 'Honestly I ask myself that too sometimes. But the problem was real, the tools existed, and nobody else was building exactly this. So here we are.' },
+];
+
+function FaqCards({ inView }: { inView: boolean }) {
+  const [active, setActive] = useState(0);
+  const [dir, setDir] = useState(1);
+
+  useEffect(() => {
+    const t = setInterval(() => {
+      setDir(1);
+      setActive(a => (a + 1) % FAQS.length);
+    }, 4000);
+    return () => clearInterval(t);
+  }, [inView]);
+
+  const go = (i: number) => {
+    setDir(i > active ? 1 : -1);
+    setActive(i);
+  };
+
+  return (
+    <div className='mt-12'>
+      <p className='text-zinc-500 text-xs uppercase tracking-widest mb-6 font-semibold'>Questions people actually ask</p>
+      <div className='relative overflow-hidden rounded-2xl border border-white/8 bg-white/2 min-h-[140px]'>
+        <AnimatePresence mode='wait' custom={dir}>
+          <motion.div
+            key={active}
+            custom={dir}
+            variants={{
+              enter: (d: number) => ({ x: d * 60, opacity: 0 }),
+              center: { x: 0, opacity: 1 },
+              exit: (d: number) => ({ x: d * -60, opacity: 0 }),
+            }}
+            initial='enter'
+            animate='center'
+            exit='exit'
+            transition={{ duration: 0.35, ease: 'easeInOut' }}
+            className='p-6'
+          >
+            <p className='text-white font-bold text-base mb-3'>{FAQS[active].q}</p>
+            <p className='text-zinc-400 text-sm leading-relaxed'>{FAQS[active].a}</p>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+      <div className='flex items-center justify-center gap-2 mt-4'>
+        {FAQS.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => go(i)}
+            className={'transition-all duration-300 rounded-full ' + (i === active ? 'w-6 h-2 bg-primary' : 'w-2 h-2 bg-white/15 hover:bg-white/30')}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export function PricingSection() {
   const ref = useRef(null);
