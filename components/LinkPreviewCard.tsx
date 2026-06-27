@@ -19,13 +19,14 @@ interface Props {
 export function LinkPreviewCard({ title, url, color }: Props) {
   const [og, setOg] = useState<OGData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [failed, setFailed] = useState(false);
 
   useEffect(() => {
     if (!url) return;
     fetch('/api/og-preview?url=' + encodeURIComponent(url))
       .then(r => r.json())
       .then(data => { setOg(data); setLoading(false); })
-      .catch(() => setLoading(false));
+      .catch(() => { setLoading(false); setFailed(true); });
   }, [url]);
 
   const domain = (() => {
@@ -55,7 +56,7 @@ export function LinkPreviewCard({ title, url, color }: Props) {
       <div className="px-4 py-3 flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-sm font-semibold text-white truncate">
-            {og?.title || title}
+            {(og?.title && !og.title.toLowerCase().includes('moment') && !og.title.toLowerCase().includes('checking') && !og.title.toLowerCase().includes('cloudflare')) ? og.title : title}
           </p>
           {og?.description && (
             <p className="text-xs text-white/50 mt-0.5 line-clamp-2 leading-relaxed">
