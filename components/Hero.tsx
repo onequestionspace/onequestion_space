@@ -29,7 +29,7 @@ export function Hero() {
 
   const waitlistData = useQuery(api.waitlist.getWaitlistCount);
   const count = (waitlistData?.count ?? 0) + 247;
-  const recentProfiles = useQuery(api.profiles.getRecentProfiles, { limit: 5 });
+
 
   useEffect(() => {
     const question = DEMO_QUESTIONS[pairIndex];
