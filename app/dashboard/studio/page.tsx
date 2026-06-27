@@ -272,7 +272,7 @@ export default function StudioPage() {
                       <Plus className="w-3.5 h-3.5" /> Add Link
                     </button>
                   )}
-                  {saveBtn({ links: JSON.stringify(links.filter(l => l.title && l.url)) })}
+                  {saveBtn({ links: JSON.stringify(links.filter(l => l.title || l.url)) })}
                 </div>
               )}
 
