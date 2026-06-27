@@ -94,13 +94,13 @@ export default function StudioPage() {
   );
 
   if (!profile) return (
-    <DashboardLayout title="Space Studio" description="Build your perfect space">
-      <div className="flex items-center justify-center h-64 text-zinc-500">Loading...</div>
+    <DashboardLayout title="Space Studio" description="This is where your space comes to life">
+      <div className="flex items-center justify-center h-64 text-zinc-500">Setting up your studio...</div>
     </DashboardLayout>
   );
 
   return (
-    <DashboardLayout title="Space Studio" description="Build your space — changes go live instantly">
+    <DashboardLayout title="Space Studio" description="Every change goes live the moment you save it.">
       <div className="max-w-7xl mx-auto">
 
         {/* Completion bar */}
@@ -108,7 +108,7 @@ export default function StudioPage() {
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-sm font-semibold text-white">Your space is {score}% ready</span>
+              <span className="text-sm font-semibold text-white">Your space is {score}% done — finish it and share the link</span>
               
             </div>
             {spaceUrl && (
@@ -182,12 +182,12 @@ export default function StudioPage() {
                   </div>
                   <div>
                     <label className="text-xs font-medium text-zinc-400 mb-1.5 block">Bio <span className="text-zinc-600">{bio.length}/160</span></label>
-                    <textarea value={bio} onChange={e => setBio(e.target.value.slice(0, 160))} rows={3} className={inputClass} placeholder="CS student building from a phone in Nigeria" />
+                    <textarea value={bio} onChange={e => setBio(e.target.value.slice(0, 160))} rows={3} className={inputClass} placeholder="What do people always ask you about? Start there." />
                   </div>
                   <div>
                     <label className="text-xs font-medium text-zinc-400 mb-1.5 block">AI Welcome Message</label>
                     <input value={welcomeMessage} onChange={e => setWelcomeMessage(e.target.value)} className={inputClass} placeholder="Ask me anything — I reply fast." />
-                    <p className="text-xs text-zinc-600 mt-1">First thing visitors see on your space</p>
+                    <p className="text-xs text-zinc-600 mt-1">Write it like you are talking to someone who just found you. Keep it short.</p>
                   </div>
                   {saveBtn({ displayName, bio, welcomeMessage })}
                 </div>
@@ -197,7 +197,7 @@ export default function StudioPage() {
                 <div className="space-y-4">
                   <div>
                     <label className="text-xs font-medium text-zinc-400 mb-1.5 block">Vibe Quote <span className="text-zinc-600">{vibeQuote.length}/200</span></label>
-                    <p className="text-xs text-zinc-600 mb-2">One sentence that shows your personality. Shows prominently on your space.</p>
+                    <p className="text-xs text-zinc-600 mb-2">This is the first impression. Make it sound like you — not a resume.</p>
                     <textarea value={vibeQuote} onChange={e => setVibeQuote(e.target.value.slice(0, 200))} rows={3} className={inputClass} placeholder="Building from a phone. Ask me anything." />
                   </div>
                   {vibeQuote && (
@@ -214,7 +214,7 @@ export default function StudioPage() {
                 <div className="space-y-4">
                   <div>
                     <p className="text-xs font-medium text-zinc-400 mb-1">Your Links</p>
-                    <p className="text-xs text-zinc-600 mb-3">Pin up to 5 links on your space.</p>
+                    <p className="text-xs text-zinc-600 mb-3">The links that matter most to you. Your best work, your socials, whatever.</p>
                   </div>
                   <div className="space-y-3">
                     {links.map((link, i) => (
@@ -280,7 +280,7 @@ export default function StudioPage() {
                 <div className="space-y-4">
                   <div>
                     <p className="text-xs font-medium text-zinc-400 mb-1">Pinned Answers</p>
-                    <p className="text-xs text-zinc-600 mb-3">Pick up to 3 best answers to showcase.</p>
+                    <p className="text-xs text-zinc-600 mb-3">Your best answers — the ones that show who you are and what you know.</p>
                   </div>
                   {recentQuestions && recentQuestions.filter(q => q.isAnswered).length > 0 ? (
                     <div className="space-y-2">
