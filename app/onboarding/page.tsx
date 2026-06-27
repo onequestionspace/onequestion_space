@@ -158,8 +158,8 @@ export default function OnboardingPage() {
               <div className="glass rounded-3xl p-8 border border-white/10">
                 <div className="text-center mb-6">
                   <div className="text-4xl mb-3">⏱️</div>
-                  <h2 className="text-2xl font-bold text-white mb-2">Quick question first</h2>
-                  <p className="text-sm text-muted-foreground">We want to show you exactly how much time One Question saves you</p>
+                  <h2 className="text-2xl font-bold text-white mb-2">Real talk first</h2>
+                  <p className="text-sm text-muted-foreground">I used to answer the same questions every day. Let me show you what that was actually costing me — and what it is costing you right now.</p>
                 </div>
                 <div className="space-y-6">
                   <div>
@@ -185,7 +185,7 @@ export default function OnboardingPage() {
                   </motion.div>
                 </div>
                 <button onClick={() => setStep(1)} className="w-full mt-6 py-3.5 rounded-xl bg-gradient-to-r bg-primary text-white font-bold flex items-center justify-center gap-2">
-                  Show me what that costs me <ArrowRight className="w-4 h-4" />
+                  Show me the real number <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             )}
@@ -194,8 +194,8 @@ export default function OnboardingPage() {
               <div className="glass rounded-3xl p-8 border border-white/10">
                 <div className="text-center mb-8">
                   <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 0.5 }} className="text-5xl mb-4">😮</motion.div>
-                  <h2 className="text-2xl font-bold text-white mb-2">Here&apos;s the real cost</h2>
-                  <p className="text-sm text-muted-foreground">Based on your numbers</p>
+                  <h2 className="text-2xl font-bold text-white mb-2">This is what I was losing every year.</h2>
+                  <p className="text-sm text-muted-foreground">Based on what you just told me. Mine looked exactly like this.</p>
                 </div>
                 <div className="space-y-3 mb-8">
                   {[
@@ -218,7 +218,7 @@ export default function OnboardingPage() {
                   <p className="text-xs text-muted-foreground mt-1">Your AI answers 24/7. You do other things.</p>
                 </div>
                 <button onClick={() => setStep(2)} className="w-full py-3.5 rounded-xl bg-gradient-to-r bg-primary text-white font-bold flex items-center justify-center gap-2">
-                  Set up my space now <ArrowRight className="w-4 h-4" />
+                  Ok I am done losing time — set up my space <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             )}
@@ -229,7 +229,7 @@ export default function OnboardingPage() {
                   <div className="text-3xl">🔥</div>
                   <div>
                     <h2 className="text-xl font-bold text-white">Claim your space</h2>
-                    <p className="text-sm text-muted-foreground">Pick your unique URL — once it&apos;s gone it&apos;s gone</p>
+                    <p className="text-sm text-muted-foreground">This is your permanent link. I can't bring it back if someone else takes it.</p>
                   </div>
                 </div>
                 <div className="space-y-3">
@@ -257,7 +257,7 @@ export default function OnboardingPage() {
               <div className="glass rounded-3xl p-8 border border-white/10">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="text-3xl">👋</div>
-                  <div><h2 className="text-xl font-bold text-white">What name should we use?</h2><p className="text-sm text-muted-foreground">Your public display name</p></div>
+                  <div><h2 className="text-xl font-bold text-white">What do people call you?</h2><p className="text-sm text-muted-foreground">This shows on your space exactly as you write it.</p></div>
                 </div>
                 <input type="text" value={form.displayName} onChange={e => setForm(f => ({ ...f, displayName: e.target.value }))} placeholder="Your full name" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-primary/50 transition-all" autoFocus />
                 <button onClick={handleNext} disabled={!canNext()} className="w-full mt-6 py-3.5 rounded-xl bg-gradient-to-r bg-primary text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
@@ -270,7 +270,7 @@ export default function OnboardingPage() {
               <div className="glass rounded-3xl p-8 border border-white/10">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="text-3xl">✨</div>
-                  <div><h2 className="text-xl font-bold text-white">What makes you interesting?</h2><p className="text-sm text-muted-foreground">One line that makes people want to ask you something</p></div>
+                  <div><h2 className="text-xl font-bold text-white">What do people always ask you about?</h2><p className="text-sm text-muted-foreground">Write it like you would say it out loud. Your AI will use this to answer in your voice.</p></div>
                 </div>
                 <textarea value={form.bio} onChange={e => setForm(f => ({ ...f, bio: e.target.value.slice(0, 160) }))} placeholder="e.g. Building AI products and sharing what I learn along the way." rows={4} className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-primary/50 transition-all resize-none text-sm" autoFocus />
                 <p className="text-xs text-muted-foreground text-right mt-1">{form.bio.length}/160</p>
@@ -284,7 +284,7 @@ export default function OnboardingPage() {
               <div className="glass rounded-3xl p-8 border border-white/10">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="text-3xl">🎯</div>
-                  <div><h2 className="text-xl font-bold text-white">What are you building?</h2><p className="text-sm text-muted-foreground">Help visitors understand your vibe</p></div>
+                  <div><h2 className="text-xl font-bold text-white">What are you building?</h2><p className="text-sm text-muted-foreground">Pick what fits you. This helps your AI give sharper answers.</p></div>
                 </div>
                 <div className="flex flex-wrap gap-2 mb-4">
                   {["🚀 AI","🛠️ SaaS","📝 Content","🎨 Design","💼 Freelance","🏗️ Indie Hacker","📚 Education","🎮 Gaming","🌱 Sustainability","🧠 Web3"].map(tag => (
@@ -302,7 +302,7 @@ export default function OnboardingPage() {
               <div className="glass rounded-3xl p-8 border border-white/10">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="text-3xl">🏆</div>
-                  <div><h2 className="text-xl font-bold text-white">What&apos;s your 2026 goal?</h2><p className="text-sm text-muted-foreground">Set a public goal to keep yourself accountable</p></div>
+                  <div><h2 className="text-xl font-bold text-white">What are you working toward right now?</h2><p className="text-sm text-muted-foreground">Your visitors will see this. Make it real.</p></div>
                 </div>
                 <div className="space-y-3">
                   <input type="text" value={form.goalTitle || ""} onChange={e => setForm(f => ({...f, goalTitle: e.target.value}))} placeholder="e.g. Reach 10K users" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white placeholder:text-zinc-500 focus:outline-none focus:border-primary/50 transition-all" autoFocus />
@@ -325,7 +325,7 @@ export default function OnboardingPage() {
               <div className="glass rounded-3xl p-8 border border-white/10">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="text-3xl">🤖</div>
-                  <div><h2 className="text-xl font-bold text-white">Set your AI greeting</h2><p className="text-sm text-muted-foreground">First thing visitors see on your space</p></div>
+                  <div><h2 className="text-xl font-bold text-white">What should your AI say first?</h2><p className="text-sm text-muted-foreground">Write it like you are talking to someone who just found you for the first time.</p></div>
                 </div>
                 <input type="text" value={form.welcomeMessage} onChange={e => setForm(f => ({ ...f, welcomeMessage: e.target.value }))} placeholder="Ask me anything about building in public!" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-primary/50 transition-all" autoFocus />
                 {form.welcomeMessage && (
@@ -352,7 +352,7 @@ export default function OnboardingPage() {
               <div className="glass rounded-3xl p-8 border border-white/10">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="text-3xl">🎨</div>
-                  <div><h2 className="text-xl font-bold text-white">Pick your accent color</h2><p className="text-sm text-muted-foreground">This sets the vibe of your space</p></div>
+                  <div><h2 className="text-xl font-bold text-white">Pick your accent color</h2><p className="text-sm text-muted-foreground">Make it yours. This color shows up everywhere on your space.</p></div>
                 </div>
                 <div className="flex flex-wrap gap-3 mb-6">
                   {['#a855f7','#3b82f6','#06b6d4','#22c55e','#f97316','#ec4899','#ef4444','#eab308','#ffffff'].map(c => (
@@ -374,8 +374,8 @@ export default function OnboardingPage() {
             {step === 7 && (
               <div className="glass rounded-3xl p-8 border border-white/10 text-center">
                 <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", duration: 0.6 }} className="text-6xl mb-4">🚀</motion.div>
-                <h2 className="text-2xl font-bold text-white mb-2">Your space is ready!</h2>
-                <p className="text-sm text-muted-foreground mb-6">onequestion.space/{form.username} is live</p>
+                <h2 className="text-2xl font-bold text-white mb-2">You're live. That's it.</h2>
+                <p className="text-sm text-muted-foreground mb-6">onequestion.space/{form.username} is live right now. Share this link — your AI handles everything from here.</p>
 
                 <div className="flex items-center justify-center gap-3 mb-6">
                   <div className="px-4 py-3 rounded-xl bg-white/5 border border-white/10">
@@ -399,7 +399,7 @@ export default function OnboardingPage() {
                 </div>
 
                 <button onClick={() => router.push("/dashboard/studio")} className="w-full py-3.5 rounded-xl bg-gradient-to-r bg-primary text-white font-bold flex items-center justify-center gap-2">
-                  Go to dashboard <ArrowRight className="w-4 h-4" />
+                  Take me to my dashboard <ArrowRight className="w-4 h-4" />
                 </button>
               </div>
             )}
