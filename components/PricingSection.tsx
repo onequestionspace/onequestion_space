@@ -1,4 +1,6 @@
 'use client';
+import { motion, useInView } from 'framer-motion';
+import { useRef } from 'react';
 
 import Link from 'next/link';
 import { Check, Zap } from 'lucide-react';
@@ -21,8 +23,10 @@ const PRO_FEATURES = [
 ];
 
 export function PricingSection() {
+  const ref = useRef(null);
+  const inView = useInView(ref, { once: true, margin: '-60px' });
   return (
-    <section className='relative py-24 overflow-hidden'>
+    <section className='relative py-24 overflow-hidden' ref={ref}>
 
       <div className='relative z-10 max-w-3xl mx-auto px-4'>
         <div className='text-center mb-16'>
@@ -35,7 +39,7 @@ export function PricingSection() {
 
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
           {/* Free */}
-          <div className='p-8 rounded-3xl border border-white/10 bg-white/3 flex flex-col'>
+          <motion.div initial={{ opacity:0, y:30 }} animate={inView?{opacity:1,y:0}:{}} transition={{ duration:0.5, delay:0.1 }} className='p-8 rounded-3xl border border-white/10 bg-white/3 flex flex-col'>
             <div className='mb-8'>
               <p className='text-zinc-400 text-sm font-medium mb-2'>Free</p>
               <div className='flex items-end gap-1 mb-4'>
@@ -55,10 +59,10 @@ export function PricingSection() {
             <Link href='/sign-up' className='w-full py-3.5 rounded-2xl border border-white/15 text-white text-sm font-bold text-center hover:bg-white/5 transition-all block'>
               Get started free
             </Link>
-          </div>
+          </motion.div>
 
           {/* Pro */}
-          <div className='relative p-8 rounded-3xl border border-primary/40 bg-gradient-to-b from-primary/10 to-transparent flex flex-col'>
+          <motion.div initial={{ opacity:0, y:30 }} animate={inView?{opacity:1,y:0}:{}} transition={{ duration:0.5, delay:0.25 }} className='relative p-8 rounded-3xl border border-primary/40 bg-gradient-to-b from-primary/10 to-transparent flex flex-col'>
             <div className='absolute -top-3 left-1/2 -translate-x-1/2'>
               <span className='px-4 py-1 rounded-full text-xs font-bold bg-primary text-black'>MOST POPULAR</span>
             </div>
@@ -81,20 +85,20 @@ export function PricingSection() {
             <Link href='/sign-up' className='w-full py-3.5 rounded-2xl bg-primary text-black text-sm font-bold text-center hover:opacity-90 transition-all flex items-center justify-center gap-2 block'>
               <Zap className='w-4 h-4' /> Start with Pro →
             </Link>
-          </div>
+          </motion.div>
         </div>
 
         <p className='text-center text-zinc-600 text-sm mt-8'>Need more? Buy credits anytime from your dashboard. No commitment.</p>
 
         {/* Asym's personal note */}
-        <div className='mt-12 p-6 rounded-2xl border border-white/8 bg-white/3'>
+        <motion.div initial={{opacity:0,y:20}} animate={inView?{opacity:1,y:0}:{}} transition={{duration:0.6,delay:0.5}} className='mt-12 p-6 rounded-2xl border border-white/8 bg-white/3'>
           <p className='text-zinc-300 text-sm leading-loose'>
             I built this on an Android phone with no funding, no team, no laptop — just Termux and a lot of late nights in Yobe.
             The $9/month keeps the servers running and helps me keep building.
             If One Question saves you even one hour a month, it's worth it.
           </p>
           <div className='flex items-center gap-3 mt-4'><img src='/founders/asym.png' alt='Asym' className='w-10 h-10 rounded-full border border-white/10 object-cover shrink-0' /><p className='text-primary text-sm font-bold'>— Asym, 19 · Yobe, Nigeria 🇳🇬</p></div>
-        </div>
+        </motion.div>
 
         {/* FAQ */}
         <div className='mt-12 space-y-6'>
@@ -117,10 +121,10 @@ export function PricingSection() {
               a: "Honest answer: it covers Gemini API costs, Convex, Vercel, and lets me keep building. It's not a number a VC told me — it's what makes sense."
             },
           ].map((faq, i) => (
-            <div key={i} className='border-b border-white/8 pb-6'>
+            <motion.div key={i} initial={{opacity:0,y:15}} animate={inView?{opacity:1,y:0}:{}} transition={{duration:0.4,delay:0.6+i*0.1}} className='border-b border-white/8 pb-6'>
               <p className='text-white font-bold text-sm mb-2'>{faq.q}</p>
               <p className='text-zinc-400 text-sm leading-relaxed'>{faq.a}</p>
-            </div>
+            </motion.div>
           ))}
         </div>
       </div>

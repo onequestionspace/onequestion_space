@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { ArrowRight, Sparkles } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 const DEMO_QUESTIONS = [
   'How can I work with Asym?',
