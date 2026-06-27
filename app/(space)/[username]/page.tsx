@@ -36,16 +36,25 @@ const FONT_STYLES: Record<string, string> = {
 };
 
 const CARD_STYLES: Record<string, string> = {
-  glass: 'bg-white/5 backdrop-blur-xl border border-white/10',
+  glass: 'bg-zinc-950/80 backdrop-blur-xl border border-zinc-800',
   solid: 'bg-zinc-900 border border-zinc-800',
   minimal: 'bg-transparent',
 };
 
-const PARTICLES = Array.from({ length: 20 }).map(() => ({
-  width: Math.random() * 4 + 2, height: Math.random() * 4 + 2,
-  left: Math.random() * 100, top: Math.random() * 100,
-  duration: Math.random() * 10 + 8, delay: Math.random() * 5,
-}));
+const PARTICLES = [
+  { width: 3, height: 3, left: 10, top: 15, duration: 12, delay: 0 },
+  { width: 5, height: 5, left: 25, top: 40, duration: 16, delay: 1 },
+  { width: 2, height: 2, left: 40, top: 70, duration: 10, delay: 2 },
+  { width: 4, height: 4, left: 55, top: 20, duration: 14, delay: 0.5 },
+  { width: 3, height: 3, left: 70, top: 55, duration: 18, delay: 3 },
+  { width: 6, height: 6, left: 85, top: 30, duration: 11, delay: 1.5 },
+  { width: 2, height: 2, left: 15, top: 80, duration: 15, delay: 4 },
+  { width: 4, height: 4, left: 30, top: 10, duration: 13, delay: 2.5 },
+  { width: 3, height: 3, left: 60, top: 85, duration: 17, delay: 0.8 },
+  { width: 5, height: 5, left: 80, top: 65, duration: 12, delay: 3.5 },
+  { width: 2, height: 2, left: 90, top: 45, duration: 16, delay: 1.2 },
+  { width: 4, height: 4, left: 45, top: 50, duration: 10, delay: 4.5 },
+];
 
 function ParticlesBackground({ color }: { color: string }) {
   return (
@@ -59,10 +68,14 @@ function ParticlesBackground({ color }: { color: string }) {
   );
 }
 
-const BUBBLES = Array.from({ length: 12 }).map(() => ({
-  width: Math.random() * 60 + 20, height: Math.random() * 60 + 20,
-  left: Math.random() * 100, duration: Math.random() * 12 + 10, delay: Math.random() * 8,
-}));
+const BUBBLES = [
+  { width: 40, height: 40, left: 10, duration: 14, delay: 0 },
+  { width: 25, height: 25, left: 25, duration: 18, delay: 2 },
+  { width: 60, height: 60, left: 40, duration: 12, delay: 1 },
+  { width: 35, height: 35, left: 60, duration: 16, delay: 3 },
+  { width: 50, height: 50, left: 75, duration: 20, delay: 0.5 },
+  { width: 30, height: 30, left: 88, duration: 14, delay: 4 },
+];
 
 function BubblesBackground({ color }: { color: string }) {
   return (
@@ -78,9 +91,11 @@ function BubblesBackground({ color }: { color: string }) {
   );
 }
 
-const NET_CIRCLES = Array.from({ length: 8 }).map(() => ({
-  cx: Math.random() * 100, cy: Math.random() * 100,
-}));
+const NET_CIRCLES = [
+  { cx: 10, cy: 20 }, { cx: 30, cy: 50 }, { cx: 50, cy: 15 },
+  { cx: 70, cy: 70 }, { cx: 85, cy: 35 }, { cx: 20, cy: 80 },
+  { cx: 60, cy: 45 }, { cx: 90, cy: 60 },
+];
 
 function NetBackground({ color }: { color: string }) {
   return (
@@ -98,10 +113,23 @@ function NetBackground({ color }: { color: string }) {
   );
 }
 
-const MATRIX_COLS = Array.from({ length: 15 }).map(() => ({
-  duration: Math.random() * 8 + 6, delay: Math.random() * 4,
-  chars: Array.from({ length: 20 }).map(() => '01アイウエオカキクケコサシスセソ'[Math.floor(Math.random() * 15)]),
-}));
+const MATRIX_COLS = [
+  { duration: 8, delay: 0, chars: ['0','1','ア','イ','ウ','エ','オ','カ','キ','ク','0','1','ア','イ','ウ','エ','オ','カ','キ','ク'] },
+  { duration: 10, delay: 1, chars: ['1','0','ケ','コ','サ','シ','ス','セ','ソ','ア','1','0','ケ','コ','サ','シ','ス','セ','ソ','ア'] },
+  { duration: 7, delay: 2, chars: ['ア','イ','0','1','ウ','エ','オ','カ','キ','ク','ア','イ','0','1','ウ','エ','オ','カ','キ','ク'] },
+  { duration: 9, delay: 0.5, chars: ['0','ケ','1','コ','0','サ','1','シ','0','ス','0','ケ','1','コ','0','サ','1','シ','0','ス'] },
+  { duration: 11, delay: 3, chars: ['イ','ウ','エ','0','1','オ','カ','キ','ク','ケ','イ','ウ','エ','0','1','オ','カ','キ','ク','ケ'] },
+  { duration: 8, delay: 1.5, chars: ['1','0','1','0','コ','サ','シ','ス','セ','ソ','1','0','1','0','コ','サ','シ','ス','セ','ソ'] },
+  { duration: 10, delay: 4, chars: ['ア','0','イ','1','ウ','0','エ','1','オ','0','ア','0','イ','1','ウ','0','エ','1','オ','0'] },
+  { duration: 7, delay: 2.5, chars: ['カ','キ','ク','ケ','コ','0','1','サ','シ','ス','カ','キ','ク','ケ','コ','0','1','サ','シ','ス'] },
+  { duration: 9, delay: 0.8, chars: ['0','1','セ','ソ','ア','イ','ウ','エ','オ','カ','0','1','セ','ソ','ア','イ','ウ','エ','オ','カ'] },
+  { duration: 12, delay: 3.5, chars: ['キ','ク','0','ケ','1','コ','0','サ','1','シ','キ','ク','0','ケ','1','コ','0','サ','1','シ'] },
+  { duration: 8, delay: 1.2, chars: ['ス','セ','ソ','0','1','ア','イ','ウ','エ','オ','ス','セ','ソ','0','1','ア','イ','ウ','エ','オ'] },
+  { duration: 10, delay: 4.5, chars: ['カ','0','キ','1','ク','0','ケ','1','コ','0','カ','0','キ','1','ク','0','ケ','1','コ','0'] },
+  { duration: 7, delay: 0.3, chars: ['サ','シ','ス','セ','ソ','0','1','ア','イ','ウ','サ','シ','ス','セ','ソ','0','1','ア','イ','ウ'] },
+  { duration: 9, delay: 2.8, chars: ['エ','オ','カ','0','キ','1','ク','0','ケ','1','エ','オ','カ','0','キ','1','ク','0','ケ','1'] },
+  { duration: 11, delay: 1.8, chars: ['コ','サ','0','シ','1','ス','0','セ','1','ソ','コ','サ','0','シ','1','ス','0','セ','1','ソ'] },
+];
 
 function MatrixBackground({ color }: { color: string }) {
   return (
@@ -146,6 +174,10 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   const [expandedPin, setExpandedPin] = useState<number | null>(null);
   const [responseTime, setResponseTime] = useState<number | null>(null);
   const [startTime, setStartTime] = useState<number>(0);
+  const [visitorEmail, setVisitorEmail] = useState('');
+  const [emailCaptured, setEmailCaptured] = useState(false);
+  const [sharedToX, setSharedToX] = useState(false);
+  const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
   const responseRef = useRef<HTMLDivElement>(null);
   const MAX_CHARS = 300;
 
@@ -180,6 +212,17 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
     }
   }, [aiResponse]);
 
+  useEffect(() => {
+    if (profile?.displayName && suggestedQuestions.length === 0) {
+      const name = profile.displayName.split(' ')[0];
+      setSuggestedQuestions([
+        'Who is ' + name + ' and what do they do?',
+        'How can I work with ' + name + '?',
+        'What is ' + name + ' currently building?',
+      ]);
+    }
+  }, [profile?.displayName, suggestedQuestions.length]);
+
   const handleSubmit = async () => {
     if (!question.trim() || !profile?._id) return;
     setSubmitted(true);
@@ -196,7 +239,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
       const res = await fetch('/api/ask', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question, username }),
+        body: JSON.stringify({ question, username, visitorEmail: visitorEmail || undefined }),
         signal: controller.signal,
       });
       clearTimeout(timeout);
@@ -230,6 +273,12 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
     navigator.clipboard.writeText(aiResponse);
     setCopiedAnswer(true);
     setTimeout(() => setCopiedAnswer(false), 2000);
+  };
+
+  const shareToX = () => {
+    const text = 'Just asked @' + (social.twitter?.replace('@','') || username) + ' a question on their AI space and got this answer:\n\n"' + aiResponse.slice(0, 200) + (aiResponse.length > 200 ? '...' : '') + '"\n\nonequestion.space/' + username;
+    window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
+    setSharedToX(true);
   };
 
   const handleReaction = async (emoji: string) => {
@@ -464,7 +513,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
           <AnimatePresence mode='wait'>
             {!submitted ? (
               <motion.div key='form' initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                <div className='flex items-end gap-2 px-2 py-2 rounded-3xl border border-white/10 bg-white/3'>
+                <div className='flex items-end gap-2 px-2 py-2 rounded-3xl border border-zinc-700/50 bg-zinc-900/50 backdrop-blur-sm'>
                   <textarea
                     value={question}
                     onChange={e => {

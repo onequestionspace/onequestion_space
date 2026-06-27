@@ -1,55 +1,174 @@
 const fs = require('fs');
-let c = fs.readFileSync('app/dashboard/billing/page.tsx', 'utf8');
+let c = fs.readFileSync('app/(space)/[username]/page.tsx', 'utf8');
 
-// Fix 1: Add admin detection
+// 1. Add new state variables after existing ones
 c = c.replace(
-  `  const used = subscription?.messagesUsed ?? 0;
-  const limit = subscription?.messagesLimit ?? 50;
-  const plan = subscription?.plan ?? 'free';
-  const usagePercent = Math.min(Math.round((used / limit) * 100), 100);`,
-  `  const ADMIN_IDS = ['user_3EhKmuVyC1AhoBDlL7QNssllwgu'];
-  const isAdmin = userId ? ADMIN_IDS.includes(userId) : false;
-  const used = subscription?.messagesUsed ?? 0;
-  const limit = subscription?.messagesLimit ?? 50;
-  const plan = subscription?.plan ?? 'free';
-  const usagePercent = isAdmin ? 0 : Math.min(Math.round((used / limit) * 100), 100);`
+  `  const [responseTime, setResponseTime] = useState<number | null>(null);
+  const [startTime, setStartTime] = useState<number>(0);
+  const responseRef = useRef<HTMLDivElement>(null);
+  const MAX_CHARS = 300;`,
+  `  const [responseTime, setResponseTime] = useState<number | null>(null);
+  const [startTime, setStartTime] = useState<number>(0);
+  const [visitorEmail, setVisitorEmail] = useState('');
+  const [emailCaptured, setEmailCaptured] = useState(false);
+  const [sharedToX, setSharedToX] = useState(false);
+  const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
+  const responseRef = useRef<HTMLDivElement>(null);
+  const MAX_CHARS = 300;`
 );
 
-// Fix 2: Replace all purple with amber
-c = c.split('#a855f7').join('#f59e0b');
-c = c.split('#a855f720').join('#f59e0b20');
-
-// Fix 3: Replace usage bar with admin unlimited UI
+// 2. Add suggested questions fetch after profile loads
 c = c.replace(
-  `          <div className='flex items-end gap-2 mb-3'>
-            <span className='text-4xl font-bold text-foreground'>{used}</span>
-            <span className='text-lg text-muted-foreground mb-1'>/ {limit} credits</span>
-          </div>
-          <div className='w-full h-3 bg-card rounded-full overflow-hidden mb-2'>
-            <div className='h-full rounded-full transition-all' style={{ width: usagePercent + '%', backgroundColor: usagePercent > 80 ? '#ef4444' : usagePercent > 50 ? '#f97316' : '#a855f7' }} />
-          </div>
-          <p className='text-xs text-muted-foreground'>{limit - used} credits left this month · every question your AI answers uses one</p>`,
-  `          {isAdmin ? (
-            <div className='flex items-center gap-3 p-4 rounded-xl bg-amber-500/10 border border-amber-500/20'>
-              <span className='text-2xl'>∞</span>
-              <div>
-                <p className='text-amber-400 font-bold text-sm'>Admin — Unlimited Access</p>
-                <p className='text-zinc-500 text-xs'>No limits apply to your account</p>
-              </div>
+  `  useEffect(() => {
+    if (responseRef.current) {
+      responseRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [aiResponse]);`,
+  `  useEffect(() => {
+    if (responseRef.current) {
+      responseRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [aiResponse]);
+
+  useEffect(() => {
+    if (profile?.displayName && suggestedQuestions.length === 0) {
+      const name = profile.displayName.split(' ')[0];
+      setSuggestedQuestions([
+        'Who is ' + name + ' and what do they do?',
+        'How can I work with ' + name + '?',
+        'What is ' + name + ' currently building?',
+      ]);
+    }
+  }, [profile?.displayName, suggestedQuestions.length]);`
+);
+
+// 3. Add shareToX function after copyAnswer
+c = c.replace(
+  `  const handleReaction = async (emoji: string) => {`,
+  `  const shareToX = () => {
+    const text = 'Just asked @' + (social.twitter?.replace('@','') || username) + ' a question on their AI space and got this answer:\\n\\n"' + aiResponse.slice(0, 200) + (aiResponse.length > 200 ? '...' : '') + '"\\n\\nonequestion.space/' + username;
+    window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
+    setSharedToX(true);
+  };
+
+  const handleReaction = async (emoji: string) => {`
+);
+
+// 4. Replace the ask form with email capture + suggested questions
+c = c.replace(
+  `        {/* Ask Card — iMessage style */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className='mb-6'>                 {!submitted && (
+            <p className='text-xs text-zinc-600 mb-3 text-center'>&ldquo;{welcomeMessage}&rdquo;</p>
+          )}
+                                                       <AnimatePresence mode='wait'>
+            {!submitted ? (
+              <motion.div key='form' initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                <div className='flex items-end gap-2 px-2 py-2 rounded-3xl border border-zinc-700/50 bg-zinc-900/50 backdrop-blur-sm'>
+                  <textarea
+                    value={question}
+                    onChange={e => {
+                      if (e.target.value.length <= MAX_CHARS) {
+                        setQuestion(e.target.value);
+                        setCharCount(e.target.value.length);
+                      }                                          }}
+                    placeholder={'Ask ' + firstName + ' anything...'}
+                    rows={2}                                     className='flex-1 px-3 py-2 bg-transparent text-white placeholder:text-zinc-600 focus:outline-none resize-none text-sm leading-relaxed'                                             onKeyDown={e => { if (e.key === 'Enter' && e.metaKey) handleSubmit(); }}
+                  />
+                  <button onClick={handleSubmit} disabled={!question.trim()}                                  className='w-9 h-9 rounded-full flex items-center justify-center transition-all disabled:opacity-20 hover:opacity-90 active:scale-95 shrink-0 mb-0.5'
+                    style={{ backgroundColor: color }}>
+                    <Send className='w-4 h-4 text-black' />
+                  </button>
+                </div>
+              </motion.div>`,
+  `        {/* Ask Card */}
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className='mb-6'>
+          {!submitted && (
+            <p className='text-xs text-zinc-600 mb-3 text-center'>&ldquo;{welcomeMessage}&rdquo;</p>
+          )}
+
+          {/* Suggested questions */}
+          {!submitted && suggestedQuestions.length > 0 && (
+            <div className='flex flex-wrap gap-2 mb-3 justify-center'>
+              {suggestedQuestions.map((sq, i) => (
+                <button key={i} onClick={() => setQuestion(sq)}
+                  className='px-3 py-1.5 rounded-full text-xs border transition-all hover:opacity-90 active:scale-95'
+                  style={{ borderColor: color + '40', backgroundColor: color + '10', color: color }}>
+                  {sq}
+                </button>
+              ))}
             </div>
-          ) : (
-            <>
-              <div className='flex items-end gap-2 mb-3'>
-                <span className='text-4xl font-bold text-foreground'>{used}</span>
-                <span className='text-lg text-muted-foreground mb-1'>/ {limit} credits</span>
-              </div>
-              <div className='w-full h-3 bg-card rounded-full overflow-hidden mb-2'>
-                <div className='h-full rounded-full transition-all' style={{ width: usagePercent + '%', backgroundColor: usagePercent > 80 ? '#ef4444' : usagePercent > 50 ? '#f97316' : '#f59e0b' }} />
-              </div>
-              <p className='text-xs text-muted-foreground'>{Math.max(0, limit - used)} credits left this month · every question your AI answers uses one</p>
-            </>
-          )}`
+          )}
+
+          <AnimatePresence mode='wait'>
+            {!submitted ? (
+              <motion.div key='form' initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                {/* Email capture */}
+                {!emailCaptured && (
+                  <div className='mb-2'>
+                    <input
+                      type='email'
+                      value={visitorEmail}
+                      onChange={e => setVisitorEmail(e.target.value)}
+                      placeholder='Your email (optional — get notified of replies)'
+                      className='w-full px-4 py-2.5 rounded-2xl bg-zinc-900/50 border border-zinc-700/50 text-white placeholder:text-zinc-600 focus:outline-none text-xs'
+                    />
+                  </div>
+                )}
+                <div className='flex items-end gap-2 px-2 py-2 rounded-3xl border border-zinc-700/50 bg-zinc-900/50 backdrop-blur-sm'>
+                  <textarea
+                    value={question}
+                    onChange={e => {
+                      if (e.target.value.length <= MAX_CHARS) {
+                        setQuestion(e.target.value);
+                        setCharCount(e.target.value.length);
+                      }
+                    }}
+                    placeholder={'Ask ' + firstName + ' anything...'}
+                    rows={2}
+                    className='flex-1 px-3 py-2 bg-transparent text-white placeholder:text-zinc-600 focus:outline-none resize-none text-sm leading-relaxed'
+                    onKeyDown={e => { if (e.key === 'Enter' && e.metaKey) handleSubmit(); }}
+                  />
+                  <button onClick={handleSubmit} disabled={!question.trim()}
+                    className='w-9 h-9 rounded-full flex items-center justify-center transition-all disabled:opacity-20 hover:opacity-90 active:scale-95 shrink-0 mb-0.5'
+                    style={{ backgroundColor: color }}>
+                    <Send className='w-4 h-4 text-black' />
+                  </button>
+                </div>
+                {charCount > 0 && (
+                  <p className='text-xs text-zinc-700 mt-1 text-right'>{charCount}/{MAX_CHARS}</p>
+                )}
+              </motion.div>`
 );
 
-fs.writeFileSync('app/dashboard/billing/page.tsx', c);
+// 5. Add share to X and WhatsApp buttons after copy answer button
+c = c.replace(
+  `                        <button onClick={copyAnswer} className='flex items-center gap-1.5 text-xs opacity-40 hover:opacity-70 transition-opacity'>
+                          {copiedAnswer ? <Check className='w-3 h-3 text-green-400' /> : <Copy className='w-3 h-3' />}                                           {copiedAnswer ? 'Copied ✓' : 'Copy answer'}
+                        </button>`,
+  `                        <div className='flex items-center gap-3 flex-wrap'>
+                          <button onClick={copyAnswer} className='flex items-center gap-1.5 text-xs opacity-40 hover:opacity-70 transition-opacity'>
+                            {copiedAnswer ? <Check className='w-3 h-3 text-green-400' /> : <Copy className='w-3 h-3' />}
+                            {copiedAnswer ? 'Copied ✓' : 'Copy answer'}
+                          </button>
+                          <button onClick={shareToX}
+                            className='flex items-center gap-1.5 text-xs opacity-40 hover:opacity-70 transition-opacity'>
+                            <svg className='w-3 h-3' viewBox='0 0 24 24' fill='currentColor'><path d='M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.632 5.905-5.632zm-1.161 17.52h1.833L7.084 4.126H5.117z'/></svg>
+                            {sharedToX ? 'Shared ✓' : 'Share on X'}
+                          </button>
+                          {social.twitter && (
+                            <a href={'https://twitter.com/' + social.twitter.replace('@','')} target='_blank' rel='noopener noreferrer'
+                              className='flex items-center gap-1.5 text-xs opacity-40 hover:opacity-70 transition-opacity'>
+                              <ExternalLink className='w-3 h-3' /> DM {firstName}
+                            </a>
+                          )}
+                        </div>`
+);
+
+// 6. Pass visitorEmail to handleSubmit API call
+c = c.replace(
+  `        body: JSON.stringify({ question, username }),`,
+  `        body: JSON.stringify({ question, username, visitorEmail: visitorEmail || undefined }),`
+);
+
+fs.writeFileSync('app/(space)/[username]/page.tsx', c);
 console.log('done');
