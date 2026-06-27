@@ -12,12 +12,10 @@ const dms = [
   { name: 'Carlos T.', msg: 'Do you do consulting?', time: '17m ago' },
   { name: 'Fatima A.', msg: 'Can you explain your process?', time: '20m ago' },
   { name: 'Mike D.', msg: 'Are you available to hire?', time: '23m ago' },
-  { name: 'Priya S.', msg: 'What tools do you use?', time: '26m ago' },
-  { name: 'Noah L.', msg: 'Do you take on new clients?', time: '29m ago' },
 ];
 
 const col1 = [...dms, ...dms];
-const col2 = [...dms.slice(5), ...dms.slice(0, 5), ...dms.slice(5), ...dms.slice(0, 5)];
+const col2 = [...dms.slice(4), ...dms.slice(0, 4), ...dms.slice(4), ...dms.slice(0, 4)];
 
 const AVATAR_MAP: Record<string, string> = {
   'Asym A.': '/founders/asym.png',
@@ -25,13 +23,11 @@ const AVATAR_MAP: Record<string, string> = {
 };
 
 function getDiceBear(name: string) {
-  const seed = encodeURIComponent(name);
-  return 'https://api.dicebear.com/9.x/notionists/svg?seed=' + seed + '&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf';
+  return 'https://api.dicebear.com/9.x/notionists/svg?seed=' + encodeURIComponent(name) + '&backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf';
 }
 
 function DmBubble({ name, msg, time }: { name: string; msg: string; time: string }) {
   const avatar = AVATAR_MAP[name] || getDiceBear(name);
-  const isReal = !!AVATAR_MAP[name];
   return (
     <div className="flex items-start gap-2.5 mb-3">
       <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-white/10">
@@ -42,7 +38,7 @@ function DmBubble({ name, msg, time }: { name: string; msg: string; time: string
           <span className="text-white/70 text-xs font-medium">{name}</span>
           <span className="text-white/30 text-xs">{time}</span>
         </div>
-        <div className="bg-white/8 border border-white/10 rounded-2xl rounded-tl-sm px-3 py-2">
+        <div className="bg-zinc-800 border border-zinc-700 rounded-2xl rounded-tl-sm px-3 py-2">
           <p className="text-white/80 text-sm leading-snug">{msg}</p>
         </div>
       </div>
@@ -54,76 +50,44 @@ export function ProblemSection() {
   return (
     <section className="relative py-24 overflow-hidden">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(239,68,68,0.04),transparent_70%)]" />
-
       <div className="relative z-10 max-w-2xl mx-auto px-4 text-center mb-12">
-        <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-4 leading-tight">
-          You keep answering the
-          <br />
-          <span className="gradient-text">same questions.</span>
-          <br />
+        <p className="text-amber-400 text-sm font-bold uppercase tracking-widest mb-4">The problem</p>
+        <h2 className="text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
+          You keep answering the<br />
+          <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">same questions.</span><br />
           Every. Single. Day.
         </h2>
-        <p className="text-muted-foreground text-lg">
+        <p className="text-zinc-400 text-lg">
           Your inbox is full. Your DMs never stop. You are repeating yourself to every new person who finds you.
         </p>
       </div>
 
-      {/* DM columns */}
       <div className="relative h-72 overflow-hidden mx-auto max-w-lg px-4">
-        {/* fade top */}
         <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-background to-transparent z-10 pointer-events-none" />
-        {/* fade bottom */}
         <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none" />
-
         <div className="grid grid-cols-2 gap-3 h-full">
-          {/* Column 1 — scrolls up */}
           <div className="overflow-hidden">
-            <div
-              className="flex flex-col"
-              style={{
-                animation: 'scrollUp 18s linear infinite',
-              }}
-            >
-              {col1.map((dm, i) => (
-                <DmBubble key={i} {...dm} />
-              ))}
+            <div className="flex flex-col" style={{ animation: 'scrollUp 18s linear infinite' }}>
+              {col1.map((dm, i) => <DmBubble key={i} {...dm} />)}
             </div>
           </div>
-
-          {/* Column 2 — scrolls down */}
           <div className="overflow-hidden">
-            <div
-              className="flex flex-col"
-              style={{
-                animation: 'scrollDown 22s linear infinite',
-              }}
-            >
-              {col2.map((dm, i) => (
-                <DmBubble key={i} {...dm} />
-              ))}
+            <div className="flex flex-col" style={{ animation: 'scrollDown 22s linear infinite' }}>
+              {col2.map((dm, i) => <DmBubble key={i} {...dm} />)}
             </div>
           </div>
         </div>
       </div>
 
       <style jsx>{`
-        @keyframes scrollUp {
-          0% { transform: translateY(0); }
-          100% { transform: translateY(-50%); }
-        }
-        @keyframes scrollDown {
-          0% { transform: translateY(-50%); }
-          100% { transform: translateY(0); }
-        }
+        @keyframes scrollUp { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
+        @keyframes scrollDown { 0% { transform: translateY(-50%); } 100% { transform: translateY(0); } }
       `}</style>
 
       <div className="relative z-10 max-w-2xl mx-auto px-4 text-center mt-12">
-        <div className="relative inline-block">
-          <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-primary/10 rounded-2xl blur-md" />
-          <div className="relative glass rounded-2xl px-8 py-5 border border-white/20">
-            <p className="text-white font-bold text-xl">There is a better way.</p>
-            <p className="text-muted-foreground text-sm mt-1">One space. Every question answered. Automatically.</p>
-          </div>
+        <div className="inline-block px-8 py-5 rounded-2xl border border-amber-500/20 bg-amber-500/5">
+          <p className="text-white font-black text-xl">There is a better way.</p>
+          <p className="text-zinc-400 text-sm mt-1">One space. Every question answered. Automatically.</p>
         </div>
       </div>
     </section>
