@@ -424,7 +424,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
                 {pinnedAnswers.map((q, i) => (
                   <div key={i} className='rounded-2xl overflow-hidden border border-white/8 text-left'>
                     <div className='px-4 py-3 bg-white/4'>
-                      <p className='text-sm font-medium'>{q.question}</p>
+                      <p className='text-sm font-medium'>{q.question.charAt(0).toUpperCase() + q.question.slice(1)}</p>
                     </div>
                     <div className='px-4 py-3' style={{ backgroundColor: color + '08' }}>
                       <div className='flex items-center gap-2 mb-2'>
@@ -433,7 +433,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
                         </div>
                         <span className='text-xs opacity-40'>{firstName}</span>
                       </div>
-                      <p className='text-xs opacity-65 leading-relaxed'>{q.answer}</p>
+                      <p className='text-xs opacity-65 leading-relaxed'>{q.answer ? stripMarkdown(q.answer) : ''}</p>
                     </div>
                   </div>
                 ))}
@@ -462,7 +462,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
                       }
                     }}
                     placeholder={'Ask ' + firstName + ' anything...'}
-                    rows={3}
+                    rows={2}
                     className='w-full px-4 py-3 rounded-2xl bg-white/5 border border-white/10 focus:border-white/20 text-white placeholder:text-zinc-500 focus:outline-none resize-none text-sm transition-colors leading-relaxed'
                     onKeyDown={e => { if (e.key === 'Enter' && e.metaKey) handleSubmit(); }}
                   />
@@ -472,11 +472,10 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
                 </div>
                 <div className='flex items-center gap-2 mt-2'>
                   <button onClick={handleSubmit} disabled={!question.trim()}
-                    className='flex-1 py-3 px-6 rounded-full text-sm font-bold flex items-center justify-center gap-2 transition-all disabled:opacity-30 hover:opacity-90 active:scale-[0.98]'
-                    style={{ backgroundColor: color, color: '#000' }}>
-                    <Send className='w-3.5 h-3.5' /> Send
+                    className='ml-auto w-10 h-10 rounded-full flex items-center justify-center transition-all disabled:opacity-30 hover:opacity-90 active:scale-95 shrink-0'
+                    style={{ backgroundColor: color }}>
+                    <Send className='w-4 h-4 text-black' />
                   </button>
-                  <p className='text-xs text-zinc-600'>⌘↵</p>
                 </div>
               </motion.div>
             ) : (

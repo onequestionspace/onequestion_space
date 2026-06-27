@@ -24,21 +24,18 @@ export function CTASection() {
           Your space.
         </h2>
 
-        <p className="text-lg text-muted-foreground mb-10 max-w-md mx-auto">
+        <p className="text-lg text-zinc-400 mb-10 max-w-md mx-auto leading-relaxed">
           Claim your space. Upload what you know. Your AI handles the rest — 24/7, in your voice.
         </p>
 
         <div className="flex flex-col items-center gap-4 mb-8">
           {isLoaded && (
-            <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 rounded-full blur-md opacity-60 group-hover:opacity-90 transition-opacity duration-300" />
-              <Link
-                href={isSignedIn ? '/dashboard' : '/sign-up'}
-                className="relative inline-block px-10 py-5 bg-primary text-white font-bold text-xl rounded-full transition-all hover:-translate-y-0.5"
-              >
-                Claim Your Space Now
-              </Link>
-            </div>
+            <Link
+              href={isSignedIn ? '/dashboard' : '/sign-up'}
+              className="inline-block px-10 py-5 bg-primary text-black font-black text-xl rounded-2xl transition-all hover:-translate-y-0.5 hover:bg-primary/90 shadow-lg shadow-primary/20"
+            >
+              Claim your space free →
+            </Link>
           )}
 
           <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 text-muted-foreground text-sm">
@@ -51,7 +48,7 @@ export function CTASection() {
               <span>No credit card required</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <Check className="w-4 h-4 text-accent-yellow shrink-0" />
+              <Check className="w-4 h-4 text-primary shrink-0" />
               <span>Cancel anytime</span>
             </div>
           </div>
