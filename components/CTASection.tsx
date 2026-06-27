@@ -25,7 +25,7 @@ export function CTASection() {
         </h2>
 
         <p className="text-lg text-zinc-400 mb-10 max-w-md mx-auto leading-relaxed">
-          Claim your space. Upload what you know. Your AI handles the rest — 24/7, in your voice.
+          Claim your space. Upload what you know. Your AI handles the rest — 24/7, in your voice.</p><p className="text-sm text-zinc-600 mb-6 max-w-sm mx-auto">Built by one person on a phone in Nigeria. If I could build it — your AI can handle your questions. 🇳🇬
         </p>
 
         <div className="flex flex-col items-center gap-4 mb-8">

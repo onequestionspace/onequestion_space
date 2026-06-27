@@ -93,7 +93,7 @@ export function PricingSection() {
             The $9/month keeps the servers running and helps me keep building.
             If One Question saves you even one hour a month, it's worth it.
           </p>
-          <p className='text-primary text-sm font-bold mt-3'>— Asym, founder</p>
+          <div className='flex items-center gap-3 mt-4'><img src='/founders/asym.png' alt='Asym' className='w-10 h-10 rounded-full border border-white/10 object-cover shrink-0' /><p className='text-primary text-sm font-bold'>— Asym, 19 · Yobe, Nigeria 🇳🇬</p></div>
         </div>
 
         {/* FAQ */}
