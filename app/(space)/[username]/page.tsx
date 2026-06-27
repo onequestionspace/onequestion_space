@@ -7,6 +7,7 @@ import { api } from '@/convex/_generated/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { Send, Copy, Check, Globe, ExternalLink, Sparkles } from 'lucide-react';
+import { LinkPreviewCard } from '@/components/LinkPreviewCard';
 
 const COFOUNDER_IDS = ['user_3Ev3UAWNTTDAlVWSYFGGsEI6qQz'];
 const FOUNDER_ID = 'user_3EhKmuVyC1AhoBDlL7QNssllwgu';
@@ -404,15 +405,11 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
             </motion.div>
           )}
 
-          {/* Links */}
+          {/* Links — with preview */}
           {spaceLinks.length > 0 && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className='mt-4 space-y-2'>
               {spaceLinks.map((link, i) => (
-                <a key={i} href={link.url} target='_blank' rel='noopener noreferrer'
-                  className='flex items-center justify-between px-4 py-3 rounded-2xl bg-white/4 border border-white/8 hover:bg-white/8 hover:border-white/15 transition-all group'>
-                  <span className='text-sm font-medium'>{link.title}</span>
-                  <ExternalLink className='w-3.5 h-3.5 opacity-30 group-hover:opacity-70 transition-opacity' />
-                </a>
+                <LinkPreviewCard key={i} title={link.title} url={link.url} color={color} />
               ))}
             </motion.div>
           )}
