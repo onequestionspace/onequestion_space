@@ -409,7 +409,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
           {spaceLinks.length > 0 && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className='mt-4 space-y-2'>
               {spaceLinks.map((link, i) => (
-                <LinkPreviewCard key={i} title={link.title} url={link.url} color={color} />
+                <LinkPreviewCard key={i} title={link.title} url={link.url} color={color} image={link.image} />
               ))}
             </motion.div>
           )}

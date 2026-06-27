@@ -14,9 +14,10 @@ interface Props {
   title: string;
   url: string;
   color: string;
+  image?: string;
 }
 
-export function LinkPreviewCard({ title, url, color }: Props) {
+export function LinkPreviewCard({ title, url, color, image }: Props) {
   const [og, setOg] = useState<OGData | null>(null);
   const [loading, setLoading] = useState(true);
   const [failed, setFailed] = useState(false);
@@ -41,11 +42,11 @@ export function LinkPreviewCard({ title, url, color }: Props) {
       className="block rounded-2xl overflow-hidden border border-white/10 hover:border-white/20 transition-all group bg-white/5 hover:bg-white/8"
     >
       {/* OG Image */}
-      {!loading && og?.image && (
+      {(image || (!loading && og?.image)) && (
         <div className="w-full h-32 overflow-hidden bg-white/5">
           <img
-            src={og.image}
-            alt={og.title || title}
+            src={image || og?.image || ''}
+            alt={title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }}
           />
