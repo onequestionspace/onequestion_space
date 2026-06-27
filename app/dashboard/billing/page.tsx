@@ -26,7 +26,7 @@ const PLANS = [
     name: 'Pro',
     price: 9,
     credits: 500,
-    color: '#a855f7',
+    color: '#f59e0b',
     features: ['500 AI answers/month', 'Advanced analytics', 'Priority AI processing', 'Remove One Question branding', 'Custom welcome message'],
     recommended: true,
   },
@@ -67,10 +67,12 @@ function BillingContent() {
   if (!isLoaded) return <div className='min-h-screen flex items-center justify-center text-muted-foreground'>Loading...</div>;
   if (!isSignedIn) { redirect('/'); }
 
+  const ADMIN_IDS = ['user_3EhKmuVyC1AhoBDlL7QNssllwgu'];
+  const isAdmin = userId ? ADMIN_IDS.includes(userId) : false;
   const used = subscription?.messagesUsed ?? 0;
   const limit = subscription?.messagesLimit ?? 50;
   const plan = subscription?.plan ?? 'free';
-  const usagePercent = Math.min(Math.round((used / limit) * 100), 100);
+  const usagePercent = isAdmin ? 0 : Math.min(Math.round((used / limit) * 100), 100);
   const creditCostUSD = (creditAmount * CREDIT_PRICE_USD).toFixed(2);
 
   const handleUpgrade = async (planId: string, priceUSD: number) => {
@@ -154,14 +156,14 @@ function BillingContent() {
               <h3 className='font-semibold text-foreground'>Usage</h3>
               <p className='text-xs text-muted-foreground mt-0.5'>What you have used this month</p>
             </div>
-            <span className='text-xs px-2.5 py-1 rounded-full font-medium capitalize' style={{ backgroundColor: '#a855f720', color: '#a855f7' }}>{plan}</span>
+            <span className='text-xs px-2.5 py-1 rounded-full font-medium capitalize' style={{ backgroundColor: '#f59e0b20', color: '#f59e0b' }}>{plan}</span>
           </div>
           <div className='flex items-end gap-2 mb-3'>
             <span className='text-4xl font-bold text-foreground'>{used}</span>
             <span className='text-lg text-muted-foreground mb-1'>/ {limit} credits</span>
           </div>
           <div className='w-full h-3 bg-card rounded-full overflow-hidden mb-2'>
-            <div className='h-full rounded-full transition-all' style={{ width: usagePercent + '%', backgroundColor: usagePercent > 80 ? '#ef4444' : usagePercent > 50 ? '#f97316' : '#a855f7' }} />
+            <div className='h-full rounded-full transition-all' style={{ width: usagePercent + '%', backgroundColor: usagePercent > 80 ? '#ef4444' : usagePercent > 50 ? '#f97316' : '#f59e0b' }} />
           </div>
           <p className='text-xs text-muted-foreground'>{limit - used} credits left this month · every question your AI answers uses one</p>
         </div>
@@ -173,7 +175,7 @@ function BillingContent() {
             {PLANS.map(p => (
               <div key={p.id} className={'glass-card rounded-2xl p-6 border-2 transition-all ' + (plan === p.id ? 'border-primary' : 'border-border')}>
                 {p.recommended && (
-                  <div className='text-xs font-bold px-2 py-0.5 rounded-full mb-3 inline-block' style={{ backgroundColor: '#a855f720', color: '#a855f7' }}>Recommended</div>
+                  <div className='text-xs font-bold px-2 py-0.5 rounded-full mb-3 inline-block' style={{ backgroundColor: '#f59e0b20', color: '#f59e0b' }}>Recommended</div>
                 )}
                 <div className='flex items-end gap-1 mb-1'>
                   <span className='text-3xl font-black text-foreground'>{p.price === 0 ? 'Free' : '$' + p.price}</span>
@@ -223,7 +225,7 @@ function BillingContent() {
               >
                 <p className='text-sm font-bold text-foreground'>{pack.credits}</p>
                 <p className='text-xs text-muted-foreground'>{pack.label}</p>
-                <p className='text-xs font-medium mt-1' style={{ color: '#a855f7' }}>{'$' + (pack.credits * CREDIT_PRICE_USD).toFixed(2)}</p>
+                <p className='text-xs font-medium mt-1' style={{ color: '#f59e0b' }}>{'$' + (pack.credits * CREDIT_PRICE_USD).toFixed(2)}</p>
               </button>
             ))}
           </div>
@@ -260,7 +262,7 @@ function BillingContent() {
             onClick={handleBuyCredits}
             disabled={loading === 'credits'}
             className='w-full py-3 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all disabled:opacity-50'
-            style={{ backgroundColor: '#a855f7' }}
+            style={{ backgroundColor: '#f59e0b' }}
           >
             {loading === 'credits' ? <Loader2 className='w-4 h-4 animate-spin' /> : <Zap className='w-4 h-4' />}
             Buy {creditAmount} Credits for {'$' + creditCostUSD}
