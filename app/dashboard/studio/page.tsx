@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { DashboardLayout } from '@/components/DashboardLayout';
+import { TourTooltip } from '@/components/TourTooltip';
 import { AppearanceTab } from '@/components/AppearanceTab';
 import {
   User, Palette, Link as LinkIcon, Quote,
@@ -44,6 +45,13 @@ export default function StudioPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [previewKey, setPreviewKey] = useState(0);
+  const [showTour, setShowTour] = useState(false);
+
+  useEffect(() => {
+    if (!localStorage.getItem('oq_studio_tour_seen')) {
+      setTimeout(() => setShowTour(true), 1000);
+    }
+  }, []);
   const [displayName, setDisplayName] = useState('');
   const [bio, setBio] = useState('');
   const [welcomeMessage, setWelcomeMessage] = useState('');
@@ -134,7 +142,7 @@ export default function StudioPage() {
         <div className="flex gap-6">
           {/* Edit Panel */}
           <div className={"w-full lg:w-[400px] shrink-0 space-y-3 " + (mode === 'preview' ? "hidden lg:block" : "")}>
-            <div className="flex gap-1 overflow-x-auto pb-1">
+            <div data-tour="tabs" className="flex gap-1 overflow-x-auto pb-1">
               {TABS.map(tab => (
                 <button key={tab.id} onClick={() => setActiveTab(tab.id)}
                   className={"flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black whitespace-nowrap transition-all shrink-0 " + (activeTab === tab.id ? "bg-primary text-black" : "text-zinc-500 hover:text-white bg-white/3 border border-white/8")}>
@@ -295,7 +303,7 @@ export default function StudioPage() {
           {/* Preview Panel */}
           <div className={"flex-1 min-w-0 " + (mode === 'edit' ? "hidden lg:block" : "")}>
             <div className="sticky top-6">
-              <div className="flex items-center justify-between mb-3">
+              <div data-tour="preview" className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
                   <span className="text-xs text-zinc-400 font-black">Your space — live</span>
@@ -339,6 +347,19 @@ export default function StudioPage() {
 
         </div>
       </div>
+      {showTour && (
+        <TourTooltip
+          steps={[
+            { target: '[data-tour="tabs"]', title: 'Build your space here', desc: 'Profile, Vibe, Links, Pinned answers, and Style — each tab customizes part of your space.', position: 'bottom' },
+            { target: '[data-tour="preview"]', title: 'Live preview', desc: 'See exactly how your space looks to visitors. Updates instantly when you save.', position: 'left' },
+            { target: '[data-tour="save"]', title: 'Save your changes', desc: 'Hit Save after editing each section. Changes go live immediately.', position: 'top' },
+          ]}
+          onDone={() => {
+            setShowTour(false);
+            localStorage.setItem('oq_studio_tour_seen', '1');
+          }}
+        />
+      )}
     </DashboardLayout>
   );
 }

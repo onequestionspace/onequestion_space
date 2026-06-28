@@ -7,6 +7,8 @@ import Link from 'next/link';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { DashboardLayout } from '@/components/DashboardLayout';
+import { WelcomeModal } from '@/components/WelcomeModal';
+import { TourTooltip } from '@/components/TourTooltip';
 import {
   MessageSquare, Users, TrendingUp, Brain,
   ExternalLink, Copy, CheckCircle2, AlertCircle,
@@ -16,6 +18,8 @@ import {
 export default function DashboardPage() {
   const { isSignedIn, isLoaded, userId } = useAuth();
   const [copied, setCopied] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [showTour, setShowTour] = useState(false);
   const router = useRouter();
 
   const profile = useQuery(api.profiles.current);
@@ -47,6 +51,10 @@ export default function DashboardPage() {
   useEffect(() => {
     if (profile === null && isSignedIn) {
       createProfile({}).catch(console.error);
+    }
+    // Show welcome modal for new users
+    if (profile && !localStorage.getItem('oq_welcome_seen')) {
+      setShowWelcome(true);
     }
   }, [profile, isSignedIn, createProfile]);
 
@@ -165,7 +173,7 @@ export default function DashboardPage() {
         )}
 
         {/* Stats Grid */}
-        <div className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
+        <div data-tour="stats" className='grid grid-cols-2 lg:grid-cols-4 gap-4'>
           {stats.map((stat) => (
             <div key={stat.label} className='glass-card rounded-2xl p-6 border border-border'>
               <div className='w-10 h-10 rounded-xl flex items-center justify-center mb-4' style={{ backgroundColor: stat.color + '20' }}>
@@ -277,6 +285,29 @@ export default function DashboardPage() {
           </div>
         </div>
       </div>
+      {showWelcome && (
+        <WelcomeModal
+          username={profile?.username}
+          onDone={() => {
+            setShowWelcome(false);
+            localStorage.setItem('oq_welcome_seen', '1');
+            setTimeout(() => setShowTour(true), 500);
+          }}
+        />
+      )}
+      {showTour && (
+        <TourTooltip
+          steps={[
+            { target: '[data-tour="share"]', title: 'Your space link', desc: 'Share this link anywhere. Visitors ask questions, your AI answers instantly.', position: 'bottom' },
+            { target: '[data-tour="knowledge"]', title: 'Upload knowledge', desc: 'Add your bio, FAQs, and expertise. The more you upload, the better your AI answers.', position: 'bottom' },
+            { target: '[data-tour="stats"]', title: 'Your stats', desc: 'Track questions asked, visitors, and your AI answer rate in real time.', position: 'top' },
+          ]}
+          onDone={() => {
+            setShowTour(false);
+            localStorage.setItem('oq_tour_seen', '1');
+          }}
+        />
+      )}
     </DashboardLayout>
   );
 }
