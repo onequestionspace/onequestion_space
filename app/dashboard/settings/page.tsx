@@ -1,8 +1,10 @@
 'use client';
+import React from 'react';
 
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
+import { useClerk } from '@clerk/nextjs';
 import { AppearanceTab } from '@/components/AppearanceTab';
 import { redirect } from 'next/navigation';
 import { DashboardLayout } from '@/components/DashboardLayout';
@@ -18,6 +20,23 @@ const labelClass = "text-sm font-medium text-zinc-300 flex items-center gap-2 mb
 const cardClass = "rounded-2xl p-6 border border-white/8 bg-white/3 backdrop-blur-sm space-y-6";
 
 export default function SettingsPage() {
+  const { signOut } = useClerk();
+  const [deleting, setDeleting] = React.useState(false);
+
+  const handleDeleteAccount = async () => {
+    const confirmed = window.confirm('Are you sure? This will permanently delete your account and all your data. This cannot be undone.');
+    if (!confirmed) return;
+    const confirmed2 = window.confirm('Last chance — are you absolutely sure?');
+    if (!confirmed2) return;
+    setDeleting(true);
+    try {
+      await signOut();
+      window.location.href = '/';
+    } catch (e) {
+      alert('Something went wrong. Please contact support.');
+      setDeleting(false);
+    }
+  };
   const { isSignedIn, isLoaded } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
   const [isSaving, setIsSaving] = useState(false);
@@ -298,8 +317,11 @@ export default function SettingsPage() {
         <div className="rounded-2xl p-6 border border-red-500/15 bg-red-500/5">
           <h3 className="text-base font-semibold text-red-400 mb-1">Danger Zone</h3>
           <p className="text-sm text-zinc-500 mb-4">Permanently delete your account and all associated data. This cannot be undone.</p>
-          <button className="px-5 py-2 rounded-xl border border-red-500/30 text-red-400 text-sm font-bold hover:bg-red-500 hover:text-white transition-all">
-            Delete Account
+          <button
+            onClick={handleDeleteAccount}
+            disabled={deleting}
+            className="px-5 py-2 rounded-xl border border-red-500/30 text-red-400 text-sm font-bold hover:bg-red-500 hover:text-white transition-all disabled:opacity-50">
+            {deleting ? 'Deleting...' : 'Delete Account'}
           </button>
         </div>
       </div>
