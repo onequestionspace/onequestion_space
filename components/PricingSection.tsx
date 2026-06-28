@@ -75,7 +75,7 @@ function FaqCards({ inView }: { inView: boolean }) {
           <button
             key={i}
             onClick={() => go(i)}
-            className={'transition-all duration-300 rounded-full ' + (i === active ? 'w-6 h-2 bg-primary' : 'w-2 h-2 bg-white/15 hover:bg-white/30')}
+            className={'transition-all duration-300 rounded-full ' + (i === active ? 'w-6 h-2 bg-amber-500' : 'w-2 h-2 bg-white/15 hover:bg-white/30')}
           />
         ))}
       </div>
@@ -91,9 +91,9 @@ export function PricingSection() {
     <section className='relative py-24 overflow-hidden' ref={ref}>
       <div className='relative z-10 max-w-3xl mx-auto px-4'>
         <div className='text-center mb-16'>
-          <p className='text-primary text-sm font-semibold uppercase tracking-widest mb-4'>Pricing</p>
+          <p className='text-amber-500 text-sm font-semibold uppercase tracking-widest mb-4'>Pricing</p>
           <h2 className='text-4xl md:text-5xl font-black text-white leading-tight tracking-tight mb-4'>
-            Honest pricing.<br /><span className='text-primary'>No BS.</span>
+            Honest pricing.<br /><span className='text-amber-500'>No BS.</span>
           </h2>
           <p className='text-zinc-400 text-lg leading-relaxed'>Start free. Pay only when it is worth it to you.</p>
         </div>
@@ -120,12 +120,12 @@ export function PricingSection() {
             </Link>
           </motion.div>
 
-          <motion.div initial={{ opacity:0, y:30 }} animate={inView?{opacity:1,y:0}:{}} transition={{ duration:0.5, delay:0.25 }} className='relative p-8 rounded-3xl border border-primary/40 bg-gradient-to-b from-primary/10 to-transparent flex flex-col'>
+          <motion.div initial={{ opacity:0, y:30 }} animate={inView?{opacity:1,y:0}:{}} transition={{ duration:0.5, delay:0.25 }} className='relative p-8 rounded-3xl border border-amber-500/40 bg-gradient-to-b from-amber-500/10 to-transparent flex flex-col'>
             <div className='absolute -top-3 left-1/2 -translate-x-1/2'>
-              <span className='px-4 py-1 rounded-full text-xs font-bold bg-primary text-black'>MOST POPULAR</span>
+              <span className='px-4 py-1 rounded-full text-xs font-bold bg-amber-500 text-black'>MOST POPULAR</span>
             </div>
             <div className='mb-8'>
-              <p className='text-primary text-sm font-medium mb-2'>Pro</p>
+              <p className='text-amber-500 text-sm font-medium mb-2'>Pro</p>
               <div className='flex items-end gap-1 mb-1'>
                 <span className='text-5xl font-black text-white'>$9</span>
                 <span className='text-zinc-500 mb-2'>/month</span>
@@ -135,7 +135,7 @@ export function PricingSection() {
             <ul className='space-y-3 flex-1 mb-6'>
               {PRO_FEATURES.map(f => (
                 <li key={f} className='flex items-center gap-3 text-sm text-zinc-300'>
-                  <Check className='w-4 h-4 text-primary shrink-0' />{f}
+                  <Check className='w-4 h-4 text-amber-500 shrink-0' />{f}
                 </li>
               ))}
             </ul>
@@ -144,7 +144,7 @@ export function PricingSection() {
               <p className='text-zinc-500 text-xs leading-relaxed'>I am based in Nigeria and Paystack is what keeps this running. Your international card works perfectly — Visa, Mastercard, wherever you are. Paystack converts automatically. No hidden fees.</p>
               <p className='text-zinc-600 text-xs mt-1 italic'>Weird? Maybe. Honest? Always. — Asym</p>
             </motion.div>
-            <Link href='/sign-up' className='w-full py-3.5 rounded-2xl bg-primary text-black text-sm font-bold text-center hover:opacity-90 transition-all flex items-center justify-center gap-2 block'>
+            <Link href='/sign-up' className='w-full py-3.5 rounded-2xl bg-amber-500 text-black text-sm font-bold text-center hover:opacity-90 transition-all flex items-center justify-center gap-2 block'>
               <Zap className='w-4 h-4' /> Start with Pro →
             </Link>
           </motion.div>
@@ -161,7 +161,7 @@ export function PricingSection() {
                 The $9/month keeps the servers running and helps me keep building.
                 If One Question saves you even one hour a month, it is worth it.
               </p>
-              <p className='text-primary text-sm font-bold mt-3'>— Asym, 19 · Yobe, Nigeria 🇳🇬</p>
+              <p className='text-amber-500 text-sm font-bold mt-3'>— Asym, 19 · Yobe, Nigeria 🇳🇬</p>
             </div>
           </div>
         </motion.div>

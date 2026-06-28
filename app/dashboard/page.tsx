@@ -21,6 +21,7 @@ export default function DashboardPage() {
   const profile = useQuery(api.profiles.current);
   const createProfile = useMutation(api.profiles.createIfMissing);
   const getOrCreateSubscription = useMutation(api.subscriptions.getOrCreateSubscription);
+  const resetMonthlyUsage = useMutation(api.subscriptions.resetMonthlyUsage);
 
   const analytics = useQuery(
     api.analytics.getAnalytics,
@@ -68,7 +69,10 @@ export default function DashboardPage() {
     if (userId && subscription === null) {
       getOrCreateSubscription({ userId }).catch(console.error);
     }
-  }, [userId, subscription, getOrCreateSubscription]);
+    if (userId && subscription) {
+      resetMonthlyUsage({ userId }).catch(() => {});
+    }
+  }, [userId, subscription, getOrCreateSubscription, resetMonthlyUsage]);
 
   const copyProfileLink = () => {
     navigator.clipboard.writeText('https://onequestion.space/' + profile?.username);

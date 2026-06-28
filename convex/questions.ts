@@ -71,3 +71,19 @@ export const deleteQuestion = mutation({
     return await ctx.db.delete(args.id);
   },
 });
+
+export const getVisitorEmails = query({
+  args: { profileId: v.id('profiles') },
+  handler: async (ctx, args) => {
+    const questions = await ctx.db
+      .query('questions')
+      .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
+      .order('desc')
+      .collect();
+    // Return unique emails only
+    const emails = questions
+      .map(q => q.visitorId)
+      .filter((v): v is string => !!v && v.includes('@'));
+    return [...new Set(emails)];
+  },
+});

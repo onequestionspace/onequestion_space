@@ -1,52 +1,44 @@
 const fs = require('fs');
+let c = fs.readFileSync('app/dashboard/analytics/page.tsx', 'utf8');
 
-const files = [
-  'app/dashboard/analytics/page.tsx',
-  'app/dashboard/billing/page.tsx',
-  'app/dashboard/knowledge/page.tsx',
-  'app/dashboard/page.tsx',
-  'app/dashboard/settings/page.tsx',
-  'app/dashboard/train/page.tsx',
-  'app/dashboard/blogs/page.tsx',
-  'app/dashboard/admin/page.tsx',
-  'app/dashboard/studio/page.tsx',
-  'components/DashboardLayout.tsx',
-  'components/DashboardAI.tsx',
-];
+// Check if getVisitorEmails is already imported
+if (!c.includes('getVisitorEmails')) {
+  // Add query after existing queries
+  c = c.replace(
+    `  const questions = useQuery(`,
+    `  const visitorEmails = useQuery(api.questions.getVisitorEmails, profile?._id ? { profileId: profile._id } : 'skip');
+  const questions = useQuery(`
+  );
 
-const replacements = [
-  [/#a855f7/g, '#f59e0b'],
-  [/from-primary to-pink/g, 'from-amber-500 to-orange-400'],
-  [/from-primary\/(\d+)/g, 'from-amber-500/$1'],
-  [/to-pink\/(\d+)/g, 'to-orange-400/$1'],
-  [/bg-primary\/(\d+)/g, 'bg-amber-500/$1'],
-  [/bg-primary(?![/-])/g, 'bg-amber-500'],
-  [/text-primary/g, 'text-amber-500'],
-  [/border-primary\/(\d+)/g, 'border-amber-500/$1'],
-  [/border-primary(?![/-])/g, 'border-amber-500'],
-  [/ring-primary\/(\d+)/g, 'ring-amber-500/$1'],
-  [/shadow-glow-primary/g, 'shadow-amber-500/20'],
-  [/hover:shadow-glow-primary/g, 'hover:shadow-amber-500/20'],
-  [/accent-primary/g, 'accent-amber-500'],
-  [/fill-primary/g, 'fill-amber-500'],
-  [/stroke-primary/g, 'stroke-amber-500'],
-];
-
-let totalChanges = 0;
-for (const file of files) {
-  try {
-    let c = fs.readFileSync(file, 'utf8');
-    const original = c;
-    for (const [from, to] of replacements) {
-      c = c.replace(from, to);
-    }
-    if (c !== original) {
-      fs.writeFileSync(file, c);
-      totalChanges++;
-      console.log('updated:', file);
-    }
-  } catch (e) {
-    console.warn('skip:', file, e.message);
-  }
+  // Add emails section before closing of main content
+  c = c.replace(
+    `      </div>\n    </DashboardLayout>`,
+    `      {/* Visitor Emails */}
+      {visitorEmails && visitorEmails.length > 0 && (
+        <div className='glass-card rounded-2xl p-6 border border-border mt-6'>
+          <h3 className='font-semibold text-foreground mb-4 flex items-center gap-2'>
+            <span>📧</span> Visitor Emails
+            <span className='ml-auto text-xs text-muted-foreground'>{visitorEmails.length} collected</span>
+          </h3>
+          <div className='space-y-2'>
+            {visitorEmails.map((email, i) => (
+              <div key={i} className='flex items-center justify-between px-3 py-2 rounded-xl bg-card border border-border'>
+                <span className='text-sm text-foreground'>{email}</span>
+                <button onClick={() => navigator.clipboard.writeText(email)} className='text-xs text-amber-500 hover:opacity-70'>Copy</button>
+              </div>
+            ))}
+          </div>
+          <button
+            onClick={() => navigator.clipboard.writeText(visitorEmails.join('\\n'))}
+            className='mt-4 w-full py-2 rounded-xl border border-border text-xs text-muted-foreground hover:text-foreground transition-colors'>
+            Copy all emails
+          </button>
+        </div>
+      )}
+      </div>
+    </DashboardLayout>`
+  );
 }
-console.log('done —', totalChanges, 'files updated');
+
+fs.writeFileSync('app/dashboard/analytics/page.tsx', c);
+console.log('done');

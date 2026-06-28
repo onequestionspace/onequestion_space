@@ -146,3 +146,29 @@ export const addCredits = mutation({
     });
   },
 });
+
+export const resetMonthlyUsage = mutation({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    const record = await ctx.db
+      .query('subscriptions')
+      .withIndex('by_userId', (q) => q.eq('userId', args.userId))
+      .unique();
+    if (!record) return;
+
+    const now = Date.now();
+    const renewalDate = record.renewalDate;
+
+    // Only reset if renewal date has passed
+    if (renewalDate && now < renewalDate) return;
+
+    // Set next renewal to 30 days from now
+    const nextRenewal = now + 30 * 24 * 60 * 60 * 1000;
+
+    await ctx.db.patch(record._id, {
+      messagesUsed: 0,
+      renewalDate: nextRenewal,
+      updatedAt: now,
+    });
+  },
+});

@@ -215,13 +215,34 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   useEffect(() => {
     if (profile?.displayName && suggestedQuestions.length === 0) {
       const name = profile.displayName.split(' ')[0];
-      setSuggestedQuestions([
+      const defaults = [
         'Who is ' + name + ' and what do they do?',
         'How can I work with ' + name + '?',
         'What is ' + name + ' currently building?',
-      ]);
+      ];
+      // Try to generate smarter questions from knowledge
+      fetch('/api/explore', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: 'Generate exactly 3 short questions a visitor might ask ' + name + ' based on their knowledge base. Return only the 3 questions separated by | character. No numbering, no extra text.',
+          knowledgeOverride: profile.bio || '',
+          demoMode: true,
+        }),
+      })
+        .then(r => r.json())
+        .then(data => {
+          const raw = data.answer || '';
+          const parts = raw.split('|').map((q: string) => q.trim()).filter((q: string) => q.length > 5 && q.length < 100);
+          if (parts.length >= 2) {
+            setSuggestedQuestions(parts.slice(0, 3));
+          } else {
+            setSuggestedQuestions(defaults);
+          }
+        })
+        .catch(() => setSuggestedQuestions(defaults));
     }
-  }, [profile?.displayName, suggestedQuestions.length]);
+  }, [profile?.displayName, profile?.bio, suggestedQuestions.length]);
 
   const handleSubmit = async () => {
     if (!question.trim() || !profile?._id) return;
@@ -334,6 +355,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   const cardClass = CARD_STYLES[profile.themeCardStyle || 'glass'];
   let social: Record<string, string> = {};
   if (profile.socialLinks) { try { social = JSON.parse(profile.socialLinks); } catch {} }
+  const whatsappUrl = social.whatsapp ? 'https://wa.me/' + social.whatsapp.replace(/[^0-9]/g, '') : null;
   const initials = profile.displayName?.charAt(0)?.toUpperCase() || username.charAt(0).toUpperCase();
   const welcomeMessage = profile.welcomeMessage || 'Ask me anything about ' + (profile.displayName || username) + '.';
   const vibeQuote = profile ? ((profile as Record<string, unknown>).vibeQuote as string || '') : '';
