@@ -54,7 +54,6 @@ export function AppearanceTab() {
   const [twitter, setTwitter] = useState("");
   const [github, setGithub] = useState("");
   const [website, setWebsite] = useState("");
-  const [whatsapp, setWhatsapp] = useState("");
   const [linkedin, setLinkedin] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -71,7 +70,6 @@ export function AppearanceTab() {
         setTwitter(s.twitter || "");
         setGithub(s.github || "");
         setWebsite(s.website || "");
-        setWhatsapp(s.whatsapp || "");
         setLinkedin(s.linkedin || "");
       } catch {}
     }
@@ -86,7 +84,7 @@ export function AppearanceTab() {
         themeFont,
         themeCardStyle,
         themeEffect: "none",
-        socialLinks: JSON.stringify({ twitter, github, website, linkedin, whatsapp }),
+        socialLinks: JSON.stringify({ twitter, github, website, linkedin }),
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
@@ -97,7 +95,6 @@ export function AppearanceTab() {
   return (
     <div className="space-y-8">
 
-      {/* Accent Color */}
       <div>
         <p className="text-xs font-bold text-white uppercase tracking-widest mb-1">Accent Color</p>
         <p className="text-xs text-zinc-500 mb-3">Shows on buttons, rings, and highlights.</p>
@@ -106,7 +103,7 @@ export function AppearanceTab() {
             <button key={c.value} onClick={() => setThemeColor(c.value)} title={c.name}
               className="relative w-8 h-8 rounded-full transition-all hover:scale-110"
               style={{ backgroundColor: c.value, boxShadow: themeColor === c.value ? "0 0 0 2px #000, 0 0 0 4px " + c.value : "none" }}>
-              {themeColor === c.value && <Check className="w-3.5 h-3.5 absolute inset-0 m-auto text-black drop-shadow" />}
+              {themeColor === c.value && <Check className="w-3.5 h-3.5 absolute inset-0 m-auto text-black" />}
             </button>
           ))}
           <label className="relative w-8 h-8 rounded-full border-2 border-dashed border-white/20 flex items-center justify-center cursor-pointer hover:border-primary transition-colors overflow-hidden">
@@ -120,7 +117,6 @@ export function AppearanceTab() {
         </div>
       </div>
 
-      {/* Background */}
       <div>
         <p className="text-xs font-bold text-white uppercase tracking-widest mb-1">Background</p>
         <p className="text-xs text-zinc-500 mb-3">The canvas of your space.</p>
@@ -132,9 +128,9 @@ export function AppearanceTab() {
               <button key={bg.id} onClick={() => setThemeBg(bg.id)}
                 className={"relative rounded-xl border-2 overflow-hidden transition-all " + (isSelected ? "border-primary" : "border-white/8 hover:border-white/20")}>
                 <div className="h-10 w-full relative" style={{ backgroundColor: bg.bg }}>
-                  <div className="absolute inset-0 opacity-20" style={{
-
-                    backgroundSize: "150px 150px",
+                  <div className="absolute inset-0 opacity-25" style={{
+                    backgroundImage: "url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E")",
+                    backgroundSize: "100px 100px",
                   }} />
                 </div>
                 <div className="px-2.5 py-1.5 flex items-center justify-between" style={{ backgroundColor: bg.bg }}>
@@ -154,7 +150,6 @@ export function AppearanceTab() {
         </div>
       </div>
 
-      {/* Font */}
       <div>
         <p className="text-xs font-bold text-white uppercase tracking-widest mb-1">Typography</p>
         <p className="text-xs text-zinc-500 mb-3">How text feels on your space.</p>
@@ -175,7 +170,6 @@ export function AppearanceTab() {
         </div>
       </div>
 
-      {/* Card Style */}
       <div>
         <p className="text-xs font-bold text-white uppercase tracking-widest mb-1">Card Style</p>
         <p className="text-xs text-zinc-500 mb-3">How your Q&A card looks.</p>
@@ -196,7 +190,6 @@ export function AppearanceTab() {
         </div>
       </div>
 
-      {/* Social Links */}
       <div>
         <p className="text-xs font-bold text-white uppercase tracking-widest mb-1">Social Links</p>
         <p className="text-xs text-zinc-500 mb-3">Show up on your space page.</p>
@@ -206,7 +199,6 @@ export function AppearanceTab() {
             { Icon: GithubIcon, value: github, set: setGithub, placeholder: "username", label: "GitHub" },
             { Icon: LinkedinIcon, value: linkedin, set: setLinkedin, placeholder: "username", label: "LinkedIn" },
             { Icon: Globe, value: website, set: setWebsite, placeholder: "https://...", label: "Website" },
-            { Icon: () => <span className="text-sm">💬</span>, value: whatsapp, set: setWhatsapp, placeholder: "+2348012345678", label: "WhatsApp" },
           ] as const).map(({ Icon, value, set, placeholder, label }) => (
             <div key={label} className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/8 flex items-center justify-center shrink-0">
@@ -219,7 +211,6 @@ export function AppearanceTab() {
         </div>
       </div>
 
-      {/* Save */}
       <button onClick={handleSave} disabled={saving}
         className="w-full py-3 rounded-xl text-black text-sm font-black flex items-center justify-center gap-2 transition-all disabled:opacity-50 hover:opacity-90"
         style={{ backgroundColor: themeColor }}>

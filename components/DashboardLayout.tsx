@@ -21,7 +21,8 @@ interface DashboardLayoutProps {
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Space Studio ✦', href: '/dashboard/studio', icon: Layers },
+  { label: 'Space Studio', href: '/dashboard/studio', icon: Layers },
+  { label: 'Settings', href: '/dashboard/settings', icon: Settings },
   { label: 'Knowledge', href: '/dashboard/knowledge', icon: Brain },
   { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
   { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },

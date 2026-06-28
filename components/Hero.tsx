@@ -83,7 +83,11 @@ export function Hero() {
 
   const handleClaim = () => {
     const u = username.trim().toLowerCase();
-    window.location.href = isSignedIn ? '/dashboard?username=' + u : '/sign-up?username=' + u;
+    if (isSignedIn) {
+      window.location.href = '/dashboard';
+    } else {
+      window.location.href = '/sign-up?username=' + u;
+    }
   };
 
   return (

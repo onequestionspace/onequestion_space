@@ -50,7 +50,7 @@ export default function SignInPage() {
       subtitle="Sign in to manage your AI space"
     >
       <div className="flex justify-center w-full">
-        <SignIn
+        <SignIn afterSignInUrl="/dashboard"
           forceRedirectUrl="/dashboard"
           signUpForceRedirectUrl="/dashboard"
           signUpUrl="/sign-up"
