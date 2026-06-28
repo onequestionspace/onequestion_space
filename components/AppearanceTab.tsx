@@ -129,7 +129,7 @@ export function AppearanceTab() {
                 className={"relative rounded-xl border-2 overflow-hidden transition-all " + (isSelected ? "border-primary" : "border-white/8 hover:border-white/20")}>
                 <div className="h-10 w-full relative" style={{ backgroundColor: bg.bg }}>
                   <div className="absolute inset-0 opacity-25" style={{
-                    backgroundImage: "url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E")",
+                    backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E")`,
                     backgroundSize: "100px 100px",
                   }} />
                 </div>
