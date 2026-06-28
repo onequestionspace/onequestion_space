@@ -141,7 +141,7 @@ export default function OnboardingPage() {
               <motion.div className="h-1.5 rounded-full bg-gradient-to-r bg-primary" animate={{ width: setupProgress + '%' }} transition={{ duration: 0.4 }} />
             </div>
             <div className="flex items-center justify-between px-1">
-              <p className="text-xs text-muted-foreground">Setting up your space · {setupIndex + 1} of {SETUP_STEPS.length}</p>
+              <p className="text-xs text-muted-foreground">Step {setupIndex + 1} of {SETUP_STEPS.length}</p>
               <div className="flex gap-1">
                 {SETUP_STEPS.map((_, i) => (
                   <motion.div key={i} animate={{ width: i === setupIndex ? 20 : 6 }} className={'h-1.5 rounded-full ' + (i < setupIndex ? 'bg-primary' : i === setupIndex ? 'bg-gradient-to-r bg-primary' : 'bg-white/10')} />
