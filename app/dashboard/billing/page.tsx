@@ -134,7 +134,7 @@ function BillingContent() {
           <div className='p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm'>{error}</div>
         )}
         {verifyStatus === 'verifying' && (
-          <div className='p-4 rounded-xl bg-primary/10 border border-primary/20 text-sm text-primary flex items-center gap-2'>
+          <div className='p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-sm text-amber-500 flex items-center gap-2'>
             <Loader2 className='w-4 h-4 animate-spin' /> Checking your payment — give me a second...
           </div>
         )}
@@ -173,7 +173,7 @@ function BillingContent() {
           <h3 className='font-semibold text-foreground mb-4'>Plans</h3>
           <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
             {PLANS.map(p => (
-              <div key={p.id} className={'glass-card rounded-2xl p-6 border-2 transition-all ' + (plan === p.id ? 'border-primary' : 'border-border')}>
+              <div key={p.id} className={'glass-card rounded-2xl p-6 border-2 transition-all ' + (plan === p.id ? 'border-amber-500' : 'border-border')}>
                 {p.recommended && (
                   <div className='text-xs font-bold px-2 py-0.5 rounded-full mb-3 inline-block' style={{ backgroundColor: '#f59e0b20', color: '#f59e0b' }}>Recommended</div>
                 )}
@@ -211,7 +211,7 @@ function BillingContent() {
         {/* Buy Credits */}
         <div className='glass-card rounded-2xl p-6 border border-border'>
           <div className='flex items-center gap-2 mb-1'>
-            <Sparkles className='w-4 h-4 text-primary' />
+            <Sparkles className='w-4 h-4 text-amber-500' />
             <h3 className='font-semibold text-foreground'>Buy One Question Credits</h3>
           </div>
           <p className='text-xs text-muted-foreground mb-6'>Run out mid-month? Top up here. Credits never expire — they roll over forever. I priced these at cost.</p>
@@ -221,7 +221,7 @@ function BillingContent() {
               <button
                 key={pack.credits}
                 onClick={() => setCreditAmount(pack.credits)}
-                className={'p-3 rounded-xl border-2 text-center transition-all hover:scale-105 ' + (creditAmount === pack.credits ? 'border-primary bg-primary/5' : 'border-border')}
+                className={'p-3 rounded-xl border-2 text-center transition-all hover:scale-105 ' + (creditAmount === pack.credits ? 'border-amber-500 bg-amber-500/5' : 'border-border')}
               >
                 <p className='text-sm font-bold text-foreground'>{pack.credits}</p>
                 <p className='text-xs text-muted-foreground'>{pack.label}</p>
@@ -248,7 +248,7 @@ function BillingContent() {
             <div className='flex justify-between text-xs text-muted-foreground mt-1'><span>10</span><span>2000</span></div>
           </div>
 
-          <div className='p-4 rounded-xl bg-primary/5 border border-primary/20 mb-4'>
+          <div className='p-4 rounded-xl bg-amber-500/5 border border-amber-500/20 mb-4'>
             <div className='flex items-center justify-between'>
               <div>
                 <p className='text-sm font-bold text-foreground'>{creditAmount} credits</p>

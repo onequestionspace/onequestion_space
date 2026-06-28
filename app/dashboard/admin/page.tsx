@@ -104,21 +104,21 @@ export default function AdminPage() {
         <div className='flex flex-wrap gap-2'>
           {tabs.map(t => (
             <button key={t.id} onClick={() => setTab(t.id as any)}
-              className={'flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ' + (tab === t.id ? 'bg-primary text-white' : 'bg-white/5 text-muted-foreground hover:text-white')}
+              className={'flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ' + (tab === t.id ? 'bg-amber-500 text-white' : 'bg-white/5 text-muted-foreground hover:text-white')}
             >
               <t.icon className='w-3.5 h-3.5' /> {t.label}
             </button>
           ))}
         </div>
 
-        {msg && <div className='px-4 py-3 rounded-xl bg-primary/10 border border-primary/20 text-primary text-sm'>{msg}</div>}
+        {msg && <div className='px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-sm'>{msg}</div>}
 
         {/* Overview */}
         {tab === 'overview' && (
           <div className='space-y-4'>
             <div className='grid grid-cols-2 md:grid-cols-4 gap-3'>
               {[
-                { label: 'Total Spaces', value: profiles?.length ?? 0, color: '#a855f7' },
+                { label: 'Total Spaces', value: profiles?.length ?? 0, color: '#f59e0b' },
                 { label: 'Founding Members', value: founders?.length ?? 0, color: '#f59e0b' },
                 { label: 'Early Adopters', value: earlyAdopters?.length ?? 0, color: '#06b6d4' },
                 { label: 'Waitlist', value: waitlist?.length ?? 0, color: '#22c55e' },
@@ -130,12 +130,12 @@ export default function AdminPage() {
               ))}
             </div>
             <div className='glass-card rounded-2xl p-6 border border-border'>
-              <h3 className='font-bold text-white mb-4 flex items-center gap-2'><CreditCard className='w-4 h-4 text-primary' /> Add Credits to User</h3>
+              <h3 className='font-bold text-white mb-4 flex items-center gap-2'><CreditCard className='w-4 h-4 text-amber-500' /> Add Credits to User</h3>
               <div className='space-y-3'>
-                <input value={creditForm.userId} onChange={e => setCreditForm(f => ({ ...f, userId: e.target.value }))} placeholder='Clerk User ID' className='w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary/50' />
+                <input value={creditForm.userId} onChange={e => setCreditForm(f => ({ ...f, userId: e.target.value }))} placeholder='Clerk User ID' className='w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-muted-foreground focus:outline-none focus:border-amber-500/50' />
                 <div className='flex gap-3'>
-                  <input type='number' value={creditForm.credits} onChange={e => setCreditForm(f => ({ ...f, credits: parseInt(e.target.value) || 0 }))} className='flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-primary/50' />
-                  <button onClick={handleAddCredits} disabled={addingCredits} className='px-6 py-2.5 rounded-xl bg-primary text-white text-sm font-bold disabled:opacity-50'>
+                  <input type='number' value={creditForm.credits} onChange={e => setCreditForm(f => ({ ...f, credits: parseInt(e.target.value) || 0 }))} className='flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-amber-500/50' />
+                  <button onClick={handleAddCredits} disabled={addingCredits} className='px-6 py-2.5 rounded-xl bg-amber-500 text-white text-sm font-bold disabled:opacity-50'>
                     {addingCredits ? 'Adding...' : 'Add Credits'}
                   </button>
                 </div>
@@ -227,7 +227,7 @@ export default function AdminPage() {
                   <div>
                     <p className='text-white text-sm font-medium'>{w.name || 'Anonymous'}</p>
                     <p className='text-muted-foreground text-xs'>{w.email}</p>
-                    {w.username && <p className='text-primary text-xs'>@{w.username}</p>}
+                    {w.username && <p className='text-amber-500 text-xs'>@{w.username}</p>}
                   </div>
                   <p className='text-xs text-muted-foreground'>{new Date(w.createdAt).toLocaleDateString()}</p>
                 </div>
@@ -239,7 +239,7 @@ export default function AdminPage() {
         {/* Grant badge */}
         {tab === 'grant' && (
           <div className='glass-card rounded-2xl p-6 border border-border'>
-            <h2 className='text-white font-bold mb-5 flex items-center gap-2'><Plus className='w-4 h-4 text-primary' /> Grant Badge</h2>
+            <h2 className='text-white font-bold mb-5 flex items-center gap-2'><Plus className='w-4 h-4 text-amber-500' /> Grant Badge</h2>
             <div className='space-y-3'>
               <div className='grid grid-cols-2 gap-3'>
                 <button onClick={() => setGrantForm(f => ({ ...f, type: 'founding' }))} className={'py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ' + (grantForm.type === 'founding' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' : 'bg-white/5 text-muted-foreground')}>
@@ -249,11 +249,11 @@ export default function AdminPage() {
                   <Zap className='w-3.5 h-3.5' /> Early Adopter
                 </button>
               </div>
-              <input value={grantForm.userId} onChange={e => setGrantForm(f => ({ ...f, userId: e.target.value }))} placeholder='Clerk User ID (user_xxx)' className='w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary/50' />
-              <input value={grantForm.username} onChange={e => setGrantForm(f => ({ ...f, username: e.target.value }))} placeholder='Username' className='w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary/50' />
-              <input value={grantForm.displayName} onChange={e => setGrantForm(f => ({ ...f, displayName: e.target.value }))} placeholder='Display Name' className='w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary/50' />
-              {msg && <p className='text-xs text-center text-primary'>{msg}</p>}
-              <button onClick={handleGrant} disabled={granting} className='w-full py-3 rounded-xl bg-primary text-white text-sm font-bold disabled:opacity-50 hover:opacity-90 transition-opacity'>
+              <input value={grantForm.userId} onChange={e => setGrantForm(f => ({ ...f, userId: e.target.value }))} placeholder='Clerk User ID (user_xxx)' className='w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-muted-foreground focus:outline-none focus:border-amber-500/50' />
+              <input value={grantForm.username} onChange={e => setGrantForm(f => ({ ...f, username: e.target.value }))} placeholder='Username' className='w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-muted-foreground focus:outline-none focus:border-amber-500/50' />
+              <input value={grantForm.displayName} onChange={e => setGrantForm(f => ({ ...f, displayName: e.target.value }))} placeholder='Display Name' className='w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-muted-foreground focus:outline-none focus:border-amber-500/50' />
+              {msg && <p className='text-xs text-center text-amber-500'>{msg}</p>}
+              <button onClick={handleGrant} disabled={granting} className='w-full py-3 rounded-xl bg-amber-500 text-white text-sm font-bold disabled:opacity-50 hover:opacity-90 transition-opacity'>
                 {granting ? 'Granting...' : 'Grant Badge'}
               </button>
             </div>

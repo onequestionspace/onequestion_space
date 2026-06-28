@@ -56,7 +56,7 @@ export default function BlogsDashboard() {
           </div>
           <button
             onClick={() => setIsCreating(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-white text-sm font-medium hover:opacity-90 transition-opacity"
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500 text-white text-sm font-medium hover:opacity-90 transition-opacity"
           >
             <Plus className="w-4 h-4" />
             New Post
@@ -64,7 +64,7 @@ export default function BlogsDashboard() {
         </div>
 
         {isCreating && (
-          <div className="glass rounded-2xl p-5 border border-primary/30 mb-6">
+          <div className="glass rounded-2xl p-5 border border-amber-500/30 mb-6">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-white font-semibold">New Post</h2>
               <button onClick={() => setIsCreating(false)}><X className="w-4 h-4 text-muted-foreground" /></button>
@@ -74,32 +74,32 @@ export default function BlogsDashboard() {
                 value={form.title}
                 onChange={e => setForm(f => ({ ...f, title: e.target.value, slug: slugify(e.target.value) }))}
                 placeholder="Title"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-muted-foreground focus:outline-none focus:border-amber-500/50"
               />
               <input
                 value={form.slug}
                 onChange={e => setForm(f => ({ ...f, slug: e.target.value }))}
                 placeholder="slug (auto-generated)"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-muted-foreground focus:outline-none focus:border-amber-500/50"
               />
               <input
                 value={form.excerpt}
                 onChange={e => setForm(f => ({ ...f, excerpt: e.target.value }))}
                 placeholder="Short excerpt shown in blog list"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-muted-foreground focus:outline-none focus:border-amber-500/50"
               />
               <textarea
                 value={form.content}
                 onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
                 placeholder="Write your post here. Separate paragraphs with blank lines."
                 rows={10}
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary/50 resize-none"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-muted-foreground focus:outline-none focus:border-amber-500/50 resize-none"
               />
               <input
                 value={form.tags}
                 onChange={e => setForm(f => ({ ...f, tags: e.target.value }))}
                 placeholder="Tags: bootstrapping, AI, building in public"
-                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
+                className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm placeholder:text-muted-foreground focus:outline-none focus:border-amber-500/50"
               />
               <div className="flex items-center justify-between pt-1">
                 <label className="flex items-center gap-2 text-sm text-muted-foreground cursor-pointer">
@@ -107,14 +107,14 @@ export default function BlogsDashboard() {
                     type="checkbox"
                     checked={form.published}
                     onChange={e => setForm(f => ({ ...f, published: e.target.checked }))}
-                    className="accent-primary"
+                    className="accent-amber-500"
                   />
                   Publish immediately
                 </label>
                 <button
                   onClick={handleCreate}
                   disabled={saving || !form.title || !form.content}
-                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-white text-sm font-medium disabled:opacity-50 hover:opacity-90 transition-opacity"
+                  className="flex items-center gap-2 px-4 py-2 rounded-full bg-amber-500 text-white text-sm font-medium disabled:opacity-50 hover:opacity-90 transition-opacity"
                 >
                   <Save className="w-4 h-4" />
                   {saving ? 'Saving...' : 'Save Post'}

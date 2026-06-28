@@ -1,64 +1,52 @@
 const fs = require('fs');
-let c = fs.readFileSync('app/(space)/[username]/page.tsx', 'utf8');
 
-c = c.replace(
-  `      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 25000);
-      const res = await fetch('/api/ask', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question, username, visitorEmail: visitorEmail || undefined }),
-        signal: controller.signal,
-      });
-      clearTimeout(timeout);
-      const data = await res.json();
-      setResponseTime(Math.round((Date.now() - t0) / 100) / 10);
-      const fullResponse = stripMarkdown(data?.data?.answer || data?.answer || 'Give me a moment — try asking again.');
-      let current = '';
-      const words = fullResponse.split(' ');
-      for (let i = 0; i < words.length; i++) {
-        current += words[i] + ' ';
-        setAiResponse(current);
-        await new Promise(r => setTimeout(r, 35 + Math.random() * 25));
-      }`,
-  `      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30000);
+const files = [
+  'app/dashboard/analytics/page.tsx',
+  'app/dashboard/billing/page.tsx',
+  'app/dashboard/knowledge/page.tsx',
+  'app/dashboard/page.tsx',
+  'app/dashboard/settings/page.tsx',
+  'app/dashboard/train/page.tsx',
+  'app/dashboard/blogs/page.tsx',
+  'app/dashboard/admin/page.tsx',
+  'app/dashboard/studio/page.tsx',
+  'components/DashboardLayout.tsx',
+  'components/DashboardAI.tsx',
+];
 
-      const res = await fetch('/api/stream', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question, username, visitorEmail: visitorEmail || undefined }),
-        signal: controller.signal,
-      });
-      clearTimeout(timeout);
+const replacements = [
+  [/#a855f7/g, '#f59e0b'],
+  [/from-primary to-pink/g, 'from-amber-500 to-orange-400'],
+  [/from-primary\/(\d+)/g, 'from-amber-500/$1'],
+  [/to-pink\/(\d+)/g, 'to-orange-400/$1'],
+  [/bg-primary\/(\d+)/g, 'bg-amber-500/$1'],
+  [/bg-primary(?![/-])/g, 'bg-amber-500'],
+  [/text-primary/g, 'text-amber-500'],
+  [/border-primary\/(\d+)/g, 'border-amber-500/$1'],
+  [/border-primary(?![/-])/g, 'border-amber-500'],
+  [/ring-primary\/(\d+)/g, 'ring-amber-500/$1'],
+  [/shadow-glow-primary/g, 'shadow-amber-500/20'],
+  [/hover:shadow-glow-primary/g, 'hover:shadow-amber-500/20'],
+  [/accent-primary/g, 'accent-amber-500'],
+  [/fill-primary/g, 'fill-amber-500'],
+  [/stroke-primary/g, 'stroke-amber-500'],
+];
 
-      if (res.status === 429) {
-        setAiResponse('Monthly AI answer limit reached. Upgrade your plan to continue.');
-        setIsTyping(false);
-        return;
-      }
-
-      if (!res.ok || !res.body) {
-        setAiResponse('Something went wrong. Please try again.');
-        setIsTyping(false);
-        return;
-      }
-
-      // Stream tokens as they arrive
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let full = '';
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        full += chunk;
-        setAiResponse(stripMarkdown(full));
-      }
-
-      setResponseTime(Math.round((Date.now() - t0) / 100) / 10);`
-);
-
-fs.writeFileSync('app/(space)/[username]/page.tsx', c);
-console.log('done');
+let totalChanges = 0;
+for (const file of files) {
+  try {
+    let c = fs.readFileSync(file, 'utf8');
+    const original = c;
+    for (const [from, to] of replacements) {
+      c = c.replace(from, to);
+    }
+    if (c !== original) {
+      fs.writeFileSync(file, c);
+      totalChanges++;
+      console.log('updated:', file);
+    }
+  } catch (e) {
+    console.warn('skip:', file, e.message);
+  }
+}
+console.log('done —', totalChanges, 'files updated');

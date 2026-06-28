@@ -107,7 +107,7 @@ async function streamGroq(prompt: string): Promise<ReadableStream<Uint8Array> | 
 
 export async function POST(request: NextRequest) {
   try {
-    const { question, username } = await request.json();
+    const { question, username, visitorEmail } = await request.json();
     if (!question?.trim() || !username?.trim()) return new Response('Missing params', { status: 400 });
 
     const profile = await convex.query(api.profiles.byUsername, { username });
@@ -139,7 +139,7 @@ export async function POST(request: NextRequest) {
     if (!stream) stream = await streamGroq(prompt);
     if (!stream) return new Response('Could not generate answer right now.', { headers: { 'Content-Type': 'text/plain' } });
 
-    convex.mutation(api.questions.createQuestion, { profileId: profile._id, question, isAnswered: true, createdAt: Date.now() }).catch(() => {});
+    convex.mutation(api.questions.createQuestion, { profileId: profile._id, question, visitorId: visitorEmail || 'anonymous', isAnswered: true, createdAt: Date.now() }).catch(() => {});
     convex.mutation(api.analytics.incrementQuestionCount, { profileId: profile._id }).catch(() => {});
     convex.mutation(api.analytics.incrementAnswerCount, { profileId: profile._id }).catch(() => {});
     if (!isAdmin) convex.mutation(api.subscriptions.incrementMessagesUsed, { userId: profile.userId }).catch(() => {});

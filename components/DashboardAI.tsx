@@ -194,7 +194,7 @@ export function DashboardAI() {
     <>
       <button
         onClick={() => setOpen(o => !o)}
-        className='fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-gradient-to-br bg-primary text-white flex items-center justify-center shadow-lg hover:scale-110 transition-all'
+        className='fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-gradient-to-br bg-amber-500 text-white flex items-center justify-center shadow-lg hover:scale-110 transition-all'
         title='AI Assistant'
       >
         {open ? <X className='w-5 h-5' /> : <Bot className='w-5 h-5' />}
@@ -205,26 +205,26 @@ export function DashboardAI() {
 
           {/* Header */}
           <div className='flex items-center gap-2 px-4 py-3 border-b border-white/10 bg-black/40'>
-            <div className='w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center'>
-              <Sparkles className='w-3 h-3 text-primary' />
+            <div className='w-6 h-6 rounded-full bg-amber-500/20 flex items-center justify-center'>
+              <Sparkles className='w-3 h-3 text-amber-500' />
             </div>
             <span className='text-sm font-semibold text-white'>AI Assistant</span>
             <div className='ml-auto flex gap-1'>
               <button
                 onClick={() => startMode('assistant')}
-                className={'text-xs px-2 py-0.5 rounded-lg transition-all ' + (mode === 'assistant' ? 'bg-primary text-white' : 'text-zinc-400 hover:text-white')}
+                className={'text-xs px-2 py-0.5 rounded-lg transition-all ' + (mode === 'assistant' ? 'bg-amber-500 text-white' : 'text-zinc-400 hover:text-white')}
               >
                 Chat
               </button>
               <button
                 onClick={() => startMode('interview')}
-                className={'text-xs px-2 py-0.5 rounded-lg transition-all flex items-center gap-1 ' + (mode === 'interview' ? 'bg-primary text-white' : 'text-zinc-400 hover:text-white')}
+                className={'text-xs px-2 py-0.5 rounded-lg transition-all flex items-center gap-1 ' + (mode === 'interview' ? 'bg-amber-500 text-white' : 'text-zinc-400 hover:text-white')}
               >
                 <Brain className='w-3 h-3' /> Train
               </button>
               <button
                 onClick={() => startMode('brain')}
-                className={'text-xs px-2 py-0.5 rounded-lg transition-all ' + (mode === 'brain' ? 'bg-primary text-white' : 'text-zinc-400 hover:text-white')}
+                className={'text-xs px-2 py-0.5 rounded-lg transition-all ' + (mode === 'brain' ? 'bg-amber-500 text-white' : 'text-zinc-400 hover:text-white')}
               >
                 🧠
               </button>
@@ -235,7 +235,7 @@ export function DashboardAI() {
           <div className='flex-1 overflow-y-auto p-3 space-y-3'>
             {messages.map((m, i) => (
               <div key={i} className={'flex ' + (m.role === 'user' ? 'justify-end' : 'justify-start')}>
-                <div className={'max-w-[85%] px-3 py-2 rounded-xl text-xs leading-relaxed ' + (m.role === 'user' ? 'bg-primary text-white' : 'border border-white/10 text-white')} style={m.role === 'assistant' ? { backgroundColor: '#1a1a1a' } : {}}>
+                <div className={'max-w-[85%] px-3 py-2 rounded-xl text-xs leading-relaxed ' + (m.role === 'user' ? 'bg-amber-500 text-white' : 'border border-white/10 text-white')} style={m.role === 'assistant' ? { backgroundColor: '#1a1a1a' } : {}}>
                   {m.content}
                 </div>
               </div>
@@ -243,7 +243,7 @@ export function DashboardAI() {
             {loading && (
               <div className='flex justify-start'>
                 <div className='px-3 py-2 rounded-xl border border-white/10 flex gap-1' style={{ backgroundColor: '#1a1a1a' }}>
-                  {[0,1,2].map(i => <div key={i} className='w-1.5 h-1.5 rounded-full bg-primary animate-bounce' style={{ animationDelay: i*150 + 'ms' }} />)}
+                  {[0,1,2].map(i => <div key={i} className='w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce' style={{ animationDelay: i*150 + 'ms' }} />)}
                 </div>
               </div>
             )}
@@ -256,7 +256,7 @@ export function DashboardAI() {
               <button
                 onClick={saveToKnowledge}
                 disabled={saving}
-                className='w-full py-2 rounded-xl bg-gradient-to-r bg-primary text-white text-xs font-bold flex items-center justify-center gap-2'
+                className='w-full py-2 rounded-xl bg-gradient-to-r bg-amber-500 text-white text-xs font-bold flex items-center justify-center gap-2'
               >
                 {saving ? <Loader2 className='w-3 h-3 animate-spin' /> : <Brain className='w-3 h-3' />}
                 {saving ? 'Saving...' : 'Save to Knowledge Base'}
@@ -280,7 +280,7 @@ export function DashboardAI() {
               placeholder={mode === 'interview' ? 'Answer the question...' : mode === 'brain' ? 'Dump a thought, idea, or note...' : 'Ask about your space...'}
               className='flex-1 bg-transparent text-xs text-white placeholder:text-zinc-500 focus:outline-none'
             />
-            <button onClick={send} disabled={loading || !input.trim()} className='text-primary hover:opacity-70 transition-opacity disabled:opacity-30'>
+            <button onClick={send} disabled={loading || !input.trim()} className='text-amber-500 hover:opacity-70 transition-opacity disabled:opacity-30'>
               {loading ? <Loader2 className='w-3.5 h-3.5 animate-spin' /> : <Send className='w-3.5 h-3.5' />}
             </button>
           </div>

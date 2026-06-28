@@ -102,10 +102,10 @@ export default function KnowledgePage() {
   };
 
   const fileTypeIcon = (type?: string) => {
-    if (!type) return <FileText className="w-5 h-5 text-primary" />;
+    if (!type) return <FileText className="w-5 h-5 text-amber-500" />;
     if (type.includes('pdf')) return <FileText className="w-5 h-5 text-red-400" />;
     if (type.includes('image')) return <FileText className="w-5 h-5 text-blue-400" />;
-    return <FileText className="w-5 h-5 text-primary" />;
+    return <FileText className="w-5 h-5 text-amber-500" />;
   };
 
   return (
@@ -114,14 +114,14 @@ export default function KnowledgePage() {
       {/* Header row */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <Brain className="w-5 h-5 text-primary" />
+          <Brain className="w-5 h-5 text-amber-500" />
           <span className="text-sm text-muted-foreground">
             {knowledge?.length ?? 0} item{knowledge?.length !== 1 ? 's' : ''} uploaded
           </span>
         </div>
         <button
           onClick={() => { setIsAdding(true); setUploadError(''); }}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r bg-primary text-white text-sm font-bold hover:shadow-glow-primary transition-all"
+          className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r bg-amber-500 text-white text-sm font-bold hover:shadow-amber-500/20 transition-all"
         >
           <Plus className="w-4 h-4" />
           Add Knowledge
@@ -138,7 +138,7 @@ export default function KnowledgePage() {
 
       {/* Add form */}
       {isAdding && (
-        <div className="glass-card rounded-2xl p-6 border border-primary/20 mb-6">
+        <div className="glass-card rounded-2xl p-6 border border-amber-500/20 mb-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold text-foreground">Add Knowledge</h3>
             <button onClick={() => { setIsAdding(false); setUploadError(''); setSelectedFile(null); }} className="text-muted-foreground hover:text-foreground">
@@ -150,13 +150,13 @@ export default function KnowledgePage() {
           <div className="flex gap-2 mb-4">
             <button
               onClick={() => setActiveTab('text')}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'text' ? 'bg-primary text-white' : 'bg-card text-muted-foreground border border-border hover:text-foreground'}`}
+              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'text' ? 'bg-amber-500 text-white' : 'bg-card text-muted-foreground border border-border hover:text-foreground'}`}
             >
               Text / URL
             </button>
             <button
               onClick={() => setActiveTab('file')}
-              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'file' ? 'bg-primary text-white' : 'bg-card text-muted-foreground border border-border hover:text-foreground'}`}
+              className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${activeTab === 'file' ? 'bg-amber-500 text-white' : 'bg-card text-muted-foreground border border-border hover:text-foreground'}`}
             >
               Upload File
             </button>
@@ -170,7 +170,7 @@ export default function KnowledgePage() {
                 value={form.title}
                 onChange={e => setForm(f => ({ ...f, title: e.target.value }))}
                 placeholder="e.g. My Background, Product FAQ, Blog Post"
-                className="w-full px-4 py-2.5 rounded-xl bg-card border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                className="w-full px-4 py-2.5 rounded-xl bg-card border border-border text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50"
               />
             </div>
 
@@ -182,7 +182,7 @@ export default function KnowledgePage() {
                   onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
                   placeholder="Paste your content here — bio, FAQ, blog post, anything your AI should know..."
                   rows={6}
-                  className="w-full px-4 py-2.5 rounded-xl bg-card border border-border text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 resize-none"
+                  className="w-full px-4 py-2.5 rounded-xl bg-card border border-border text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50 resize-none"
                 />
               </div>
             ) : (
@@ -190,11 +190,11 @@ export default function KnowledgePage() {
                 <label className="text-sm font-medium text-foreground block mb-1.5">File</label>
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer hover:border-primary/50 hover:bg-primary/5 transition-all"
+                  className="w-full border-2 border-dashed border-border rounded-xl p-8 text-center cursor-pointer hover:border-amber-500/50 hover:bg-amber-500/5 transition-all"
                 >
                   {selectedFile ? (
                     <div className="flex items-center justify-center gap-2">
-                      <FileText className="w-5 h-5 text-primary" />
+                      <FileText className="w-5 h-5 text-amber-500" />
                       <span className="text-sm text-foreground">{selectedFile.name}</span>
                       <span className="text-xs text-muted-foreground">({(selectedFile.size / 1024).toFixed(1)} KB)</span>
                     </div>
@@ -226,7 +226,7 @@ export default function KnowledgePage() {
             <button
               onClick={activeTab === 'text' ? handleTextSubmit : handleFileSubmit}
               disabled={uploading || !form.title.trim() || (activeTab === 'text' ? !form.content.trim() : !selectedFile)}
-              className="w-full py-3 rounded-xl bg-primary text-black font-bold text-sm flex items-center justify-center gap-2 hover:shadow-glow-primary transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full py-3 rounded-xl bg-amber-500 text-black font-bold text-sm flex items-center justify-center gap-2 hover:shadow-amber-500/20 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
               {uploading ? 'Saving...' : 'Save to Knowledge Base'}
@@ -257,7 +257,7 @@ export default function KnowledgePage() {
                   title: '1. Start with your bio',
                   desc: 'Who you are, what you do, your background, skills, and experience. This is the foundation.',
                   example: 'Example: "I am a 19-year-old CS student from Nigeria. I build startups from my phone using Termux..."',
-                  color: '#a855f7',
+                  color: '#f59e0b',
                 },
                 {
                   title: '2. Add an FAQ',
@@ -300,8 +300,8 @@ export default function KnowledgePage() {
                 </div>
               ))}
             </div>
-            <div className="p-4 rounded-xl bg-primary/5 border border-primary/20">
-              <p className="text-xs text-primary font-semibold mb-1">Pro tip</p>
+            <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20">
+              <p className="text-xs text-amber-500 font-semibold mb-1">Pro tip</p>
               <p className="text-xs text-muted-foreground leading-relaxed">Upload separate items for each topic — do not dump everything in one block. Smaller focused items = more accurate AI matching. Aim for 5-10 items covering different areas of your life and work.</p>
             </div>
           </div>
@@ -313,7 +313,7 @@ export default function KnowledgePage() {
         <div className="space-y-3">
           {knowledge.map((item) => (
             <div key={item._id} className="glass-card rounded-2xl p-5 border border-border flex items-start gap-4">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
                 {fileTypeIcon(item.fileType)}
               </div>
               <div className="flex-1 min-w-0">
@@ -341,7 +341,7 @@ export default function KnowledgePage() {
           </p>
           <button
             onClick={() => setIsAdding(true)}
-            className="px-6 py-2.5 rounded-xl bg-gradient-to-r bg-primary text-white text-sm font-bold hover:shadow-glow-primary transition-all"
+            className="px-6 py-2.5 rounded-xl bg-gradient-to-r bg-amber-500 text-white text-sm font-bold hover:shadow-amber-500/20 transition-all"
           >
             Add your first knowledge
           </button>

@@ -44,7 +44,7 @@ export default function AnalyticsPage() {
   const responseRate = totalQ > 0 ? Math.round((totalA / totalQ) * 100) : 0;
 
   const stats = [
-    { label: 'Total Questions', value: totalQ, icon: MessageSquare, color: '#a855f7' },
+    { label: 'Total Questions', value: totalQ, icon: MessageSquare, color: '#f59e0b' },
     { label: 'Total Visitors', value: totalV, icon: Users, color: '#3b82f6' },
     { label: 'AI Answers', value: totalA, icon: Brain, color: '#22c55e' },
     { label: 'Response Rate', value: responseRate + '%', icon: TrendingUp, color: '#f97316' },
@@ -71,7 +71,7 @@ export default function AnalyticsPage() {
 
   // Pie chart data
   const pieData = [
-    { name: 'Answered', value: totalA, color: '#a855f7' },
+    { name: 'Answered', value: totalA, color: '#f59e0b' },
     { name: 'Pending', value: Math.max(0, totalQ - totalA), color: '#27272a' },
   ];
 
@@ -109,7 +109,7 @@ export default function AnalyticsPage() {
                   <XAxis dataKey='date' tick={{ fill: '#71717a', fontSize: 11 }} axisLine={false} tickLine={false} />
                   <YAxis hide />
                   <Tooltip content={<CustomTooltip />} cursor={{ fill: '#ffffff08' }} />
-                  <Bar dataKey='questions' fill='#a855f7' radius={[6, 6, 0, 0]} />
+                  <Bar dataKey='questions' fill='#f59e0b' radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -144,7 +144,7 @@ export default function AnalyticsPage() {
         {/* All questions list */}
         <div className='glass-card rounded-2xl p-6 border border-border'>
           <h3 className='font-semibold text-foreground mb-4 flex items-center gap-2'>
-            <MessageSquare className='w-4 h-4 text-primary' /> All Questions
+            <MessageSquare className='w-4 h-4 text-amber-500' /> All Questions
             <span className='text-xs text-muted-foreground font-normal ml-1'>({questions?.length || 0} total)</span>
           </h3>
           {!questions || questions.length === 0 ? (

@@ -103,11 +103,11 @@ export default function DashboardPage() {
 
         {/* Header row */}
         <div className='flex items-center gap-3'>
-          <button onClick={copyProfileLink} className='flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card border border-border text-xs text-muted-foreground hover:text-primary transition-colors'>
+          <button onClick={copyProfileLink} className='flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card border border-border text-xs text-muted-foreground hover:text-amber-500 transition-colors'>
             {copied ? <CheckCircle2 className='w-3.5 h-3.5 text-green-500' /> : <Copy className='w-3.5 h-3.5' />}
             {copied ? 'Copied!' : 'Copy link'}
           </button>
-          <Link href={'/' + profile?.username} target='_blank' className='flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card border border-border text-xs text-muted-foreground hover:text-primary transition-colors'>
+          <Link href={'/' + profile?.username} target='_blank' className='flex items-center gap-2 px-3 py-1.5 rounded-lg bg-card border border-border text-xs text-muted-foreground hover:text-amber-500 transition-colors'>
             <ExternalLink className='w-3.5 h-3.5' /> View Space
           </Link>
         </div>
@@ -131,12 +131,12 @@ export default function DashboardPage() {
                   <p className='text-sm font-semibold text-foreground'>Your space is {score}% complete</p>
                   <p className='text-xs text-muted-foreground'>A complete space gets more questions. Takes 2 minutes.</p>
                 </div>
-                <Link href='/dashboard/studio' className='text-xs font-bold text-white px-3 py-1.5 rounded-lg bg-gradient-to-r bg-primary hover:opacity-90 transition-all'>
+                <Link href='/dashboard/studio' className='text-xs font-bold text-white px-3 py-1.5 rounded-lg bg-gradient-to-r bg-amber-500 hover:opacity-90 transition-all'>
                   Open Studio →
                 </Link>
               </div>
               <div className='w-full h-1.5 bg-card rounded-full overflow-hidden'>
-                <div className='h-full rounded-full bg-gradient-to-r bg-primary transition-all' style={{ width: score + `%` }} />
+                <div className='h-full rounded-full bg-gradient-to-r bg-amber-500 transition-all' style={{ width: score + `%` }} />
               </div>
             </div>
           );
@@ -145,14 +145,14 @@ export default function DashboardPage() {
 
         {/* Onboarding Banner */}
         {isNewUser && (
-          <div className='glass-card rounded-2xl p-6 border border-primary/30 bg-primary/5'>
+          <div className='glass-card rounded-2xl p-6 border border-amber-500/30 bg-amber-500/5'>
             <div className='flex items-start gap-4'>
-              <AlertCircle className='w-6 h-6 text-primary shrink-0 mt-0.5' />
+              <AlertCircle className='w-6 h-6 text-amber-500 shrink-0 mt-0.5' />
               <div>
                 <h3 className='text-foreground font-semibold mb-1'>Your AI is waiting to learn from you</h3>
                 <p className='text-muted-foreground text-sm mb-4'>Right now if someone visits your space, your AI has nothing to say. Upload anything — your bio, what you do, FAQs, projects. The more you give it, the more it sounds like you.</p>
                 <div className='flex flex-wrap gap-3'>
-                  <Link href='/dashboard/knowledge' className='px-4 py-2 rounded-xl bg-gradient-to-r bg-primary text-white text-sm font-medium'>Upload Knowledge</Link>
+                  <Link href='/dashboard/knowledge' className='px-4 py-2 rounded-xl bg-gradient-to-r bg-amber-500 text-white text-sm font-medium'>Upload Knowledge</Link>
                   <Link href='/dashboard/settings' className='px-4 py-2 rounded-xl bg-card border border-border text-foreground text-sm font-medium'>Edit Profile</Link>
                 </div>
               </div>
@@ -176,12 +176,12 @@ export default function DashboardPage() {
         {/* Streak card */}
         {knowledgeCount && knowledgeCount > 0 && (
           <div className='glass-card rounded-2xl p-5 border border-border flex items-center gap-4'>
-            <div className='w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-xl shrink-0'>🔥</div>
+            <div className='w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-xl shrink-0'>🔥</div>
             <div>
               <p className='text-sm font-bold text-foreground'>The more you teach it, the better it gets</p>
               <p className='text-xs text-muted-foreground'>You have {knowledgeCount} knowledge item{knowledgeCount === 1 ? '' : 's'} — the more you add, the smarter your AI gets.</p>
             </div>
-            <Link href='/dashboard/knowledge' className='ml-auto text-xs font-bold text-primary hover:text-primary/80 transition-colors shrink-0'>Add more →</Link>
+            <Link href='/dashboard/knowledge' className='ml-auto text-xs font-bold text-amber-500 hover:text-amber-500/80 transition-colors shrink-0'>Add more →</Link>
           </div>
         )}
 
@@ -196,7 +196,7 @@ export default function DashboardPage() {
             </div>
             <p className='text-4xl font-bold text-foreground mb-2'>{responseRate}%</p>
             <div className='w-full h-2 bg-card rounded-full overflow-hidden'>
-              <div className='h-full rounded-full bg-gradient-to-r bg-primary transition-all' style={{ width: responseRate + '%' }} />
+              <div className='h-full rounded-full bg-gradient-to-r bg-amber-500 transition-all' style={{ width: responseRate + '%' }} />
             </div>
             <p className='text-xs text-muted-foreground mt-2'>{analytics?.totalAnswers ?? 0} of {analytics?.totalQuestions ?? 0} questions answered</p>
           </div>
@@ -205,7 +205,7 @@ export default function DashboardPage() {
           <div className='glass-card rounded-2xl p-6 border border-border'>
             <div className='flex items-center justify-between mb-4'>
               <h3 className='font-semibold text-foreground'>AI Usage</h3>
-              <Link href='/dashboard/billing' className='text-xs text-primary hover:underline'>Upgrade</Link>
+              <Link href='/dashboard/billing' className='text-xs text-amber-500 hover:underline'>Upgrade</Link>
             </div>
             <p className='text-4xl font-bold text-foreground mb-2'>{messagesUsed}<span className='text-lg text-muted-foreground font-normal'>/{messagesLimit}</span></p>
             <div className='w-full h-2 bg-card rounded-full overflow-hidden'>
@@ -221,8 +221,8 @@ export default function DashboardPage() {
           {/* Recent Questions */}
           <div className='glass-card rounded-2xl p-6 border border-border'>
             <div className='flex items-center justify-between mb-6'>
-              <h2 className='font-semibold text-foreground flex items-center gap-2'><MessageSquare className='w-4 h-4 text-primary' /> Recent Questions</h2>
-              <Link href='/dashboard/analytics' className='text-xs text-primary hover:underline flex items-center gap-1'>View all <ChevronRight className='w-3 h-3' /></Link>
+              <h2 className='font-semibold text-foreground flex items-center gap-2'><MessageSquare className='w-4 h-4 text-amber-500' /> Recent Questions</h2>
+              <Link href='/dashboard/analytics' className='text-xs text-amber-500 hover:underline flex items-center gap-1'>View all <ChevronRight className='w-3 h-3' /></Link>
             </div>
             {recentQuestions && recentQuestions.length > 0 ? (
               <div className='space-y-3'>
@@ -251,23 +251,23 @@ export default function DashboardPage() {
           {/* Knowledge Base */}
           <div className='glass-card rounded-2xl p-6 border border-border'>
             <div className='flex items-center justify-between mb-6'>
-              <h2 className='font-semibold text-foreground flex items-center gap-2'><BookOpen className='w-4 h-4 text-primary' /> Knowledge Base</h2>
-              <Link href='/dashboard/knowledge' className='text-xs text-primary hover:underline flex items-center gap-1'>Manage <ChevronRight className='w-3 h-3' /></Link>
+              <h2 className='font-semibold text-foreground flex items-center gap-2'><BookOpen className='w-4 h-4 text-amber-500' /> Knowledge Base</h2>
+              <Link href='/dashboard/knowledge' className='text-xs text-amber-500 hover:underline flex items-center gap-1'>Manage <ChevronRight className='w-3 h-3' /></Link>
             </div>
             {knowledgeCount && knowledgeCount > 0 ? (
               <div className='text-center py-6'>
-                <div className='w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3'>
-                  <Brain className='w-7 h-7 text-primary' />
+                <div className='w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center mx-auto mb-3'>
+                  <Brain className='w-7 h-7 text-amber-500' />
                 </div>
                 <p className='text-3xl font-bold text-foreground mb-1'>{knowledgeCount}</p>
                 <p className='text-sm text-muted-foreground mb-4'>knowledge items uploaded</p>
-                <Link href='/dashboard/knowledge' className='text-xs text-primary hover:underline'>View and manage all items</Link>
+                <Link href='/dashboard/knowledge' className='text-xs text-amber-500 hover:underline'>View and manage all items</Link>
               </div>
             ) : (
               <div className='text-center py-10'>
                 <Brain className='w-10 h-10 text-muted-foreground/20 mx-auto mb-3' />
                 <p className='text-sm text-muted-foreground'>Your AI has nothing to work with yet</p>
-                <Link href='/dashboard/knowledge' className='text-xs text-primary hover:underline mt-1 block'>Upload anything — a bio, your FAQs, what you do. Start there.</Link>
+                <Link href='/dashboard/knowledge' className='text-xs text-amber-500 hover:underline mt-1 block'>Upload anything — a bio, your FAQs, what you do. Start there.</Link>
               </div>
             )}
           </div>

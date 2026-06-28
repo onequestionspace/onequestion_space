@@ -13,7 +13,7 @@ import {
   Camera, AtSign, Type, Loader2
 } from 'lucide-react';
 
-const inputClass = "w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 transition-all placeholder:text-zinc-600";
+const inputClass = "w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/40 focus:border-amber-500/40 transition-all placeholder:text-zinc-600";
 const labelClass = "text-sm font-medium text-zinc-300 flex items-center gap-2 mb-2";
 const cardClass = "rounded-2xl p-6 border border-white/8 bg-white/3 backdrop-blur-sm space-y-6";
 
@@ -132,7 +132,7 @@ export default function SettingsPage() {
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all shrink-0 ${
                 activeTab === tab.id
-                  ? 'bg-primary/20 text-primary border border-primary/20'
+                  ? 'bg-amber-500/20 text-amber-500 border border-amber-500/20'
                   : 'text-zinc-500 hover:text-white bg-white/3 border border-white/8'
               }`}
             >
@@ -149,7 +149,7 @@ export default function SettingsPage() {
             {/* Avatar */}
             <div className="flex items-center gap-5">
               <div className="relative group shrink-0">
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br bg-primary flex items-center justify-center text-2xl font-bold text-white overflow-hidden ring-2 ring-primary/30">
+                <div className="w-20 h-20 rounded-full bg-gradient-to-br bg-amber-500 flex items-center justify-center text-2xl font-bold text-white overflow-hidden ring-2 ring-amber-500/30">
                   {profile?.avatar
                     ? <Image src={profile.avatar} alt="avatar" className="w-full h-full object-cover"  width={48} height={48} />
                     : initials
@@ -171,7 +171,7 @@ export default function SettingsPage() {
                 <p className="text-white font-semibold">{form.displayName || 'Your Name'}</p>
                 <p className="text-zinc-500 text-xs mb-3">onequestion.space/{form.username}</p>
                 <div className="flex gap-3">
-                  <button onClick={() => fileInputRef.current?.click()} className="text-xs font-medium text-primary hover:text-primary/80 transition-colors">
+                  <button onClick={() => fileInputRef.current?.click()} className="text-xs font-medium text-amber-500 hover:text-amber-500/80 transition-colors">
                     Upload photo
                   </button>
                   {profile?.avatar && (
@@ -268,7 +268,7 @@ export default function SettingsPage() {
               <button
                 onClick={handleSave}
                 disabled={isSaving || usernameAvailable === false}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r bg-primary text-white text-sm font-bold hover:opacity-90 transition-all disabled:opacity-50"
+                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r bg-amber-500 text-white text-sm font-bold hover:opacity-90 transition-all disabled:opacity-50"
               >
                 {isSaving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                 Save Changes
@@ -282,8 +282,8 @@ export default function SettingsPage() {
         {/* Coming soon */}
         {activeTab !== 'profile' && activeTab !== 'appearance' && (
           <div className="rounded-2xl p-12 border border-white/8 bg-white/3 text-center">
-            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-              {(() => { const T = tabs.find(t => t.id === activeTab)?.icon || Palette; return <T className="w-6 h-6 text-primary" />; })()}
+            <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center mx-auto mb-4">
+              {(() => { const T = tabs.find(t => t.id === activeTab)?.icon || Palette; return <T className="w-6 h-6 text-amber-500" />; })()}
             </div>
             <h3 className="text-lg font-semibold text-white mb-2">
               {tabs.find(t => t.id === activeTab)?.label} Settings

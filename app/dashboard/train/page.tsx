@@ -104,22 +104,22 @@ export default function TrainPage() {
       <div className='max-w-2xl mx-auto'>
         <div className='glass-card rounded-2xl border border-border overflow-hidden'>
           <div className='flex items-center gap-3 px-6 py-4 border-b border-border bg-card'>
-            <div className='w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center'>
-              <Brain className='w-4 h-4 text-primary' />
+            <div className='w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center'>
+              <Brain className='w-4 h-4 text-amber-500' />
             </div>
             <div>
               <p className='text-sm font-semibold text-foreground'>AI Trainer</p>
               <p className='text-xs text-muted-foreground'>{qIndex} of {QUESTIONS.length} questions answered</p>
             </div>
             <div className='ml-auto w-24 h-1.5 bg-card rounded-full overflow-hidden border border-border'>
-              <div className='h-full bg-primary rounded-full transition-all' style={{ width: (qIndex / QUESTIONS.length * 100) + '%' }} />
+              <div className='h-full bg-amber-500 rounded-full transition-all' style={{ width: (qIndex / QUESTIONS.length * 100) + '%' }} />
             </div>
           </div>
 
           <div className='h-96 overflow-y-auto p-4 space-y-4'>
             {messages.map((m, i) => (
               <div key={i} className={'flex ' + (m.role === 'user' ? 'justify-end' : 'justify-start')}>
-                <div className={'max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ' + (m.role === 'user' ? 'bg-primary text-white' : 'glass-card border border-border text-foreground')}>
+                <div className={'max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ' + (m.role === 'user' ? 'bg-amber-500 text-white' : 'glass-card border border-border text-foreground')}>
                   {m.content}
                 </div>
               </div>
@@ -127,7 +127,7 @@ export default function TrainPage() {
             {loading && (
               <div className='flex justify-start'>
                 <div className='glass-card border border-border px-4 py-3 rounded-2xl flex gap-1'>
-                  {[0,1,2].map(i => <div key={i} className='w-2 h-2 rounded-full bg-primary animate-bounce' style={{ animationDelay: i*150 + 'ms' }} />)}
+                  {[0,1,2].map(i => <div key={i} className='w-2 h-2 rounded-full bg-amber-500 animate-bounce' style={{ animationDelay: i*150 + 'ms' }} />)}
                 </div>
               </div>
             )}
@@ -145,7 +145,7 @@ export default function TrainPage() {
                 className='flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none'
                 autoFocus
               />
-              <button onClick={send} disabled={loading || !input.trim()} className='w-8 h-8 rounded-xl bg-primary flex items-center justify-center disabled:opacity-40'>
+              <button onClick={send} disabled={loading || !input.trim()} className='w-8 h-8 rounded-xl bg-amber-500 flex items-center justify-center disabled:opacity-40'>
                 <Send className='w-3.5 h-3.5 text-white' />
               </button>
             </div>
@@ -159,7 +159,7 @@ export default function TrainPage() {
                 <button
                   onClick={saveToKnowledge}
                   disabled={saving}
-                  className='w-full py-3 rounded-xl bg-gradient-to-r bg-primary text-white text-sm font-bold flex items-center justify-center gap-2'
+                  className='w-full py-3 rounded-xl bg-gradient-to-r bg-amber-500 text-white text-sm font-bold flex items-center justify-center gap-2'
                 >
                   {saving ? <Loader2 className='w-4 h-4 animate-spin' /> : <Brain className='w-4 h-4' />}
                   Save to Knowledge Base
