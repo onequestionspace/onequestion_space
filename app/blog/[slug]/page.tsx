@@ -36,8 +36,6 @@ export default function BlogPostPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="fixed inset-0 -z-10">
-        <div className="mesh-gradient" />
-        <div className="dot-pattern" />
       </div>
 
       <main className="pt-24 pb-20">
