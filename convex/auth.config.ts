@@ -1,7 +1,7 @@
 export default {
   providers: [
     {
-      domain: "https://picked-oriole-28.clerk.accounts.dev",
+      domain: "https://clerk.onequestion.space",
       applicationID: "convex",
     },
   ],
