@@ -16,7 +16,7 @@ export function Navbar() {
   const { signOut } = useClerk();
   const pathname = usePathname();
   const segments = pathname.split('/').filter(Boolean);
-  const reserved = ['dashboard','blog','pricing','contact','features','waitlist','onboarding','privacy','terms','sign-in','sign-up','api'];
+  const reserved = ['dashboard','blog','pricing','contact','features','onboarding','privacy','terms','sign-in','sign-up','api'];
   const isSpacePage = segments.length === 1 && !reserved.includes(segments[0]);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

@@ -17,7 +17,6 @@ export function Footer() {
       links: [
         { name: 'Features', href: '/features' },
         { name: 'Pricing', href: '/pricing' },
-        { name: 'Waitlist', href: '/waitlist' },
         { name: 'AI Assistant', href: '/blog' },
       ],
     },
