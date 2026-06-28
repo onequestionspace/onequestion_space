@@ -91,15 +91,11 @@ Reply as ${name}:`;
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          maxOutputTokens: maxTokens,
-          temperature: 0.7,
-        },
+        generationConfig: { maxOutputTokens: maxTokens, temperature: 0.7 },
       }),
     });
 
     const data = await res.json();
-    console.error('Gemini raw response:', JSON.stringify(data).slice(0, 300));
     const candidate = data.candidates?.[0];
     const raw = candidate?.content?.parts?.[0]?.text || '';
     const finishReason = candidate?.finishReason;
@@ -108,14 +104,18 @@ Reply as ${name}:`;
     if (!raw) throw new Error('Gemini empty response');
     if (finishReason === 'MAX_TOKENS' && tokenCount < 50) throw new Error('Gemini rate limited');
 
-    // Strip any markdown that sneaks through
-    return raw
+    const cleaned = raw
       .replace(/\*\*/g, '')
       .replace(/^#{1,6}\s/gm, '')
       .replace(/^\*\s/gm, '')
       .replace(/^-\s/gm, '')
       .replace(/__/g, '')
       .trim();
+
+    // Quality check — retry with Groq if answer is too short
+    if (cleaned.split(' ').length < 15) throw new Error('Answer too short');
+
+    return cleaned;
 
   } catch (error) {
     console.error('Gemini answer error:', error);

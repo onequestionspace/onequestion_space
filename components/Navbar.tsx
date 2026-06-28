@@ -61,7 +61,7 @@ export function Navbar() {
               <Link
                 key={link.name}
                 href={link.href}
-                className={'text-xs font-medium px-3 py-1.5 rounded-full transition-all hover:bg-white/10 ' + (pathname === link.href ? 'text-primary bg-white/5' : 'text-muted-foreground')}
+                className={'text-xs font-medium px-3 py-1.5 rounded-full transition-all hover:bg-white/10 ' + (pathname === link.href ? 'text-amber-500 bg-white/5' : 'text-muted-foreground')}
               >
                 {link.name}
               </Link>
@@ -78,14 +78,14 @@ export function Navbar() {
                   <div className="relative">
                     <button
                       onClick={() => setIsProfileOpen(!isProfileOpen)}
-                      className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-black text-xs font-bold hover:shadow-glow transition-all overflow-hidden"
+                      className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-black text-xs font-bold hover:shadow-amber-500/20 transition-all overflow-hidden"
                     >
                       {profile?.avatar ? <Image src={profile.avatar} alt="avatar" width={32} height={32} className="w-full h-full object-cover" /> : (profile?.displayName?.charAt(0)?.toUpperCase() || "U")}
                     </button>
                     {isProfileOpen && (
                       <div className="absolute right-0 top-10 w-48 glass rounded-2xl border border-white/10 shadow-xl p-2 space-y-1">
                         <Link href="/dashboard" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-white hover:bg-white/10 transition-colors">
-                          <LayoutDashboard className="w-4 h-4 text-primary" />
+                          <LayoutDashboard className="w-4 h-4 text-amber-500" />
                           Dashboard
                         </Link>
                         <Link href="/dashboard/profile" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-white hover:bg-white/10 transition-colors">
@@ -116,7 +116,7 @@ export function Navbar() {
                   <Link href="/sign-in" className="text-xs font-medium text-muted-foreground hover:text-white transition-colors px-3 py-1.5 rounded-full hover:bg-white/10">
                     Log in
                   </Link>
-                  <Link href="/sign-up" className="text-xs font-bold px-4 py-1.5 rounded-full bg-primary text-black hover:bg-primary/90 transition-all flex items-center gap-1">
+                  <Link href="/sign-up" className="text-xs font-bold px-4 py-1.5 rounded-full bg-amber-500 text-black hover:bg-amber-500/90 transition-all flex items-center gap-1">
                     Sign up free
                     <ChevronRight className="w-3 h-3" />
                   </Link>
@@ -127,11 +127,11 @@ export function Navbar() {
 
           <div className="md:hidden flex items-center gap-2">
             {isSignedIn && (
-              <Link href="/dashboard" className="text-xs text-primary font-medium">
+              <Link href="/dashboard" className="text-xs text-amber-500 font-medium">
                 Dashboard
               </Link>
             )}
-            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-white hover:text-primary transition-colors">
+            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 text-white hover:text-amber-500 transition-colors">
               {isMobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
             </button>
           </div>
@@ -140,14 +140,14 @@ export function Navbar() {
         {isMobileMenuOpen && (
           <div className="mt-2 bg-background/95 backdrop-blur-2xl border border-white/10 rounded-2xl px-4 py-6 space-y-4">
             {navLinks.map((link) => (
-              <Link key={link.name} href={link.href} onClick={() => setIsMobileMenuOpen(false)} className="block text-lg font-bold text-white hover:text-primary transition-colors">
+              <Link key={link.name} href={link.href} onClick={() => setIsMobileMenuOpen(false)} className="block text-lg font-bold text-white hover:text-amber-500 transition-colors">
                 {link.name}
               </Link>
             ))}
             {isSignedIn ? (
               <div className="pt-4 space-y-3 border-t border-white/10">
                 <Link href="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 text-sm font-medium text-white">
-                  <LayoutDashboard className="w-4 h-4 text-primary" />
+                  <LayoutDashboard className="w-4 h-4 text-amber-500" />
                   Dashboard
                 </Link>
                 <Link href="/dashboard/profile" onClick={() => setIsMobileMenuOpen(false)} className="flex items-center gap-2 px-3 py-2 rounded-xl text-sm text-white hover:bg-white/10 transition-colors">
@@ -168,7 +168,7 @@ export function Navbar() {
                 <Link href="/sign-in" onClick={() => setIsMobileMenuOpen(false)} className="block text-center text-sm font-medium text-muted-foreground py-2">
                   Log in
                 </Link>
-                <Link href="/sign-up" onClick={() => setIsMobileMenuOpen(false)} className="block text-center py-3 rounded-full bg-primary text-black font-bold text-sm">
+                <Link href="/sign-up" onClick={() => setIsMobileMenuOpen(false)} className="block text-center py-3 rounded-full bg-amber-500 text-black font-bold text-sm">
                   Sign up free
                 </Link>
               </div>

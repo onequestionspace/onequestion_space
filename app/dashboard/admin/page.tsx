@@ -26,7 +26,7 @@ export default function AdminPage() {
   const isAdmin = user?.id ? ADMIN_IDS.includes(user.id) : false;
   const adminId = user?.id || ADMIN_ID;
 
-  const profiles = useQuery(api.admin.getAllProfiles, isAdmin ? { adminId } : 'skip');
+  const profiles = useQuery(api.admin.getAllProfilesWithStats, isAdmin ? { adminId } : 'skip');
   const founders = useQuery(api.admin.getAllFoundingMembers, isAdmin ? { adminId } : 'skip');
   const earlyAdopters = useQuery(api.admin.getAllEarlyAdopters, isAdmin ? { adminId } : 'skip');
   const waitlist = useQuery(api.waitlist.getWaitlist, isAdmin ? {} : 'skip');
@@ -153,15 +153,25 @@ export default function AdminPage() {
             </div>
             <p className='text-xs text-muted-foreground'>{filteredProfiles?.length ?? 0} of {profiles?.length ?? 0} users</p>
             {filteredProfiles?.map(p => (
-              <div key={p._id} className='glass-card rounded-xl p-4 border border-border flex items-center justify-between gap-3'>
-                <div className='flex-1 min-w-0'>
-                  <p className='text-white font-medium text-sm'>{p.displayName}</p>
-                  <p className='text-muted-foreground text-xs font-mono'>/{p.username}</p>
-                  <p className='text-muted-foreground text-xs font-mono'>{p.userId}</p>
+              <div key={p._id} className='glass-card rounded-xl p-4 border border-border'>
+                <div className='flex items-center justify-between gap-3 mb-2'>
+                  <div className='flex-1 min-w-0'>
+                    <p className='text-white font-medium text-sm'>{p.displayName}</p>
+                    <p className='text-muted-foreground text-xs font-mono'>/{p.username}</p>
+                  </div>
+                  <div className='flex items-center gap-2'>
+                    <span className={'text-xs px-2 py-0.5 rounded-full font-medium ' + ((p as any).plan === 'pro' ? 'bg-amber-500/20 text-amber-400' : 'bg-white/10 text-zinc-400')}>{(p as any).plan ?? 'free'}</span>
+                    <button onClick={() => handleDeleteProfile(p._id)} className='p-2 rounded-lg bg-white/5 hover:bg-red-500/20 transition-colors'>
+                      <Trash2 className='w-3.5 h-3.5 text-muted-foreground' />
+                    </button>
+                  </div>
                 </div>
-                <button onClick={() => handleDeleteProfile(p._id)} className='p-2 rounded-lg bg-white/5 hover:bg-red-500/20 transition-colors'>
-                  <Trash2 className='w-3.5 h-3.5 text-muted-foreground' />
-                </button>
+                <div className='flex items-center gap-4 text-xs text-muted-foreground'>
+                  <span>💬 {(p as any).totalQuestions ?? 0} questions</span>
+                  <span>🧠 {(p as any).knowledgeCount ?? 0} knowledge</span>
+                  <span>⚡ {(p as any).messagesUsed ?? 0}/{(p as any).messagesLimit ?? 50} credits</span>
+                </div>
+                <p className='text-zinc-700 text-xs font-mono mt-1'>{p.userId}</p>
               </div>
             ))}
           </div>

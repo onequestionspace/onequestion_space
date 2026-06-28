@@ -14,7 +14,7 @@ export async function GET(req: Request) {
     (
       <div style={{
         display: 'flex',
-        background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%)',
+        background: 'linear-gradient(135deg, #0a0a0a 0%, #1a0a00 100%)',
         width: '100%',
         height: '100%',
         flexDirection: 'column',

@@ -54,6 +54,7 @@ export function AppearanceTab() {
   const [twitter, setTwitter] = useState("");
   const [github, setGithub] = useState("");
   const [website, setWebsite] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
   const [linkedin, setLinkedin] = useState("");
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -70,6 +71,7 @@ export function AppearanceTab() {
         setTwitter(s.twitter || "");
         setGithub(s.github || "");
         setWebsite(s.website || "");
+        setWhatsapp(s.whatsapp || "");
         setLinkedin(s.linkedin || "");
       } catch {}
     }
@@ -84,7 +86,7 @@ export function AppearanceTab() {
         themeFont,
         themeCardStyle,
         themeEffect: "none",
-        socialLinks: JSON.stringify({ twitter, github, website, linkedin }),
+        socialLinks: JSON.stringify({ twitter, github, website, linkedin, whatsapp }),
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
@@ -204,6 +206,7 @@ export function AppearanceTab() {
             { Icon: GithubIcon, value: github, set: setGithub, placeholder: "username", label: "GitHub" },
             { Icon: LinkedinIcon, value: linkedin, set: setLinkedin, placeholder: "username", label: "LinkedIn" },
             { Icon: Globe, value: website, set: setWebsite, placeholder: "https://...", label: "Website" },
+            { Icon: () => <span className="text-sm">💬</span>, value: whatsapp, set: setWhatsapp, placeholder: "+2348012345678", label: "WhatsApp" },
           ] as const).map(({ Icon, value, set, placeholder, label }) => (
             <div key={label} className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/8 flex items-center justify-center shrink-0">

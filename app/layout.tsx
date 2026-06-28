@@ -24,6 +24,7 @@ export const metadata: Metadata = {
     description: 'Your knowledge. Your answers. Your space.',
     type: 'website',
     locale: 'en_US',
+    siteName: 'One Question',
   },
   twitter: {
     images: ['/logo.png'],
@@ -34,7 +35,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport = {
-  themeColor: '#a855f7',
+  themeColor: '#f59e0b',
   width: 'device-width',
   initialScale: 1,
 };
@@ -57,7 +58,7 @@ export default function RootLayout({
               logoLinkUrl: '/',
             },
             variables: {
-              colorPrimary: '#a855f7',
+              colorPrimary: '#f59e0b',
               colorBackground: '#0a0a0a',
               colorText: '#ffffff',
               colorInputBackground: '#1a1a1a',

@@ -191,6 +191,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   const allQuestions = useQuery(api.questions.getRecentQuestions, profile?._id ? { profileId: profile._id, limit: 50 } : 'skip');
   const pinnedAnswers = allQuestions?.filter(q => q.isAnswered && pinnedIds.includes(q._id)) || [];
   const reactions = useQuery(api.reactions.getReactions, profile?._id ? { profileId: profile._id } : 'skip');
+  const blogs = useQuery(api.blogs.getPublishedBlogs, {});
   const incrementVisitor = useMutation(api.analytics.incrementVisitorCount);
   const incrementQuestion = useMutation(api.analytics.incrementQuestionCount);
 
