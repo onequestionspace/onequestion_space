@@ -1,66 +1,15 @@
+const { ConvexHttpClient } = require('convex/browser');
 const fs = require('fs');
 
-const content = `import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
-import { NextResponse } from 'next/server';
+const env = fs.readFileSync('.env.local', 'utf8');
+const url = env.match(/NEXT_PUBLIC_CONVEX_URL=(.+)/)[1].trim();
+const convex = new ConvexHttpClient(url);
 
-const isPublicRoute = createRouteMatcher([
-  '/',
-  '/sign-in(.*)',
-  '/sign-up(.*)',
-  '/onboarding',
-  '/api/ask(.*)',
-  '/api/explore(.*)',
-  '/api/stream(.*)',
-  '/api/check-username(.*)',
-  '/api/og(.*)',
-  '/api/waitlist(.*)',
-  '/api/well-known(.*)',
-  '/api/events(.*)',
-  '/api/paystack(.*)',
-  '/blog(.*)',
-  '/founding(.*)',
-  '/early(.*)',
-  '/pricing(.*)',
-  '/features(.*)',
-  '/contact(.*)',
-  '/privacy(.*)',
-  '/terms(.*)',
-  '/waitlist(.*)',
-  '/:username',
-]);
+async function main() {
+  const { api } = require('./convex/_generated/api.js');
 
-const isDashboardRoute = createRouteMatcher(['/dashboard(.*)']);
-
-export default clerkMiddleware(async (auth, req) => {
-  const { userId } = await auth();
-
-  // Protect dashboard
-  if (isDashboardRoute(req) && !userId) {
-    return NextResponse.redirect(new URL('/sign-in', req.url));
-  }
-
-  // Redirect signed-in users away from auth pages
-  if (userId && (
-    req.nextUrl.pathname.startsWith('/sign-in') ||
-    req.nextUrl.pathname.startsWith('/sign-up')
-  )) {
-    return NextResponse.redirect(new URL('/dashboard', req.url));
-  }
-
-  if (!isPublicRoute(req)) {
-    await auth.protect();
-  }
-
-  return NextResponse.next();
-});
-
-export const config = {
-  matcher: [
-    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
-    '/(api|trpc)(.*)',
-  ],
-};
-`;
-
-fs.writeFileSync('proxy.ts', content);
-console.log('done');
+  // Find profile with old dev ID
+  const profile = await convex.query(api.profiles.byUsername, { username: 'asym_alwali' });
+  console.log('Profile found:', profile?._id, 'userId:', profile?.userId);
+}
+main().catch(console.error);

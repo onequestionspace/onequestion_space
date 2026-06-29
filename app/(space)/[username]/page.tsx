@@ -11,6 +11,7 @@ import { LinkPreviewCard } from '@/components/LinkPreviewCard';
 
 const COFOUNDER_IDS = ['user_3Ev3UAWNTTDAlVWSYFGGsEI6qQz'];
 const FOUNDER_ID = 'user_3EhKmuVyC1AhoBDlL7QNssllwgu';
+const FOUNDER_ID_PROD = 'user_3Fmuk2jHEa5seXKEzewhWlA9yQs';
 
 const stripMarkdown = (text: string) => {
   return text
@@ -397,7 +398,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
           <h1 className='text-3xl font-black mb-1 tracking-tight'>{profile.displayName}</h1>
           <div className='flex items-center justify-center gap-2 mb-4 flex-wrap'>
             <p className='text-sm font-medium opacity-60' style={{ color }}>@{profile.username}</p>
-            {profile.userId === FOUNDER_ID && (
+            {(profile.userId === FOUNDER_ID || profile.userId === FOUNDER_ID_PROD) && (
               <span className='inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/40'>👑 Founder</span>
             )}
             {profile.userId !== FOUNDER_ID && foundingMember && (

@@ -23,7 +23,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 1b. Check subscription limit (admins bypass)
-    const ADMIN_IDS = ['user_3EhKmuVyC1AhoBDlL7QNssllwgu'];
+    const ADMIN_IDS = ['user_3EhKmuVyC1AhoBDlL7QNssllwgu', 'user_3Fmuk2jHEa5seXKEzewhWlA9yQs'];
     const isAdmin = ADMIN_IDS.includes(profile.userId);
     const subscription = await convex.query(api.subscriptions.getSubscription, { userId: profile.userId });
     if (subscription && !isAdmin) {

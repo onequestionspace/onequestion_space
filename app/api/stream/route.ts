@@ -113,7 +113,7 @@ export async function POST(request: NextRequest) {
     const profile = await convex.query(api.profiles.byUsername, { username });
     if (!profile) return new Response('Profile not found', { status: 404 });
 
-    const ADMIN_IDS = ['user_3EhKmuVyC1AhoBDlL7QNssllwgu'];
+    const ADMIN_IDS = ['user_3EhKmuVyC1AhoBDlL7QNssllwgu', 'user_3Fmuk2jHEa5seXKEzewhWlA9yQs'];
     const isAdmin = ADMIN_IDS.includes(profile.userId);
 
     if (!isAdmin) {

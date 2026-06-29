@@ -67,7 +67,7 @@ function BillingContent() {
   if (!isLoaded) return <div className='min-h-screen flex items-center justify-center text-muted-foreground'>Loading...</div>;
   if (!isSignedIn) { redirect('/'); }
 
-  const ADMIN_IDS = ['user_3EhKmuVyC1AhoBDlL7QNssllwgu'];
+  const ADMIN_IDS = ['user_3EhKmuVyC1AhoBDlL7QNssllwgu', 'user_3Fmuk2jHEa5seXKEzewhWlA9yQs'];
   const isAdmin = userId ? ADMIN_IDS.includes(userId) : false;
   const used = subscription?.messagesUsed ?? 0;
   const limit = subscription?.messagesLimit ?? 50;
