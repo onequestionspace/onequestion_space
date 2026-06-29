@@ -9,7 +9,7 @@ import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
 import {
   Brain, Upload, FileText, Trash2, Plus,
-  Loader2, CheckCircle2, AlertCircle, X, Lightbulb, ChevronDown, ChevronUp
+  Loader2, CheckCircle2, AlertCircle, X, Lightbulb, ChevronDown, ChevronUp, Globe, Link
 } from 'lucide-react';
 
 export default function KnowledgePage() {
@@ -18,7 +18,10 @@ export default function KnowledgePage() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [uploadSuccess, setUploadSuccess] = useState(false);
-  const [activeTab, setActiveTab] = useState<'text' | 'file'>('text');
+  const [activeTab, setActiveTab] = useState<'text' | 'file' | 'url'>('text');
+  const [urlInput, setUrlInput] = useState('');
+  const [urlLoading, setUrlLoading] = useState(false);
+  const [urlSuccess, setUrlSuccess] = useState('');
   const [showGuide, setShowGuide] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -94,6 +97,28 @@ export default function KnowledgePage() {
       setUploadError('Upload failed. Please try again.');
     }
     setUploading(false);
+  };
+
+  const handleUrlSubmit = async () => {
+    if (!urlInput.trim() || !userId) return;
+    setUrlLoading(true);
+    setUploadError('');
+    setUrlSuccess('');
+    try {
+      const res = await fetch('/api/knowledge/url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: urlInput.trim() }),
+      });
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error);
+      setUrlSuccess('Learned from: ' + data.title);
+      setUrlInput('');
+      setTimeout(() => setUrlSuccess(''), 3000);
+    } catch (e: unknown) {
+      setUploadError(e instanceof Error ? e.message : 'Failed to fetch URL');
+    }
+    setUrlLoading(false);
   };
 
   const handleDelete = async (id: Id<'knowledge'>) => {
