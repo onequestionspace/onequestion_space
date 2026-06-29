@@ -67,6 +67,7 @@ export default function StudioPage() {
     setVibeQuote((profile as Record<string, unknown>).vibeQuote as string || '');
     try { setLinks(JSON.parse((profile as Record<string, unknown>).links as string || '[]')); } catch { setLinks([]); }
     setPinnedQuestions((profile as Record<string, unknown>).pinnedQuestions as string[] || []);
+    setSuggestedQuestions((profile as Record<string, unknown>).suggestedQuestions as string[] || []);
   }, [profile]);
 
   const save = async (fields: Record<string, unknown>) => {
@@ -198,7 +199,16 @@ export default function StudioPage() {
                       <p className="text-sm text-white italic">&ldquo;{vibeQuote}&rdquo;</p>
                     </div>
                   )}
-                  {saveBtn({ vibeQuote })}
+                  <div>
+                    <label className="text-xs font-black text-zinc-400 mb-1.5 block">Suggested Questions</label>
+                    <p className="text-xs text-zinc-600 mb-2">3 questions visitors see as prompts on your space.</p>
+                    <div className="space-y-2">
+                      {[0,1,2].map(i => (
+                        <input key={i} value={suggestedQuestions[i] || ""} onChange={e => { const next = [...suggestedQuestions]; next[i] = e.target.value; setSuggestedQuestions(next); }} placeholder={"Question " + (i+1) + "..."} className={inputClass} />
+                      ))}
+                    </div>
+                  </div>
+                  {saveBtn({ vibeQuote, suggestedQuestions })}
                 </div>
               )}
 

@@ -291,6 +291,7 @@ export default function OnboardingPage() {
                 <input type="text" value={form.displayName} onChange={e => setForm(f => ({ ...f, displayName: e.target.value }))} placeholder="Your full name" className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:border-primary/50 transition-all" autoFocus />
                 <button onClick={handleNext} disabled={!canNext()} className="w-full mt-6 py-3.5 rounded-xl bg-gradient-to-r bg-primary text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
                   Continue <ArrowRight className="w-4 h-4" />
+                <button onClick={() => router.push("/dashboard")} className="w-full mt-2 py-2 text-xs text-zinc-600 hover:text-zinc-400 transition-colors">Skip for now →</button>
                 </button>
               </div>
             )}
@@ -306,6 +307,7 @@ export default function OnboardingPage() {
                 <button onClick={handleNext} disabled={!canNext()} className="w-full mt-4 py-3.5 rounded-xl bg-gradient-to-r bg-primary text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
                   Continue <ArrowRight className="w-4 h-4" />
                 </button>
+                <button onClick={() => router.push("/dashboard")} className="w-full mt-2 py-2 text-xs text-zinc-600 hover:text-zinc-400 transition-colors">Skip for now →</button>
               </div>
             )}
 
@@ -324,6 +326,7 @@ export default function OnboardingPage() {
                 <button onClick={handleNext} disabled={!canNext()} className="w-full mt-4 py-3.5 rounded-xl bg-gradient-to-r bg-primary text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
                   Continue <ArrowRight className="w-4 h-4" />
                 </button>
+                <button onClick={() => router.push("/dashboard")} className="w-full mt-2 py-2 text-xs text-zinc-600 hover:text-zinc-400 transition-colors">Skip for now →</button>
               </div>
             )}
 
@@ -347,6 +350,7 @@ export default function OnboardingPage() {
                 <button onClick={handleNext} disabled={!canNext()} className="w-full mt-6 py-3.5 rounded-xl bg-gradient-to-r bg-primary text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
                   Continue <ArrowRight className="w-4 h-4" />
                 </button>
+                <button onClick={() => router.push("/dashboard")} className="w-full mt-2 py-2 text-xs text-zinc-600 hover:text-zinc-400 transition-colors">Skip for now →</button>
               </div>
             )}
 
@@ -374,6 +378,7 @@ export default function OnboardingPage() {
                 <button onClick={handleNext} disabled={!canNext()} className="w-full mt-6 py-3.5 rounded-xl bg-gradient-to-r bg-primary text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
                   Almost done <ArrowRight className="w-4 h-4" />
                 </button>
+                <button onClick={() => router.push("/dashboard")} className="w-full mt-2 py-2 text-xs text-zinc-600 hover:text-zinc-400 transition-colors">Skip for now →</button>
               </div>
             )}
 
@@ -397,6 +402,7 @@ export default function OnboardingPage() {
                 <button onClick={handleNext} disabled={!canNext()} className="w-full mt-4 py-3.5 rounded-xl bg-gradient-to-r bg-primary text-white font-bold flex items-center justify-center gap-2 disabled:opacity-50">
                   Continue <ArrowRight className="w-4 h-4" />
                 </button>
+                <button onClick={() => router.push("/dashboard")} className="w-full mt-2 py-2 text-xs text-zinc-600 hover:text-zinc-400 transition-colors">Skip for now →</button>
               </div>
             )}
 

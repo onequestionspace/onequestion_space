@@ -25,12 +25,14 @@ const stripMarkdown = (text: string) => {
 };
 
 const BG_STYLES: Record<string, string> = {
-  dark: 'bg-[#0f0c1a]', darker: 'bg-[#06040f]', midnight: 'bg-[#080c18]',
-  aurora: 'bg-[#0a0818]', dusk: 'bg-[#130818]', galaxy: 'bg-[#06040e]',
-  ocean: 'bg-[#04111a]', dawn: 'bg-[#1a0e1a]', fog: 'bg-[#eeeaf6]',
-  sand: 'bg-[#f5efe6]', parchment: 'bg-[#faf6f0]', sunset: 'bg-[#180810]',
-  rose: 'bg-[#f7e5e4]', mint: 'bg-[#e4f5ee]', slate: 'bg-[#e8eaf2]',
+  dark: "bg-[#0a0208]", darker: "bg-[#050308]", midnight: "bg-[#05080f]",
+  aurora: "bg-[#030a05]", dusk: "bg-[#0a0510]", galaxy: "bg-[#04020d]",
+  ocean: "bg-[#030d0f]", dawn: "bg-[#0d0403]", fog: "bg-[#f0eef8]",
+  sand: "bg-[#f5efe6]", parchment: "bg-[#faf6f0]", sunset: "bg-[#0d0403]",
+  rose: "bg-[#f7e5e4]", mint: "bg-[#e8f5ee]", slate: "bg-[#e8eaf2]",
+  chalkwhite: "chalk-bg", chalkgreen: "chalk-green", chalkblack: "chalk-black",
 };
+
 
 const FONT_STYLES: Record<string, string> = {
   inter: 'font-sans', mono: 'font-mono', serif: 'font-serif',
@@ -146,17 +148,102 @@ function MatrixBackground({ color }: { color: string }) {
   );
 }
 
+const SHAPES = [
+  { type: "circle", w: 60, h: 60, left: 10, top: 20, duration: 14, delay: 0 },
+  { type: "square", w: 40, h: 40, left: 75, top: 15, duration: 18, delay: 1 },
+  { type: "circle", w: 30, h: 30, left: 85, top: 55, duration: 16, delay: 0.5 },
+  { type: "square", w: 55, h: 55, left: 20, top: 60, duration: 20, delay: 3 },
+  { type: "circle", w: 45, h: 45, left: 60, top: 30, duration: 11, delay: 1.5 },
+  { type: "square", w: 35, h: 35, left: 5, top: 80, duration: 15, delay: 4 },
+];
+
+function ShapesBackground({ color }: { color: string }) {
+  return (
+    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+      {SHAPES.map((s, i) => (
+        <div key={i} className="absolute animate-float"
+          style={{ width: s.w+"px", height: s.h+"px", left: s.left+"%", top: s.top+"%", animationDuration: s.duration+"s", animationDelay: s.delay+"s", opacity: 0.12, border: "1.5px solid "+color, backgroundColor: color+"08", borderRadius: s.type==="circle" ? "50%" : "8px" }} />
+      ))}
+      <div className="absolute top-[-5%] left-1/2 -translate-x-1/2 w-[500px] h-[300px] rounded-full blur-[120px] opacity-15" style={{ backgroundColor: color }} />
+    </div>
+  );
+}
+
+const ORBS = [
+  { w: 300, h: 300, left: -10, top: -10, duration: 12, delay: 0, opacity: 0.15 },
+  { w: 200, h: 200, left: 60, top: 50, duration: 16, delay: 2, opacity: 0.10 },
+  { w: 250, h: 250, left: 30, top: 70, duration: 14, delay: 1, opacity: 0.12 },
+  { w: 180, h: 180, left: 80, top: 10, duration: 18, delay: 3, opacity: 0.08 },
+];
+
+function OrbsBackground({ color }: { color: string }) {
+  return (
+    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+      {ORBS.map((o, i) => (
+        <div key={i} className="absolute rounded-full animate-aurora-1"
+          style={{ width: o.w+"px", height: o.h+"px", left: o.left+"%", top: o.top+"%", backgroundColor: color, opacity: o.opacity, filter: "blur(60px)", animationDuration: o.duration+"s", animationDelay: o.delay+"s" }} />
+      ))}
+    </div>
+  );
+}
+
+function HexBackground({ color }: { color: string }) {
+  return (
+    <svg className="fixed inset-0 -z-10 w-full h-full pointer-events-none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <pattern id="hex" x="0" y="0" width="56" height="48" patternUnits="userSpaceOnUse">
+          <polygon points="28,4 52,16 52,40 28,52 4,40 4,16" fill="none" stroke={color} strokeWidth="0.5" opacity="0.15" />
+        </pattern>
+        <radialGradient id="hexfade" cx="50%" cy="40%" r="60%">
+          <stop offset="0%" stopColor={color} stopOpacity="0.08" />
+          <stop offset="100%" stopColor={color} stopOpacity="0" />
+        </radialGradient>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#hex)" />
+      <rect width="100%" height="100%" fill="url(#hexfade)" />
+    </svg>
+  );
+}
+
+function StarsBackground({ color }: { color: string }) {
+  return (
+    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+      <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[600px] h-[400px] rounded-full blur-[140px] opacity-20" style={{ backgroundColor: color }} />
+      {[10,25,40,55,70,85,15,65,80,30].map((left, i) => (
+        <div key={i} className="absolute animate-float"
+          style={{ left: left+"%", top: (10+i*8)+"%", animationDuration: (3+i*0.4)+"s", animationDelay: (i*0.5)+"s" }}>
+          <div className="w-0.5 h-10 rounded-full opacity-30"
+            style={{ background: "linear-gradient(to bottom, transparent, "+color+", transparent)", transform: "rotate(-45deg)" }} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function SpaceBackground({ themeEffect, color }: { themeEffect: string; color: string }) {
+  if (themeEffect.startsWith("custom:")) {
+    const url = themeEffect.replace("custom:", "");
+    return (
+      <div className="fixed inset-0 -z-10 pointer-events-none">
+        <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url("+url+")" }} />
+        <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.65))" }} />
+      </div>
+    );
+  }
   switch (themeEffect) {
-    case 'particles': return <ParticlesBackground color={color} />;
-    case 'bubbles': return <BubblesBackground color={color} />;
-    case 'net': return <NetBackground color={color} />;
-    case 'matrix': return <MatrixBackground color={color} />;
+    case "particles": return <ParticlesBackground color={color} />;
+    case "bubbles": return <BubblesBackground color={color} />;
+    case "net": return <NetBackground color={color} />;
+    case "matrix": return <MatrixBackground color={color} />;
+    case "shapes": return <ShapesBackground color={color} />;
+    case "orbs": return <OrbsBackground color={color} />;
+    case "stars": return <StarsBackground color={color} />;
+    case "hex": return <HexBackground color={color} />;
     default: return (
-      <div className='fixed inset-0 -z-10 overflow-hidden pointer-events-none'>
-        <div className='absolute top-[-10%] left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full blur-[140px] opacity-25' style={{ backgroundColor: color }} />
-        <div className='absolute bottom-0 right-[-10%] w-[400px] h-[400px] rounded-full blur-[120px] opacity-10' style={{ backgroundColor: color }} />
-        <div className='absolute top-1/2 left-[-10%] w-[300px] h-[300px] rounded-full blur-[100px] opacity-8' style={{ backgroundColor: color }} />
+      <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full blur-[140px] opacity-25" style={{ backgroundColor: color }} />
+        <div className="absolute bottom-0 right-[-10%] w-[400px] h-[400px] rounded-full blur-[120px] opacity-10" style={{ backgroundColor: color }} />
+        <div className="absolute top-1/2 left-[-10%] w-[300px] h-[300px] rounded-full blur-[100px] opacity-8" style={{ backgroundColor: color }} />
       </div>
     );
   }
@@ -215,7 +302,9 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   }, [aiResponse]);
 
   useEffect(() => {
+    const creatorQuestions = (profile as Record<string, unknown>).suggestedQuestions as string[] || [];
     if (profile?.displayName && suggestedQuestions.length === 0) {
+      if (creatorQuestions.filter((q: string) => q.trim()).length >= 2) { setSuggestedQuestions(creatorQuestions.filter((q: string) => q.trim())); return; }
       const name = profile.displayName.split(' ')[0];
       const defaults = [
         'Who is ' + name + ' and what do they do?',
@@ -363,7 +452,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   const vibeQuote = profile ? ((profile as Record<string, unknown>).vibeQuote as string || '') : '';
   let spaceLinks: { title: string; url: string }[] = [];
   try { spaceLinks = profile ? JSON.parse((profile as Record<string, unknown>).links as string || '[]') : []; } catch {}
-  const isLight = ['fog', 'sand', 'parchment', 'rose', 'mint', 'slate'].includes(profile.themeBg || '');
+  const isLight = ['fog', 'sand', 'parchment', 'rose', 'mint', 'slate', 'chalkwhite'].includes(profile.themeBg || '');
   const firstName = profile.displayName?.split(' ')[0] || username;
 
   return (
@@ -638,6 +727,10 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
                         <button onClick={copyAnswer} className='flex items-center gap-1.5 text-xs opacity-40 hover:opacity-70 transition-opacity'>
                           {copiedAnswer ? <Check className='w-3 h-3 text-green-400' /> : <Copy className='w-3 h-3' />}
                           {copiedAnswer ? 'Copied ✓' : 'Copy answer'}
+                        </button>
+                        <button onClick={shareToX} className="flex items-center gap-1.5 text-xs opacity-40 hover:opacity-70 transition-opacity mt-2">
+                          <svg className="w-3 h-3" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.259 5.632 5.905-5.632zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+                          {sharedToX ? "Shared ✓" : "Share on X"}
                         </button>
                       </motion.div>
                     )}

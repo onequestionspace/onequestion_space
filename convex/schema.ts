@@ -18,6 +18,7 @@ export default defineSchema({
     links: v.optional(v.string()),
     themeEffect: v.optional(v.string()),
     pinnedQuestions: v.optional(v.array(v.string())),
+    suggestedQuestions: v.optional(v.array(v.string())),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
@@ -127,3 +128,4 @@ export default defineSchema({
     createdAt: v.number(),
   }).index('by_email', ['email']),
 });
+// customBg added via patch — no schema change needed, stored in themeEffect as "custom:URL"

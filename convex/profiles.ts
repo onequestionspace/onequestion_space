@@ -98,6 +98,7 @@ export const update = mutation({
     links: v.optional(v.string()),
     themeEffect: v.optional(v.string()),
     pinnedQuestions: v.optional(v.array(v.string())),
+    suggestedQuestions: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -125,6 +126,7 @@ export const update = mutation({
       ...(args.links !== undefined && { links: args.links }),
       ...(args.themeEffect !== undefined && { themeEffect: args.themeEffect }),
       ...(args.pinnedQuestions !== undefined && { pinnedQuestions: args.pinnedQuestions }),
+      ...(args.suggestedQuestions !== undefined && { suggestedQuestions: args.suggestedQuestions }),
       updatedAt: Date.now(),
     });
 
