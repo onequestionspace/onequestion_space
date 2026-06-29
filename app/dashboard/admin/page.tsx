@@ -27,7 +27,9 @@ export default function AdminPage() {
   const isAdmin = user?.id ? ADMIN_IDS.includes(user.id) : false;
   const adminId = user?.id || ADMIN_ID;
 
-  const profiles = useQuery(api.admin.getAllProfilesWithStats, isAdmin ? { adminId } : 'skip');
+  const profilesWithStats = useQuery(api.admin.getAllProfilesWithStats, isAdmin ? { adminId } : 'skip');
+  const profilesBasic = useQuery(api.admin.getAllProfiles, isAdmin ? { adminId } : 'skip');
+  const profiles = profilesWithStats ?? profilesBasic;
   const founders = useQuery(api.admin.getAllFoundingMembers, isAdmin ? { adminId } : 'skip');
   const earlyAdopters = useQuery(api.admin.getAllEarlyAdopters, isAdmin ? { adminId } : 'skip');
   const waitlist = useQuery(api.waitlist.getWaitlist, isAdmin ? {} : 'skip');
