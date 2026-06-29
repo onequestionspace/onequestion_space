@@ -27,9 +27,7 @@ export default function AdminPage() {
   const isAdmin = user?.id ? ADMIN_IDS.includes(user.id) : false;
   const adminId = user?.id || ADMIN_ID;
 
-  const profilesWithStats = useQuery(api.admin.getAllProfilesWithStats, isAdmin ? { adminId } : 'skip');
-  const profilesBasic = useQuery(api.admin.getAllProfiles, isAdmin ? { adminId } : 'skip');
-  const profiles = profilesWithStats ?? profilesBasic;
+  const profiles = useQuery(api.admin.getAllProfiles, isAdmin ? { adminId } : 'skip');
   const founders = useQuery(api.admin.getAllFoundingMembers, isAdmin ? { adminId } : 'skip');
   const earlyAdopters = useQuery(api.admin.getAllEarlyAdopters, isAdmin ? { adminId } : 'skip');
   const waitlist = useQuery(api.waitlist.getWaitlist, isAdmin ? {} : 'skip');
@@ -56,11 +54,11 @@ export default function AdminPage() {
     if (!grantForm.userId || !grantForm.username || !grantForm.displayName) return;
     setGranting(true); setMsg('');
     try {
-      const result = grantForm.type === 'founding'
+      const result: any = grantForm.type === 'founding'
         ? await grantFoundingBadge({ adminId: adminId, ...grantForm })
         : await grantEarlyAdopterBadge({ adminId: adminId, ...grantForm });
-      setMsg(result.success ? 'Badge granted!' : 'Already has badge');
-      if (result.success) setGrantForm({ userId: '', username: '', displayName: '', type: 'founding' });
+      setMsg(result?.success ? 'Badge granted!' : 'Already has badge');
+      if (result?.success) setGrantForm({ userId: '', username: '', displayName: '', type: 'founding' });
     } catch { setMsg('Error granting badge'); }
     setGranting(false);
   };
