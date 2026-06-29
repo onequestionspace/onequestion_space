@@ -1,10 +1,66 @@
 const fs = require('fs');
-// Check if there's a .env.local.production or similar
-const files = ['.env', '.env.local', '.env.production', '.env.development'];
-files.forEach(f => {
-  try {
-    const c = fs.readFileSync(f, 'utf8');
-    const keys = c.match(/CLERK[^=]+=.+/g) || [];
-    if (keys.length) console.log(f + ':', keys.map(k => k.split('=')[0]).join(', '));
-  } catch {}
+
+const content = `import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import { NextResponse } from 'next/server';
+
+const isPublicRoute = createRouteMatcher([
+  '/',
+  '/sign-in(.*)',
+  '/sign-up(.*)',
+  '/onboarding',
+  '/api/ask(.*)',
+  '/api/explore(.*)',
+  '/api/stream(.*)',
+  '/api/check-username(.*)',
+  '/api/og(.*)',
+  '/api/waitlist(.*)',
+  '/api/well-known(.*)',
+  '/api/events(.*)',
+  '/api/paystack(.*)',
+  '/blog(.*)',
+  '/founding(.*)',
+  '/early(.*)',
+  '/pricing(.*)',
+  '/features(.*)',
+  '/contact(.*)',
+  '/privacy(.*)',
+  '/terms(.*)',
+  '/waitlist(.*)',
+  '/:username',
+]);
+
+const isDashboardRoute = createRouteMatcher(['/dashboard(.*)']);
+
+export default clerkMiddleware(async (auth, req) => {
+  const { userId } = await auth();
+
+  // Protect dashboard
+  if (isDashboardRoute(req) && !userId) {
+    return NextResponse.redirect(new URL('/sign-in', req.url));
+  }
+
+  // Redirect signed-in users away from auth pages
+  if (userId && (
+    req.nextUrl.pathname.startsWith('/sign-in') ||
+    req.nextUrl.pathname.startsWith('/sign-up')
+  )) {
+    return NextResponse.redirect(new URL('/dashboard', req.url));
+  }
+
+  if (!isPublicRoute(req)) {
+    await auth.protect();
+  }
+
+  return NextResponse.next();
 });
+
+export const config = {
+  matcher: [
+    '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
+    '/(api|trpc)(.*)',
+  ],
+};
+`;
+
+fs.writeFileSync('proxy.ts', content);
+console.log('done');
