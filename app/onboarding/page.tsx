@@ -28,7 +28,7 @@ export default function OnboardingPage() {
     bio: '',
     welcomeMessage: '',
     themeColor: '#a855f7',
-    vibe: [],
+    vibe: [] as string[],
     goalTitle: '',
     goalProgress: 0,
     goalDeadline: '2026-12-31'
@@ -78,8 +78,37 @@ export default function OnboardingPage() {
     }
     if (step === 3) { await updateProfile({ displayName: form.displayName }); setStep(4); return; }
     if (step === 4) { await updateProfile({ bio: form.bio }); setStep(4.5); return; }
-    if (step === 4.5) { await updateProfile({ vibe: form.vibe }); setStep(4.6); return; }
-    if (step === 4.6) { await updateProfile({ goals: form.goals }); setStep(5); return; }
+    if (step === 4.5) {
+      // Save vibe tags as knowledge
+      if (form.vibe && form.vibe.length > 0) {
+        try {
+          await fetch('/api/knowledge', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: 'My Focus Areas',
+              content: 'I work in: ' + form.vibe.join(', ') + '. These are the areas I focus on and what visitors usually ask me about.',
+            }),
+          });
+        } catch {}
+      }
+      setStep(4.6); return;
+    }
+    if (step === 4.6) {
+      if (form.goalTitle) {
+        try {
+          await fetch('/api/knowledge', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              title: 'My Current Goal',
+              content: 'I am currently working toward: ' + form.goalTitle + '. Progress: ' + (form.goalProgress || 0) + '%. Target deadline: ' + (form.goalDeadline || '2026-12-31') + '.',
+            }),
+          });
+        } catch {}
+      }
+      setStep(5); return;
+    }
     if (step === 5) { await updateProfile({ welcomeMessage: form.welcomeMessage }); setStep(6); return; }
     if (step === 6) { await updateProfile({ themeColor: form.themeColor }); setStep(7); return; }
     if (step === 7) { router.push('/dashboard/studio'); return; }
@@ -91,7 +120,7 @@ export default function OnboardingPage() {
     if (step === 3) return form.displayName.length >= 2;
     if (step === 4) return form.bio.length >= 10;
     if (step === 4.5) return form.vibe && form.vibe.length > 0;
-    if (step === 4.6) return form.goalTitle && form.goalTitle.length > 3;
+    if (step === 4.6) return true;
     if (step === 5) return form.welcomeMessage.length >= 5;
     return true;
   };

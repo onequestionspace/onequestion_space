@@ -10,6 +10,7 @@ import { Crown, Zap, Users, Trash2, Plus, Shield, BarChart3, Brain, CreditCard, 
 const ADMIN_IDS = [
   'user_3EhKmuVyC1AhoBDlL7QNssllwgu',
   'user_3Ev3UAWNTTDAlVWSYFGGsEI6qQz',
+  'user_3Fmuk2jHEa5seXKEzewhWlA9yQs',
 ];
 const ADMIN_ID = 'user_3EhKmuVyC1AhoBDlL7QNssllwgu';
 
@@ -54,8 +55,8 @@ export default function AdminPage() {
     setGranting(true); setMsg('');
     try {
       const result = grantForm.type === 'founding'
-        ? await grantFoundingBadge({ adminId: ADMIN_ID, ...grantForm })
-        : await grantEarlyAdopterBadge({ adminId: ADMIN_ID, ...grantForm });
+        ? await grantFoundingBadge({ adminId: adminId, ...grantForm })
+        : await grantEarlyAdopterBadge({ adminId: adminId, ...grantForm });
       setMsg(result.success ? 'Badge granted!' : 'Already has badge');
       if (result.success) setGrantForm({ userId: '', username: '', displayName: '', type: 'founding' });
     } catch { setMsg('Error granting badge'); }
@@ -64,12 +65,12 @@ export default function AdminPage() {
 
   const handleRemoveBadge = async (userId: string, type: 'founding' | 'earlyAdopter') => {
     if (!confirm('Remove this badge?')) return;
-    await removeBadge({ adminId: ADMIN_ID, userId, type });
+    await removeBadge({ adminId: adminId, userId, type });
   };
 
   const handleDeleteProfile = async (profileId: any) => {
     if (!confirm('Delete this profile permanently?')) return;
-    await deleteProfile({ adminId: ADMIN_ID, profileId });
+    await deleteProfile({ adminId: adminId, profileId });
   };
 
   const handleAddCredits = async () => {
