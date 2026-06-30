@@ -302,7 +302,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   }, [aiResponse]);
 
   useEffect(() => {
-    const creatorQuestions = (profile as Record<string, unknown>).suggestedQuestions as string[] || [];
+    const creatorQuestions = (profile ? (profile as Record<string, unknown>).suggestedQuestions as string[] : []) || [];
     if (profile?.displayName && suggestedQuestions.length === 0) {
       if (creatorQuestions.filter((q: string) => q.trim()).length >= 2) { setSuggestedQuestions(creatorQuestions.filter((q: string) => q.trim())); return; }
       const name = profile.displayName.split(' ')[0];
