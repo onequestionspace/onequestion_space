@@ -58,6 +58,7 @@ export default function StudioPage() {
   const [vibeQuote, setVibeQuote] = useState('');
   const [links, setLinks] = useState<{title: string, url: string, image?: string}[]>([]);
   const [pinnedQuestions, setPinnedQuestions] = useState<string[]>([]);
+  const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
 
   useEffect(() => {
     if (!profile) return;
