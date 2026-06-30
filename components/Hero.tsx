@@ -96,6 +96,10 @@ export function Hero() {
 
       {/* Background — amber glow, no purple */}
       <div className='absolute inset-0 bg-[radial-gradient(ellipse_70%_40%_at_50%_-10%,rgba(245,158,11,0.15),transparent)]' />
+      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 40% at 85% 30%, rgba(239,68,68,0.12), transparent 60%)" }} />
+      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 40% at 10% 70%, rgba(250,204,21,0.10), transparent 60%)" }} />
+      <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(245,158,11,0.04) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.25) 100%)" }} />
+      <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(245,158,11,0.4), transparent)" }} />
       <div className='absolute inset-0' style={{
         backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px)',
         backgroundSize: '32px 32px',
@@ -106,8 +110,8 @@ export function Hero() {
         backgroundRepeat: 'repeat',
         backgroundSize: '128px 128px',
       }} />
-      <div className='absolute top-1/3 left-1/4 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl' />
-      <div className='absolute bottom-1/3 right-1/4 w-56 h-56 bg-orange-500/8 rounded-full blur-3xl' />
+      <div className='absolute top-1/3 left-1/4 w-96 h-96 rounded-full blur-[100px] opacity-40' style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.5), transparent 70%)' }} />
+      <div className='absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full blur-[100px] opacity-30' style={{ background: 'radial-gradient(circle, rgba(239,68,68,0.5), transparent 70%)' }} />
 
       <div className='relative z-10 max-w-5xl mx-auto px-4'>
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-12 items-center'>
