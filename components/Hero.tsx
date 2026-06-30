@@ -192,7 +192,7 @@ export function Hero() {
               </div>
 
               {/* Chat */}
-              <div className='p-5 space-y-3 min-h-[200px] max-h-[260px] overflow-y-auto flex flex-col justify-end'>
+              <div className='p-5 space-y-3 h-[260px] overflow-y-auto flex flex-col justify-end'>
                 {(phase === 'show-q' || phase === 'typing-a' || phase === 'show-a') && (
                   <div className='flex justify-end'>
                     <div className='max-w-[75%] px-4 py-2.5 rounded-2xl bg-zinc-800 border border-zinc-700'>
