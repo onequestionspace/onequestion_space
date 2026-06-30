@@ -664,6 +664,16 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
                     <Send className='w-4 h-4 text-black' />
                   </button>
                 </div>
+                {suggestedQuestions.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {suggestedQuestions.map((q, i) => (
+                      <button key={i} onClick={() => { setQuestion(q); setCharCount(q.length); }}
+                        className="px-3 py-1.5 rounded-full border border-white/10 bg-white/4 hover:bg-white/8 text-xs text-zinc-400 hover:text-white transition-all text-left">
+                        {q}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </motion.div>
             ) : (
               <motion.div key='response' initial={{ opacity: 0 }} animate={{ opacity: 1 }} ref={responseRef}>
