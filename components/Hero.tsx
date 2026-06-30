@@ -28,8 +28,9 @@ export function Hero() {
   const [phase, setPhase] = useState<'typing-q' | 'show-q' | 'typing-a' | 'show-a'>('typing-q');
   const [displayed, setDisplayed] = useState('');
 
-  const waitlistData = useQuery(api.waitlist.getWaitlistCount);
-  const count = (waitlistData?.count ?? 0) + 247;
+  const recentProfiles = useQuery(api.profiles.getRecentProfiles, { limit: 5 });
+  const profilesCount = useQuery(api.profiles.getProfilesCount);
+  const count = profilesCount ?? 0;
 
 
   useEffect(() => {
@@ -132,9 +133,9 @@ export function Hero() {
             {/* Social proof pill */}
             <div className='flex items-center gap-2 mb-8'>
               <div className='flex -space-x-2'>
-                {['A','P','K','M','T'].map((l, i) => (
-                  <div key={i} className='w-7 h-7 rounded-full border-2 border-background flex items-center justify-center text-[10px] font-bold text-white' style={{ backgroundColor: ['#f59e0b','#ef4444','#3b82f6','#22c55e','#f97316'][i] }}>
-                    {l}
+                {(recentProfiles && recentProfiles.length > 0 ? recentProfiles : [{ initials: "A", avatar: undefined, username: "asym" }]).map((p, i) => (
+                  <div key={i} className="w-7 h-7 rounded-full border-2 border-background overflow-hidden flex items-center justify-center text-[10px] font-bold text-white" style={{ backgroundColor: ["#f59e0b","#ef4444","#3b82f6","#22c55e","#f97316"][i % 5] }}>
+                    {p.avatar ? <img src={p.avatar} alt="" className="w-full h-full object-cover" /> : p.initials}
                   </div>
                 ))}
               </div>

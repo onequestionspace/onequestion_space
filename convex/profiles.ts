@@ -149,3 +149,11 @@ export const getRecentProfiles = query({
     }));
   },
 });
+
+export const getProfilesCount = query({
+  args: {},
+  handler: async (ctx) => {
+    const profiles = await ctx.db.query("profiles").collect();
+    return profiles.length;
+  },
+});
