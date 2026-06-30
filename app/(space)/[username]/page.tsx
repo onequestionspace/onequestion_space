@@ -307,9 +307,9 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
       if (creatorQuestions.filter((q: string) => q.trim()).length >= 2) { setSuggestedQuestions(creatorQuestions.filter((q: string) => q.trim())); return; }
       const name = profile.displayName.split(' ')[0];
       const defaults = [
-        'Who is ' + name + ' and what do they do?',
-        'How can I work with ' + name + '?',
-        'What is ' + name + ' currently building?',
+        "What are you currently building?",
+        "How can I work with you?",
+        "What's the one thing people misunderstand about your work?",
       ];
       // Try to generate smarter questions from knowledge
       fetch('/api/explore', {
