@@ -49,30 +49,18 @@ export function Hero() {
           timeout = setTimeout(() => setPhase('show-q'), 400);
         }
       }, 35);
-    } else if (phase === 'show-q') {
-      setTimeout(() => { setDisplayed(''); setPhase('typing-a'); }, 0);
-      fetch('/api/explore', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question, history: [] }),
-      })
-        .then(r => r.json())
-        .then(data => {
-          const answer = data.answer || 'Let me think about that...';
-          let i = 0;
-          interval = setInterval(() => {
-            i++;
-            setDisplayed(answer.slice(0, i));
-            if (i >= answer.length) {
-              clearInterval(interval);
-              timeout = setTimeout(() => setPhase('show-a'), 2500);
-            }
-          }, 16);
-        })
-        .catch(() => {
-          setDisplayed('One Question lets your AI answer this automatically.');
-          timeout = setTimeout(() => setPhase('show-a'), 2000);
-        });
+    } else if (phase === "show-q") {
+      setTimeout(() => { setDisplayed(""); setPhase("typing-a"); }, 0);
+      const answer = TYPING_PAIRS[pairIndex].a;
+      let i = 0;
+      interval = setInterval(() => {
+        i++;
+        setDisplayed(answer.slice(0, i));
+        if (i >= answer.length) {
+          clearInterval(interval);
+          timeout = setTimeout(() => setPhase("show-a"), 2500);
+        }
+      }, 16);
     } else if (phase === 'show-a') {
       timeout = setTimeout(() => {
         setPairIndex(p => (p + 1) % DEMO_QUESTIONS.length);
