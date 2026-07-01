@@ -695,80 +695,132 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
           )}
         </motion.div>
 
-        {/* Conversation History */}
-        {history.length > 0 && (
-          <div className='mb-4 space-y-4'>
-            <p className={'text-xs uppercase tracking-widest mb-3 text-center ' + textMuted}>Previous conversation</p>
-            {history.map((item, i) => (
-              <div key={i} className='space-y-2'>
-                <div className='flex justify-end'>
-                  <div className='max-w-[85%] px-4 py-3 rounded-3xl rounded-br-sm text-white text-sm leading-relaxed' style={{ backgroundColor: color }}>
-                    {item.q}
-                  </div>
-                </div>
-                <div className='flex justify-start'>
-                  <div className={'max-w-[85%] px-4 py-3 rounded-3xl rounded-tl-sm text-sm leading-relaxed ' + (isLight ? 'bg-zinc-100 text-zinc-900' : 'bg-white/8 text-white')}>
-                    {item.a}
-                  </div>
-                </div>
-              </div>
-            ))}
-            <button onClick={() => { setHistory([]); try { localStorage.removeItem('convo_' + username); } catch {} }} className={'text-xs text-center w-full mt-2 ' + textMuted + ' hover:opacity-80 transition-opacity'}>
-              Clear history
-            </button>
-          </div>
-        )}
+        {/* ── Conversation thread ── */}
+        <div className="space-y-4 mb-4">
+          {/* Welcome bubble — always first */}
+          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex items-end gap-2">
+            <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 mb-1 flex items-center justify-center text-xs font-bold text-white" style={{ backgroundColor: color }}>
+              {profile.avatar ? <img src={profile.avatar} alt="" className="w-full h-full object-cover" /> : initials}
+            </div>
+            <div className={"px-4 py-3 rounded-3xl rounded-tl-sm text-sm leading-relaxed max-w-[85%] " + (isLight ? "bg-zinc-100 text-zinc-800" : "bg-white/8 text-white/90")}>
+              {welcomeMessage}
+            </div>
+          </motion.div>
 
-        {/* Ask Card — iMessage style */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className='mb-6'>
-          {!submitted && (
-            <p className={'text-xs mb-4 text-center italic ' + textMuted}>&ldquo;{welcomeMessage}&rdquo;</p>
-          )}
-
-
-          {/* Always-visible input — like iMessage */}
-          <div className={'flex items-end gap-2 px-3 py-2 rounded-3xl border ' + (isLight ? 'border-zinc-200 bg-white/90' : 'border-zinc-700/40 bg-zinc-900/50') + ' backdrop-blur-sm'}>
-            <textarea
-              value={question}
-              onChange={e => {
-                if (e.target.value.length <= MAX_CHARS) {
-                  setQuestion(e.target.value);
-                  setCharCount(e.target.value.length);
-                }
-              }}
-              placeholder={'Ask ' + firstName + ' anything...'}
-              rows={question.length > 60 ? 3 : 1}
-              className={'flex-1 px-2 py-1.5 bg-transparent focus:outline-none resize-none text-sm leading-relaxed ' + (isLight ? 'text-zinc-900 placeholder:text-zinc-400' : 'text-white placeholder:text-zinc-500')}
-              onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSubmit(); } }}
-              disabled={isTyping}
-            />
-            <button onClick={handleSubmit} disabled={!question.trim() || isTyping}
-              className='w-8 h-8 rounded-full flex items-center justify-center transition-all disabled:opacity-20 hover:opacity-90 active:scale-95 shrink-0'
-              style={{ backgroundColor: color }}>
-              <svg className='w-3.5 h-3.5 text-white' viewBox='0 0 24 24' fill='none' stroke='currentColor' strokeWidth='2.5' strokeLinecap='round' strokeLinejoin='round'><path d='M12 19V5M5 12l7-7 7 7'/></svg>
-            </button>
-          </div>
-
-          {/* Suggested questions — only when no conversation */}
+          {/* Suggested question chips */}
           {history.length === 0 && !submitted && suggestedQuestions.length > 0 && (
-            <div className='flex flex-wrap gap-2 mt-3'>
+            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="flex flex-wrap gap-2 pl-9">
               {suggestedQuestions.map((q, i) => (
                 <button key={i} onClick={() => { setQuestion(q); setCharCount(q.length); }}
-                  className={'px-3 py-1.5 rounded-full border text-xs transition-all ' + (isLight ? 'border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50' : 'border-white/10 bg-white/4 text-zinc-400 hover:text-white hover:bg-white/8')}>
+                  className={"px-3 py-1.5 rounded-full border text-xs transition-all active:scale-95 " + (isLight ? "border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50" : "border-white/10 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10")}>
                   {q}
                 </button>
               ))}
-            </div>
+            </motion.div>
           )}
+
+          {/* History thread */}
+          {history.map((item, i) => (
+            <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="space-y-2">
+              <div className="flex justify-end">
+                <div className="max-w-[85%] px-4 py-3 rounded-3xl rounded-br-sm text-white text-sm leading-relaxed" style={{ backgroundColor: color }}>
+                  {item.q}
+                </div>
+              </div>
+              <div className="flex items-end gap-2">
+                <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 mb-1 flex items-center justify-center text-xs font-bold text-white" style={{ backgroundColor: color }}>
+                  {profile.avatar ? <img src={profile.avatar} alt="" className="w-full h-full object-cover" /> : initials}
+                </div>
+                <div className={"max-w-[85%] px-4 py-3 rounded-3xl rounded-tl-sm text-sm leading-relaxed " + (isLight ? "bg-zinc-100 text-zinc-900" : "bg-white/8 text-white")}>
+                  {item.a}
+                </div>
+              </div>
+            </motion.div>
+          ))}
+
+          {/* Current question — sent */}
+          {submitted && (
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex justify-end">
+              <div className="max-w-[85%] px-4 py-3 rounded-3xl rounded-br-sm text-white text-sm leading-relaxed" style={{ backgroundColor: color }}>
+                {question}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Typing indicator */}
+          {isTyping && !aiResponse && (
+            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex items-end gap-2">
+              <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 mb-1 flex items-center justify-center text-xs font-bold text-white" style={{ backgroundColor: color }}>
+                {profile.avatar ? <img src={profile.avatar} alt="" className="w-full h-full object-cover" /> : initials}
+              </div>
+              <div className={"px-4 py-3 rounded-3xl rounded-tl-sm " + (isLight ? "bg-zinc-100" : "bg-white/8")}>
+                <div className="flex gap-1">
+                  {[0,150,300].map(d => <div key={d} className="w-1.5 h-1.5 rounded-full animate-bounce opacity-60" style={{ backgroundColor: color, animationDelay: d + "ms" }} />)}
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* AI response streaming */}
+          {aiResponse && (
+            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex items-end gap-2" ref={responseRef}>
+              <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 mb-1 flex items-center justify-center text-xs font-bold text-white" style={{ backgroundColor: color }}>
+                {profile.avatar ? <img src={profile.avatar} alt="" className="w-full h-full object-cover" /> : initials}
+              </div>
+              <div className={"max-w-[85%] px-4 py-3 rounded-3xl rounded-tl-sm text-sm leading-relaxed " + (isLight ? "bg-zinc-100 text-zinc-900" : "bg-white/8 text-white")}>
+                {aiResponse}{isTyping && <span className="inline-block w-0.5 h-3.5 ml-0.5 align-middle animate-pulse rounded-sm" style={{ backgroundColor: color }} />}
+              </div>
+            </motion.div>
+          )}
+
+          {/* Post-answer actions */}
+          {!isTyping && aiResponse && (
+            <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex items-center gap-3 pl-9">
+              {["🔥","👏","💡","❤️"].map(emoji => (
+                <button key={emoji} onClick={() => handleReaction(emoji)}
+                  className={"text-sm px-2 py-1 rounded-full border transition-all " + (reacted === emoji ? "border-white/30 bg-white/10" : "border-white/8 bg-white/4 hover:bg-white/10")}>
+                  {emoji}
+                </button>
+              ))}
+              <button onClick={copyAnswer} className="text-xs opacity-40 hover:opacity-70 transition-opacity ml-1">copy</button>
+              <button onClick={shareToX} className="text-xs opacity-40 hover:opacity-70 transition-opacity">share</button>
+            </motion.div>
+          )}
+
+          {/* Clear history */}
+          {history.length > 0 && !submitted && (
+            <button onClick={() => { setHistory([]); try { localStorage.removeItem("convo_" + username); } catch {} }}
+              className={"text-xs text-center w-full pt-2 " + textMuted + " hover:opacity-80 transition-opacity"}>
+              Clear conversation
+            </button>
+          )}
+        </div>
+
+        {/* ── Input bar ── */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mb-6">
+          <div className={"flex items-end gap-2 px-3 py-2 rounded-3xl border " + (isLight ? "border-zinc-200 bg-white/90" : "border-zinc-700/40 bg-zinc-900/50") + " backdrop-blur-sm"}>
+            <textarea
+              value={question}
+              onChange={e => { if (e.target.value.length <= MAX_CHARS) { setQuestion(e.target.value); setCharCount(e.target.value.length); } }}
+              placeholder={"Ask " + firstName + " anything..."}
+              rows={question.length > 60 ? 3 : 1}
+              className={"flex-1 px-2 py-1.5 bg-transparent focus:outline-none resize-none text-sm leading-relaxed " + (isLight ? "text-zinc-900 placeholder:text-zinc-400" : "text-white placeholder:text-zinc-500")}
+              onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSubmit(); } }}
+              disabled={isTyping}
+            />
+            <button onClick={handleSubmit} disabled={!question.trim() || isTyping}
+              className="w-8 h-8 rounded-full flex items-center justify-center transition-all disabled:opacity-20 hover:opacity-90 active:scale-95 shrink-0"
+              style={{ backgroundColor: color }}>
+              <svg className="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+            </button>
+          </div>
         </motion.div>
 
         {/* Footer */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
           className={'mt-10 text-center pt-8 border-t ' + (isLight ? 'border-zinc-200' : 'border-white/5')}>
           <Link href='/' className='inline-flex items-center gap-1.5 text-sm font-bold' style={{ color }}>
-            <span className='opacity-60 text-xs font-normal text-zinc-500'>Power
-
-red by</span> One Question ✦
+            <span className="opacity-60 text-xs font-normal text-zinc-500">Powered by</span> One Question ✦
           </Link>
           <p className='text-xs text-zinc-600 mt-3 flex items-center justify-center gap-1.5'>
             <span className='w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse inline-block' />
