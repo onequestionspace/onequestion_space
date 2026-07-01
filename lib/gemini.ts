@@ -51,6 +51,16 @@ export async function generateAnswer(
   chunks: string[],
   profile?: ProfileContext
 ): Promise<string> {
+
+  // Try Groq first — it is free and fast
+  if (GROQ_API_KEY) {
+    try {
+      return await generateAnswerGroq(question, chunks, profile);
+    } catch (groqError) {
+      console.error('Groq primary failed, falling back to Gemini:', groqError);
+    }
+  }
+
   if (!GEMINI_API_KEY) return 'AI is not configured yet.';
 
   try {
@@ -64,7 +74,7 @@ export async function generateAnswer(
 
     // Dynamic token limit
     const wordCount = question.split(' ').length;
-    const maxTokens = wordCount > 15 ? 800 : wordCount > 8 ? 600 : 400;
+    const maxTokens = wordCount > 15 ? 250 : wordCount > 8 ? 180 : 120;
 
     const prompt = `You are ${name}. A visitor is asking you a question on your personal AI space. Answer as yourself — in your own voice, naturally, like you are personally replying.
 
@@ -185,7 +195,7 @@ ${context ? `Your knowledge:\n${context}` : 'You have no knowledge uploaded yet.
         { role: 'user', content: question },
       ],
       temperature: 0.7,
-      max_tokens: 1024,
+      max_tokens: 300,
     }),
   });
 
