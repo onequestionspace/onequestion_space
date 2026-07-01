@@ -6,7 +6,6 @@ import { BentoSection } from '@/components/BentoSection';
 import { HowItWorksSection } from '@/components/HowItWorksSection';
 import { PricingSection } from '@/components/PricingSection';
 import { CTASection } from '@/components/CTASection';
-import { StorySection } from '@/components/StorySection';
 import { FadeInSection } from '@/components/FadeInSection';
 
 export default function Home() {
@@ -23,7 +22,6 @@ export default function Home() {
         <HowItWorksSection />
       </FadeInSection>
       <FadeInSection delay={0}>
-        <StorySection />
       </FadeInSection>
       <FadeInSection delay={0}>
         <PricingSection />
