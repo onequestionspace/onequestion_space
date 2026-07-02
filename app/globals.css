@@ -165,7 +165,7 @@ html { scroll-behavior: smooth; font-family: sans-serif; }
   background-size: 60px 60px;
 }
 .dot-pattern {
-  background-image: radial-gradient(rgba(245, 158, 11, 0.12) 1px, transparent 1px);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='20'%3E%3Ccircle cx='1' cy='1' r='1' fill='rgba(245,158,11,0.12)'/%3E%3C/svg%3E");
   background-size: 20px 20px;
 }
 

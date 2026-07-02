@@ -45,7 +45,8 @@ export function Navbar() {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  if (isSpacePage) return null;
+  const isDashboardPage = segments[0] === 'dashboard';
+  if (isSpacePage || isDashboardPage) return null;
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50">
