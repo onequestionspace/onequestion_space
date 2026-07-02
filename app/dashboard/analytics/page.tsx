@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { redirect } from 'next/navigation';
 import { DashboardLayout } from '@/components/DashboardLayout';
@@ -50,28 +51,30 @@ export default function AnalyticsPage() {
   const totalA = analyticsData?.totalAnswers || 0;
   const responseRate = totalQ > 0 ? Math.round((totalA / totalQ) * 100) : 0;
 
-  const last7Days = Array.from({ length: 7 }, (_, i) => {
-    const d = new Date();
-    d.setDate(d.getDate() - (6 - i));
-    return {
-      date: d.toLocaleDateString('en-US', { weekday: 'short' }),
-      timestamp: d.setHours(0, 0, 0, 0),
-      questions: 0,
-    };
-  });
-
-  if (questions) {
-    questions.forEach(q => {
-      const qDate = new Date(q.createdAt || q._creationTime).setHours(0, 0, 0, 0);
-      const day = last7Days.find(d => d.timestamp === qDate);
-      if (day) day.questions++;
+  const chartData = useMemo(() => {
+    const days = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date();
+      d.setDate(d.getDate() - (6 - i));
+      return {
+        date: d.toLocaleDateString('en-US', { weekday: 'short' }),
+        timestamp: d.setHours(0, 0, 0, 0),
+        questions: 0,
+      };
     });
-  }
+    if (questions) {
+      for (const q of questions) {
+        const qDate = new Date(q.createdAt || q._creationTime).setHours(0, 0, 0, 0);
+        const day = days.find(d => d.timestamp === qDate);
+        if (day) day.questions++;
+      }
+    }
+    return days;
+  }, [questions]);
 
-  const pieData = [
+  const pieData = useMemo(() => [
     { name: 'Answered', value: totalA, color: '#f59e0b' },
     { name: 'Pending', value: Math.max(0, totalQ - totalA), color: '#27272a' },
-  ];
+  ], [totalA, totalQ]);
 
   return (
     <DashboardLayout title="Analytics" description="Real-time stats for your space">
@@ -93,7 +96,7 @@ export default function AnalyticsPage() {
               </div>
             ) : (
               <ResponsiveContainer width="100%" height={160}>
-                <BarChart data={last7Days} barSize={24}>
+                <BarChart data={chartData} barSize={24}>
                   <XAxis dataKey="date" tick={{ fill: '#71717a', fontSize: 11 }} axisLine={false} tickLine={false} />
                   <Tooltip content={<CustomTooltip />} cursor={{ fill: '#ffffff08' }} />
                   <Bar dataKey="questions" fill="#f59e0b" radius={[6, 6, 0, 0]} />
