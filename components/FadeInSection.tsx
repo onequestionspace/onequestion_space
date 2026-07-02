@@ -1,41 +1,29 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
 
-export function FadeInSection({ 
-  children, 
+export function FadeInSection({
+  children,
   delay = 0,
   className = ''
-}: { 
-  children: React.ReactNode; 
+}: {
+  children: React.ReactNode;
   delay?: number;
   className?: string;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
-      { threshold: 0.08, rootMargin: '-40px 0px' }
-    );
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
-
   return (
-    <div
-      ref={ref}
+    <motion.div
       className={className}
-      style={{
-        transition: `opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1), transform 0.7s cubic-bezier(0.22, 1, 0.36, 1)`,
-        transitionDelay: delay + 'ms',
-        opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(36px)',
-        willChange: 'opacity, transform',
+      initial={{ opacity: 0, y: 36 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-40px' }}
+      transition={{
+        duration: 0.7,
+        delay: delay / 1000,
+        ease: [0.22, 1, 0.36, 1],
       }}
     >
       {children}
-    </div>
+    </motion.div>
   );
 }

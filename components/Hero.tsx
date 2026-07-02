@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { ArrowRight, Sparkles } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 
 const DEMO_QUESTIONS = [
   'How can I work with Asym?',
@@ -27,6 +27,11 @@ export function Hero() {
   const [pairIndex, setPairIndex] = useState(0);
   const [phase, setPhase] = useState<'typing-q' | 'show-q' | 'typing-a' | 'show-a'>('typing-q');
   const [displayed, setDisplayed] = useState('');
+
+  const { scrollY } = useScroll();
+  const orb1Y = useTransform(scrollY, [0, 600], [0, -80]);
+  const orb2Y = useTransform(scrollY, [0, 600], [0, 60]);
+  const orbOpacity = useTransform(scrollY, [0, 400], [1, 0.6]);
 
   const recentProfiles = useQuery(api.profiles.getRecentProfiles, { limit: 5 });
   const profilesCount = useQuery(api.profiles.getProfilesCount);
@@ -83,8 +88,8 @@ export function Hero() {
     <section className='relative min-h-screen flex items-center justify-center overflow-hidden pt-20 pb-16'>
 
       {/* Background — amber glow, no purple */}
-      <div className='absolute inset-0 bg-[radial-gradient(ellipse_70%_40%_at_50%_-10%,rgba(245,158,11,0.15),transparent)]' />
-      <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 40% at 85% 30%, rgba(239,68,68,0.12), transparent 60%)" }} />
+      <motion.div className='absolute inset-0' style={{ y: orb1Y, opacity: orbOpacity, background: "radial-gradient(ellipse 70% 40% at 50% -10%,rgba(245,158,11,0.15),transparent)" }} />
+      <motion.div className="absolute inset-0" style={{ y: orb2Y, opacity: orbOpacity, background: "radial-gradient(ellipse 60% 40% at 85% 30%, rgba(239,68,68,0.12), transparent 60%)" }} />
       <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 40% at 10% 70%, rgba(250,204,21,0.10), transparent 60%)" }} />
       <div className="absolute inset-0" style={{ background: "linear-gradient(180deg, rgba(245,158,11,0.04) 0%, transparent 30%, transparent 70%, rgba(0,0,0,0.25) 100%)" }} />
       <div className="absolute top-0 left-0 right-0 h-px" style={{ background: "linear-gradient(90deg, transparent, rgba(245,158,11,0.4), transparent)" }} />
@@ -93,13 +98,13 @@ export function Hero() {
         backgroundSize: '32px 32px',
       }} />
       {/* Grain texture */}
-      <div className='absolute inset-0 opacity-[0.03] pointer-events-none' style={{
-        backgroundImage: 'none',
+      <div className='absolute inset-0 opacity-[0.05] pointer-events-none mix-blend-soft-light' style={{
+        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`,
         backgroundRepeat: 'repeat',
         backgroundSize: '128px 128px',
       }} />
-      <div className='absolute top-1/3 left-1/4 w-96 h-96 rounded-full blur-[100px] opacity-40' style={{ background: 'radial-gradient(circle, rgba(245,158,11,0.5), transparent 70%)' }} />
-      <div className='absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full blur-[100px] opacity-30' style={{ background: 'radial-gradient(circle, rgba(239,68,68,0.5), transparent 70%)' }} />
+      <motion.div className='absolute top-1/3 left-1/4 w-96 h-96 rounded-full blur-[100px] opacity-40' style={{ y: orb1Y, background: 'radial-gradient(circle, rgba(245,158,11,0.5), transparent 70%)' }} />
+      <motion.div className='absolute bottom-1/4 right-1/4 w-80 h-80 rounded-full blur-[100px] opacity-30' style={{ y: orb2Y, background: 'radial-gradient(circle, rgba(239,68,68,0.5), transparent 70%)' }} />
 
       <div className='relative z-10 max-w-5xl mx-auto px-4'>
         <div className='grid grid-cols-1 lg:grid-cols-2 gap-12 items-center'>
@@ -154,7 +159,7 @@ export function Hero() {
             {isLoaded && (
               <button
                 onClick={handleClaim}
-                className='group w-full max-w-sm py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-black text-sm flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-lg shadow-amber-500/20'
+                className='group w-full max-w-sm py-3.5 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black font-black text-sm flex items-center justify-center gap-2 transition-all hover:-translate-y-0.5 active:translate-y-0 shadow-lg shadow-amber-500/20 hover:shadow-[0_0_24px_rgba(245,158,11,0.4)]'
               >
                 Claim your space free
                 <ArrowRight className='w-4 h-4 group-hover:translate-x-1 transition-transform' />
@@ -166,7 +171,7 @@ export function Hero() {
           {/* Right — live demo */}
           <div className='relative'>
             <div className='absolute -inset-4 bg-gradient-to-r from-amber-500/10 to-orange-500/10 rounded-3xl blur-2xl' />
-            <div className='relative rounded-3xl border border-zinc-800 overflow-hidden bg-zinc-950'>
+            <div className='relative rounded-3xl border border-zinc-800 overflow-hidden bg-zinc-950 shadow-[0_0_30px_rgba(245,158,11,0.08)]'>
 
               {/* Terminal-style header bar */}
               <div className='px-4 py-3 border-b border-zinc-800 flex items-center gap-2 bg-zinc-900'>

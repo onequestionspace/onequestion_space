@@ -21,8 +21,7 @@ export default function Home() {
       <FadeInSection delay={0}>
         <HowItWorksSection />
       </FadeInSection>
-      <FadeInSection delay={0}>
-      </FadeInSection>
+
       <FadeInSection delay={0}>
         <PricingSection />
       </FadeInSection>

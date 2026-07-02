@@ -1,5 +1,6 @@
 'use client';
 import Image from 'next/image';
+import { motion } from 'framer-motion';
 
 const dms = [
   { name: 'Asym A.', msg: 'How do you build without a laptop?', time: '1m ago' },
@@ -30,54 +31,77 @@ function DmBubble({ name, msg, time }: { name: string; msg: string; time: string
   const avatar = AVATAR_MAP[name] || getDiceBear(name);
   return (
     <div className="flex items-start gap-2.5 mb-3">
-      <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-white/10">
+      <div className="w-8 h-8 rounded-full overflow-hidden shrink-0 border border-black/5">
         <Image src={avatar} alt={name} width={32} height={32} className="w-full h-full object-cover" />
       </div>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <span className="text-white/70 text-xs font-medium">{name}</span>
-          <span className="text-white/30 text-xs">{time}</span>
+          <span className="text-zinc-700 text-xs font-medium">{name}</span>
+          <span className="text-zinc-400 text-xs">{time}</span>
         </div>
-        <div className="bg-zinc-800 border border-zinc-700 rounded-2xl rounded-tl-sm px-3 py-2">
-          <p className="text-white/80 text-sm leading-snug">{msg}</p>
+        <div className="bg-white border border-zinc-200 rounded-2xl rounded-tl-sm px-3 py-2 shadow-sm">
+          <p className="text-zinc-700 text-sm leading-snug">{msg}</p>
         </div>
       </div>
     </div>
   );
 }
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: { staggerChildren: 0.06 },
+  },
+};
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 12 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] as const },
+  },
+};
+
 export function ProblemSection() {
   return (
-    <section className="relative py-24 overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(239,68,68,0.04),transparent_70%)]" />
+    <section className="relative py-24 overflow-hidden chalk-section-warm">
+      <div className="absolute top-0 left-0 right-0 h-px section-divider" />
       <div className="relative z-10 max-w-2xl mx-auto px-4 text-center mb-12">
-        <p className="text-amber-400 text-sm font-bold uppercase tracking-widest mb-4">The problem</p>
-        <h2 className="text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
+        <p className="text-amber-600 text-sm font-bold uppercase tracking-widest mb-4">The problem</p>
+        <h2 className="text-4xl md:text-5xl font-black chalk-heading mb-4 leading-tight">
           You keep answering the<br />
-          <span className="bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent">same questions.</span><br />
+          <span className="bg-gradient-to-r from-amber-500 to-orange-500 bg-clip-text text-transparent">same questions.</span><br />
           Every. Single. Day.
         </h2>
-        <p className="text-zinc-400 text-lg">
+        <p className="chalk-sub text-lg">
           Your inbox is full. Your DMs never stop. You are repeating yourself to every new person who finds you.
         </p>
       </div>
 
-      <div className="relative h-72 overflow-hidden mx-auto max-w-lg px-4">
-        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-background to-transparent z-10 pointer-events-none" />
-        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none" />
+      <motion.div
+        className="relative h-72 overflow-hidden mx-auto max-w-lg px-4"
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: '-40px' }}
+      >
+        <div className="absolute top-0 left-0 right-0 h-16 bg-gradient-to-b from-[#fef9f0] to-transparent z-10 pointer-events-none" />
+        <div className="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-[#fef9f0] to-transparent z-10 pointer-events-none" />
         <div className="grid grid-cols-2 gap-3 h-full">
-          <div className="overflow-hidden">
+          <motion.div className="overflow-hidden" variants={itemVariants}>
             <div className="flex flex-col" style={{ animation: 'scrollUp 18s linear infinite' }}>
               {col1.map((dm, i) => <DmBubble key={i} {...dm} />)}
             </div>
-          </div>
-          <div className="overflow-hidden">
+          </motion.div>
+          <motion.div className="overflow-hidden" variants={itemVariants}>
             <div className="flex flex-col" style={{ animation: 'scrollDown 22s linear infinite' }}>
               {col2.map((dm, i) => <DmBubble key={i} {...dm} />)}
             </div>
-          </div>
+          </motion.div>
         </div>
-      </div>
+      </motion.div>
 
       <style jsx>{`
         @keyframes scrollUp { 0% { transform: translateY(0); } 100% { transform: translateY(-50%); } }
@@ -85,10 +109,16 @@ export function ProblemSection() {
       `}</style>
 
       <div className="relative z-10 max-w-2xl mx-auto px-4 text-center mt-12">
-        <div className="inline-block px-8 py-5 rounded-2xl border border-amber-500/20 bg-amber-500/5">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          className="inline-block px-8 py-5 rounded-2xl bg-[#0a0208] border border-amber-500/20 shadow-lg shadow-amber-500/5"
+        >
           <p className="text-white font-black text-xl">There is a better way.</p>
           <p className="text-zinc-400 text-sm mt-1">One space. Every question answered. Automatically.</p>
-        </div>
+        </motion.div>
       </div>
     </section>
   );

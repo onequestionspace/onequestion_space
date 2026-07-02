@@ -49,7 +49,7 @@ function FaqCards({ inView }: { inView: boolean }) {
   return (
     <div className='mt-12'>
       <p className='text-zinc-500 text-xs uppercase tracking-widest mb-6 font-semibold'>Questions people actually ask</p>
-      <div className='relative overflow-hidden rounded-2xl border border-white/8 bg-white/2 min-h-[160px]'>
+      <div className='relative overflow-hidden rounded-2xl chalk-card min-h-[160px]'>
         <AnimatePresence mode='wait' custom={dir}>
           <motion.div
             key={active}
@@ -65,8 +65,8 @@ function FaqCards({ inView }: { inView: boolean }) {
             transition={{ duration: 0.35, ease: 'easeInOut' }}
             className='p-6 absolute inset-0'
           >
-            <p className='text-white font-bold text-base mb-3'>{FAQS[active].q}</p>
-            <p className='text-zinc-400 text-sm leading-relaxed'>{FAQS[active].a}</p>
+            <p className='chalk-heading font-bold text-base mb-3'>{FAQS[active].q}</p>
+            <p className='chalk-sub text-sm leading-relaxed'>{FAQS[active].a}</p>
           </motion.div>
         </AnimatePresence>
       </div>
@@ -89,6 +89,7 @@ export function PricingSection() {
 
   return (
     <section className='relative py-24 overflow-hidden' ref={ref}>
+      <div className="absolute top-0 left-0 right-0 h-px section-divider" />
       <div className='relative z-10 max-w-3xl mx-auto px-4'>
         <div className='text-center mb-16'>
           <p className='text-amber-500 text-sm font-semibold uppercase tracking-widest mb-4'>Pricing</p>
@@ -152,16 +153,21 @@ export function PricingSection() {
 
         <p className='text-center text-zinc-600 text-sm mt-8'>Need more? Buy credits anytime from your dashboard. No commitment.</p>
 
-        <motion.div initial={{opacity:0,y:20}} animate={inView?{opacity:1,y:0}:{}} transition={{duration:0.6,delay:0.5}} className='mt-12 p-6 rounded-2xl border border-white/8 bg-white/3'>
+        <motion.div
+          initial={{opacity:0,y:20}}
+          animate={inView?{opacity:1,y:0}:{}}
+          transition={{duration:0.6,delay:0.5}}
+          className='mt-12 p-6 rounded-2xl chalk-card'
+        >
           <div className='flex items-start gap-4'>
-            <img src='/founders/asym.png' alt='Asym' className='w-10 h-10 rounded-full border border-white/10 shrink-0 object-cover' />
+            <img src='/founders/asym.png' alt='Asym' className='w-10 h-10 rounded-full border border-black/5 shrink-0 object-cover' />
             <div>
-              <p className='text-zinc-300 text-sm leading-loose'>
+              <p className='chalk-sub text-sm leading-loose'>
                 I built this on an Android phone with no funding, no team, no laptop — just Termux and a lot of late nights in Yobe.
                 The $9/month keeps the servers running and helps me keep building.
                 If One Question saves you even one hour a month, it is worth it.
               </p>
-              <p className='text-amber-500 text-sm font-bold mt-3'>— Asym, 19 · Yobe, Nigeria 🇳🇬</p>
+              <p className='text-amber-600 text-sm font-bold mt-3'>— Asym, 19 · Yobe, Nigeria 🇳🇬</p>
             </div>
           </div>
         </motion.div>
