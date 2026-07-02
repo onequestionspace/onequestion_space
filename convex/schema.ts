@@ -44,11 +44,13 @@ export default defineSchema({
     question: v.string(),
     answer: v.optional(v.string()),
     isAnswered: v.boolean(),
+    needsReview: v.optional(v.boolean()),
     createdAt: v.number(),
     answeredAt: v.optional(v.number()),
   })
     .index('by_profileId', ['profileId'])
-    .index('by_isAnswered', ['isAnswered']),
+    .index('by_isAnswered', ['isAnswered'])
+    .index('by_profileId_needsReview', ['profileId', 'needsReview']),
 
   analytics: defineTable({
     profileId: v.id('profiles'),

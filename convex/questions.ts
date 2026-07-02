@@ -38,6 +38,7 @@ export const createQuestion = mutation({
     answer: v.optional(v.string()),
     visitorId: v.optional(v.string()),
     isAnswered: v.optional(v.boolean()),
+    needsReview: v.optional(v.boolean()),
     createdAt: v.optional(v.number()),
     answeredAt: v.optional(v.number()),
   },
@@ -48,6 +49,7 @@ export const createQuestion = mutation({
       answer: args.answer,
       visitorId: args.visitorId,
       isAnswered: args.isAnswered ?? false,
+      needsReview: args.needsReview ?? false,
       createdAt: args.createdAt ?? Date.now(),
       answeredAt: args.answeredAt,
     });
@@ -97,5 +99,44 @@ export const getVisitorEmails = query({
       .map(q => q.visitorId)
       .filter((v): v is string => !!v && v.includes('@'));
     return Array.from(new Set(emails));
+  },
+});
+
+
+export const listNeedsReview = query({
+  args: { profileId: v.id('profiles') },
+  handler: async (ctx, { profileId }) => {
+    return await ctx.db
+      .query('questions')
+      .withIndex('by_profileId_needsReview', (q) =>
+        q.eq('profileId', profileId).eq('needsReview', true)
+      )
+      .order('desc')
+      .collect();
+  },
+});
+
+export const resolveQuestion = mutation({
+  args: {
+    id: v.id('questions'),
+    correctedAnswer: v.string(),
+    userId: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const q = await ctx.db.get(args.id);
+    if (!q) return;
+    await ctx.db.patch(args.id, {
+      answer: args.correctedAnswer,
+      isAnswered: true,
+      needsReview: false,
+      answeredAt: Date.now(),
+    });
+    await ctx.db.insert('knowledge', {
+      userId: args.userId,
+      title: q.question,
+      content: args.correctedAnswer,
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    });
   },
 });

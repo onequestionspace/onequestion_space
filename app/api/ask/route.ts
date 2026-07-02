@@ -6,6 +6,19 @@ import { api } from '@/convex/_generated/api';
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
+function isLowConfidence(answer: string): boolean {
+  const lower = answer.toLowerCase();
+  const weakPhrases = [
+    "i don't have any knowledge", "i don't know", "i'm not sure", "i am not sure",
+    "not sure about", "no information", "i don't have information",
+    "i couldn't find", "i could not find", "unable to answer",
+    "doesn't mention", "does not mention", "not mentioned",
+  ];
+  if (weakPhrases.some(p => lower.includes(p))) return true;
+  if (answer.trim().length < 40) return true;
+  return false;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -82,6 +95,7 @@ export async function POST(request: NextRequest) {
       question,
       answer,
       isAnswered: true,
+      needsReview: isLowConfidence(answer),
       createdAt: Date.now(),
       answeredAt: Date.now(),
     });
