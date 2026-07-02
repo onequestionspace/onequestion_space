@@ -62,6 +62,7 @@ export default function StudioPage() {
 
   useEffect(() => {
     if (!profile) return;
+    /* eslint-disable react-hooks/set-state-in-effect */
     setDisplayName(profile.displayName || '');
     setBio(profile.bio || '');
     setWelcomeMessage(profile.welcomeMessage || '');
@@ -69,6 +70,7 @@ export default function StudioPage() {
     try { setLinks(JSON.parse((profile as Record<string, unknown>).links as string || '[]')); } catch { setLinks([]); }
     setPinnedQuestions((profile as Record<string, unknown>).pinnedQuestions as string[] || []);
     setSuggestedQuestions((profile as Record<string, unknown>).suggestedQuestions as string[] || []);
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [profile]);
 
   const save = async (fields: Record<string, unknown>) => {
@@ -229,7 +231,7 @@ export default function StudioPage() {
                         <div className="flex items-center gap-2">
                           {link.image ? (
                             <div className="relative w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-white/10">
-                              <img src={link.image} alt="" className="w-full h-full object-cover" />
+                              <Image src={link.image} alt="" width={48} height={48} className="w-full h-full object-cover" />
                               <button onClick={() => { const next = [...links]; next[i].image = ''; setLinks(next); }}
                                 className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity text-white text-xs">x</button>
                             </div>

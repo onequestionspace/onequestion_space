@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, use, useRef, useEffect } from 'react';
+import { useState, use, useRef, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
@@ -290,7 +290,12 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   const [isTyping, setIsTyping] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [history, setHistory] = useState<{q: string; a: string}[]>([]);
+  const [history, setHistory] = useState<{q: string; a: string}[]>(() => {
+    try {
+      const stored = typeof window !== 'undefined' ? localStorage.getItem('convo_' + username) : null;
+      return stored ? JSON.parse(stored) : [];
+    } catch { return []; }
+  });
   const [copiedAnswer, setCopiedAnswer] = useState(false);
   const [charCount, setCharCount] = useState(0);
   const [reacted, setReacted] = useState<string | null>(null);
@@ -318,14 +323,6 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   const incrementVisitor = useMutation(api.analytics.incrementVisitorCount);
   const incrementQuestion = useMutation(api.analytics.incrementQuestionCount);
 
-  // Load conversation history from localStorage
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem('convo_' + username);
-      if (stored) setHistory(JSON.parse(stored));
-    } catch {}
-  }, [username]);
-
   useEffect(() => {
     if (profile?._id) {
       const key = 'visited_' + profile._id;
@@ -344,39 +341,35 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
     }
   }, [aiResponse]);
 
+  const creatorQuestions = useMemo(() => {
+    return ((profile ? (profile as Record<string, unknown>).suggestedQuestions as string[] : []) || []).filter((q: string) => q.trim());
+  }, [profile]);
+
   useEffect(() => {
-    const creatorQuestions = (profile ? (profile as Record<string, unknown>).suggestedQuestions as string[] : []) || [];
-    if (profile?.displayName && suggestedQuestions.length === 0) {
-      if (creatorQuestions.filter((q: string) => q.trim()).length >= 2) { setSuggestedQuestions(creatorQuestions.filter((q: string) => q.trim())); return; }
-      const name = profile.displayName.split(' ')[0];
-      const defaults = [
-        "What are you currently building?",
-        "How can I work with you?",
-        "What's the one thing people misunderstand about your work?",
-      ];
-      // Try to generate smarter questions from knowledge
-      fetch('/api/explore', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          question: 'Generate exactly 3 short questions a visitor might ask ' + name + ' based on their knowledge base. Return only the 3 questions separated by | character. No numbering, no extra text.',
-          knowledgeOverride: profile.bio || '',
-          demoMode: true,
-        }),
+    if (!profile?.displayName || creatorQuestions.length >= 2 || suggestedQuestions.length > 0) return;
+    const name = profile.displayName.split(' ')[0];
+    const defaults = [
+      "What are you currently building?",
+      "How can I work with you?",
+      "What's the one thing people misunderstand about your work?",
+    ];
+    fetch('/api/explore', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        question: 'Generate exactly 3 short questions a visitor might ask ' + name + ' based on their knowledge base. Return only the 3 questions separated by | character. No numbering, no extra text.',
+        knowledgeOverride: profile.bio || '',
+        demoMode: true,
+      }),
+    })
+      .then(r => r.json())
+      .then(data => {
+        const raw = data.answer || '';
+        const parts = raw.split('|').map((q: string) => q.trim()).filter((q: string) => q.length > 5 && q.length < 100);
+        setSuggestedQuestions(parts.length >= 2 ? parts.slice(0, 3) : defaults);
       })
-        .then(r => r.json())
-        .then(data => {
-          const raw = data.answer || '';
-          const parts = raw.split('|').map((q: string) => q.trim()).filter((q: string) => q.length > 5 && q.length < 100);
-          if (parts.length >= 2) {
-            setSuggestedQuestions(parts.slice(0, 3));
-          } else {
-            setSuggestedQuestions(defaults);
-          }
-        })
-        .catch(() => setSuggestedQuestions(defaults));
-    }
-  }, [profile?.displayName, profile?.bio, suggestedQuestions.length]);
+      .catch(() => setSuggestedQuestions(defaults));
+  }, [profile?.displayName, profile?.bio, creatorQuestions.length, suggestedQuestions.length]);
 
   const handleSubmit = async () => {
     if (!question.trim() || !profile?._id) return;
@@ -467,7 +460,9 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   const handleReaction = async (emoji: string) => {
     if (!profile?._id || reacted) return;
     setReacted(emoji);
-    try { await addReaction({ profileId: profile._id, emoji }); } catch {}
+    const vid = localStorage.getItem('visitorId') || 'anon_' + crypto.randomUUID().slice(0, 8);
+    if (!localStorage.getItem('visitorId')) localStorage.setItem('visitorId', vid);
+    try { await addReaction({ profileId: profile._id, emoji, visitorId: vid }); } catch {}
   };
 
   if (profile === undefined) return (
@@ -649,7 +644,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
           {spaceLinks.length > 0 && (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className='mt-4 space-y-2'>
               {spaceLinks.map((link, i) => (
-                <LinkPreviewCard key={i} title={link.title} url={link.url} color={color} image={link.image} />
+                <LinkPreviewCard key={i} title={link.title} url={link.url} color={color} />
               ))}
             </motion.div>
           )}
@@ -700,7 +695,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
           {/* Welcome bubble — always first */}
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex items-end gap-2">
             <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 mb-1 flex items-center justify-center text-xs font-bold text-white" style={{ backgroundColor: color }}>
-              {profile.avatar ? <img src={profile.avatar} alt="" className="w-full h-full object-cover" /> : initials}
+              {profile.avatar ? <Image src={profile.avatar} alt="" width={28} height={28} className="w-full h-full object-cover" /> : initials}
             </div>
             <div className={"px-4 py-3 rounded-3xl rounded-tl-sm text-sm leading-relaxed max-w-[85%] " + (isLight ? "bg-zinc-100 text-zinc-800" : "bg-white/8 text-white/90")}>
               {welcomeMessage}
@@ -729,7 +724,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
               </div>
               <div className="flex items-end gap-2">
                 <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 mb-1 flex items-center justify-center text-xs font-bold text-white" style={{ backgroundColor: color }}>
-                  {profile.avatar ? <img src={profile.avatar} alt="" className="w-full h-full object-cover" /> : initials}
+                  {profile.avatar ? <Image src={profile.avatar} alt="" width={28} height={28} className="w-full h-full object-cover" /> : initials}
                 </div>
                 <div className={"max-w-[85%] px-4 py-3 rounded-3xl rounded-tl-sm text-sm leading-relaxed " + (isLight ? "bg-zinc-100 text-zinc-900" : "bg-white/8 text-white")}>
                   {item.a}
@@ -751,7 +746,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
           {isTyping && !aiResponse && (
             <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex items-end gap-2">
               <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 mb-1 flex items-center justify-center text-xs font-bold text-white" style={{ backgroundColor: color }}>
-                {profile.avatar ? <img src={profile.avatar} alt="" className="w-full h-full object-cover" /> : initials}
+                {profile.avatar ? <Image src={profile.avatar} alt="" width={28} height={28} className="w-full h-full object-cover" /> : initials}
               </div>
               <div className={"px-4 py-3 rounded-3xl rounded-tl-sm " + (isLight ? "bg-zinc-100" : "bg-white/8")}>
                 <div className="flex gap-1">
@@ -765,7 +760,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
           {aiResponse && (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex items-end gap-2" ref={responseRef}>
               <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 mb-1 flex items-center justify-center text-xs font-bold text-white" style={{ backgroundColor: color }}>
-                {profile.avatar ? <img src={profile.avatar} alt="" className="w-full h-full object-cover" /> : initials}
+                {profile.avatar ? <Image src={profile.avatar} alt="" width={28} height={28} className="w-full h-full object-cover" /> : initials}
               </div>
               <div className={"max-w-[85%] px-4 py-3 rounded-3xl rounded-tl-sm text-sm leading-relaxed " + (isLight ? "bg-zinc-100 text-zinc-900" : "bg-white/8 text-white")}>
                 {aiResponse}{isTyping && <span className="inline-block w-0.5 h-3.5 ml-0.5 align-middle animate-pulse rounded-sm" style={{ backgroundColor: color }} />}
