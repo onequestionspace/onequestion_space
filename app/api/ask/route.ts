@@ -67,6 +67,8 @@ export async function POST(request: NextRequest) {
     // 3. Embed question + find top 3 most similar chunks
     const questionEmbedding = await generateEmbeddings(question);
     
+    const SIMILARITY_THRESHOLD = 0.55;
+
     const scoredChunks = knowledgeChunks
       .filter(k => k.embeddings && k.embeddings.length > 0)
       .map(k => ({
@@ -74,9 +76,29 @@ export async function POST(request: NextRequest) {
         score: cosineSimilarity(questionEmbedding, k.embeddings!)
       }))
       .sort((a, b) => b.score - a.score)
+      .filter(k => k.score >= SIMILARITY_THRESHOLD)
       .slice(0, 5);
 
     const topChunks = scoredChunks.map(k => k.content);
+
+    if (topChunks.length === 0) {
+      const fallbackAnswer = "I don't have details on that yet — feel free to reach out to me directly";
+      await convex.mutation(api.questions.createQuestion, {
+        profileId: profile._id,
+        visitorId: visitorEmail || visitorName || 'anonymous',
+        question,
+        answer: fallbackAnswer,
+        isAnswered: true,
+        needsReview: true,
+        createdAt: Date.now(),
+        answeredAt: Date.now(),
+      });
+      await convex.mutation(api.analytics.incrementQuestionCount, { profileId: profile._id });
+      return NextResponse.json({
+        success: true,
+        data: { question, answer: fallbackAnswer }
+      }, { status: 200 });
+    }
 
     // 4. Generate answer
     const profileContext: ProfileContext = {
