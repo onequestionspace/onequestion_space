@@ -125,21 +125,49 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const knowledgeChunks = await convex.query(api.knowledge.getKnowledgeByUserId, { userId: profile.userId });
-    let topChunks: string[] = [];
-    if (knowledgeChunks && knowledgeChunks.length > 0) {
-      const qEmbed = await generateEmbeddings(question).catch(() => []);
-      topChunks = qEmbed.length > 0
-        ? knowledgeChunks.filter(k => k.embeddings?.length).map(k => ({ text: k.content, score: cosineSimilarity(qEmbed, k.embeddings!) })).sort((a,b) => b.score - a.score).slice(0,5).map(k => k.text)
-        : knowledgeChunks.slice(0,5).map(k => k.content);
+    // Check if this question was already answered by the owner
+    const existingAnswer = await convex.query(api.questions.getAnsweredQuestionByText, {
+      profileId: profile._id, question,
+    }).catch(() => null);
+    if (existingAnswer?.answer) {
+      convex.mutation(api.analytics.incrementQuestionCount, { profileId: profile._id }).catch(() => {});
+      convex.mutation(api.analytics.incrementAnswerCount, { profileId: profile._id }).catch(() => {});
+      return new Response(existingAnswer.answer, {
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+      });
     }
+
+    const knowledgeChunks = await convex.query(api.knowledge.getKnowledgeByUserId, { userId: profile.userId });
+    const hasKnowledge = knowledgeChunks && knowledgeChunks.length > 0;
+
+    // No knowledge — save as unanswered so owner can answer from dashboard
+    if (!hasKnowledge) {
+      convex.mutation(api.questions.createQuestion, {
+        profileId: profile._id, question, visitorId: visitorEmail || 'anonymous',
+        isAnswered: false, createdAt: Date.now(),
+      }).catch(() => {});
+      convex.mutation(api.analytics.incrementQuestionCount, { profileId: profile._id }).catch(() => {});
+
+      const noKnowledgeMsg = `${profile.displayName || profile.username || 'This space'} hasn't added any knowledge yet. The owner has been notified of your question and will answer it soon.`;
+      return new Response(noKnowledgeMsg, {
+        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+      });
+    }
+
+    const qEmbed = await generateEmbeddings(question).catch(() => []);
+    const topChunks: string[] = qEmbed.length > 0
+      ? knowledgeChunks.filter(k => k.embeddings?.length).map(k => ({ text: k.content, score: cosineSimilarity(qEmbed, k.embeddings!) })).sort((a,b) => b.score - a.score).slice(0,5).map(k => k.text)
+      : knowledgeChunks.slice(0,5).map(k => k.content);
 
     const prompt = buildPrompt(question, topChunks, { displayName: profile.displayName, bio: profile.bio, welcomeMessage: profile.welcomeMessage, username: profile.username });
     let stream = await streamGemini(prompt);
     if (!stream) stream = await streamGroq(prompt);
     if (!stream) return new Response('Could not generate answer right now.', { headers: { 'Content-Type': 'text/plain' } });
 
-    convex.mutation(api.questions.createQuestion, { profileId: profile._id, question, visitorId: visitorEmail || 'anonymous', isAnswered: true, createdAt: Date.now() }).catch(() => {});
+    convex.mutation(api.questions.createQuestion, {
+      profileId: profile._id, question, visitorId: visitorEmail || 'anonymous',
+      isAnswered: true, createdAt: Date.now(), answeredAt: Date.now(),
+    }).catch(() => {});
     convex.mutation(api.analytics.incrementQuestionCount, { profileId: profile._id }).catch(() => {});
     convex.mutation(api.analytics.incrementAnswerCount, { profileId: profile._id }).catch(() => {});
     if (!isAdmin) convex.mutation(api.subscriptions.incrementMessagesUsed, { userId: profile.userId }).catch(() => {});

@@ -72,6 +72,18 @@ export const deleteQuestion = mutation({
   },
 });
 
+export const getAnsweredQuestionByText = query({
+  args: { profileId: v.id('profiles'), question: v.string() },
+  handler: async (ctx, args) => {
+    const q = args.question.toLowerCase().trim();
+    const results = await ctx.db.query('questions')
+      .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
+      .filter((row) => row.eq(row.field('isAnswered'), true))
+      .collect();
+    return results.find(r => r.question?.toLowerCase().trim() === q) || null;
+  },
+});
+
 export const getVisitorEmails = query({
   args: { profileId: v.id('profiles') },
   handler: async (ctx, args) => {

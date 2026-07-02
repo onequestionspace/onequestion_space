@@ -6,7 +6,7 @@ import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { Send, Copy, Check, Globe, ExternalLink, Sparkles, ChevronDown, Heart, Zap, MessageSquare } from 'lucide-react';
+import { Send, Copy, Check, Globe, ExternalLink, Sparkles, ChevronDown, Heart, Zap, MessageSquare, Clock, CheckCheck } from 'lucide-react';
 import { LinkPreviewCard } from '@/components/LinkPreviewCard';
 
 const COFOUNDER_IDS = ['user_3Ev3UAWNTTDAlVWSYFGGsEI6qQz'];
@@ -276,7 +276,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   const [isTyping, setIsTyping] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [history, setHistory] = useState<{q: string; a: string}[]>(() => {
+  const [history, setHistory] = useState<{q: string; a: string; ts: number}[]>(() => {
     try {
       const stored = typeof window !== 'undefined' ? localStorage.getItem('convo_' + username) : null;
       return stored ? JSON.parse(stored) : [];
@@ -308,7 +308,6 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
 
   const profile = useQuery(api.profiles.byUsername, { username });
   const analytics = useQuery(api.analytics.getAnalytics, profile?._id ? { profileId: profile._id } : 'skip');
-  const createQuestion = useMutation(api.questions.createQuestion);
   const addReaction = useMutation(api.reactions.addReaction);
   const foundingMember = useQuery(api.founding.isFoundingMember, profile?._id ? { userId: profile.userId } : 'skip');
   const earlyAdopter = useQuery(api.earlyAdopters.isEarlyAdopter, profile?._id ? { userId: profile.userId } : 'skip');
@@ -318,7 +317,6 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   const reactions = useQuery(api.reactions.getReactions, profile?._id ? { profileId: profile._id } : 'skip');
   const blogs = useQuery(api.blogs.getPublishedBlogs, {});
   const incrementVisitor = useMutation(api.analytics.incrementVisitorCount);
-  const incrementQuestion = useMutation(api.analytics.incrementQuestionCount);
 
   useEffect(() => {
     if (profile?._id) {
@@ -382,8 +380,6 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
     const t0 = Date.now();
     setStartTime(t0);
     try {
-      await createQuestion({ profileId: profile._id, question });
-      await incrementQuestion({ profileId: profile._id });
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 30000);
 
@@ -419,7 +415,9 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
         setAiResponse(stripMarkdown(full));
       }
 
+      const finalAnswer = stripMarkdown(full);
       setResponseTime(Math.round((Date.now() - t0) / 100) / 10);
+      saveToHistory(currentQuestion, finalAnswer);
     } catch (e: unknown) {
       if (e instanceof Error && e.name === 'AbortError') {
         setAiResponse('Taking longer than usual. Please try again.');
@@ -431,7 +429,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   };
 
   const saveToHistory = (q: string, a: string) => {
-    const newHistory = [...history, { q, a }].slice(-20);
+    const newHistory = [...history, { q, a, ts: Date.now() }].slice(-50);
     setHistory(newHistory);
     try { localStorage.setItem('convo_' + username, JSON.stringify(newHistory)); } catch {}
   };
@@ -705,28 +703,46 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
 
           {/* History thread */}
           {history.map((item, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="space-y-2">
+            <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="space-y-1">
+              {/* User message */}
               <div className="flex justify-end">
-                <div className="max-w-[85%] px-4 py-3 rounded-3xl rounded-br-sm text-white text-sm leading-relaxed shadow-md" style={{ backgroundColor: color }}>
-                  {item.q}
+                <div className="max-w-[80%] group relative">
+                  <div className="px-4 py-2.5 rounded-3xl rounded-br-sm text-white text-sm leading-relaxed shadow-md" style={{ backgroundColor: color }}>
+                    {item.q}
+                  </div>
+                  <div className="flex justify-end gap-1 mt-0.5 pr-1">
+                    <span className="text-[9px] opacity-30">{new Date(item.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                    <CheckCheck className="w-2.5 h-2.5 opacity-30" />
+                  </div>
                 </div>
               </div>
+              {/* AI message */}
               <div className="flex items-end gap-2">
                 <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 mb-1 flex items-center justify-center text-xs font-bold text-white shadow-lg" style={{ backgroundColor: color }}>
                   {profile.avatar ? <Image src={profile.avatar} alt="" width={28} height={28} className="w-full h-full object-cover" /> : initials}
                 </div>
-                <div className={"max-w-[85%] px-4 py-3 rounded-3xl rounded-tl-sm text-sm leading-relaxed shadow-sm " + (isLight ? "bg-zinc-100 text-zinc-900" : "bg-white/8 text-white")}>
-                  {item.a}
+                <div className="max-w-[80%] group relative">
+                  <div className={"px-4 py-2.5 rounded-3xl rounded-tl-sm text-sm leading-relaxed shadow-sm " + (isLight ? "bg-zinc-100 text-zinc-900" : "bg-white/8 text-white/90")}>
+                    {item.a}
+                  </div>
+                  <div className="flex justify-start gap-1 mt-0.5 pl-1">
+                    <span className="text-[9px] opacity-30">{new Date(item.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                  </div>
                 </div>
               </div>
             </motion.div>
           ))}
 
           {/* Current question */}
-          {submitted && (
+          {submitted && lastQuestion && (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex justify-end">
-              <div className="max-w-[85%] px-4 py-3 rounded-3xl rounded-br-sm text-white text-sm leading-relaxed shadow-md" style={{ backgroundColor: color }}>
-                {question}
+              <div className="max-w-[80%] group relative">
+                <div className="px-4 py-2.5 rounded-3xl rounded-br-sm text-white text-sm leading-relaxed shadow-md" style={{ backgroundColor: color }}>
+                  {lastQuestion}
+                </div>
+                <div className="flex justify-end gap-1 mt-0.5 pr-1">
+                  <span className="text-[9px] opacity-30">{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                </div>
               </div>
             </motion.div>
           )}
@@ -751,8 +767,13 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
               <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 mb-1 flex items-center justify-center text-xs font-bold text-white shadow-lg" style={{ backgroundColor: color }}>
                 {profile.avatar ? <Image src={profile.avatar} alt="" width={28} height={28} className="w-full h-full object-cover" /> : initials}
               </div>
-              <div className={"max-w-[85%] px-4 py-3 rounded-3xl rounded-tl-sm text-sm leading-relaxed shadow-sm " + (isLight ? "bg-zinc-100 text-zinc-900" : "bg-white/8 text-white")}>
-                {aiResponse}{isTyping && <span className="inline-block w-0.5 h-3.5 ml-0.5 align-middle animate-pulse rounded-sm" style={{ backgroundColor: color }} />}
+              <div className="max-w-[80%] group relative">
+                <div className={"px-4 py-2.5 rounded-3xl rounded-tl-sm text-sm leading-relaxed shadow-sm " + (isLight ? "bg-zinc-100 text-zinc-900" : "bg-white/8 text-white/90")}>
+                  {aiResponse}{isTyping && <span className="inline-block w-0.5 h-3.5 ml-0.5 align-middle animate-pulse rounded-sm" style={{ backgroundColor: color }} />}
+                </div>
+                <div className="flex justify-start gap-1 mt-0.5 pl-1">
+                  {!isTyping && responseTime && <span className="text-[9px] opacity-30">{responseTime}s</span>}
+                </div>
               </div>
             </motion.div>
           )}

@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useState, useMemo } from 'react';
 import { redirect, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { DashboardLayout } from '@/components/DashboardLayout';
@@ -22,7 +22,7 @@ import {
   BookOpen, Clock, BarChart3, ChevronRight,
   TrendingUp, Sparkles, Target, Activity,
   Star, ArrowUp, ArrowDown, FileText,
-  Settings, Bell, Layers,
+  Settings, Bell, Layers, Send,
 } from 'lucide-react';
 
 const container = {
@@ -57,6 +57,11 @@ export default function DashboardPage() {
   const createProfile = useMutation(api.profiles.createIfMissing);
   const getOrCreateSubscription = useMutation(api.subscriptions.getOrCreateSubscription);
   const resetMonthlyUsage = useMutation(api.subscriptions.resetMonthlyUsage);
+  const answerQuestion = useMutation(api.questions.answerQuestion);
+
+  const [answeringId, setAnsweringId] = useState<string | null>(null);
+  const [answerText, setAnswerText] = useState('');
+  const [submittingAnswer, setSubmittingAnswer] = useState<string | null>(null);
 
   const analytics = useQuery(
     api.analytics.getAnalytics,
@@ -364,6 +369,86 @@ export default function DashboardPage() {
                 </p>
               </Card>
             </motion.div>
+
+            {/* Unanswered questions */}
+            {unansweredQuestions && unansweredQuestions.length > 0 && (
+              <motion.div variants={item}>
+                <Card>
+                  <CardHeader
+                    title="Unanswered Questions"
+                    icon={<AlertCircle className="w-4 h-4 text-amber-500" />}
+                    description="These visitors are waiting for a response. Answer them directly."
+                  />
+                  <div className="space-y-2">
+                    {unansweredQuestions.map((q) => (
+                      <div key={q._id} className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <div className="min-w-0">
+                            <p className="text-white text-sm font-medium">{q.question}</p>
+                            <p className="text-xs text-zinc-600 flex items-center gap-1 mt-1">
+                              <Clock className="w-3 h-3" />
+                              {new Date(q.createdAt).toLocaleDateString()}
+                              {q.visitorId && q.visitorId !== 'anonymous' && (
+                                <> · {q.visitorId}</>
+                              )}
+                            </p>
+                          </div>
+                        </div>
+                        {answeringId === q._id ? (
+                          <div className="space-y-2">
+                            <textarea
+                              value={answerText}
+                              onChange={(e) => setAnswerText(e.target.value)}
+                              placeholder="Write your answer..."
+                              rows={3}
+                              className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:border-amber-500/40 resize-none"
+                            />
+                            <div className="flex items-center gap-2">
+                              <Button
+                                variant="primary"
+                                size="sm"
+                                icon={<Send className="w-3 h-3" />}
+                                disabled={!answerText.trim() || submittingAnswer === q._id}
+                                onClick={async () => {
+                                  if (!answerText.trim()) return;
+                                  setSubmittingAnswer(q._id);
+                                  try {
+                                    await answerQuestion({ id: q._id, answer: answerText.trim() });
+                                    setAnswerText('');
+                                    setAnsweringId(null);
+                                    toast({ type: 'success', title: 'Answered!', description: 'Your answer is now live on your space.' });
+                                  } catch {
+                                    toast({ type: 'error', title: 'Failed', description: 'Could not save your answer.' });
+                                  }
+                                  setSubmittingAnswer(null);
+                                }}
+                              >
+                                {submittingAnswer === q._id ? 'Saving...' : 'Send Answer'}
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => { setAnsweringId(null); setAnswerText(''); }}
+                              >
+                                Cancel
+                              </Button>
+                            </div>
+                          </div>
+                        ) : (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => { setAnsweringId(q._id); setAnswerText(''); }}
+                          >
+                            Answer
+                          </Button>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+              </motion.div>
+            )}
 
             {/* Bottom row */}
             <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-2 gap-4">
