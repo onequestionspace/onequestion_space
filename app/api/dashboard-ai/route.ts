@@ -69,7 +69,7 @@ export async function POST(req: NextRequest) {
         "Great to know!",
         "Perfect.",
       ];
-      const exchangeCount = messages.filter((m) => m.role === 'user').length;
+      const exchangeCount = messages.filter((m: { role: string }) => m.role === 'user').length;
 
       if (messages.length === 0) {
         return NextResponse.json({ content: 'Hi! I will ask you 5 quick questions to train your AI. ' + QUESTIONS[0] });

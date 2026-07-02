@@ -14,6 +14,7 @@ import {
   MessageSquare, CreditCard,
   Layers, BookOpen, Sparkles,
   Globe, Inbox, ChevronRight,
+  Zap,
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -56,18 +57,18 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
   return (
     <div className="min-h-screen bg-background">
       <div className="fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(147,51,234,0.10),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(232,121,249,0.06),transparent_50%)]" />
-        <div className="absolute inset-0 dot-pattern opacity-[0.15]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(245,158,11,0.12),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(239,68,68,0.08),transparent_50%)]" />
+        <div className="absolute inset-0 dot-pattern opacity-[0.12]" />
       </div>
 
       {/* Mobile header bar */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 h-14 border-b border-white/[0.06] bg-zinc-950/80 backdrop-blur-xl">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 h-14 border-b border-white/[0.06] bg-background/80 backdrop-blur-2xl">
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-amber-500 flex items-center justify-center">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
             <MessageSquare className="w-3.5 h-3.5 text-black" />
           </div>
-          <span className="text-sm font-bold text-white">One Question</span>
+          <span className="text-sm font-bold text-white">One<span className="text-amber-500">Question</span></span>
         </Link>
         <button
           onClick={() => setIsOpen(!isOpen)}
@@ -96,17 +97,17 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
         variants={sidebarVariants}
         initial={false}
         animate={isOpen ? 'open' : 'closed'}
-        className="fixed left-0 top-0 h-full w-64 bg-zinc-950/90 border-r border-white/[0.06] backdrop-blur-xl z-40 flex flex-col lg:translate-x-0"
+        className="fixed left-0 top-0 h-full w-64 bg-background/90 border-r border-white/[0.06] backdrop-blur-2xl z-40 flex flex-col lg:translate-x-0"
       >
-        {/* Logo */}
         <div className="flex items-center gap-2.5 px-6 h-14 border-b border-white/[0.06] shrink-0">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
             <MessageSquare className="w-4 h-4 text-black" />
           </div>
-          <span className="text-sm font-bold text-white">One Question</span>
+          <span className="text-sm font-bold text-white">
+            One<span className="text-amber-500">Question</span>
+          </span>
         </div>
 
-        {/* Navigation */}
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
           <div>
             <p className="px-3 text-[11px] font-medium text-zinc-600 uppercase tracking-widest mb-2">Main</p>
@@ -120,17 +121,21 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
                     onClick={closeMenu}
                     className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
                       isActive
-                        ? 'text-amber-500 bg-amber-500/[0.08]'
+                        ? 'text-amber-500 bg-gradient-to-r from-amber-500/[0.10] to-transparent'
                         : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03]'
                     }`}
                   >
                     {isActive && (
                       <motion.div
                         layoutId="activeNav"
-                        className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-amber-500"
+                        className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-gradient-to-b from-amber-500 to-orange-500"
                       />
                     )}
-                    <item.icon className={`w-4 h-4 ${isActive ? 'text-amber-500' : 'text-zinc-500'}`} />
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
+                      isActive ? 'bg-amber-500/15 text-amber-500' : 'text-zinc-500'
+                    }`}>
+                      <item.icon className="w-4 h-4" />
+                    </div>
                     {item.label}
                   </Link>
                 );
@@ -151,17 +156,21 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
                     onClick={closeMenu}
                     className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
                       isActive
-                        ? 'text-amber-500 bg-amber-500/[0.08]'
+                        ? 'text-amber-500 bg-gradient-to-r from-amber-500/[0.10] to-transparent'
                         : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03]'
                     }`}
                   >
                     {isActive && (
                       <motion.div
                         layoutId="activeNavSecondary"
-                        className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-amber-500"
+                        className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-gradient-to-b from-amber-500 to-orange-500"
                       />
                     )}
-                    <item.icon className={`w-4 h-4 ${isActive ? 'text-amber-500' : 'text-zinc-500'}`} />
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                      isActive ? 'bg-amber-500/15 text-amber-500' : 'text-zinc-500'
+                    }`}>
+                      <item.icon className="w-4 h-4" />
+                    </div>
                     {item.label}
                   </Link>
                 );
@@ -173,12 +182,16 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
             <p className="px-3 text-[11px] font-medium text-zinc-600 uppercase tracking-widest mb-2">Coming Soon</p>
             <div className="space-y-0.5">
               <div className="flex items-center gap-3 px-3 py-2 rounded-xl text-zinc-600 cursor-not-allowed">
-                <Inbox className="w-4 h-4" />
+                <div className='w-8 h-8 rounded-lg flex items-center justify-center text-zinc-600'>
+                  <Inbox className="w-4 h-4" />
+                </div>
                 <span className="text-xs">Inbox</span>
                 <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded-full bg-zinc-800 text-zinc-500">Soon</span>
               </div>
               <div className="flex items-center gap-3 px-3 py-2 rounded-xl text-zinc-600 cursor-not-allowed">
-                <Globe className="w-4 h-4" />
+                <div className='w-8 h-8 rounded-lg flex items-center justify-center text-zinc-600'>
+                  <Globe className="w-4 h-4" />
+                </div>
                 <span className="text-xs">Custom Domain</span>
                 <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded-full bg-zinc-800 text-zinc-500">Soon</span>
               </div>
@@ -186,7 +199,6 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
           </div>
         </nav>
 
-        {/* User section at bottom */}
         <div className="shrink-0 border-t border-white/[0.06] p-4">
           <Link href="/dashboard/settings" onClick={closeMenu} className="flex items-center gap-3 group">
             <Avatar
@@ -207,7 +219,6 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
         </div>
       </motion.aside>
 
-      {/* Main content */}
       <main className="lg:pl-64 pt-14 lg:pt-0">
         <div className="max-w-6xl mx-auto px-4 lg:px-10 py-6 lg:py-10">
           <div className="mb-8">

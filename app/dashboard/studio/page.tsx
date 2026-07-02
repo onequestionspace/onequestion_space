@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
@@ -9,10 +9,14 @@ import { TourTooltip } from '@/components/TourTooltip';
 import { AppearanceTab } from '@/components/AppearanceTab';
 import { Input, Textarea, Label } from '@/components/dashboard/Input';
 import { Button } from '@/components/dashboard/Button';
+import { Skeleton } from '@/components/dashboard/Skeleton';
+import { Badge } from '@/components/dashboard/Badge';
+import { useToast } from '@/components/dashboard/Toast';
 import {
   User, Palette, Link as LinkIcon, Quote,
   Pin, Check, Save, Eye, Code2,
-  Plus, Trash2, Sparkles, ExternalLink, RefreshCw
+  Plus, Trash2, Sparkles, ExternalLink, RefreshCw,
+  AlertCircle, Image as ImageIcon, Undo2, Layout,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -35,30 +39,44 @@ const TABS = [
   { id: 'appearance', label: 'Style', icon: Palette },
 ];
 
-const checks = (profile: Record<string, unknown> | null) => [
-  { label: 'Name', done: !!(profile?.displayName) },
-  { label: 'Photo', done: !!(profile?.avatar) },
-  { label: 'Bio', done: !!(profile?.bio && (profile.bio as string).length > 10) },
-  { label: 'Welcome', done: !!(profile?.welcomeMessage) },
-  { label: 'Vibe', done: !!(profile?.vibeQuote) },
-  { label: 'Links', done: (() => { try { return JSON.parse(profile?.links as string || '[]').length > 0; } catch { return false; } })() },
-  { label: 'Pinned', done: ((profile?.pinnedQuestions as string[]) || []).length > 0 },
-];
+type StudioForm = {
+  displayName: string;
+  bio: string;
+  welcomeMessage: string;
+  vibeQuote: string;
+  links: { title: string; url: string; image?: string }[];
+  pinnedQuestions: string[];
+  suggestedQuestions: string[];
+};
+
+const emptyForm: StudioForm = {
+  displayName: '',
+  bio: '',
+  welcomeMessage: '',
+  vibeQuote: '',
+  links: [],
+  pinnedQuestions: [],
+  suggestedQuestions: [],
+};
 
 export default function StudioPage() {
   const profile = useQuery(api.profiles.current);
   const updateProfile = useMutation(api.profiles.update);
+  const { toast } = useToast();
+
+  const [form, setForm] = useState<StudioForm>(emptyForm);
+  const [dirty, setDirty] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState('profile');
+  const [mode, setMode] = useState<'edit' | 'preview'>('edit');
+  const [previewKey, setPreviewKey] = useState(0);
+  const [showTour, setShowTour] = useState(false);
+  const [initialized, setInitialized] = useState(false);
+
   const recentQuestions = useQuery(
     api.questions.getRecentQuestions,
     profile?._id ? { profileId: profile._id, limit: 20 } : 'skip'
   );
-
-  const [activeTab, setActiveTab] = useState('profile');
-  const [mode, setMode] = useState<'edit' | 'preview'>('edit');
-  const [saving, setSaving] = useState(false);
-  const [saved, setSaved] = useState(false);
-  const [previewKey, setPreviewKey] = useState(0);
-  const [showTour, setShowTour] = useState(false);
 
   useEffect(() => {
     if (!localStorage.getItem('oq_studio_tour_seen')) {
@@ -66,163 +84,209 @@ export default function StudioPage() {
     }
   }, []);
 
-  const [displayName, setDisplayName] = useState('');
-  const [bio, setBio] = useState('');
-  const [welcomeMessage, setWelcomeMessage] = useState('');
-  const [vibeQuote, setVibeQuote] = useState('');
-  const [links, setLinks] = useState<{title: string, url: string, image?: string}[]>([]);
-  const [pinnedQuestions, setPinnedQuestions] = useState<string[]>([]);
-  const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>([]);
-
   useEffect(() => {
-    if (!profile) return;
-    /* eslint-disable react-hooks/set-state-in-effect */
-    setDisplayName(profile.displayName || '');
-    setBio(profile.bio || '');
-    setWelcomeMessage(profile.welcomeMessage || '');
-    setVibeQuote((profile as Record<string, unknown>).vibeQuote as string || '');
-    try { setLinks(JSON.parse((profile as Record<string, unknown>).links as string || '[]')); } catch { setLinks([]); }
-    setPinnedQuestions((profile as Record<string, unknown>).pinnedQuestions as string[] || []);
-    setSuggestedQuestions((profile as Record<string, unknown>).suggestedQuestions as string[] || []);
-    /* eslint-enable react-hooks/set-state-in-effect */
-  }, [profile]);
+    if (!profile || initialized) return;
+    setForm({
+      displayName: profile.displayName || '',
+      bio: profile.bio || '',
+      welcomeMessage: profile.welcomeMessage || '',
+      vibeQuote: (profile as Record<string, unknown>).vibeQuote as string || '',
+      links: (() => { try { return JSON.parse((profile as Record<string, unknown>).links as string || '[]'); } catch { return []; } })(),
+      pinnedQuestions: (profile as Record<string, unknown>).pinnedQuestions as string[] || [],
+      suggestedQuestions: (profile as Record<string, unknown>).suggestedQuestions as string[] || [],
+    });
+    setDirty(false);
+    setInitialized(true);
+  }, [profile, initialized]);
 
-  const save = async (fields: Record<string, unknown>) => {
+  const updateField = useCallback(<K extends keyof StudioForm>(key: K, value: StudioForm[K]) => {
+    setForm(prev => ({ ...prev, [key]: value }));
+    setDirty(true);
+  }, []);
+
+  const handleSave = async () => {
     setSaving(true);
     try {
-      await updateProfile(fields as Parameters<typeof updateProfile>[0]);
-      setSaved(true);
-      setTimeout(() => { setSaved(false); setPreviewKey(k => k + 1); }, 1500);
-    } catch (e) { console.error(e); }
+      await updateProfile({
+        displayName: form.displayName,
+        bio: form.bio,
+        welcomeMessage: form.welcomeMessage,
+        vibeQuote: form.vibeQuote,
+        links: JSON.stringify(form.links.filter(l => l.title || l.url)),
+        pinnedQuestions: form.pinnedQuestions,
+        suggestedQuestions: form.suggestedQuestions,
+      } as any);
+      setDirty(false);
+      setPreviewKey(k => k + 1);
+      toast({ type: 'success', title: 'Saved!', description: 'Your space is live with the latest changes.' });
+    } catch (e) {
+      console.error(e);
+      toast({ type: 'error', title: 'Failed to save', description: 'Something went wrong. Please try again.' });
+    }
     setSaving(false);
   };
 
-  const spaceUrl = profile?.username ? '/' + profile.username : null;
-  const completionChecks = checks(profile as Record<string, unknown> | null);
-  const score = Math.round((completionChecks.filter(c => c.done).length / completionChecks.length) * 100);
+  const handleReset = () => {
+    if (!profile) return;
+    setForm({
+      displayName: profile.displayName || '',
+      bio: profile.bio || '',
+      welcomeMessage: profile.welcomeMessage || '',
+      vibeQuote: (profile as Record<string, unknown>).vibeQuote as string || '',
+      links: (() => { try { return JSON.parse((profile as Record<string, unknown>).links as string || '[]'); } catch { return []; } })(),
+      pinnedQuestions: (profile as Record<string, unknown>).pinnedQuestions as string[] || [],
+      suggestedQuestions: (profile as Record<string, unknown>).suggestedQuestions as string[] || [],
+    });
+    setDirty(false);
+    toast({ type: 'info', title: 'Reset', description: 'Reverted to last saved state.' });
+  };
 
-  const saveBtn = (fields: Record<string, unknown>) => (
-    <Button
-      onClick={() => save(fields)}
-      loading={saving}
-      disabled={saving}
-      icon={saved ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
-      className="mt-4"
-    >
-      {saved ? 'Saved!' : 'Save'}
-    </Button>
-  );
+  const spaceUrl = profile?.username ? '/' + profile.username : null;
+  const initials = form.displayName?.charAt(0)?.toUpperCase() || profile?.username?.charAt(0)?.toUpperCase() || '?';
+
+  const completionChecks = [
+    { label: 'Name', done: !!form.displayName },
+    { label: 'Photo', done: !!profile?.avatar },
+    { label: 'Bio', done: form.bio.length > 10 },
+    { label: 'Welcome', done: !!form.welcomeMessage },
+    { label: 'Vibe', done: !!form.vibeQuote },
+    { label: 'Links', done: form.links.filter(l => l.title || l.url).length > 0 },
+    { label: 'Pinned', done: form.pinnedQuestions.length > 0 },
+  ];
+  const score = Math.round((completionChecks.filter(c => c.done).length / completionChecks.length) * 100);
 
   if (!profile) return (
     <DashboardLayout title="Space Studio" description="Build your perfect space">
-      <div className="flex items-center justify-center h-64 text-zinc-500">Loading...</div>
+      <div className="flex items-center justify-center h-64">
+        <div className="space-y-4 w-full max-w-md">
+          <Skeleton className="h-8 w-48" />
+          <Skeleton className="h-32 w-full rounded-2xl" />
+          <Skeleton className="h-64 w-full rounded-2xl" />
+        </div>
+      </div>
     </DashboardLayout>
   );
 
   return (
     <DashboardLayout title="Space Studio" description="Changes go live instantly">
-      <motion.div variants={container} initial="hidden" animate="show" className="max-w-2xl mx-auto lg:max-w-7xl">
+      <motion.div variants={container} initial="hidden" animate="show" className="space-y-4">
 
-        <motion.div variants={fadeUp} className="mb-4 rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4">
-          <div className="flex items-center justify-between mb-2">
+        {/* Completion bar */}
+        <motion.div variants={fadeUp} className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4 backdrop-blur-sm">
+          <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
-              <span className="text-xs font-semibold text-white">{score}% complete</span>
+              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center">
+                <Layout className="w-4 h-4 text-amber-500" />
+              </div>
+              <span className="text-sm font-semibold text-white">{score}% complete</span>
             </div>
-            {spaceUrl && (
-              <Link href={spaceUrl} target="_blank" className="flex items-center gap-1 text-xs text-amber-500 hover:text-amber-500/80 transition-colors">
-                <ExternalLink className="w-3 h-3" /> View live
-              </Link>
-            )}
+            <div className="flex items-center gap-3">
+              {spaceUrl && (
+                <Link href={spaceUrl} target="_blank" className="flex items-center gap-1 text-xs text-amber-500 hover:text-amber-500/80 transition-colors">
+                  <ExternalLink className="w-3 h-3" /> View live
+                </Link>
+              )}
+              <Badge variant={dirty ? 'warning' : 'success'}>{dirty ? 'Unsaved' : 'Saved'}</Badge>
+            </div>
           </div>
-          <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden mb-2">
-            <div className="h-full rounded-full bg-amber-500 transition-all duration-700" style={{ width: score + '%' }} />
+          <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden mb-3">
+            <div className="h-full rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 animate-gradient transition-all duration-700" style={{ width: score + '%', backgroundSize: '200% 100%' }} />
           </div>
           <div className="flex flex-wrap gap-1.5">
             {completionChecks.map((c, i) => (
-              <span key={i} className={`text-[10px] px-2 py-0.5 rounded-full border ${
+              <span key={i} className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${
                 c.done ? 'border-green-500/20 bg-green-500/10 text-green-400' : 'border-white/[0.06] text-zinc-600'
               }`}>
-                {c.done ? '✓ ' : ''}{c.label}
+                {c.done ? '✓' : '○'} {c.label}
               </span>
             ))}
           </div>
         </motion.div>
 
+        {/* Save bar */}
+        {dirty && (
+          <motion.div variants={fadeUp} className="flex items-center gap-3 px-4 py-3 rounded-2xl border border-amber-500/20 bg-gradient-to-r from-amber-500/[0.06] to-transparent backdrop-blur-sm">
+            <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
+            <p className="text-sm text-zinc-400 flex-1">You have unsaved changes</p>
+            <Button variant="ghost" size="sm" onClick={handleReset} icon={<Undo2 className="w-3 h-3" />}>Reset</Button>
+            <Button variant="primary" size="sm" onClick={handleSave} loading={saving} icon={<Save className="w-3 h-3" />}>
+              {saving ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </motion.div>
+        )}
+
         {/* Mobile toggle */}
-        <div className="flex items-center gap-1 p-1 rounded-xl bg-white/5 border border-white/[0.06] mb-4 lg:hidden">
+        <motion.div variants={fadeUp} className="flex items-center gap-1 p-1 rounded-xl bg-white/5 border border-white/[0.06] lg:hidden">
           <button onClick={() => setMode('edit')}
             className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium transition-all ${
-              mode === 'edit' ? 'bg-amber-500 text-black' : 'text-zinc-500 hover:text-white'
+              mode === 'edit' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-black' : 'text-zinc-500 hover:text-white'
             }`}>
             <Code2 className="w-3.5 h-3.5" /> Edit
           </button>
           <button onClick={() => { setMode('preview'); setPreviewKey(k => k + 1); }}
             className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium transition-all ${
-              mode === 'preview' ? 'bg-amber-500 text-black' : 'text-zinc-500 hover:text-white'
+              mode === 'preview' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-black' : 'text-zinc-500 hover:text-white'
             }`}>
             <Eye className="w-3.5 h-3.5" /> Preview
           </button>
-        </div>
+        </motion.div>
 
         <div className="flex gap-6">
-          {/* Edit Panel */}
-          <div className={`w-full lg:w-[400px] shrink-0 space-y-3 ${mode === 'preview' ? 'hidden lg:block' : ''}`}>
-            <div data-tour="tabs" className="flex gap-1 overflow-x-auto pb-1">
+          <div className={`w-full lg:w-[420px] shrink-0 space-y-3 ${mode === 'preview' ? 'hidden lg:block' : ''}`}>
+            <div data-tour="tabs" className="flex gap-1 p-1 rounded-xl bg-white/[0.03] border border-white/[0.06]">
               {TABS.map(tab => (
                 <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all shrink-0 ${
-                    activeTab === tab.id ? 'bg-amber-500 text-black' : 'text-zinc-500 hover:text-white bg-white/[0.03] border border-white/[0.06]'
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all flex-1 justify-center ${
+                    activeTab === tab.id ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-black shadow-sm' : 'text-zinc-500 hover:text-white'
                   }`}>
                   <tab.icon className="w-3.5 h-3.5" />
-                  {tab.label}
+                  <span className="hidden sm:inline">{tab.label}</span>
                 </button>
               ))}
             </div>
 
-            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5">
+            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5 backdrop-blur-sm">
               {activeTab === 'profile' && (
                 <div className="space-y-4">
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-14 h-14 rounded-full overflow-hidden bg-amber-500/20 flex items-center justify-center text-xl font-bold text-white shrink-0">
+                  <div className="flex items-center gap-3 mb-2 pb-4 border-b border-white/[0.06]">
+                    <div className="w-14 h-14 rounded-full overflow-hidden bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-xl font-bold text-white shrink-0 ring-2 ring-amber-500/30 shadow-lg">
                       {profile.avatar
-                        ? <Image src={profile.avatar} alt={profile.displayName || ''} width={56} height={56} className="w-full h-full object-cover" />
-                        : profile.displayName?.[0]?.toUpperCase() || '?'}
+                        ? <Image src={profile.avatar} alt={form.displayName || ''} width={56} height={56} className="w-full h-full object-cover" />
+                        : initials}
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-white">{profile.displayName}</p>
+                      <p className="text-sm font-semibold text-white">{form.displayName || 'Your Name'}</p>
                       <p className="text-xs text-zinc-500">@{profile.username}</p>
-                      <Link href="/dashboard/settings" className="text-xs text-amber-500 hover:text-amber-500/80 mt-0.5 block">Change photo →</Link>
+                      <Link href="/dashboard/settings" className="text-xs text-amber-500 hover:text-amber-500/80 mt-0.5 block transition-colors">Change photo →</Link>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <Label>Display Name</Label>
-                    <Input value={displayName} onChange={e => setDisplayName(e.target.value)} placeholder="Your full name" />
+                    <Input value={form.displayName} onChange={e => updateField('displayName', e.target.value)} placeholder="Your full name" />
                   </div>
                   <div className="space-y-2">
-                    <Label suffix={`${bio.length}/160`}>Bio</Label>
-                    <Textarea value={bio} onChange={e => setBio(e.target.value.slice(0, 160))} rows={3} placeholder="One line that makes people want to ask you something" />
+                    <Label suffix={`${form.bio.length}/160`}>Bio</Label>
+                    <Textarea value={form.bio} onChange={e => updateField('bio', e.target.value.slice(0, 160))} rows={3} placeholder="One line that makes people want to ask you something" />
                   </div>
                   <div className="space-y-2">
                     <Label>AI Welcome Message</Label>
-                    <Input value={welcomeMessage} onChange={e => setWelcomeMessage(e.target.value)} placeholder="Ask me anything — I reply fast." />
+                    <Input value={form.welcomeMessage} onChange={e => updateField('welcomeMessage', e.target.value)} placeholder="Ask me anything — I reply fast." />
                     <p className="text-xs text-zinc-600">First thing visitors see on your space</p>
                   </div>
-                  {saveBtn({ displayName, bio, welcomeMessage })}
                 </div>
               )}
 
               {activeTab === 'vibe' && (
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label suffix={`${vibeQuote.length}/200`}>Vibe Quote</Label>
-                    <p className="text-xs text-zinc-500">One sentence that shows your personality.</p>
-                    <Textarea value={vibeQuote} onChange={e => setVibeQuote(e.target.value.slice(0, 200))} rows={3} placeholder="Building from a phone. Ask me anything." />
+                    <Label suffix={`${form.vibeQuote.length}/200`}>Vibe Quote</Label>
+                    <p className="text-xs text-zinc-500 mb-2">One sentence that shows your personality.</p>
+                    <Textarea value={form.vibeQuote} onChange={e => updateField('vibeQuote', e.target.value.slice(0, 200))} rows={3} placeholder="Building from a phone. Ask me anything." />
                   </div>
-                  {vibeQuote && (
-                    <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                  {form.vibeQuote && (
+                    <div className="p-4 rounded-xl bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-500/20">
                       <p className="text-xs text-amber-400 mb-1 font-medium">Preview</p>
-                      <p className="text-sm text-white italic">&ldquo;{vibeQuote}&rdquo;</p>
+                      <p className="text-sm text-white italic">&ldquo;{form.vibeQuote}&rdquo;</p>
                     </div>
                   )}
                   <div className="space-y-2">
@@ -230,11 +294,14 @@ export default function StudioPage() {
                     <p className="text-xs text-zinc-500 mb-2">3 questions visitors see as prompts on your space.</p>
                     <div className="space-y-2">
                       {[0,1,2].map(i => (
-                        <Input key={i} value={suggestedQuestions[i] || ""} onChange={e => { const next = [...suggestedQuestions]; next[i] = e.target.value; setSuggestedQuestions(next); }} placeholder={"Question " + (i+1) + "..."} />
+                        <Input key={i} value={form.suggestedQuestions[i] || ""} onChange={e => {
+                          const next = [...form.suggestedQuestions];
+                          next[i] = e.target.value;
+                          updateField('suggestedQuestions', next);
+                        }} placeholder={"Question " + (i+1) + "..."} />
                       ))}
                     </div>
                   </div>
-                  {saveBtn({ vibeQuote, suggestedQuestions })}
                 </div>
               )}
 
@@ -245,49 +312,67 @@ export default function StudioPage() {
                     <p className="text-xs text-zinc-500 mb-3">Pin up to 5 links. Add a photo to make them pop.</p>
                   </div>
                   <div className="space-y-3">
-                    {links.map((link, i) => (
-                      <div key={i} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 space-y-2">
-                        <div className="grid grid-cols-2 gap-2">
-                          <Input value={link.title} onChange={e => { const next = [...links]; next[i].title = e.target.value; setLinks(next); }} placeholder="Label" />
-                          <Input value={link.url} onChange={e => { const next = [...links]; next[i].url = e.target.value; setLinks(next); }} placeholder="https://..." />
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {link.image ? (
-                            <div className="relative w-12 h-12 rounded-lg overflow-hidden shrink-0 border border-white/10">
-                              <Image src={link.image} alt="" width={48} height={48} className="w-full h-full object-cover" />
-                              <button onClick={() => { const next = [...links]; next[i].image = ''; setLinks(next); }}
-                                className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity text-white text-xs">x</button>
-                            </div>
-                          ) : (
-                            <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-white/15 text-zinc-500 hover:text-white hover:border-amber-500/40 transition-all text-xs cursor-pointer shrink-0">
-                              + Photo
-                              <input type="file" accept="image/*" className="hidden" onChange={async e => {
-                                const file = e.target.files?.[0];
-                                if (!file) return;
-                                const fd = new FormData();
-                                fd.append('file', file);
-                                try {
-                                  const res = await fetch('/api/upload', { method: 'POST', body: fd });
-                                  const data = await res.json();
-                                  if (data.url) { const next = [...links]; next[i].image = data.url; setLinks(next); }
-                                } catch {}
-                              }} />
-                            </label>
-                          )}
-                          <button onClick={() => setLinks(links.filter((_, j) => j !== i))} className="ml-auto p-2 rounded-xl text-red-400 hover:bg-red-500/10 transition-colors">
+                    {form.links.map((link, i) => (
+                      <div key={i} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 space-y-2 hover:border-white/15 transition-all">
+                        <div className="flex gap-2">
+                          <div className="flex-1 space-y-2">
+                            <Input value={link.title} onChange={e => {
+                              const next = [...form.links];
+                              next[i] = { ...next[i], title: e.target.value };
+                              updateField('links', next);
+                            }} placeholder="Label" />
+                            <Input value={link.url} onChange={e => {
+                              const next = [...form.links];
+                              next[i] = { ...next[i], url: e.target.value };
+                              updateField('links', next);
+                            }} placeholder="https://..." />
+                          </div>
+                          <button onClick={() => updateField('links', form.links.filter((_, j) => j !== i))}
+                            className="self-start p-2 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors mt-1">
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
+                        {link.image ? (
+                          <div className="relative w-full h-24 rounded-lg overflow-hidden border border-white/10">
+                            <Image src={link.image} alt="" width={400} height={96} className="w-full h-full object-cover" />
+                            <button onClick={() => {
+                              const next = [...form.links];
+                              next[i] = { ...next[i], image: '' };
+                              updateField('links', next);
+                            }} className="absolute top-2 right-2 p-1 rounded-lg bg-black/60 text-white text-xs hover:bg-black/80 transition-colors">
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ) : (
+                          <label className="flex items-center gap-2 px-3 py-2 rounded-lg border border-dashed border-white/15 text-zinc-500 hover:text-white hover:border-amber-500/40 transition-all text-xs cursor-pointer">
+                            <ImageIcon className="w-4 h-4" />
+                            Add cover image
+                            <input type="file" accept="image/*" className="hidden" onChange={async e => {
+                              const file = e.target.files?.[0];
+                              if (!file) return;
+                              const fd = new FormData();
+                              fd.append('file', file);
+                              try {
+                                const res = await fetch('/api/upload', { method: 'POST', body: fd });
+                                const data = await res.json();
+                                if (data.url) {
+                                  const next = [...form.links];
+                                  next[i] = { ...next[i], image: data.url };
+                                  updateField('links', next);
+                                }
+                              } catch {}
+                            }} />
+                          </label>
+                        )}
                       </div>
                     ))}
                   </div>
-                  {links.length < 5 && (
-                    <button onClick={() => setLinks([...links, { title: '', url: '' }])}
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl border border-dashed border-white/15 text-zinc-500 hover:text-white hover:border-amber-500/40 transition-all text-xs w-full justify-center">
+                  {form.links.length < 5 && (
+                    <button onClick={() => updateField('links', [...form.links, { title: '', url: '' }])}
+                      className="flex items-center gap-2 px-4 py-2.5 rounded-xl border border-dashed border-white/15 text-zinc-500 hover:text-white hover:border-amber-500/40 transition-all text-xs w-full justify-center">
                       <Plus className="w-3.5 h-3.5" /> Add Link
                     </button>
                   )}
-                  {saveBtn({ links: JSON.stringify(links.filter(l => l.title || l.url)) })}
                 </div>
               )}
 
@@ -298,25 +383,28 @@ export default function StudioPage() {
                     <p className="text-xs text-zinc-500 mb-3">Pick up to 3 best answers to showcase.</p>
                   </div>
                   {recentQuestions && recentQuestions.filter(q => q.isAnswered).length > 0 ? (
-                    <div className="space-y-2">
+                    <div className="space-y-2 max-h-80 overflow-y-auto pr-1">
                       {recentQuestions.filter(q => q.isAnswered).map(q => {
-                        const isPinned = pinnedQuestions.includes(q._id);
+                        const isPinned = form.pinnedQuestions.includes(q._id);
                         return (
                           <div key={q._id}
                             className={`p-3 rounded-xl border transition-all cursor-pointer ${
-                              isPinned ? 'border-amber-500/40 bg-amber-500/10' : 'border-white/[0.06] hover:border-white/20 bg-white/[0.02]'
+                              isPinned ? 'border-amber-500/40 bg-gradient-to-r from-amber-500/10 to-transparent' : 'border-white/[0.06] hover:border-white/20 bg-white/[0.02]'
                             }`}
                             onClick={() => {
-                              if (isPinned) setPinnedQuestions(pinnedQuestions.filter(id => id !== q._id));
-                              else if (pinnedQuestions.length < 3) setPinnedQuestions([...pinnedQuestions, q._id]);
+                              if (isPinned) {
+                                updateField('pinnedQuestions', form.pinnedQuestions.filter(id => id !== q._id));
+                              } else if (form.pinnedQuestions.length < 3) {
+                                updateField('pinnedQuestions', [...form.pinnedQuestions, q._id]);
+                              }
                             }}>
                             <div className="flex items-start justify-between gap-2">
                               <div className="flex-1 min-w-0">
                                 <p className="text-xs font-medium text-white line-clamp-1">{q.question}</p>
                                 {q.answer && <p className="text-xs text-zinc-500 line-clamp-1 mt-0.5">{q.answer}</p>}
                               </div>
-                              <div className={`w-4 h-4 rounded-full border shrink-0 flex items-center justify-center ${
-                                isPinned ? 'border-amber-500 bg-amber-500' : 'border-white/20'
+                              <div className={`w-5 h-5 rounded-full border-2 shrink-0 flex items-center justify-center transition-all ${
+                                isPinned ? 'border-amber-500 bg-gradient-to-br from-amber-500 to-orange-500' : 'border-white/20'
                               }`}>
                                 {isPinned && <Check className="w-2.5 h-2.5 text-black" />}
                               </div>
@@ -332,7 +420,6 @@ export default function StudioPage() {
                       <p className="text-xs mt-1 text-zinc-700">Share your space to get questions</p>
                     </div>
                   )}
-                  {pinnedQuestions.length > 0 && saveBtn({ pinnedQuestions })}
                 </div>
               )}
 
@@ -346,7 +433,7 @@ export default function StudioPage() {
               <div data-tour="preview" className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                  <span className="text-xs text-zinc-400 font-medium">Your space — live</span>
+                  <span className="text-xs text-zinc-400 font-medium">Live Preview</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <button onClick={() => setPreviewKey(k => k + 1)}
@@ -363,19 +450,19 @@ export default function StudioPage() {
               </div>
 
               {spaceUrl ? (
-                <div className="relative mx-auto" style={{ width: '320px' }}>
-                  <div className="relative rounded-[2.5rem] border-[5px] border-zinc-700 overflow-hidden shadow-2xl" style={{ height: '640px', background: '#000' }}>
-                    <div className="absolute top-0 left-0 right-0 h-7 bg-black z-10 flex items-center justify-between px-5">
-                      <span className="text-[10px] text-white/50 font-mono">9:41</span>
-                      <div className="w-20 h-4 bg-black rounded-full border border-zinc-800" />
-                      <span className="text-[10px] text-white/50">●●●</span>
+                <div className="rounded-2xl border border-white/[0.06] bg-black/40 overflow-hidden shadow-xl">
+                  <div className="flex items-center gap-1.5 px-4 py-2.5 border-b border-white/[0.06] bg-white/[0.02]">
+                    <div className="flex gap-1">
+                      <div className="w-2.5 h-2.5 rounded-full bg-red-500/50" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-amber-500/50" />
+                      <div className="w-2.5 h-2.5 rounded-full bg-green-500/50" />
                     </div>
-                    <iframe key={previewKey} src={spaceUrl} className="w-full h-full pt-7" title="Space Preview" />
-                    <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-20 h-1 bg-zinc-600 rounded-full" />
+                    <span className="text-[10px] text-zinc-600 mx-auto font-mono">{spaceUrl}</span>
                   </div>
+                  <iframe key={previewKey} src={spaceUrl} className="w-full h-[600px]" title="Space Preview" />
                 </div>
               ) : (
-                <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] flex items-center justify-center" style={{ height: '500px' }}>
+                <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] flex items-center justify-center h-96">
                   <div className="text-center text-zinc-600">
                     <Eye className="w-8 h-8 mx-auto mb-2 opacity-30" />
                     <p className="text-sm">Complete onboarding first</p>
@@ -385,8 +472,8 @@ export default function StudioPage() {
             </div>
           </div>
         </div>
+      </motion.div>
 
-        </motion.div>
       {showTour && (
         <TourTooltip
           steps={[

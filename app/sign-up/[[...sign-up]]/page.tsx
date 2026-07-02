@@ -61,8 +61,7 @@ function SignUpContent() {
         </div>
       )}
       <div className="flex justify-center w-full">
-        <SignUp afterSignUpUrl="/onboarding" afterSignInUrl="/dashboard"
-          forceRedirectUrl={username ? '/onboarding?username=' + username : '/onboarding'}
+        <SignUp forceRedirectUrl={username ? '/onboarding?username=' + username : '/onboarding'}
           signInForceRedirectUrl="/dashboard"
           signInUrl="/sign-in"
           appearance={clerkAppearance}

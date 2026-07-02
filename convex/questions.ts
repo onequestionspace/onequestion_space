@@ -84,6 +84,6 @@ export const getVisitorEmails = query({
     const emails = questions
       .map(q => q.visitorId)
       .filter((v): v is string => !!v && v.includes('@'));
-    return [...new Set(emails)];
+    return Array.from(new Set(emails));
   },
 });

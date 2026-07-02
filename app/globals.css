@@ -23,13 +23,11 @@
 body { background-color: var(--background); }
 html { scroll-behavior: smooth; font-family: sans-serif; }
 
-/* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: #f59e0b40; border-radius: 4px; }
 ::-webkit-scrollbar-thumb:hover { background: #f59e0b80; }
 
-/* ── Gradient text ── */
 .gradient-text {
   background: linear-gradient(135deg, #facc15 0%, #f59e0b 40%, #ef4444 100%);
   -webkit-background-clip: text;
@@ -55,7 +53,6 @@ html { scroll-behavior: smooth; font-family: sans-serif; }
   background-clip: text;
 }
 
-/* ── Shimmer text ── */
 .shimmer-text {
   background: linear-gradient(90deg, #f59e0b 0%, #facc15 25%, #fafafa 50%, #f59e0b 75%, #ef4444 100%);
   background-size: 200% auto;
@@ -65,7 +62,6 @@ html { scroll-behavior: smooth; font-family: sans-serif; }
   animation: shimmer 3s linear infinite;
 }
 
-/* ── Glow effects ── */
 .glow-primary { box-shadow: 0 0 20px rgba(245, 158, 11, 0.4); }
 .glow-primary-lg { box-shadow: 0 0 40px rgba(245, 158, 11, 0.5); }
 .glow-red { box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); }
@@ -79,24 +75,27 @@ html { scroll-behavior: smooth; font-family: sans-serif; }
 }
 .glow-pulse { animation: glowPulse 3s ease-in-out infinite; }
 
-/* ── Glass ── */
 .glass {
-  background: rgba(18, 12, 8, 0.7);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(245, 158, 11, 0.15);
+  background: rgba(18, 12, 8, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(245, 158, 11, 0.12);
 }
 .glass-chalk {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(245, 158, 11, 0.2);
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(245, 158, 11, 0.15);
 }
 .glass-red {
-  background: rgba(20, 8, 8, 0.7);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: rgba(20, 8, 8, 0.6);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+}
+.glass-premium {
+  background: rgba(10, 2, 8, 0.5);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-/* ── Buttons ── */
 .btn-primary {
   background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%);
   transition: all 0.3s ease;
@@ -124,7 +123,6 @@ html { scroll-behavior: smooth; font-family: sans-serif; }
   transition: all 0.3s ease;
 }
 
-/* ── Card hover ── */
 .card-hover { transition: all 0.25s ease; }
 .card-hover:hover {
   transform: translateY(-3px);
@@ -132,7 +130,6 @@ html { scroll-behavior: smooth; font-family: sans-serif; }
   box-shadow: 0 8px 30px rgba(245, 158, 11, 0.1);
 }
 
-/* ── Chalk texture backgrounds ── */
 .chalk-bg {
   background-color: #f0eef8;
   background-image:
@@ -152,7 +149,6 @@ html { scroll-behavior: smooth; font-family: sans-serif; }
     linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
 }
 
-/* ── Mesh background ── */
 .mesh-background {
   background-image:
     radial-gradient(at 20% 20%, rgba(245, 158, 11, 0.12) 0px, transparent 50%),
@@ -162,7 +158,6 @@ html { scroll-behavior: smooth; font-family: sans-serif; }
     radial-gradient(at 40% 100%, rgba(245, 158, 11, 0.08) 0px, transparent 50%);
 }
 
-/* ── Grid / dot patterns ── */
 .grid-pattern {
   background-image:
     linear-gradient(rgba(245, 158, 11, 0.04) 1px, transparent 1px),
@@ -174,7 +169,6 @@ html { scroll-behavior: smooth; font-family: sans-serif; }
   background-size: 20px 20px;
 }
 
-/* ── Section fade ── */
 .section-fade {
   background: linear-gradient(to bottom, transparent, rgba(10, 2, 8, 0.8), transparent);
   height: 80px;
@@ -182,13 +176,11 @@ html { scroll-behavior: smooth; font-family: sans-serif; }
   pointer-events: none;
 }
 
-/* ── Shadow glows ── */
 .shadow-glow { box-shadow: 0 0 20px rgba(245, 158, 11, 0.35); }
 .shadow-glow-lg { box-shadow: 0 0 40px rgba(245, 158, 11, 0.45), 0 0 80px rgba(239, 68, 68, 0.15); }
 .bg-gradient-primary { background: linear-gradient(135deg, #f59e0b 0%, #ef4444 100%); }
 .bg-gradient-fire { background: linear-gradient(135deg, #facc15 0%, #f59e0b 40%, #ef4444 100%); }
 
-/* ── Clerk fixes ── */
 .cl-formFieldInput:-webkit-autofill,
 .cl-formFieldInput:-webkit-autofill:hover,
 .cl-formFieldInput:-webkit-autofill:focus,
@@ -233,7 +225,6 @@ html { scroll-behavior: smooth; font-family: sans-serif; }
   body { background-color: var(--background); color: var(--foreground); }
 }
 
-/* ── Chalk section backgrounds ── */
 .chalk-section-warm {
   background-color: #fef9f0;
   background-image:
@@ -254,7 +245,6 @@ html { scroll-behavior: smooth; font-family: sans-serif; }
   border: 1px solid rgba(0,0,0,0.06);
 }
 
-/* ── Section divider ── */
 .section-divider {
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(245,158,11,0.25), transparent);
@@ -272,7 +262,6 @@ html { scroll-behavior: smooth; font-family: sans-serif; }
   pointer-events: none;
 }
 
-/* ── Bleeding gradient animation ── */
 @keyframes bleed {
   0% { background-position: 0% 0%; }
   25% { background-position: 100% 0%; }
@@ -291,13 +280,8 @@ html { scroll-behavior: smooth; font-family: sans-serif; }
   animation: bleed 18s ease-in-out infinite;
 }
 
-/* ── Chalk text on light bg ── */
-.chalk-heading {
-  color: #1a1a1a;
-}
-.chalk-sub {
-  color: #6b7280;
-}
+.chalk-heading { color: #1a1a1a; }
+.chalk-sub { color: #6b7280; }
 
 @keyframes shimmer {
   0% { background-position: -200% center; }
@@ -308,11 +292,56 @@ html { scroll-behavior: smooth; font-family: sans-serif; }
   50% { box-shadow: 0 0 40px rgba(239,68,68,0.4), 0 0 60px rgba(245,158,11,0.2); }
 }
 
-/* ── Slide up (used in Toast) ── */
 @keyframes slideUp {
   from { opacity: 0; transform: translateY(16px); }
   to { opacity: 1; transform: translateY(0); }
 }
-.animate-slide-up {
-  animation: slideUp 0.3s ease-out;
+.animate-slide-up { animation: slideUp 0.3s ease-out; }
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in-up { animation: fadeInUp 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+.animate-scale-in { animation: scaleIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+.animate-gradient { background-size: 200% 200%; animation: gradientShift 8s ease infinite; }
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-12px) rotate(1deg); }
+  66% { transform: translateY(6px) rotate(-1deg); }
+}
+.animate-float-slow { animation: floatSlow 20s ease-in-out infinite; }
+
+@keyframes pulseGlow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+.animate-pulse-glow { animation: pulseGlow 3s ease-in-out infinite; }
+
+@keyframes borderGlow {
+  0%, 100% { border-color: rgba(245, 158, 11, 0.1); }
+  50% { border-color: rgba(245, 158, 11, 0.4); }
+}
+.animate-border-glow { animation: borderGlow 4s ease-in-out infinite; }
+
+@keyframes shimmerWide {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.animate-shimmer-wide {
+  background: linear-gradient(90deg, transparent 0%, rgba(245,158,11,0.08) 50%, transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmerWide 3s ease-in-out infinite;
 }

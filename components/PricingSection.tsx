@@ -2,7 +2,7 @@
 import { motion, useInView, AnimatePresence } from 'framer-motion';
 import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Check, Zap } from 'lucide-react';
+import { Check, Zap, Sparkles } from 'lucide-react';
 
 const FREE_FEATURES = [
   '50 AI answers per month',
@@ -49,7 +49,7 @@ function FaqCards({ inView }: { inView: boolean }) {
   return (
     <div className='mt-12'>
       <p className='text-zinc-500 text-xs uppercase tracking-widest mb-6 font-semibold'>Questions people actually ask</p>
-      <div className='relative overflow-hidden rounded-2xl chalk-card min-h-[160px]'>
+      <div className='relative overflow-hidden rounded-2xl chalk-card min-h-[160px] shadow-sm'>
         <AnimatePresence mode='wait' custom={dir}>
           <motion.div
             key={active}
@@ -88,19 +88,34 @@ export function PricingSection() {
   const inView = useInView(ref, { once: true, margin: '-60px' });
 
   return (
-    <section className='relative py-24 overflow-hidden' ref={ref}>
+    <section className='relative py-28 overflow-hidden' ref={ref}>
       <div className="absolute top-0 left-0 right-0 h-px section-divider" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-amber-500/3 to-transparent" />
       <div className='relative z-10 max-w-3xl mx-auto px-4'>
         <div className='text-center mb-16'>
-          <p className='text-amber-500 text-sm font-semibold uppercase tracking-widest mb-4'>Pricing</p>
-          <h2 className='text-4xl md:text-5xl font-black text-white leading-tight tracking-tight mb-4'>
-            Honest pricing.<br /><span className='text-amber-500'>No BS.</span>
-          </h2>
-          <p className='text-zinc-400 text-lg leading-relaxed'>Start free. Pay only when it is worth it to you.</p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div className='inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold mb-6'>
+              <Sparkles className='w-3 h-3' />
+              Pricing
+            </div>
+            <h2 className='text-4xl md:text-6xl font-black text-white leading-tight tracking-tight mb-4'>
+              Honest pricing.<br /><span className='bg-gradient-to-r from-amber-400 to-orange-400 bg-clip-text text-transparent'>No BS.</span>
+            </h2>
+            <p className='text-zinc-400 text-lg leading-relaxed'>Start free. Pay only when it is worth it to you.</p>
+          </motion.div>
         </div>
 
         <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
-          <motion.div initial={{ opacity:0, y:30 }} animate={inView?{opacity:1,y:0}:{}} transition={{ duration:0.5, delay:0.1 }} className='p-8 rounded-3xl border border-white/10 bg-white/3 flex flex-col'>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className='p-8 rounded-3xl border border-white/10 bg-white/[0.03] flex flex-col hover:border-white/20 transition-all duration-300'
+          >
             <div className='mb-8'>
               <p className='text-zinc-400 text-sm font-medium mb-2'>Free</p>
               <div className='flex items-end gap-1 mb-4'>
@@ -116,14 +131,19 @@ export function PricingSection() {
                 </li>
               ))}
             </ul>
-            <Link href='/sign-up' className='w-full py-3.5 rounded-2xl border border-white/15 text-white text-sm font-bold text-center hover:bg-white/5 transition-all block'>
+            <Link href='/sign-up' className='w-full py-3.5 rounded-2xl border border-white/15 text-white text-sm font-bold text-center hover:bg-white/5 hover:border-white/30 transition-all block'>
               Get started free
             </Link>
           </motion.div>
 
-          <motion.div initial={{ opacity:0, y:30 }} animate={inView?{opacity:1,y:0}:{}} transition={{ duration:0.5, delay:0.25 }} className='relative p-8 rounded-3xl border border-amber-500/40 bg-gradient-to-b from-amber-500/10 to-transparent flex flex-col'>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: 0.25 }}
+            className='relative p-8 rounded-3xl border border-amber-500/40 bg-gradient-to-b from-amber-500/10 to-transparent flex flex-col hover:border-amber-500/60 transition-all duration-300 animate-border-glow'
+          >
             <div className='absolute -top-3 left-1/2 -translate-x-1/2'>
-              <span className='px-4 py-1 rounded-full text-xs font-bold bg-amber-500 text-black'>MOST POPULAR</span>
+              <span className='px-4 py-1 rounded-full text-xs font-bold bg-gradient-to-r from-amber-500 to-orange-500 text-black shadow-lg'>MOST POPULAR</span>
             </div>
             <div className='mb-8'>
               <p className='text-amber-500 text-sm font-medium mb-2'>Pro</p>
@@ -140,12 +160,17 @@ export function PricingSection() {
                 </li>
               ))}
             </ul>
-            <motion.div initial={{opacity:0,y:-10}} animate={inView?{opacity:1,y:0}:{}} transition={{duration:0.4,delay:0.35}} className='mb-4 p-3 rounded-xl bg-amber-500/8 border border-amber-500/20'>
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={inView ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.4, delay: 0.35 }}
+              className='mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 backdrop-blur-sm'
+            >
               <p className='text-amber-400 text-xs font-semibold mb-1'>🇳🇬 Checkout shows Nigerian Naira — here is why:</p>
               <p className='text-zinc-500 text-xs leading-relaxed'>I am based in Nigeria and Paystack is what keeps this running. Your international card works perfectly — Visa, Mastercard, wherever you are. Paystack converts automatically. No hidden fees.</p>
               <p className='text-zinc-600 text-xs mt-1 italic'>Weird? Maybe. Honest? Always. — Asym</p>
             </motion.div>
-            <Link href='/sign-up' className='w-full py-3.5 rounded-2xl bg-amber-500 text-black text-sm font-bold text-center hover:opacity-90 transition-all flex items-center justify-center gap-2 block'>
+            <Link href='/sign-up' className='w-full py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-black text-sm font-bold text-center hover:opacity-90 transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20'>
               <Zap className='w-4 h-4' /> Start with Pro →
             </Link>
           </motion.div>
@@ -154,13 +179,13 @@ export function PricingSection() {
         <p className='text-center text-zinc-600 text-sm mt-8'>Need more? Buy credits anytime from your dashboard. No commitment.</p>
 
         <motion.div
-          initial={{opacity:0,y:20}}
-          animate={inView?{opacity:1,y:0}:{}}
-          transition={{duration:0.6,delay:0.5}}
-          className='mt-12 p-6 rounded-2xl chalk-card'
+          initial={{ opacity: 0, y: 20 }}
+          animate={inView ? { opacity: 1, y: 0 } : {}}
+          transition={{ duration: 0.6, delay: 0.5 }}
+          className='mt-12 p-6 rounded-2xl chalk-card shadow-sm'
         >
           <div className='flex items-start gap-4'>
-            <img src='/founders/asym.png' alt='Asym' className='w-10 h-10 rounded-full border border-black/5 shrink-0 object-cover' />
+            <img src='/founders/asym.png' alt='Asym' className='w-10 h-10 rounded-full border border-black/5 shrink-0 object-cover shadow-sm' />
             <div>
               <p className='chalk-sub text-sm leading-loose'>
                 I built this on an Android phone with no funding, no team, no laptop — just Termux and a lot of late nights in Yobe.
@@ -173,7 +198,6 @@ export function PricingSection() {
         </motion.div>
 
         <FaqCards inView={inView} />
-
       </div>
     </section>
   );

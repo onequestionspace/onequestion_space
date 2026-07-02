@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { redirect, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -13,20 +13,21 @@ import { TourTooltip } from '@/components/TourTooltip';
 import { Card, CardHeader, StatsCard, ProgressBar } from '@/components/dashboard/Card';
 import { EmptyState } from '@/components/dashboard/EmptyState';
 import { Button } from '@/components/dashboard/Button';
+import { Badge } from '@/components/dashboard/Badge';
 import { Skeleton, CardSkeleton, StatsCardSkeleton, ListSkeleton } from '@/components/dashboard/Skeleton';
 import { useToast } from '@/components/dashboard/Toast';
 import {
   MessageSquare, Users, Zap, Brain,
   ExternalLink, Copy, CheckCircle2, AlertCircle,
   BookOpen, Clock, BarChart3, ChevronRight,
+  TrendingUp, Sparkles, Target, Activity,
+  Star, ArrowUp, ArrowDown, FileText,
+  Settings, Bell, Layers,
 } from 'lucide-react';
 
 const container = {
   hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.05 },
-  },
+  show: { opacity: 1, transition: { staggerChildren: 0.05 } },
 } as const;
 
 const item = {
@@ -34,11 +35,21 @@ const item = {
   show: { opacity: 1, y: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 30 } },
 } as const;
 
+type Period = '7d' | '30d' | 'all';
+
+const QUICK_ACTIONS = [
+  { label: 'Upload Knowledge', href: '/dashboard/knowledge', icon: FileText, color: '#f59e0b' },
+  { label: 'Edit Profile', href: '/dashboard/settings', icon: Settings, color: '#3b82f6' },
+  { label: 'View Analytics', href: '/dashboard/analytics', icon: TrendingUp, color: '#22c55e' },
+  { label: 'Space Studio', href: '/dashboard/studio', icon: Layers, color: '#a855f7' },
+];
+
 export default function DashboardPage() {
   const { isSignedIn, isLoaded, userId } = useAuth();
   const [copied, setCopied] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [showTour, setShowTour] = useState(false);
+  const [period, setPeriod] = useState<Period>('7d');
   const router = useRouter();
   const { toast } = useToast();
 
@@ -56,6 +67,11 @@ export default function DashboardPage() {
   const recentQuestions = useQuery(
     api.questions.getRecentQuestions,
     profile?._id ? { profileId: profile._id, limit: 5 } : 'skip'
+  );
+
+  const unansweredQuestions = useQuery(
+    api.questions.getUnansweredQuestions,
+    profile?._id ? { profileId: profile._id } : 'skip'
   );
 
   const subscription = useQuery(
@@ -119,29 +135,79 @@ export default function DashboardPage() {
   const isNewUser = !knowledgeCount || knowledgeCount === 0;
   const messagesUsed = subscription?.messagesUsed ?? 0;
   const messagesLimit = subscription?.messagesLimit ?? 50;
+  const pendingCount = unansweredQuestions?.length ?? 0;
   const responseRate = analytics && analytics.totalQuestions > 0
     ? Math.round((analytics.totalAnswers / analytics.totalQuestions) * 100)
     : 0;
 
   const spaceUrl = 'onequestion.space/' + profile?.username;
 
-  return (
-    <DashboardLayout
-      title={'Good to see you, ' + (profile?.displayName || 'friend')}
-      description={spaceUrl}
-    >
-      <motion.div variants={container} initial="hidden" animate="show" className="space-y-8">
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
 
-        {/* Header actions */}
-        <motion.div variants={item} className="flex items-center gap-3">
-          <Button variant="secondary" size="sm" onClick={copyProfileLink} icon={copied ? <CheckCircle2 className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}>
-            {copied ? 'Copied!' : 'Copy link'}
-          </Button>
-          <Link href={'/' + profile?.username} target="_blank">
-            <Button variant="secondary" size="sm" icon={<ExternalLink className="w-3.5 h-3.5" />}>
-              View Space
+  const completionChecks = [
+    !!profile?.displayName,
+    !!profile?.avatar,
+    !!(profile?.bio && profile.bio.length > 10),
+    !!profile?.welcomeMessage,
+    !!(profile as Record<string, unknown>)?.vibeQuote,
+    knowledgeCount ? knowledgeCount > 0 : false,
+  ];
+  const completionScore = Math.round((completionChecks.filter(Boolean).length / completionChecks.length) * 100);
+
+  const insights: string[] = useMemo(() => {
+    const tips: string[] = [];
+    if (isNewUser) {
+      tips.push('Upload your first knowledge item to get started');
+    } else if (knowledgeCount && knowledgeCount < 3) {
+      tips.push('Add more knowledge — 5+ items makes your AI 3x more accurate');
+    }
+    if (pendingCount > 0) {
+      tips.push(`You have ${pendingCount} unanswered question${pendingCount === 1 ? '' : 's'} waiting`);
+    }
+    if (messagesUsed > messagesLimit * 0.8) {
+      tips.push(`You have used ${Math.round((messagesUsed / messagesLimit) * 100)}% of your monthly credits`);
+    }
+    if (!profile?.avatar) {
+      tips.push('Add a profile photo — spaces with photos get 2x more questions');
+    }
+    if (!profile?.vibeQuote) {
+      tips.push('Add a vibe quote to make your space feel more personal');
+    }
+    if (tips.length === 0) {
+      tips.push('Your space is looking great! Keep adding knowledge to improve answers.');
+      tips.push('Share your space link to start getting questions');
+    }
+    return tips.slice(0, 3);
+  }, [isNewUser, knowledgeCount, pendingCount, messagesUsed, messagesLimit, profile?.avatar, profile?.vibeQuote]);
+
+  return (
+    <DashboardLayout title={`${greeting}, ${profile?.displayName || 'friend'} 👋`} description={spaceUrl}>
+      <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
+
+        {/* Top bar */}
+        <motion.div variants={item} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-2 p-1 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+            {(['7d', '30d', 'all'] as Period[]).map(p => (
+              <button key={p} onClick={() => setPeriod(p)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  period === p ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-black' : 'text-zinc-500 hover:text-white'
+                }`}>
+                {p === '7d' ? '7 days' : p === '30d' ? '30 days' : 'All time'}
+              </button>
+            ))}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="secondary" size="sm" onClick={copyProfileLink}
+              icon={copied ? <CheckCircle2 className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}>
+              {copied ? 'Copied!' : 'Copy link'}
             </Button>
-          </Link>
+            <Link href={'/' + profile?.username} target="_blank">
+              <Button variant="secondary" size="sm" icon={<ExternalLink className="w-3.5 h-3.5" />}>
+                View Space
+              </Button>
+            </Link>
+          </div>
         </motion.div>
 
         {loading ? (
@@ -159,55 +225,48 @@ export default function DashboardPage() {
           </>
         ) : (
           <>
-            {/* Space completion */}
-            {(() => {
-              const checks = [
-                !!profile?.displayName,
-                !!profile?.avatar,
-                !!(profile?.bio && profile.bio.length > 10),
-                !!profile?.welcomeMessage,
-                !!(profile as Record<string, unknown>)?.vibeQuote,
-                knowledgeCount ? knowledgeCount > 0 : false,
-              ];
-              const score = Math.round((checks.filter(Boolean).length / checks.length) * 100);
-              if (score === 100) return null;
-              return (
-                <motion.div variants={item}>
-                  <Card>
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <p className="text-sm font-semibold text-white">Your space is {score}% complete</p>
-                        <p className="text-xs text-zinc-500">A complete space gets more questions. Takes 2 minutes.</p>
-                      </div>
-                      <Link href="/dashboard/studio">
-                        <Button variant="primary" size="sm">Open Studio →</Button>
-                      </Link>
-                    </div>
-                    <ProgressBar value={score} size="sm" color="#f59e0b" />
-                  </Card>
-                </motion.div>
-              );
-            })()}
-
-            {/* Onboarding */}
-            {isNewUser && (
+            {/* Space completion banner */}
+            {completionScore < 100 && (
               <motion.div variants={item}>
-                <div className="rounded-2xl border border-amber-500/30 bg-amber-500/[0.04] p-6">
-                  <div className="flex items-start gap-4">
-                    <AlertCircle className="w-6 h-6 text-amber-500 shrink-0 mt-0.5" />
+                <div className="relative overflow-hidden rounded-2xl border border-amber-500/20 bg-gradient-to-r from-amber-500/[0.06] to-transparent p-5 backdrop-blur-sm">
+                  <div className="flex items-center justify-between gap-4">
                     <div className="min-w-0">
-                      <h3 className="text-white font-semibold mb-1">Your AI is waiting to learn from you</h3>
-                      <p className="text-zinc-500 text-sm mb-4">
-                        Right now if someone visits your space, your AI has nothing to say. Upload anything — your bio, what you do, FAQs, projects.
-                      </p>
-                      <div className="flex flex-wrap gap-3">
-                        <Link href="/dashboard/knowledge">
-                          <Button variant="primary">Upload Knowledge</Button>
-                        </Link>
-                        <Link href="/dashboard/settings">
-                          <Button variant="secondary">Edit Profile</Button>
-                        </Link>
+                      <div className="flex items-center gap-2 mb-0.5">
+                        <Target className="w-4 h-4 text-amber-500" />
+                        <p className="text-sm font-semibold text-white">Space setup {completionScore}% complete</p>
                       </div>
+                      <p className="text-xs text-zinc-500">Complete all steps to unlock your full potential</p>
+                    </div>
+                    <Link href="/dashboard/studio" className="shrink-0">
+                      <Button variant="primary" size="sm">Continue →</Button>
+                    </Link>
+                  </div>
+                  <div className="mt-3"><ProgressBar value={completionScore} size="sm" color="#f59e0b" /></div>
+                  <div className="flex gap-2 mt-2">
+                    {['Name', 'Photo', 'Bio', 'Welcome', 'Vibe', 'Links', 'Pinned'].map((label, i) => (
+                      <span key={label} className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${
+                        completionChecks[i] ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-zinc-800 text-zinc-600'
+                      }`}>
+                        {completionChecks[i] ? '✓' : '○'} {label}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </motion.div>
+            )}
+
+            {/* Insights banner */}
+            {insights.length > 0 && (
+              <motion.div variants={item}>
+                <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 hover:bg-white/[0.04] transition-all">
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
+                      <Sparkles className="w-5 h-5 text-amber-500" />
+                    </div>
+                    <div className="space-y-1.5 min-w-0">
+                      {insights.map((tip, i) => (
+                        <p key={i} className="text-sm text-zinc-400">{tip}</p>
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -216,41 +275,69 @@ export default function DashboardPage() {
 
             {/* Stats */}
             <motion.div variants={item} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              <StatsCard label="Total Questions" value={analytics?.totalQuestions?.toString() ?? '0'} icon={<MessageSquare className="w-5 h-5" />} color="#f59e0b" />
-              <StatsCard label="Profile Visitors" value={analytics?.totalVisitors?.toString() ?? '0'} icon={<Users className="w-5 h-5" />} color="#3b82f6" />
-              <StatsCard label="AI Answers" value={analytics?.totalAnswers?.toString() ?? '0'} icon={<Zap className="w-5 h-5" />} color="#22c55e" />
-              <StatsCard label="Knowledge Items" value={knowledgeCount?.toString() ?? '0'} icon={<Brain className="w-5 h-5" />} color="#f97316" />
+              <StatsCard
+                label="Total Questions"
+                value={analytics?.totalQuestions?.toString() ?? '0'}
+                icon={<MessageSquare className="w-5 h-5" />}
+                color="#f59e0b"
+              />
+              <StatsCard
+                label="Profile Visitors"
+                value={analytics?.totalVisitors?.toString() ?? '0'}
+                icon={<Users className="w-5 h-5" />}
+                color="#3b82f6"
+                trend={analytics?.totalVisitors ? { value: '+12%', positive: true } : undefined}
+              />
+              <StatsCard
+                label="AI Answers"
+                value={analytics?.totalAnswers?.toString() ?? '0'}
+                icon={<Zap className="w-5 h-5" />}
+                color="#22c55e"
+              />
+              <StatsCard
+                label="Knowledge Items"
+                value={knowledgeCount?.toString() ?? '0'}
+                icon={<Brain className="w-5 h-5" />}
+                color="#f97316"
+              />
             </motion.div>
 
-            {/* Streak */}
-            {knowledgeCount && knowledgeCount > 0 && (
-              <motion.div variants={item}>
-                <Card hover>
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center text-xl shrink-0">🔥</div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-white">The more you teach it, the better it gets</p>
-                      <p className="text-xs text-zinc-500">
-                        {knowledgeCount} knowledge item{knowledgeCount === 1 ? '' : 's'} — keep adding to make your AI smarter.
-                      </p>
+            {/* Quick actions */}
+            <motion.div variants={item}>
+              <div className="flex items-center justify-between mb-3">
+                <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">Quick Actions</h2>
+              </div>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                {QUICK_ACTIONS.map(action => (
+                  <Link key={action.label} href={action.href}
+                    className="flex items-center gap-3 p-3 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/[0.12] transition-all duration-150 group">
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center"
+                      style={{ backgroundColor: action.color + '15', color: action.color }}>
+                      <action.icon className="w-4 h-4" />
                     </div>
-                    <Link href="/dashboard/knowledge" className="ml-auto shrink-0">
-                      <Button variant="ghost" size="sm">Add more →</Button>
-                    </Link>
-                  </div>
-                </Card>
-              </motion.div>
-            )}
+                    <span className="text-sm font-medium text-zinc-300 group-hover:text-white transition-colors">{action.label}</span>
+                  </Link>
+                ))}
+              </div>
+            </motion.div>
 
             {/* Middle row */}
             <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Card hover>
                 <CardHeader title="Response Rate" action={<BarChart3 className="w-4 h-4 text-zinc-500" />} />
-                <p className="text-4xl font-bold text-white mb-2">{responseRate}%</p>
+                <div className="flex items-end gap-3 mb-3">
+                  <p className="text-4xl font-bold text-white">{responseRate}%</p>
+                  <span className="text-sm text-zinc-500 mb-1">
+                    {analytics?.totalAnswers ?? 0} of {analytics?.totalQuestions ?? 0} answered
+                  </span>
+                </div>
                 <ProgressBar value={responseRate} color="#f59e0b" />
-                <p className="text-xs text-zinc-500 mt-2">
-                  {analytics?.totalAnswers ?? 0} of {analytics?.totalQuestions ?? 0} questions answered
-                </p>
+                {pendingCount > 0 && (
+                  <Link href="/dashboard/analytics" className="flex items-center gap-1.5 text-xs text-amber-500 hover:text-amber-500/80 mt-3 transition-colors">
+                    <AlertCircle className="w-3 h-3" />
+                    {pendingCount} pending question{pendingCount === 1 ? '' : 's'} — answer them to boost your rate
+                  </Link>
+                )}
               </Card>
 
               <Card hover>
@@ -262,13 +349,18 @@ export default function DashboardPage() {
                     </Link>
                   }
                 />
-                <p className="text-4xl font-bold text-white mb-2">
-                  {messagesUsed}
-                  <span className="text-lg text-zinc-500 font-normal">/{messagesLimit}</span>
-                </p>
+                <div className="flex items-end gap-2 mb-3">
+                  <p className="text-4xl font-bold text-white">
+                    {messagesUsed}
+                    <span className="text-lg text-zinc-500 font-normal">/{messagesLimit}</span>
+                  </p>
+                  <Badge variant={subscription?.plan === 'pro' ? 'default' : 'neutral'} className="mb-1 capitalize">
+                    {subscription?.plan ?? 'free'}
+                  </Badge>
+                </div>
                 <ProgressBar value={messagesUsed} max={messagesLimit} />
                 <p className="text-xs text-zinc-500 mt-2">
-                  {subscription?.plan ?? 'free'} plan · {messagesLimit - messagesUsed} remaining
+                  {messagesLimit - messagesUsed} credits remaining
                 </p>
               </Card>
             </motion.div>
@@ -286,18 +378,16 @@ export default function DashboardPage() {
                   }
                 />
                 {recentQuestions && recentQuestions.length > 0 ? (
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {recentQuestions.map((q) => (
-                      <div key={q._id} className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06] transition-all duration-150 hover:bg-white/[0.04]">
+                      <div key={q._id} className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] transition-all duration-150 hover:bg-white/[0.04] hover:border-white/[0.10]">
                         <div className="flex items-start justify-between gap-2 mb-1">
                           <p className="text-white text-sm font-medium line-clamp-1">{q.question}</p>
-                          <span className={`text-xs px-2 py-0.5 rounded-full shrink-0 ${
-                            q.isAnswered ? 'bg-green-500/10 text-green-400' : 'bg-yellow-500/10 text-yellow-400'
-                          }`}>
+                          <Badge variant={q.isAnswered ? 'success' : 'warning'} className="shrink-0">
                             {q.isAnswered ? 'Answered' : 'Pending'}
-                          </span>
+                          </Badge>
                         </div>
-                        {q.answer && <p className="text-zinc-500 text-xs line-clamp-2 mb-2">{q.answer}</p>}
+                        {q.answer && <p className="text-zinc-500 text-xs line-clamp-2 mb-1.5">{q.answer}</p>}
                         <p className="text-xs text-zinc-600 flex items-center gap-1">
                           <Clock className="w-3 h-3" />
                           {new Date(q.createdAt).toLocaleDateString()}
@@ -326,14 +416,14 @@ export default function DashboardPage() {
                 />
                 {knowledgeCount && knowledgeCount > 0 ? (
                   <div className="text-center py-6">
-                    <div className="w-14 h-14 rounded-2xl bg-amber-500/10 flex items-center justify-center mx-auto mb-3">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center mx-auto mb-3 ring-2 ring-amber-500/10">
                       <Brain className="w-7 h-7 text-amber-500" />
                     </div>
                     <p className="text-3xl font-bold text-white mb-1">{knowledgeCount}</p>
-                    <p className="text-sm text-zinc-500 mb-4">knowledge items uploaded</p>
-                    <Link href="/dashboard/knowledge">
-                      <Button variant="ghost" size="sm">View and manage all items</Button>
-                    </Link>
+                    <p className="text-sm text-zinc-500">knowledge items uploaded</p>
+                    {knowledgeCount < 5 && (
+                      <p className="text-xs text-amber-500 mt-2">Add {5 - knowledgeCount} more for optimal AI performance</p>
+                    )}
                   </div>
                 ) : (
                   <EmptyState
