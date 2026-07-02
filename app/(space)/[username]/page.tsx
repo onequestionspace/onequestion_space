@@ -28,6 +28,8 @@ const BG_STYLES: Record<string, string> = {
   dark: "bg-zinc-950", darker: "bg-black", midnight: "bg-slate-950",
   aurora: "bg-[#060312]", dusk: "bg-[#0d0518]", galaxy: "bg-[#04020d]",
   ocean: "bg-[#020c12]", dawn: "bg-[#12050a]", sunset: "bg-[#120808]",
+  milky: "bg-[#020312]", bloodmoon: "bg-[#0a0204]", neon: "bg-[#05020a]",
+  toxin: "bg-[#020a04]", royal: "bg-[#080210]", lava: "bg-[#0a0302]",
   fog: "bg-[#f0eef8]", sand: "bg-[#f5efe6]", parchment: "bg-[#faf6f0]",
   rose: "bg-[#f7e5e4]", mint: "bg-[#e8f5ee]", slate: "bg-[#e8eaf2]",
   chalkwhite: "bg-white", chalkgreen: "bg-emerald-50", chalkblack: "bg-zinc-900",
@@ -43,6 +45,12 @@ const BG_GRADIENTS: Record<string, string> = {
   ocean: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(20,120,200,0.18), transparent)',
   dawn: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(200,60,20,0.15), transparent)',
   sunset: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(220,80,20,0.18), transparent), radial-gradient(ellipse 60% 40% at 80% 80%, rgba(200,20,80,0.10), transparent)',
+  milky: 'radial-gradient(ellipse 100% 60% at 50% -10%, rgba(80,40,200,0.15), transparent), radial-gradient(ellipse 60% 40% at 80% 80%, rgba(200,60,150,0.08), transparent), radial-gradient(ellipse 50% 50% at 20% 60%, rgba(40,120,255,0.10), transparent)',
+  bloodmoon: 'radial-gradient(ellipse 80% 40% at 50% 0%, rgba(220,30,30,0.18), transparent), radial-gradient(ellipse 50% 50% at 50% 50%, rgba(200,50,20,0.08), transparent)',
+  neon: 'radial-gradient(ellipse 80% 50% at 30% -10%, rgba(0,200,255,0.14), transparent), radial-gradient(ellipse 60% 40% at 80% 80%, rgba(255,0,200,0.10), transparent)',
+  toxin: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(100,255,50,0.10), transparent), radial-gradient(ellipse 60% 40% at 70% 70%, rgba(50,200,100,0.08), transparent)',
+  royal: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(150,50,255,0.18), transparent), radial-gradient(ellipse 60% 40% at 80% 80%, rgba(200,100,255,0.08), transparent)',
+  lava: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(255,80,20,0.15), transparent), radial-gradient(ellipse 60% 40% at 80% 80%, rgba(200,50,10,0.10), transparent)',
   fog: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(120,80,220,0.08), transparent)',
   sand: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(180,120,40,0.08), transparent)',
   parchment: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(160,100,40,0.06), transparent)',
@@ -240,6 +248,152 @@ function StarsBackground({ color }: { color: string }) {
   );
 }
 
+const NEBULA_CLOUDS = [
+  { w: 400, h: 300, left: 10, top: 20, duration: 25, delay: 0, opacity: 0.12 },
+  { w: 350, h: 250, left: 55, top: 40, duration: 30, delay: 5, opacity: 0.10 },
+  { w: 300, h: 400, left: 30, top: 55, duration: 22, delay: 2, opacity: 0.08 },
+  { w: 250, h: 200, left: 75, top: 15, duration: 28, delay: 8, opacity: 0.10 },
+  { w: 450, h: 280, left: 5, top: 60, duration: 35, delay: 3, opacity: 0.06 },
+];
+
+function NebulaBackground({ color }: { color: string }) {
+  const colors = [color, '#8b5cf6', '#3b82f6', '#ec4899', '#06b6d4'];
+  return (
+    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+      {NEBULA_CLOUDS.map((c, i) => (
+        <div key={i} className="absolute rounded-full animate-aurora-1 mix-blend-screen"
+          style={{ width: c.w+"px", height: c.h+"px", left: c.left+"%", top: c.top+"%",
+            background: 'radial-gradient(ellipse, '+colors[i % colors.length]+'80, transparent 70%)',
+            opacity: c.opacity, filter: 'blur(40px)',
+            animationDuration: c.duration+"s", animationDelay: c.delay+"s" }} />
+      ))}
+      {Array.from({ length: 40 }).map((_, i) => (
+        <div key={'s'+i} className="absolute rounded-full animate-float"
+          style={{ width: (1+Math.random()*2)+'px', height: (1+Math.random()*2)+'px',
+            left: Math.random()*100+'%', top: Math.random()*100+'%',
+            backgroundColor: '#fff', opacity: 0.2+Math.random()*0.5,
+            animationDuration: (5+Math.random()*10)+'s', animationDelay: (Math.random()*5)+'s' }} />
+      ))}
+    </div>
+  );
+}
+
+const PORTAL_RINGS = 5;
+
+function PortalBackground({ color }: { color: string }) {
+  return (
+    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none flex items-center justify-center">
+      <div className="absolute w-[500px] h-[500px] rounded-full animate-aurora-1" style={{
+        background: 'radial-gradient(circle, '+color+'40 0%, transparent 70%)',
+        filter: 'blur(60px)', animationDuration: '8s',
+      }} />
+      {Array.from({ length: PORTAL_RINGS }).map((_, i) => {
+        const size = 200 + i * 60;
+        return (
+          <div key={i} className="absolute rounded-full animate-float-slow" style={{
+            width: size+'px', height: size+'px',
+            border: '1.5px solid '+color+`${30 - i * 5}`,
+            opacity: 0.3 - i * 0.04,
+            animationDuration: (6 + i * 2)+'s',
+            animationDelay: (i * 0.5)+'s',
+            transform: `rotate(${i * 15}deg)`,
+          }} />
+        );
+      })}
+      <div className="absolute w-32 h-1 rounded-full blur-xl" style={{
+        background: 'linear-gradient(90deg, transparent, '+color+', transparent)',
+        animation: 'pulse-glow 3s ease-in-out infinite',
+        boxShadow: '0 0 40px '+color+', 0 0 80px '+color+'40',
+      }} />
+    </div>
+  );
+}
+
+const RAIN_DROPS = Array.from({ length: 60 }).map(() => ({
+  left: Math.random() * 100,
+  delay: Math.random() * 3,
+  duration: 0.6 + Math.random() * 0.8,
+  opacity: 0.1 + Math.random() * 0.2,
+  height: 30 + Math.random() * 50,
+}));
+
+function RainBackground({ color }: { color: string }) {
+  return (
+    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+      {RAIN_DROPS.map((d, i) => (
+        <div key={i} className="absolute rounded-full" style={{
+          left: d.left+'%', top: '-5%',
+          width: '1px', height: d.height+'px',
+          background: 'linear-gradient(to bottom, transparent, '+color+')',
+          opacity: d.opacity,
+          animation: 'rain-fall '+d.duration+'s linear '+d.delay+'s infinite',
+        }} />
+      ))}
+      <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 80%, rgba(100,130,200,0.06), transparent)' }} />
+    </div>
+  );
+}
+
+const FIREFLIES = Array.from({ length: 20 }).map(() => ({
+  left: Math.random() * 100,
+  top: Math.random() * 100,
+  size: 2 + Math.random() * 4,
+  duration: 4 + Math.random() * 6,
+  delay: Math.random() * 5,
+  driftX: (Math.random() - 0.5) * 100,
+  driftY: (Math.random() - 0.5) * 100,
+}));
+
+function FirefliesBackground({ color }: { color: string }) {
+  return (
+    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+      {FIREFLIES.map((f, i) => (
+        <div key={i} className="absolute animate-float" style={{
+          left: f.left+'%', top: f.top+'%',
+          width: f.size+'px', height: f.size+'px',
+          borderRadius: '50%',
+          backgroundColor: color,
+          boxShadow: '0 0 '+f.size*3+'px '+color+', 0 0 '+f.size*6+'px '+color+'60',
+          opacity: 0.6,
+          animationDuration: f.duration+'s',
+          animationDelay: f.delay+'s',
+        }} />
+      ))}
+      <div className="absolute inset-0" style={{
+        background: 'radial-gradient(ellipse 70% 50% at 50% 50%, '+color+'08, transparent 70%)',
+      }} />
+    </div>
+  );
+}
+
+const AURORA_BANDS = 4;
+
+function NorthernBackground({ color }: { color: string }) {
+  const auroraColors = ['rgba(20,255,100,0.15)', 'rgba(100,200,255,0.12)', 'rgba(200,100,255,0.10)', 'rgba(255,100,200,0.08)'];
+  return (
+    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+      {Array.from({ length: AURORA_BANDS }).map((_, i) => (
+        <div key={i} className="absolute rounded-full" style={{
+          width: (80 - i * 10)+'%', height: (30 - i * 5)+'%',
+          left: (10 + i * 5)+'%', top: (5 + i * 8)+'%',
+          background: 'linear-gradient(90deg, transparent, '+auroraColors[i]+', transparent)',
+          filter: 'blur(30px)',
+          animation: 'aurora-sweep '+(8 + i * 4)+'s ease-in-out '+(i * 2)+'s infinite alternate',
+        }} />
+      ))}
+      <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 100% 40% at 50% 0%, rgba(20,255,100,0.04), transparent 70%)' }} />
+      {Array.from({ length: 15 }).map((_, i) => (
+        <div key={'s'+i} className="absolute rounded-full" style={{
+          width: '1px', height: '1px',
+          left: Math.random()*100+'%', top: Math.random()*60+'%',
+          backgroundColor: '#fff', opacity: 0.2+Math.random()*0.4,
+          animation: 'twinkle '+(2+Math.random()*3)+'s ease-in-out '+(Math.random()*2)+'s infinite alternate',
+        }} />
+      ))}
+    </div>
+  );
+}
+
 function SpaceBackground({ themeEffect, color }: { themeEffect: string; color: string }) {
   if (themeEffect.startsWith("custom:")) {
     const url = themeEffect.replace("custom:", "");
@@ -259,6 +413,11 @@ function SpaceBackground({ themeEffect, color }: { themeEffect: string; color: s
     case "orbs": return <OrbsBackground color={color} />;
     case "stars": return <StarsBackground color={color} />;
     case "hex": return <HexBackground color={color} />;
+    case "nebula": return <NebulaBackground color={color} />;
+    case "portal": return <PortalBackground color={color} />;
+    case "rain": return <RainBackground color={color} />;
+    case "fireflies": return <FirefliesBackground color={color} />;
+    case "northern": return <NorthernBackground color={color} />;
     default: return (
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full blur-[140px] opacity-25" style={{ backgroundColor: color }} />
@@ -695,6 +854,18 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
               {suggestedQuestions.map((q, i) => (
                 <button key={i} onClick={() => { setQuestion(q); setCharCount(q.length); }}
                   className={"px-3 py-1.5 rounded-full border text-xs transition-all active:scale-95 backdrop-blur-sm " + (isLight ? "border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50 shadow-sm" : "border-white/10 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10")}>
+                  {q}
+                </button>
+              ))}
+            </motion.div>
+          )}
+
+          {/* Quick suggestions row */}
+          {history.length === 0 && !submitted && suggestedQuestions.length === 0 && creatorQuestions.length > 0 && (
+            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="flex flex-wrap gap-2 pl-9">
+              {creatorQuestions.slice(0, 3).map((q, i) => (
+                <button key={i} onClick={() => { setQuestion(q); setCharCount(q.length); }}
+                  className="px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-zinc-400 text-xs transition-all hover:text-white hover:bg-white/10 active:scale-95 backdrop-blur-sm">
                   {q}
                 </button>
               ))}

@@ -345,3 +345,31 @@ html { scroll-behavior: smooth; font-family: sans-serif; }
   background-size: 200% 100%;
   animation: shimmerWide 3s ease-in-out infinite;
 }
+
+@keyframes rain-fall {
+  0% { transform: translateY(0) rotate(15deg); }
+  100% { transform: translateY(100vh) rotate(15deg); }
+}
+
+@keyframes aurora-sweep {
+  0% { transform: translateX(-10%) scaleX(1); opacity: 0.4; }
+  50% { opacity: 1; }
+  100% { transform: translateX(10%) scaleX(1.2); opacity: 0.4; }
+}
+
+@keyframes twinkle {
+  0%, 100% { opacity: 0.1; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.5); }
+}
+
+@keyframes portal-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.3; }
+  50% { transform: scale(1.05); opacity: 0.6; }
+}
+
+@keyframes nebula-drift {
+  0% { transform: translate(0, 0) rotate(0deg); }
+  33% { transform: translate(2%, -1%) rotate(1deg); }
+  66% { transform: translate(-1%, 1%) rotate(-1deg); }
+  100% { transform: translate(0, 0) rotate(0deg); }
+}

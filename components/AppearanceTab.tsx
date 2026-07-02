@@ -16,6 +16,9 @@ const ACCENT_COLORS = [
   { name: "Cyan", value: "#06b6d4" },
   { name: "Rose", value: "#f43f5e" },
   { name: "White", value: "#e4e4e7" },
+  { name: "Lime", value: "#84cc16" },
+  { name: "Pink", value: "#ec4899" },
+  { name: "Gold", value: "#eab308" },
 ];
 
 const BACKGROUNDS = [
@@ -28,6 +31,13 @@ const BACKGROUNDS = [
   { id: "sunset",   label: "Ember",     desc: "Crimson dark",      bg: "#0d0403",  preview: "linear-gradient(135deg,#0d0403 60%,#180805 100%)" },
   { id: "galaxy",   label: "Galaxy",    desc: "Cosmic purple",     bg: "#04020d",  preview: "linear-gradient(135deg,#04020d 60%,#0a0520 100%)" },
   { id: "dusk",     label: "Dusk",      desc: "Violet night",      bg: "#0a0510",  preview: "linear-gradient(135deg,#0a0510 60%,#140820 100%)" },
+  // Premium new
+  { id: "milky",    label: "Milky Way", desc: "Starfield nebula",  bg: "#020312",  preview: "linear-gradient(135deg,#020312 40%,#0a0525 70%,#180620 100%)" },
+  { id: "bloodmoon",label: "Blood Moon",desc: "Crimson eclipse",   bg: "#0a0204",  preview: "linear-gradient(135deg,#0a0204 40%,#1a0408 70%,#2a0505 100%)" },
+  { id: "neon",     label: "Neon Noir", desc: "Cyberpunk dark",    bg: "#05020a",  preview: "linear-gradient(135deg,#05020a 30%,#0a0520 60%,#0a0015 100%)" },
+  { id: "toxin",    label: "Toxin",     desc: "Acid green",        bg: "#020a04",  preview: "linear-gradient(135deg,#020a04 40%,#0a1a05 70%,#051005 100%)" },
+  { id: "royal",    label: "Royal",     desc: "Purple regal",      bg: "#080210",  preview: "linear-gradient(135deg,#080210 40%,#150830 70%,#200840 100%)" },
+  { id: "lava",     label: "Lava",      desc: "Molten rock",       bg: "#0a0302",  preview: "linear-gradient(135deg,#0a0302 30%,#1a0804 60%,#2a0a02 100%)" },
   // Light — glassy
   { id: "fog",      label: "Pearl",     desc: "Soft white glass",  bg: "#f0eef8",  preview: "linear-gradient(135deg,#f0eef8 60%,#e8e4f5 100%)" },
   { id: "parchment",label: "Paper",     desc: "Warm cream glass",  bg: "#faf6f0",  preview: "linear-gradient(135deg,#faf6f0 60%,#f5ede0 100%)" },
@@ -48,6 +58,11 @@ const EFFECTS = [
   { id: "matrix",   label: "Code",      desc: "Falling chars" },
   { id: "stars",    label: "Stars",     desc: "Shooting stars" },
   { id: "hex",      label: "Hex",       desc: "Hexagon grid" },
+  { id: "nebula",   label: "Nebula",    desc: "Swirling galaxy gas" },
+  { id: "portal",   label: "Portal",    desc: "Pulsing light gate" },
+  { id: "rain",     label: "Rain",      desc: "Gentle downpour" },
+  { id: "fireflies",label: "Fireflies", desc: "Floating glows" },
+  { id: "northern", label: "Aurora",    desc: "Northern lights" },
 ];
 
 const LIGHT_BGS = ["fog", "parchment", "sand", "mint", "chalkwhite"];
@@ -210,16 +225,15 @@ export function AppearanceTab() {
           {customBgUrl ? (
             <div className="relative h-20 group">
               <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(" + customBgUrl + ")" }} />
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button onClick={() => bgFileRef.current?.click()} className="px-3 py-1.5 rounded-lg bg-white/20 text-white text-xs font-medium backdrop-blur-sm">Change</button>
-                <button onClick={() => { setCustomBgUrl(""); setThemeEffect("none"); }} className="px-3 py-1.5 rounded-lg bg-white/20 text-white text-xs font-medium backdrop-blur-sm">Remove</button>
+              <div className="absolute inset-0 bg-black/50 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                <button onClick={() => bgFileRef.current?.click()} className="px-3 py-1.5 rounded-lg bg-white/20 text-white text-xs font-medium backdrop-blur-sm hover:bg-white/30 transition-colors">Change</button>
+                <button onClick={() => { setCustomBgUrl(""); setThemeEffect("none"); }} className="px-3 py-1.5 rounded-lg bg-red-500/30 text-red-300 text-xs font-medium backdrop-blur-sm hover:bg-red-500/50 transition-colors">Remove</button>
               </div>
-              {themeBg !== "custom" && (
-                <button onClick={() => setThemeEffect("custom")}
-                  className={"absolute bottom-2 right-2 px-2 py-1 rounded-lg text-[10px] font-bold transition-all " + (themeEffect === "custom" ? "bg-white text-black" : "bg-white/20 text-white backdrop-blur-sm")}>
-                  {themeEffect === "custom" ? "✓ Active" : "Use this"}
-                </button>
-              )}
+              <div className="absolute bottom-2 right-2">
+                <span className={"px-2 py-1 rounded-lg text-[10px] font-bold " + (themeEffect === "custom" ? "bg-amber-500 text-black" : "bg-white/20 text-white/60 backdrop-blur-sm")}>
+                  {themeEffect === "custom" ? "● Active" : "○ Inactive"}
+                </span>
+              </div>
             </div>
           ) : (
             <button onClick={() => bgFileRef.current?.click()} disabled={uploadingBg}
@@ -231,6 +245,12 @@ export function AppearanceTab() {
           )}
           <input ref={bgFileRef} type="file" accept="image/*" className="hidden" onChange={handleBgUpload} />
         </div>
+        {customBgUrl && themeEffect !== "custom" && (
+          <p className="text-[10px] text-zinc-600 mt-1">Tip: select <strong className="text-zinc-400">Still</strong> under Background Effect to show only your custom image</p>
+        )}
+        {customBgUrl && themeEffect === "custom" && (
+          <p className="text-[10px] text-zinc-600 mt-1">Tip: choose a Background Effect to layer on top of your image</p>
+        )}
       </div>
 
       {/* Animated Effects */}
