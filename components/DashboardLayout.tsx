@@ -3,7 +3,7 @@
 import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Avatar } from '@/components/dashboard/Avatar';
 import { DashboardAI } from './DashboardAI';
@@ -50,7 +50,15 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
   const pathname = usePathname();
   const { user } = useUser();
   const [isOpen, setIsOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const closeMenu = () => setIsOpen(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 1024);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   const isAdmin = user?.id === 'user_3EhKmuVyC1AhoBDlL7QNssllwgu' || user?.id === 'user_3Ev3UAWNTTDAlVWSYFGGsEI6qQz';
 
@@ -96,8 +104,8 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
       <motion.aside
         variants={sidebarVariants}
         initial={false}
-        animate={isOpen ? 'open' : 'closed'}
-        className="fixed left-0 top-0 h-full w-64 bg-background/90 border-r border-white/[0.06] backdrop-blur-2xl z-40 flex flex-col lg:translate-x-0"
+        animate={isMobile ? (isOpen ? 'open' : 'closed') : 'open'}
+        className="fixed left-0 top-0 h-full w-64 bg-background/90 border-r border-white/[0.06] backdrop-blur-2xl z-40 flex flex-col"
       >
         <div className="flex items-center gap-2.5 px-6 h-14 border-b border-white/[0.06] shrink-0">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
