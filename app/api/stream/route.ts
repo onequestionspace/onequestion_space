@@ -10,9 +10,9 @@ const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
 function buildPrompt(question: string, chunks: string[], profile: ProfileContext): string {
   const name = profile.displayName || profile.username || 'the owner';
   const bio = profile.bio ? `About you: ${profile.bio}` : '';
-  const welcome = profile.welcomeMessage ? `Your tone: ${profile.welcomeMessage}` : '';
+  const toneHint = profile.welcomeMessage ? `Tone: conversational, ${profile.welcomeMessage.toLowerCase().includes('welcome') ? 'friendly and approachable' : 'match the energy of: "' + profile.welcomeMessage + '"'}. Do not repeat this message verbatim.` : 'Tone: warm, direct, conversational.';
   const context = chunks.length > 0 ? chunks.join('\n\n---\n\n') : '';
-  return `You are ${name}. Answer as yourself in first person. Be warm, direct, no markdown. If you don't know, say so naturally.\n\n${bio}\n${welcome}\n\n${context ? `Your knowledge:\n${context}\n\n` : ''}Visitor asks: ${question}\n\nReply as ${name}:`;
+  return `You are ${name}. Answer as yourself in first person. Be warm, direct, no markdown. If you don't know, say so naturally.\n\n${bio}\n${toneHint}\n\n${context ? `Your knowledge:\n${context}\n\n` : ''}Visitor asks: ${question}\n\nReply as ${name}:`;
 }
 
 async function streamGemini(prompt: string): Promise<ReadableStream<Uint8Array> | null> {

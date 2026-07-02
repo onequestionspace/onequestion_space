@@ -78,8 +78,9 @@ const FLOATING_PARTICLES = Array.from({ length: 100 }).map(() => ({
   top: Math.random() * 100,
   duration: 8 + Math.random() * 20,
   delay: Math.random() * 10,
-  driftX: (Math.random() - 0.5) * 50,
-  driftY: (Math.random() - 0.5) * 50,
+  opacity: 0.15 + Math.random() * 0.5,
+  shadow: Math.random() > 0.66,
+  twinkleDur: 1.5 + Math.random() * 3,
   twinkleDelay: Math.random() * 5,
 }));
 
@@ -94,10 +95,9 @@ function ParticlesBackground({ color }: { color: string }) {
           width: p.size+'px', height: p.size+'px',
           left: p.left+'%', top: p.top+'%',
           backgroundColor: i % 5 === 0 ? '#fff' : color,
-          opacity: 0.15 + Math.random() * 0.5,
-          boxShadow: i % 3 === 0 ? '0 0 '+(p.size*2)+'px '+color : 'none',
-          animation: `drift-particle ${p.duration}s ease-in-out ${p.delay}s infinite, twinkle ${1.5 + Math.random() * 3}s ease-in-out ${p.twinkleDelay}s infinite alternate`,
-          transform: `translate(${p.driftX}px, ${p.driftY}px)`,
+          opacity: p.opacity,
+          boxShadow: p.shadow ? '0 0 '+(p.size*3)+'px '+color : 'none',
+          animation: `drift-particle ${p.duration}s ease-in-out ${p.delay}s infinite, twinkle ${p.twinkleDur}s ease-in-out ${p.twinkleDelay}s infinite alternate`,
         }} />
       ))}
     </div>
@@ -261,6 +261,11 @@ const NEBULA_CLOUDS = [
   { w: 450, h: 280, left: 5, top: 60, duration: 35, delay: 3, opacity: 0.06 },
 ];
 
+const NEBULA_STARS = Array.from({ length: 40 }).map(() => ({
+  size: 1 + Math.random() * 2, left: Math.random() * 100, top: Math.random() * 100,
+  opacity: 0.2 + Math.random() * 0.5, dur: 5 + Math.random() * 10, delay: Math.random() * 5,
+}));
+
 function NebulaBackground({ color }: { color: string }) {
   const colors = [color, '#8b5cf6', '#3b82f6', '#ec4899', '#06b6d4'];
   return (
@@ -272,12 +277,11 @@ function NebulaBackground({ color }: { color: string }) {
             opacity: c.opacity, filter: 'blur(40px)',
             animationDuration: c.duration+"s", animationDelay: c.delay+"s" }} />
       ))}
-      {Array.from({ length: 40 }).map((_, i) => (
+      {NEBULA_STARS.map((s, i) => (
         <div key={'s'+i} className="absolute rounded-full animate-float"
-          style={{ width: (1+Math.random()*2)+'px', height: (1+Math.random()*2)+'px',
-            left: Math.random()*100+'%', top: Math.random()*100+'%',
-            backgroundColor: '#fff', opacity: 0.2+Math.random()*0.5,
-            animationDuration: (5+Math.random()*10)+'s', animationDelay: (Math.random()*5)+'s' }} />
+          style={{ width: s.size+'px', height: s.size+'px', left: s.left+'%', top: s.top+'%',
+            backgroundColor: '#fff', opacity: s.opacity,
+            animationDuration: s.dur+'s', animationDelay: s.delay+'s' }} />
       ))}
     </div>
   );
@@ -669,36 +673,35 @@ function OilyBackground({ color }: { color: string }) {
   );
 }
 
+const GLASS_SPARKLES = Array.from({ length: 20 }).map(() => ({
+  size: 1 + Math.random() * 2, left: Math.random() * 100, top: Math.random() * 100,
+  opacity: 0.1 + Math.random() * 0.3, dur: 2 + Math.random() * 4, delay: Math.random() * 3,
+}));
+
 function GlassyBackground({ color }: { color: string }) {
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
       <div className="absolute inset-0" style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }} />
       <div className="absolute inset-0" style={{
-        background: `
-          linear-gradient(135deg, ${color}08 0%, transparent 30%, ${color}04 50%, transparent 70%, ${color}06 100%)
-        `,
+        background: `linear-gradient(135deg, ${color}08 0%, transparent 30%, ${color}04 50%, transparent 70%, ${color}06 100%)`,
       }} />
       <div className="absolute inset-0 opacity-[0.03]" style={{
         background: 'repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.1) 20px, rgba(255,255,255,0.1) 21px)',
       }} />
       <div className="absolute w-[200px] h-[400px] top-[-20%] left-[-10%] rotate-[30deg] animate-float-slow" style={{
         background: 'linear-gradient(180deg, transparent, '+color+'20, transparent)',
-        filter: 'blur(60px)',
-        animationDuration: '15s',
+        filter: 'blur(60px)', animationDuration: '15s',
       }} />
       <div className="absolute w-[150px] h-[300px] top-[30%] right-[-5%] rotate-[-20deg] animate-float-slow" style={{
         background: 'linear-gradient(180deg, transparent, '+color+'15, transparent)',
-        filter: 'blur(50px)',
-        animationDuration: '18s',
-        animationDelay: '3s',
+        filter: 'blur(50px)', animationDuration: '18s', animationDelay: '3s',
       }} />
-      {Array.from({ length: 20 }).map((_, i) => (
+      {GLASS_SPARKLES.map((s, i) => (
         <div key={i} className="absolute rounded-full" style={{
-          width: (1 + Math.random() * 2)+'px', height: (1 + Math.random() * 2)+'px',
-          left: Math.random() * 100+'%', top: Math.random() * 100+'%',
-          backgroundColor: '#fff',
-          opacity: 0.1 + Math.random() * 0.3,
-          animation: 'twinkle '+(2+Math.random()*4)+'s ease-in-out '+(Math.random()*3)+'s infinite alternate',
+          width: s.size+'px', height: s.size+'px',
+          left: s.left+'%', top: s.top+'%',
+          backgroundColor: '#fff', opacity: s.opacity,
+          animation: 'twinkle '+s.dur+'s ease-in-out '+s.delay+'s infinite alternate',
         }} />
       ))}
     </div>
@@ -759,6 +762,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   const [charCount, setCharCount] = useState(0);
   const [reacted, setReacted] = useState<string | null>(null);
   const [expandedPin, setExpandedPin] = useState<number | null>(null);
+  const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
   const [responseTime, setResponseTime] = useState<number | null>(null);
   const [startTime, setStartTime] = useState<number>(0);
   const [visitorEmail, setVisitorEmail] = useState('');
@@ -1186,37 +1190,50 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
             </motion.div>
           )}
 
-          {/* History thread */}
-          {history.map((item, i) => (
-            <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="space-y-1">
-              {/* User message */}
-              <div className="flex justify-end">
-                <div className="max-w-[80%] group relative">
-                  <div className="px-4 py-2.5 rounded-3xl rounded-br-sm text-white text-sm leading-relaxed shadow-md" style={{ backgroundColor: color }}>
+          {/* History thread — collapsible */}
+          {history.map((item, i) => {
+            const isExpanded = expandedIndex === i;
+            return (
+              <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+                {/* Collapsed: question badge */}
+                <motion.div
+                  onClick={() => setExpandedIndex(isExpanded ? null : i)}
+                  className={"flex items-center gap-2 px-4 py-2 rounded-full cursor-pointer transition-all border " + (isExpanded ? "border-white/20 bg-white/8" : "border-white/5 bg-white/4 hover:bg-white/8")}
+                  style={{ borderColor: isExpanded ? color + '60' : undefined }}
+                  layout layoutId={'hist-' + i}
+                >
+                  <span className={"text-xs font-medium truncate flex-1 " + (isLight ? "text-zinc-800" : "text-white/90")}>
                     {item.q}
-                  </div>
-                  <div className="flex justify-end gap-1 mt-0.5 pr-1">
-                    <span className="text-[9px] opacity-30">{new Date(item.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                    <CheckCheck className="w-2.5 h-2.5 opacity-30" />
-                  </div>
-                </div>
-              </div>
-              {/* AI message */}
-              <div className="flex items-end gap-2">
-                <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 mb-1 flex items-center justify-center text-xs font-bold text-white shadow-lg" style={{ backgroundColor: color }}>
-                  {profile.avatar ? <Image src={profile.avatar} alt="" width={28} height={28} className="w-full h-full object-cover" /> : initials}
-                </div>
-                <div className="max-w-[80%] group relative">
-                  <div className={"px-4 py-2.5 rounded-3xl rounded-tl-sm text-sm leading-relaxed shadow-sm " + (isLight ? "bg-zinc-100 text-zinc-900" : "bg-white/8 text-white/90")}>
-                    {item.a}
-                  </div>
-                  <div className="flex justify-start gap-1 mt-0.5 pl-1">
-                    <span className="text-[9px] opacity-30">{new Date(item.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          ))}
+                  </span>
+                  <span className="text-[9px] opacity-30 shrink-0">
+                    {new Date(item.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </span>
+                  <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                    <ChevronDown className="w-3 h-3 opacity-30 shrink-0" />
+                  </motion.div>
+                </motion.div>
+                {/* Expanded: answer */}
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="flex items-end gap-2 pt-2 pb-1 pl-2">
+                        <div className="w-6 h-6 rounded-full overflow-hidden shrink-0 flex items-center justify-center text-[9px] font-bold text-white shadow" style={{ backgroundColor: color }}>
+                          {profile.avatar ? <Image src={profile.avatar} alt="" width={24} height={24} className="w-full h-full object-cover" /> : initials}
+                        </div>
+                        <div className={"px-3.5 py-2 rounded-3xl rounded-tl-sm text-sm leading-relaxed shadow-sm max-w-[85%] " + (isLight ? "bg-zinc-100 text-zinc-900" : "bg-white/8 text-white/90")}>
+                          {item.a}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            );
+          })}
 
           {/* Current question */}
           {submitted && lastQuestion && (
