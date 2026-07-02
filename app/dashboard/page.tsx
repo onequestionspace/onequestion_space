@@ -127,40 +127,14 @@ export default function DashboardPage() {
     toast({ type: 'success', title: 'Link copied!', description: 'Share it with anyone to get questions.' });
     setTimeout(() => setCopied(false), 2000);
   };
-
-  if (!isLoaded) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-pulse text-zinc-500 text-sm">Loading...</div>
-    </div>
-  );
-  if (!isSignedIn) { redirect('/'); }
-
   const loading = !profile || analytics === undefined || knowledgeCount === undefined || subscription === undefined;
-
   const isNewUser = !knowledgeCount || knowledgeCount === 0;
   const messagesUsed = subscription?.messagesUsed ?? 0;
   const messagesLimit = subscription?.messagesLimit ?? 50;
   const pendingCount = unansweredQuestions?.length ?? 0;
-  const responseRate = analytics && analytics.totalQuestions > 0
-    ? Math.round((analytics.totalAnswers / analytics.totalQuestions) * 100)
-    : 0;
 
-  const spaceUrl = 'onequestion.space/' + profile?.username;
 
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-
-  const completionChecks = [
-    !!profile?.displayName,
-    !!profile?.avatar,
-    !!(profile?.bio && profile.bio.length > 10),
-    !!profile?.welcomeMessage,
-    !!(profile as Record<string, unknown>)?.vibeQuote,
-    knowledgeCount ? knowledgeCount > 0 : false,
-  ];
-  const completionScore = Math.round((completionChecks.filter(Boolean).length / completionChecks.length) * 100);
-
-  const insights: string[] = useMemo(() => {
+    const insights: string[] = useMemo(() => {
     const tips: string[] = [];
     if (isNewUser) {
       tips.push('Upload your first knowledge item to get started');
@@ -185,6 +159,33 @@ export default function DashboardPage() {
     }
     return tips.slice(0, 3);
   }, [isNewUser, knowledgeCount, pendingCount, messagesUsed, messagesLimit, profile?.avatar, profile?.vibeQuote]);
+  const responseRate = analytics && analytics.totalQuestions > 0
+    ? Math.round((analytics.totalAnswers / analytics.totalQuestions) * 100)
+    : 0;
+
+  const spaceUrl = 'onequestion.space/' + profile?.username;
+
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
+
+  const completionChecks = [
+    !!profile?.displayName,
+    !!profile?.avatar,
+    !!(profile?.bio && profile.bio.length > 10),
+    !!profile?.welcomeMessage,
+    !!(profile as Record<string, unknown>)?.vibeQuote,
+    knowledgeCount ? knowledgeCount > 0 : false,
+  ];
+  const completionScore = Math.round((completionChecks.filter(Boolean).length / completionChecks.length) * 100);
+
+
+
+  if (!isLoaded) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-pulse text-zinc-500 text-sm">Loading...</div>
+    </div>
+  );
+  if (!isSignedIn) { redirect('/'); }
 
   return (
     <DashboardLayout title={`${greeting}, ${profile?.displayName || 'friend'} 👋`} description={spaceUrl}>
