@@ -6,6 +6,8 @@ import { api } from '@/convex/_generated/api';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { TourTooltip } from '@/components/TourTooltip';
 import { AppearanceTab } from '@/components/AppearanceTab';
+import { Input, Textarea, Label } from '@/components/dashboard/Input';
+import { Button } from '@/components/dashboard/Button';
 import {
   User, Palette, Link as LinkIcon, Quote,
   Pin, Check, Loader2, Save, Eye, Code2,
@@ -52,6 +54,7 @@ export default function StudioPage() {
       setTimeout(() => setShowTour(true), 1000);
     }
   }, []);
+
   const [displayName, setDisplayName] = useState('');
   const [bio, setBio] = useState('');
   const [welcomeMessage, setWelcomeMessage] = useState('');
@@ -86,14 +89,17 @@ export default function StudioPage() {
   const spaceUrl = profile?.username ? '/' + profile.username : null;
   const completionChecks = checks(profile as Record<string, unknown> | null);
   const score = Math.round((completionChecks.filter(c => c.done).length / completionChecks.length) * 100);
-  const inputClass = "w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary/40 transition-all placeholder:text-zinc-600 resize-none";
 
   const saveBtn = (fields: Record<string, unknown>) => (
-    <button onClick={() => save(fields)} disabled={saving}
-      className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-black text-sm font-black bg-primary hover:opacity-90 transition-all disabled:opacity-50 mt-4">
-      {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
+    <Button
+      onClick={() => save(fields)}
+      loading={saving}
+      disabled={saving}
+      icon={saved ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
+      className="mt-4"
+    >
       {saved ? 'Saved!' : 'Save'}
-    </button>
+    </Button>
   );
 
   if (!profile) return (
@@ -107,83 +113,90 @@ export default function StudioPage() {
       <div className="max-w-2xl mx-auto lg:max-w-7xl">
 
         {/* Completion bar */}
-        <div className="mb-4 rounded-2xl p-4 border border-white/8 bg-white/3">
+        <div className="mb-4 rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-3.5 h-3.5 text-primary" />
-              <span className="text-xs font-black text-white">{score}% complete</span>
+              <Sparkles className="w-3.5 h-3.5 text-amber-500" />
+              <span className="text-xs font-semibold text-white">{score}% complete</span>
             </div>
             {spaceUrl && (
-              <Link href={spaceUrl} target="_blank" className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors">
+              <Link href={spaceUrl} target="_blank" className="flex items-center gap-1 text-xs text-amber-500 hover:text-amber-500/80 transition-colors">
                 <ExternalLink className="w-3 h-3" /> View live
               </Link>
             )}
           </div>
-          <div className="w-full h-1 bg-white/8 rounded-full overflow-hidden mb-2">
-            <div className="h-full rounded-full bg-primary transition-all duration-700" style={{ width: score + '%' }} />
+          <div className="w-full h-1 bg-white/5 rounded-full overflow-hidden mb-2">
+            <div className="h-full rounded-full bg-amber-500 transition-all duration-700" style={{ width: score + '%' }} />
           </div>
           <div className="flex flex-wrap gap-1.5">
             {completionChecks.map((c, i) => (
-              <span key={i} className={"text-[10px] px-2 py-0.5 rounded-full border " + (c.done ? "border-green-500/20 bg-green-500/8 text-green-400" : "border-white/8 text-zinc-600")}>
-                {c.done ? "✓ " : ""}{c.label}
+              <span key={i} className={`text-[10px] px-2 py-0.5 rounded-full border ${
+                c.done ? 'border-green-500/20 bg-green-500/10 text-green-400' : 'border-white/[0.06] text-zinc-600'
+              }`}>
+                {c.done ? '✓ ' : ''}{c.label}
               </span>
             ))}
           </div>
         </div>
 
         {/* Mobile toggle */}
-        <div className="flex items-center gap-1 p-1 rounded-xl bg-white/5 border border-white/8 mb-4 lg:hidden">
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-white/5 border border-white/[0.06] mb-4 lg:hidden">
           <button onClick={() => setMode('edit')}
-            className={"flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-black transition-all " + (mode === 'edit' ? "bg-primary text-black" : "text-zinc-500 hover:text-white")}>
+            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium transition-all ${
+              mode === 'edit' ? 'bg-amber-500 text-black' : 'text-zinc-500 hover:text-white'
+            }`}>
             <Code2 className="w-3.5 h-3.5" /> Edit
           </button>
           <button onClick={() => { setMode('preview'); setPreviewKey(k => k + 1); }}
-            className={"flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-black transition-all " + (mode === 'preview' ? "bg-primary text-black" : "text-zinc-500 hover:text-white")}>
+            className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium transition-all ${
+              mode === 'preview' ? 'bg-amber-500 text-black' : 'text-zinc-500 hover:text-white'
+            }`}>
             <Eye className="w-3.5 h-3.5" /> Preview
           </button>
         </div>
 
         <div className="flex gap-6">
           {/* Edit Panel */}
-          <div className={"w-full lg:w-[400px] shrink-0 space-y-3 " + (mode === 'preview' ? "hidden lg:block" : "")}>
+          <div className={`w-full lg:w-[400px] shrink-0 space-y-3 ${mode === 'preview' ? 'hidden lg:block' : ''}`}>
             <div data-tour="tabs" className="flex gap-1 overflow-x-auto pb-1">
               {TABS.map(tab => (
                 <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                  className={"flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-black whitespace-nowrap transition-all shrink-0 " + (activeTab === tab.id ? "bg-primary text-black" : "text-zinc-500 hover:text-white bg-white/3 border border-white/8")}>
+                  className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all shrink-0 ${
+                    activeTab === tab.id ? 'bg-amber-500 text-black' : 'text-zinc-500 hover:text-white bg-white/[0.03] border border-white/[0.06]'
+                  }`}>
                   <tab.icon className="w-3.5 h-3.5" />
                   {tab.label}
                 </button>
               ))}
             </div>
 
-            <div className="rounded-2xl p-5 border border-white/8 bg-white/3">
-
+            <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5">
               {activeTab === 'profile' && (
                 <div className="space-y-4">
                   <div className="flex items-center gap-3 mb-2">
-                    <div className="w-14 h-14 rounded-full overflow-hidden bg-primary/20 flex items-center justify-center text-xl font-black text-white shrink-0">
+                    <div className="w-14 h-14 rounded-full overflow-hidden bg-amber-500/20 flex items-center justify-center text-xl font-bold text-white shrink-0">
                       {profile.avatar
                         ? <Image src={profile.avatar} alt={profile.displayName || ''} width={56} height={56} className="w-full h-full object-cover" />
                         : profile.displayName?.[0]?.toUpperCase() || '?'}
                     </div>
                     <div>
-                      <p className="text-sm font-black text-white">{profile.displayName}</p>
+                      <p className="text-sm font-semibold text-white">{profile.displayName}</p>
                       <p className="text-xs text-zinc-500">@{profile.username}</p>
-                      <Link href="/dashboard/settings" className="text-xs text-primary hover:text-primary/80 mt-0.5 block">Change photo →</Link>
+                      <Link href="/dashboard/settings" className="text-xs text-amber-500 hover:text-amber-500/80 mt-0.5 block">Change photo →</Link>
                     </div>
                   </div>
-                  <div>
-                    <label className="text-xs font-black text-zinc-400 mb-1.5 block">Display Name</label>
-                    <input value={displayName} onChange={e => setDisplayName(e.target.value)} className={inputClass} placeholder="Your full name" />
+                  <div className="space-y-2">
+                    <Label>Display Name</Label>
+                    <Input value={displayName} onChange={e => setDisplayName(e.target.value)} placeholder="Your full name" />
                   </div>
-                  <div>
-                    <label className="text-xs font-black text-zinc-400 mb-1.5 block">Bio <span className="text-zinc-600 font-normal">{bio.length}/160</span></label>
-                    <textarea value={bio} onChange={e => setBio(e.target.value.slice(0, 160))} rows={3} className={inputClass} placeholder="One line that makes people want to ask you something" />
+                  <div className="space-y-2">
+                    <Label suffix={`${bio.length}/160`}>Bio</Label>
+                    <Textarea value={bio} onChange={e => setBio(e.target.value.slice(0, 160))} rows={3} placeholder="One line that makes people want to ask you something" />
                   </div>
-                  <div>
-                    <label className="text-xs font-black text-zinc-400 mb-1.5 block">AI Welcome Message</label>
-                    <input value={welcomeMessage} onChange={e => setWelcomeMessage(e.target.value)} className={inputClass} placeholder="Ask me anything — I reply fast." />
-                    <p className="text-xs text-zinc-600 mt-1">First thing visitors see on your space</p>
+                  <div className="space-y-2">
+                    <Label>AI Welcome Message</Label>
+                    <Input value={welcomeMessage} onChange={e => setWelcomeMessage(e.target.value)} placeholder="Ask me anything — I reply fast." />
+                    <p className="text-xs text-zinc-600">First thing visitors see on your space</p>
                   </div>
                   {saveBtn({ displayName, bio, welcomeMessage })}
                 </div>
@@ -191,23 +204,23 @@ export default function StudioPage() {
 
               {activeTab === 'vibe' && (
                 <div className="space-y-4">
-                  <div>
-                    <label className="text-xs font-black text-zinc-400 mb-1.5 block">Vibe Quote <span className="text-zinc-600 font-normal">{vibeQuote.length}/200</span></label>
-                    <p className="text-xs text-zinc-600 mb-2">One sentence that shows your personality.</p>
-                    <textarea value={vibeQuote} onChange={e => setVibeQuote(e.target.value.slice(0, 200))} rows={3} className={inputClass} placeholder="Building from a phone. Ask me anything." />
+                  <div className="space-y-2">
+                    <Label suffix={`${vibeQuote.length}/200`}>Vibe Quote</Label>
+                    <p className="text-xs text-zinc-500">One sentence that shows your personality.</p>
+                    <Textarea value={vibeQuote} onChange={e => setVibeQuote(e.target.value.slice(0, 200))} rows={3} placeholder="Building from a phone. Ask me anything." />
                   </div>
                   {vibeQuote && (
-                    <div className="p-4 rounded-xl bg-primary/8 border border-primary/20">
-                      <p className="text-xs text-primary mb-1 font-black">Preview</p>
+                    <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/20">
+                      <p className="text-xs text-amber-400 mb-1 font-medium">Preview</p>
                       <p className="text-sm text-white italic">&ldquo;{vibeQuote}&rdquo;</p>
                     </div>
                   )}
-                  <div>
-                    <label className="text-xs font-black text-zinc-400 mb-1.5 block">Suggested Questions</label>
-                    <p className="text-xs text-zinc-600 mb-2">3 questions visitors see as prompts on your space.</p>
+                  <div className="space-y-2">
+                    <Label>Suggested Questions</Label>
+                    <p className="text-xs text-zinc-500 mb-2">3 questions visitors see as prompts on your space.</p>
                     <div className="space-y-2">
                       {[0,1,2].map(i => (
-                        <input key={i} value={suggestedQuestions[i] || ""} onChange={e => { const next = [...suggestedQuestions]; next[i] = e.target.value; setSuggestedQuestions(next); }} placeholder={"Question " + (i+1) + "..."} className={inputClass} />
+                        <Input key={i} value={suggestedQuestions[i] || ""} onChange={e => { const next = [...suggestedQuestions]; next[i] = e.target.value; setSuggestedQuestions(next); }} placeholder={"Question " + (i+1) + "..."} />
                       ))}
                     </div>
                   </div>
@@ -218,15 +231,15 @@ export default function StudioPage() {
               {activeTab === 'links' && (
                 <div className="space-y-4">
                   <div>
-                    <p className="text-xs font-black text-zinc-400 mb-1">Your Links</p>
-                    <p className="text-xs text-zinc-600 mb-3">Pin up to 5 links. Add a photo to make them pop.</p>
+                    <p className="text-sm font-medium text-zinc-300 mb-1">Your Links</p>
+                    <p className="text-xs text-zinc-500 mb-3">Pin up to 5 links. Add a photo to make them pop.</p>
                   </div>
                   <div className="space-y-3">
                     {links.map((link, i) => (
-                      <div key={i} className="rounded-xl border border-white/8 bg-white/3 p-3 space-y-2">
+                      <div key={i} className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 space-y-2">
                         <div className="grid grid-cols-2 gap-2">
-                          <input value={link.title} onChange={e => { const next = [...links]; next[i].title = e.target.value; setLinks(next); }} placeholder="Label" className={inputClass} />
-                          <input value={link.url} onChange={e => { const next = [...links]; next[i].url = e.target.value; setLinks(next); }} placeholder="https://..." className={inputClass} />
+                          <Input value={link.title} onChange={e => { const next = [...links]; next[i].title = e.target.value; setLinks(next); }} placeholder="Label" />
+                          <Input value={link.url} onChange={e => { const next = [...links]; next[i].url = e.target.value; setLinks(next); }} placeholder="https://..." />
                         </div>
                         <div className="flex items-center gap-2">
                           {link.image ? (
@@ -236,7 +249,7 @@ export default function StudioPage() {
                                 className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity text-white text-xs">x</button>
                             </div>
                           ) : (
-                            <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-white/15 text-zinc-500 hover:text-white hover:border-primary/40 transition-all text-xs cursor-pointer shrink-0">
+                            <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-white/15 text-zinc-500 hover:text-white hover:border-amber-500/40 transition-all text-xs cursor-pointer shrink-0">
                               + Photo
                               <input type="file" accept="image/*" className="hidden" onChange={async e => {
                                 const file = e.target.files?.[0];
@@ -260,7 +273,7 @@ export default function StudioPage() {
                   </div>
                   {links.length < 5 && (
                     <button onClick={() => setLinks([...links, { title: '', url: '' }])}
-                      className="flex items-center gap-2 px-4 py-2 rounded-xl border border-dashed border-white/15 text-zinc-500 hover:text-white hover:border-primary/40 transition-all text-xs w-full justify-center">
+                      className="flex items-center gap-2 px-4 py-2 rounded-xl border border-dashed border-white/15 text-zinc-500 hover:text-white hover:border-amber-500/40 transition-all text-xs w-full justify-center">
                       <Plus className="w-3.5 h-3.5" /> Add Link
                     </button>
                   )}
@@ -271,8 +284,8 @@ export default function StudioPage() {
               {activeTab === 'pinned' && (
                 <div className="space-y-4">
                   <div>
-                    <p className="text-xs font-black text-zinc-400 mb-1">Pinned Answers</p>
-                    <p className="text-xs text-zinc-600 mb-3">Pick up to 3 best answers to showcase.</p>
+                    <p className="text-sm font-medium text-zinc-300 mb-1">Pinned Answers</p>
+                    <p className="text-xs text-zinc-500 mb-3">Pick up to 3 best answers to showcase.</p>
                   </div>
                   {recentQuestions && recentQuestions.filter(q => q.isAnswered).length > 0 ? (
                     <div className="space-y-2">
@@ -280,17 +293,21 @@ export default function StudioPage() {
                         const isPinned = pinnedQuestions.includes(q._id);
                         return (
                           <div key={q._id}
-                            className={"p-3 rounded-xl border transition-all cursor-pointer " + (isPinned ? "border-primary/40 bg-primary/8" : "border-white/8 hover:border-white/20 bg-white/3")}
+                            className={`p-3 rounded-xl border transition-all cursor-pointer ${
+                              isPinned ? 'border-amber-500/40 bg-amber-500/10' : 'border-white/[0.06] hover:border-white/20 bg-white/[0.02]'
+                            }`}
                             onClick={() => {
                               if (isPinned) setPinnedQuestions(pinnedQuestions.filter(id => id !== q._id));
                               else if (pinnedQuestions.length < 3) setPinnedQuestions([...pinnedQuestions, q._id]);
                             }}>
                             <div className="flex items-start justify-between gap-2">
                               <div className="flex-1 min-w-0">
-                                <p className="text-xs font-black text-white line-clamp-1">{q.question}</p>
+                                <p className="text-xs font-medium text-white line-clamp-1">{q.question}</p>
                                 {q.answer && <p className="text-xs text-zinc-500 line-clamp-1 mt-0.5">{q.answer}</p>}
                               </div>
-                              <div className={"w-4 h-4 rounded-full border shrink-0 flex items-center justify-center " + (isPinned ? "border-primary bg-primary" : "border-white/20")}>
+                              <div className={`w-4 h-4 rounded-full border shrink-0 flex items-center justify-center ${
+                                isPinned ? 'border-amber-500 bg-amber-500' : 'border-white/20'
+                              }`}>
                                 {isPinned && <Check className="w-2.5 h-2.5 text-black" />}
                               </div>
                             </div>
@@ -314,12 +331,12 @@ export default function StudioPage() {
           </div>
 
           {/* Preview Panel */}
-          <div className={"flex-1 min-w-0 " + (mode === 'edit' ? "hidden lg:block" : "")}>
+          <div className={`flex-1 min-w-0 ${mode === 'edit' ? 'hidden lg:block' : ''}`}>
             <div className="sticky top-6">
               <div data-tour="preview" className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                  <span className="text-xs text-zinc-400 font-black">Your space — live</span>
+                  <span className="text-xs text-zinc-400 font-medium">Your space — live</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <button onClick={() => setPreviewKey(k => k + 1)}
@@ -328,7 +345,7 @@ export default function StudioPage() {
                   </button>
                   {spaceUrl && (
                     <Link href={spaceUrl} target="_blank"
-                      className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 transition-colors px-2 py-1 rounded-lg hover:bg-primary/10">
+                      className="flex items-center gap-1.5 text-xs text-amber-500 hover:text-amber-500/80 transition-colors px-2 py-1 rounded-lg hover:bg-amber-500/10">
                       <ExternalLink className="w-3 h-3" /> Open
                     </Link>
                   )}
@@ -348,7 +365,7 @@ export default function StudioPage() {
                   </div>
                 </div>
               ) : (
-                <div className="rounded-2xl border border-white/8 bg-white/3 flex items-center justify-center" style={{ height: '500px' }}>
+                <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] flex items-center justify-center" style={{ height: '500px' }}>
                   <div className="text-center text-zinc-600">
                     <Eye className="w-8 h-8 mx-auto mb-2 opacity-30" />
                     <p className="text-sm">Complete onboarding first</p>
@@ -357,8 +374,8 @@ export default function StudioPage() {
               )}
             </div>
           </div>
-
         </div>
+
       </div>
       {showTour && (
         <TourTooltip

@@ -7,6 +7,7 @@ import { DashboardLayout } from '@/components/DashboardLayout';
 import { useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Send, Loader2, Brain, CheckCircle2 } from 'lucide-react';
+import { Button } from '@/components/dashboard/Button';
 
 interface Message { role: 'user' | 'assistant'; content: string; }
 
@@ -32,6 +33,7 @@ export default function TrainPage() {
   const [done, setDone] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
   const createKnowledge = useMutation(api.knowledge.createKnowledge);
+
   useEffect(() => {
     setTimeout(() => setMessages([{ role: 'assistant', content: 'Hi! I am going to help you train your AI. I will ask you a series of questions and turn your answers into knowledge your AI can use. Ready? Here is the first question:\n\n' + QUESTIONS[0] }]), 0);
   }, []);
@@ -40,7 +42,11 @@ export default function TrainPage() {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  if (!isLoaded) return <div className='min-h-screen flex items-center justify-center text-muted-foreground'>Loading...</div>;
+  if (!isLoaded) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-pulse text-zinc-500 text-sm">Loading...</div>
+    </div>
+  );
   if (!isSignedIn) { redirect('/'); }
 
   const send = async () => {
@@ -100,70 +106,77 @@ export default function TrainPage() {
   };
 
   return (
-    <DashboardLayout title='Train Your AI' description='Chat with our AI to build your knowledge base automatically.'>
-      <div className='max-w-2xl mx-auto'>
-        <div className='glass-card rounded-2xl border border-border overflow-hidden'>
-          <div className='flex items-center gap-3 px-6 py-4 border-b border-border bg-card'>
-            <div className='w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center'>
-              <Brain className='w-4 h-4 text-amber-500' />
+    <DashboardLayout title="Train Your AI" description="Chat with our AI to build your knowledge base automatically.">
+      <div className="max-w-2xl mx-auto">
+        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] overflow-hidden">
+          {/* Header */}
+          <div className="flex items-center gap-3 px-6 py-4 border-b border-white/[0.06] bg-white/[0.02]">
+            <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
+              <Brain className="w-4 h-4 text-amber-500" />
             </div>
-            <div>
-              <p className='text-sm font-semibold text-foreground'>AI Trainer</p>
-              <p className='text-xs text-muted-foreground'>{qIndex} of {QUESTIONS.length} questions answered</p>
+            <div className="min-w-0">
+              <p className="text-sm font-semibold text-white">AI Trainer</p>
+              <p className="text-xs text-zinc-500">{qIndex} of {QUESTIONS.length} questions answered</p>
             </div>
-            <div className='ml-auto w-24 h-1.5 bg-card rounded-full overflow-hidden border border-border'>
-              <div className='h-full bg-amber-500 rounded-full transition-all' style={{ width: (qIndex / QUESTIONS.length * 100) + '%' }} />
+            <div className="ml-auto w-24 h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/[0.06]">
+              <div className="h-full bg-amber-500 rounded-full transition-all" style={{ width: (qIndex / QUESTIONS.length * 100) + '%' }} />
             </div>
           </div>
 
-          <div className='h-96 overflow-y-auto p-4 space-y-4'>
+          {/* Messages */}
+          <div className="h-96 overflow-y-auto p-4 space-y-4">
             {messages.map((m, i) => (
               <div key={i} className={'flex ' + (m.role === 'user' ? 'justify-end' : 'justify-start')}>
-                <div className={'max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ' + (m.role === 'user' ? 'bg-amber-500 text-white' : 'glass-card border border-border text-foreground')}>
+                <div className={'max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ' + (
+                  m.role === 'user'
+                    ? 'bg-amber-500 text-black'
+                    : 'bg-white/[0.03] border border-white/[0.06] text-zinc-300'
+                )}>
                   {m.content}
                 </div>
               </div>
             ))}
             {loading && (
-              <div className='flex justify-start'>
-                <div className='glass-card border border-border px-4 py-3 rounded-2xl flex gap-1'>
-                  {[0,1,2].map(i => <div key={i} className='w-2 h-2 rounded-full bg-amber-500 animate-bounce' style={{ animationDelay: i*150 + 'ms' }} />)}
+              <div className="flex justify-start">
+                <div className="bg-white/[0.03] border border-white/[0.06] px-4 py-3 rounded-2xl flex gap-1">
+                  {[0,1,2].map(i => <div key={i} className="w-2 h-2 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: i*150 + 'ms' }} />)}
                 </div>
               </div>
             )}
             <div ref={bottomRef} />
           </div>
 
+          {/* Input / Save */}
           {!done ? (
-            <div className='flex items-center gap-3 px-4 py-3 border-t border-border bg-card'>
+            <div className="flex items-center gap-3 px-4 py-3 border-t border-white/[0.06] bg-white/[0.02]">
               <input
-                type='text'
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={e => e.key === 'Enter' && send()}
-                placeholder='Type your answer...'
-                className='flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground focus:outline-none'
+                placeholder="Type your answer..."
+                className="flex-1 bg-transparent text-sm text-white placeholder:text-zinc-600 focus:outline-none"
                 autoFocus
               />
-              <button onClick={send} disabled={loading || !input.trim()} className='w-8 h-8 rounded-xl bg-amber-500 flex items-center justify-center disabled:opacity-40'>
-                <Send className='w-3.5 h-3.5 text-white' />
+              <button onClick={send} disabled={loading || !input.trim()} className="w-8 h-8 rounded-xl bg-amber-500 flex items-center justify-center disabled:opacity-40 transition-opacity">
+                <Send className="w-3.5 h-3.5 text-black" />
               </button>
             </div>
           ) : (
-            <div className='px-4 py-4 border-t border-border bg-card'>
+            <div className="px-4 py-4 border-t border-white/[0.06] bg-white/[0.02]">
               {saved ? (
-                <div className='flex items-center gap-2 text-green-500 text-sm font-medium'>
-                  <CheckCircle2 className='w-4 h-4' /> Saved to knowledge base! Your AI is now trained.
+                <div className="flex items-center gap-2 text-green-400 text-sm font-medium">
+                  <CheckCircle2 className="w-4 h-4" /> Saved to knowledge base! Your AI is now trained.
                 </div>
               ) : (
-                <button
+                <Button
+                  variant="primary"
+                  className="w-full"
                   onClick={saveToKnowledge}
-                  disabled={saving}
-                  className='w-full py-3 rounded-xl bg-gradient-to-r bg-amber-500 text-white text-sm font-bold flex items-center justify-center gap-2'
+                  loading={saving}
+                  icon={<Brain className="w-4 h-4" />}
                 >
-                  {saving ? <Loader2 className='w-4 h-4 animate-spin' /> : <Brain className='w-4 h-4' />}
                   Save to Knowledge Base
-                </button>
+                </Button>
               )}
             </div>
           )}

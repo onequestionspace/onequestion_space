@@ -8,7 +8,9 @@ import { redirect } from 'next/navigation';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
-import { Check, Zap, Loader2, Sparkles, Plus, Minus } from 'lucide-react';
+import { Card, CardHeader, ProgressBar } from '@/components/dashboard/Card';
+import { Button } from '@/components/dashboard/Button';
+import { Check, Zap, Sparkles, Minus, Plus, Loader2, ShieldCheck, AlertTriangle } from 'lucide-react';
 
 const CREDIT_PRICE_USD = 0.018;
 
@@ -18,7 +20,6 @@ const PLANS = [
     name: 'Free',
     price: 0,
     credits: 50,
-    color: '#71717a',
     features: ['50 AI answers/month', 'Basic analytics', 'Space customization', 'Knowledge base'],
   },
   {
@@ -27,17 +28,23 @@ const PLANS = [
     price: 9,
     credits: 500,
     color: '#f59e0b',
-    features: ['500 AI answers/month', 'Advanced analytics', 'Priority AI processing', 'Remove One Question branding', 'Custom welcome message'],
+    features: [
+      '500 AI answers/month',
+      'Advanced analytics',
+      'Priority AI processing',
+      'Remove One Question branding',
+      'Custom welcome message',
+    ],
     recommended: true,
   },
 ];
 
 const CREDIT_PACKS = [
-  { credits: 50, label: 'Starter Pack' },
-  { credits: 100, label: 'Basic Pack' },
-  { credits: 250, label: 'Growth Pack' },
-  { credits: 500, label: 'Pro Pack' },
-  { credits: 1000, label: 'Power Pack' },
+  { credits: 50, label: 'Starter' },
+  { credits: 100, label: 'Basic' },
+  { credits: 250, label: 'Growth' },
+  { credits: 500, label: 'Pro' },
+  { credits: 1000, label: 'Power' },
 ];
 
 function BillingContent() {
@@ -52,19 +59,27 @@ function BillingContent() {
   useEffect(() => {
     const reference = searchParams.get('reference');
     if (!reference) return;
-    setTimeout(() => setVerifyStatus('verifying'), 0);
+    /* eslint-disable-next-line react-hooks/set-state-in-effect */
+    setVerifyStatus('verifying');
     fetch('/api/paystack/verify?reference=' + reference)
       .then(r => r.json())
       .then(data => {
-        if (data.success && data.data?.status === 'success') setVerifyStatus('success');
-        else setVerifyStatus('failed');
+        if (data.success && data.data?.success) {
+          setVerifyStatus('success');
+        } else {
+          setVerifyStatus('failed');
+        }
       })
       .catch(() => setVerifyStatus('failed'));
   }, [searchParams]);
 
   const subscription = useQuery(api.subscriptions.getSubscription, userId ? { userId } : 'skip');
 
-  if (!isLoaded) return <div className='min-h-screen flex items-center justify-center text-muted-foreground'>Loading...</div>;
+  if (!isLoaded) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-pulse text-zinc-500 text-sm">Loading...</div>
+    </div>
+  );
   if (!isSignedIn) { redirect('/'); }
 
   const ADMIN_IDS = ['user_3EhKmuVyC1AhoBDlL7QNssllwgu', 'user_3Fmuk2jHEa5seXKEzewhWlA9yQs'];
@@ -78,6 +93,7 @@ function BillingContent() {
   const handleUpgrade = async (planId: string, priceUSD: number) => {
     if (!userId || priceUSD === 0) return;
     setLoading(planId);
+    setError('');
     try {
       const res = await fetch('/api/paystack/subscribe', {
         method: 'POST',
@@ -90,7 +106,9 @@ function BillingContent() {
       } else {
         setError(data.error || 'Failed to start checkout.');
       }
-    } catch (e) { console.error(e); }
+    } catch {
+      setError('Something went wrong. Try again.');
+    }
     setLoading('');
   };
 
@@ -109,99 +127,119 @@ function BillingContent() {
       });
       const data = await res.json();
       if (!res.ok || !data.success) {
-        setError(data.error || 'Failed to start checkout. Please try again.');
+        setError(data.error || 'Failed to start checkout.');
         setLoading('');
         return;
       }
       if (data.data?.authorization_url) {
         window.location.href = data.data.authorization_url;
       } else {
-        setError('No checkout URL returned. Please try again.');
+        setError('No checkout URL returned.');
         setLoading('');
       }
-    } catch (e) {
-      console.error(e);
-      setError('Something went wrong. Please check your connection and try again.');
+    } catch {
+      setError('Connection error. Please try again.');
       setLoading('');
     }
   };
 
   return (
-    <DashboardLayout title='Billing' description='Honest pricing. No surprises. You only pay when it is worth it.'>
-      <div className="max-w-3xl mx-auto space-y-8"><div className="p-4 rounded-xl bg-amber-500/8 border border-amber-500/20 flex items-start gap-3"><span className="text-lg shrink-0">🇳🇬</span><div><p className="text-amber-400 text-xs font-semibold">You will see prices in Nigerian Naira at checkout</p><p className="text-zinc-500 text-xs mt-0.5">I am based in Nigeria and use Paystack. Your Visa or Mastercard works perfectly — it converts automatically at your bank rate. No hidden fees.</p></div></div>
+    <DashboardLayout title="Billing" description="Honest pricing. No surprises.">
+      <div className="max-w-3xl mx-auto space-y-8">
 
+        {/* Naira notice */}
+        <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-4 flex items-start gap-3">
+          <span className="text-lg shrink-0 mt-0.5">🇳🇬</span>
+          <div>
+            <p className="text-amber-400 text-xs font-semibold">Prices show in Nigerian Naira at checkout</p>
+            <p className="text-zinc-500 text-xs mt-0.5">
+              I&apos;m based in Nigeria and use Paystack. Your card works perfectly — it converts automatically at your bank&apos;s rate.
+            </p>
+          </div>
+        </div>
+
+        {/* Status messages */}
         {error && (
-          <div className='p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm'>{error}</div>
+          <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-4 flex items-center gap-2 text-red-400 text-sm">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            {error}
+          </div>
         )}
         {verifyStatus === 'verifying' && (
-          <div className='p-4 rounded-xl bg-amber-500/10 border border-amber-500/20 text-sm text-amber-500 flex items-center gap-2'>
-            <Loader2 className='w-4 h-4 animate-spin' /> Checking your payment — give me a second...
+          <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-4 flex items-center gap-2 text-amber-500 text-sm">
+            <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+            Checking your payment...
           </div>
         )}
         {verifyStatus === 'success' && (
-          <div className='p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-sm text-green-400 flex items-center gap-2'>
-            <Check className='w-4 h-4' /> Payment confirmed. Your AI just got more runway. Go use it.
+          <div className="rounded-xl bg-green-500/10 border border-green-500/20 p-4 flex items-center gap-2 text-green-400 text-sm">
+            <ShieldCheck className="w-4 h-4 shrink-0" />
+            Payment confirmed. Your AI just got more runway.
           </div>
         )}
         {verifyStatus === 'failed' && (
-          <div className='p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400'>
-            Something went wrong verifying your payment. If you were charged, message me directly and I will sort it out — asym@onequestion.space
+          <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-4 text-sm text-red-400">
+            Payment verification failed. If you were charged, email asym@onequestion.space and I&apos;ll sort it out.
           </div>
         )}
 
         {/* Usage */}
-        <div className='glass-card rounded-2xl p-6 border border-border'>
-          <div className='flex items-center justify-between mb-4'>
-            <div>
-              <h3 className='font-semibold text-foreground'>Usage</h3>
-              <p className='text-xs text-muted-foreground mt-0.5'>What you have used this month</p>
-            </div>
-            <span className='text-xs px-2.5 py-1 rounded-full font-medium capitalize' style={{ backgroundColor: '#f59e0b20', color: '#f59e0b' }}>{plan}</span>
+        <Card>
+          <CardHeader title="Usage" description="What you have used this month" />
+          <div className="flex items-end gap-2 mb-3">
+            <span className="text-4xl font-bold text-white">{used}</span>
+            <span className="text-lg text-zinc-500 mb-1">/ {limit} credits</span>
+            <span className="ml-auto text-xs px-2.5 py-1 rounded-full font-medium capitalize bg-amber-500/15 text-amber-400">{plan}</span>
           </div>
-          <div className='flex items-end gap-2 mb-3'>
-            <span className='text-4xl font-bold text-foreground'>{used}</span>
-            <span className='text-lg text-muted-foreground mb-1'>/ {limit} credits</span>
-          </div>
-          <div className='w-full h-3 bg-card rounded-full overflow-hidden mb-2'>
-            <div className='h-full rounded-full transition-all' style={{ width: usagePercent + '%', backgroundColor: usagePercent > 80 ? '#ef4444' : usagePercent > 50 ? '#f97316' : '#f59e0b' }} />
-          </div>
-          <p className='text-xs text-muted-foreground'>{limit - used} credits left this month · every question your AI answers uses one</p>
-        </div>
+          <ProgressBar value={used} max={limit} />
+          <p className="text-xs text-zinc-500 mt-2">{limit - used} credits left this month</p>
+        </Card>
 
         {/* Plans */}
         <div>
-          <h3 className='font-semibold text-foreground mb-4'>Plans</h3>
-          <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
+          <h2 className="text-base font-semibold text-white mb-4">Plans</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {PLANS.map(p => (
-              <div key={p.id} className={'glass-card rounded-2xl p-6 border-2 transition-all ' + (plan === p.id ? 'border-amber-500' : 'border-border')}>
+              <div
+                key={p.id}
+                className={`rounded-2xl p-6 border-2 transition-all bg-white/[0.03] ${
+                  plan === p.id ? 'border-amber-500' : 'border-white/[0.06]'
+                }`}
+              >
                 {p.recommended && (
-                  <div className='text-xs font-bold px-2 py-0.5 rounded-full mb-3 inline-block' style={{ backgroundColor: '#f59e0b20', color: '#f59e0b' }}>Recommended</div>
+                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 mb-3 inline-block">
+                    Recommended
+                  </span>
                 )}
-                <div className='flex items-end gap-1 mb-1'>
-                  <span className='text-3xl font-black text-foreground'>{p.price === 0 ? 'Free' : '$' + p.price}</span>
-                  {p.price > 0 && <span className='text-muted-foreground text-sm mb-1'>/month</span>}
+                <div className="flex items-end gap-1 mb-1">
+                  <span className="text-3xl font-bold text-white">
+                    {p.price === 0 ? 'Free' : '$' + p.price}
+                  </span>
+                  {p.price > 0 && <span className="text-zinc-500 text-sm mb-1">/month</span>}
                 </div>
-                <p className='text-xs text-muted-foreground mb-4'>{p.credits} AI credits included</p>
-                <ul className='space-y-2 mb-6'>
+                <p className="text-xs text-zinc-500 mb-4">{p.credits} AI credits included</p>
+                <ul className="space-y-2 mb-6">
                   {p.features.map(f => (
-                    <li key={f} className='flex items-center gap-2 text-xs text-foreground'>
-                      <Check className='w-3.5 h-3.5 shrink-0' style={{ color: p.color }} />
+                    <li key={f} className="flex items-center gap-2 text-xs text-zinc-300">
+                      <Check className="w-3.5 h-3.5 shrink-0 text-amber-500" />
                       {f}
                     </li>
                   ))}
                 </ul>
                 {plan === p.id ? (
-                  <div className='w-full py-2.5 rounded-xl border border-border text-center text-sm text-muted-foreground'>Current Plan</div>
+                  <div className="w-full py-2.5 rounded-xl border border-white/10 text-center text-sm text-zinc-500">
+                    Current Plan
+                  </div>
                 ) : (
-                  <button
+                  <Button
+                    variant="primary"
+                    className="w-full"
                     onClick={() => handleUpgrade(p.id, p.price)}
-                    disabled={loading === p.id || p.price === 0}
-                    className='w-full py-2.5 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all disabled:opacity-50'
-                    style={{ backgroundColor: p.color }}
+                    loading={loading === p.id}
+                    icon={<Zap className="w-4 h-4" />}
                   >
-                    {loading === p.id ? <Loader2 className='w-4 h-4 animate-spin' /> : <Zap className='w-4 h-4' />}
-                    {p.price === 0 ? 'Current Plan' : 'Upgrade to ' + p.name}
-                  </button>
+                    Upgrade to {p.name}
+                  </Button>
                 )}
               </div>
             ))}
@@ -209,66 +247,91 @@ function BillingContent() {
         </div>
 
         {/* Buy Credits */}
-        <div className='glass-card rounded-2xl p-6 border border-border'>
-          <div className='flex items-center gap-2 mb-1'>
-            <Sparkles className='w-4 h-4 text-amber-500' />
-            <h3 className='font-semibold text-foreground'>Buy One Question Credits</h3>
-          </div>
-          <p className='text-xs text-muted-foreground mb-6'>Run out mid-month? Top up here. Credits never expire — they roll over forever. I priced these at cost.</p>
+        <Card>
+          <CardHeader
+            title="Buy Credits"
+            description="Run out mid-month? Top up here. Credits never expire."
+            icon={<Sparkles className="w-5 h-5 text-amber-500" />}
+          />
 
-          <div className='grid grid-cols-3 gap-2 mb-6'>
+          <div className="grid grid-cols-5 gap-2 mb-6">
             {CREDIT_PACKS.map(pack => (
               <button
                 key={pack.credits}
                 onClick={() => setCreditAmount(pack.credits)}
-                className={'p-3 rounded-xl border-2 text-center transition-all hover:scale-105 ' + (creditAmount === pack.credits ? 'border-amber-500 bg-amber-500/5' : 'border-border')}
+                className={`p-3 rounded-xl border-2 text-center transition-all hover:scale-105 ${
+                  creditAmount === pack.credits
+                    ? 'border-amber-500 bg-amber-500/5'
+                    : 'border-white/[0.06] bg-white/[0.02]'
+                }`}
               >
-                <p className='text-sm font-bold text-foreground'>{pack.credits}</p>
-                <p className='text-xs text-muted-foreground'>{pack.label}</p>
-                <p className='text-xs font-medium mt-1' style={{ color: '#f59e0b' }}>{'$' + (pack.credits * CREDIT_PRICE_USD).toFixed(2)}</p>
+                <p className="text-sm font-bold text-white">{pack.credits}</p>
+                <p className="text-xs text-zinc-500">{pack.label}</p>
+                <p className="text-xs font-medium text-amber-500 mt-1">
+                  ${(pack.credits * CREDIT_PRICE_USD).toFixed(2)}
+                </p>
               </button>
             ))}
           </div>
 
-          <div className='mb-6'>
-            <p className='text-xs text-muted-foreground mb-3'>Need a different number? Set it here.</p>
-            <div className='flex items-center gap-3'>
-              <button onClick={() => setCreditAmount(Math.max(10, creditAmount - 10))} className='w-9 h-9 rounded-xl border border-border flex items-center justify-center hover:bg-card transition-colors'>
-                <Minus className='w-4 h-4 text-muted-foreground' />
+          <div className="mb-6">
+            <p className="text-xs text-zinc-500 mb-3">Custom amount</p>
+            <div className="flex items-center gap-4">
+              <button
+                onClick={() => setCreditAmount(Math.max(10, creditAmount - 10))}
+                className="w-9 h-9 rounded-xl border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors"
+              >
+                <Minus className="w-4 h-4 text-zinc-400" />
               </button>
-              <div className='flex-1 text-center'>
-                <p className='text-2xl font-bold text-foreground'>{creditAmount}</p>
-                <p className='text-xs text-muted-foreground'>credits</p>
+              <div className="flex-1 text-center">
+                <p className="text-2xl font-bold text-white">{creditAmount}</p>
+                <p className="text-xs text-zinc-500">credits</p>
               </div>
-              <button onClick={() => setCreditAmount(creditAmount + 10)} className='w-9 h-9 rounded-xl border border-border flex items-center justify-center hover:bg-card transition-colors'>
-                <Plus className='w-4 h-4 text-muted-foreground' />
+              <button
+                onClick={() => setCreditAmount(creditAmount + 10)}
+                className="w-9 h-9 rounded-xl border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors"
+              >
+                <Plus className="w-4 h-4 text-zinc-400" />
               </button>
             </div>
-            <input type='range' min={10} max={2000} step={10} value={creditAmount} onChange={e => setCreditAmount(Number(e.target.value))} className='w-full mt-3 accent-amber-500' />
-            <div className='flex justify-between text-xs text-muted-foreground mt-1'><span>10</span><span>2000</span></div>
+            <input
+              type="range"
+              min={10}
+              max={2000}
+              step={10}
+              value={creditAmount}
+              onChange={e => setCreditAmount(Number(e.target.value))}
+              className="w-full mt-3 accent-amber-500"
+            />
+            <div className="flex justify-between text-xs text-zinc-600 mt-1">
+              <span>10</span>
+              <span>2000</span>
+            </div>
           </div>
 
-          <div className='p-4 rounded-xl bg-amber-500/5 border border-amber-500/20 mb-4'>
-            <div className='flex items-center justify-between'>
+          <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20 mb-4">
+            <div className="flex items-center justify-between">
               <div>
-                <p className='text-sm font-bold text-foreground'>{creditAmount} credits</p>
-                <p className='text-xs text-muted-foreground'>One time. No subscription. Never expires.</p>
+                <p className="text-sm font-semibold text-white">{creditAmount} credits</p>
+                <p className="text-xs text-zinc-500">One time. Never expires.</p>
               </div>
-              <p className='text-2xl font-bold text-foreground'>{'$' + creditCostUSD}</p>
+              <p className="text-2xl font-bold text-white">${creditCostUSD}</p>
             </div>
           </div>
 
-          <button
+          <Button
+            variant="primary"
+            className="w-full"
             onClick={handleBuyCredits}
-            disabled={loading === 'credits'}
-            className='w-full py-3 rounded-xl text-white text-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-all disabled:opacity-50'
-            style={{ backgroundColor: '#f59e0b' }}
+            loading={loading === 'credits'}
+            icon={<Zap className="w-4 h-4" />}
           >
-            {loading === 'credits' ? <Loader2 className='w-4 h-4 animate-spin' /> : <Zap className='w-4 h-4' />}
-            Buy {creditAmount} Credits for {'$' + creditCostUSD}
-          </button>
-          <p className='text-center text-xs text-muted-foreground mt-3'>Payments go through Paystack — you might see Naira at checkout. Your international card works fine.</p>
-        </div>
+            Buy {creditAmount} Credits for ${creditCostUSD}
+          </Button>
+          <p className="text-center text-xs text-zinc-600 mt-3">
+            Payments through Paystack — you might see Naira at checkout. Your international card works fine.
+          </p>
+        </Card>
 
       </div>
     </DashboardLayout>
