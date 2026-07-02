@@ -307,3 +307,12 @@ html { scroll-behavior: smooth; font-family: sans-serif; }
   0%, 100% { box-shadow: 0 0 20px rgba(245,158,11,0.3); }
   50% { box-shadow: 0 0 40px rgba(239,68,68,0.4), 0 0 60px rgba(245,158,11,0.2); }
 }
+
+/* ── Slide up (used in Toast) ── */
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out;
+}

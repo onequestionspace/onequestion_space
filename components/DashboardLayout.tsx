@@ -1,16 +1,19 @@
 'use client';
-import { useUser } from '@clerk/nextjs';
-import { Shield } from 'lucide-react';
-import { DashboardAI } from './DashboardAI';
 
+import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Avatar } from '@/components/dashboard/Avatar';
+import { DashboardAI } from './DashboardAI';
+import { ToastProvider } from '@/components/dashboard/Toast';
 import {
   LayoutDashboard, Brain, BarChart3,
-  Settings, Menu, X, ArrowLeft,
-  MessageSquare, CreditCard, User,
-  Sparkles, Inbox, Globe, Layers
+  Menu, X,
+  MessageSquare, CreditCard,
+  Layers, BookOpen, Sparkles,
+  Globe, Inbox, ChevronRight,
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -22,122 +25,201 @@ interface DashboardLayoutProps {
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Space Studio', href: '/dashboard/studio', icon: Layers },
-  { label: 'Settings', href: '/dashboard/settings', icon: Settings },
-  { label: 'Knowledge', href: '/dashboard/knowledge', icon: Brain },
   { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
+  { label: 'Knowledge', href: '/dashboard/knowledge', icon: BookOpen },
   { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
-
 ];
 
-const comingSoonItems = [
-  { label: 'Inbox', icon: Inbox, desc: 'Direct messages from visitors' },
-  { label: 'Custom Space', icon: Globe, desc: 'Custom domain + branding' },
-  { label: 'Widget Templates', icon: Layers, desc: 'Embed Q&A on any site' },
-  { label: 'Paywall DMs', icon: CreditCard, desc: 'Charge for direct access' },
+const secondaryItems = [
+  { label: 'Settings', href: '/dashboard/settings', icon: Brain },
+  { label: 'Admin', href: '/dashboard/admin', icon: Sparkles },
 ];
+
+const sidebarVariants = {
+  open: { x: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 30 } },
+  closed: { x: '-100%', transition: { type: 'spring' as const, stiffness: 300, damping: 30 } },
+} as const;
+
+const overlayVariants = {
+  open: { opacity: 1, transition: { duration: 0.2 } },
+  closed: { opacity: 0, transition: { duration: 0.2 } },
+};
 
 export function DashboardLayout({ children, title, description }: DashboardLayoutProps) {
   const pathname = usePathname();
   const { user } = useUser();
-  const isAdmin = user?.id === 'user_3EhKmuVyC1AhoBDlL7QNssllwgu' || user?.id === 'user_3Ev3UAWNTTDAlVWSYFGGsEI6qQz';
   const [isOpen, setIsOpen] = useState(false);
   const closeMenu = () => setIsOpen(false);
 
+  const isAdmin = user?.id === 'user_3EhKmuVyC1AhoBDlL7QNssllwgu' || user?.id === 'user_3Ev3UAWNTTDAlVWSYFGGsEI6qQz';
+
   return (
     <div className="min-h-screen bg-background">
-      {/* Background */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(147,51,234,0.12),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(232,121,249,0.08),transparent_50%)]" />
-        <div className="absolute inset-0 dot-pattern opacity-20" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(147,51,234,0.10),transparent_50%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(232,121,249,0.06),transparent_50%)]" />
+        <div className="absolute inset-0 dot-pattern opacity-[0.15]" />
       </div>
 
-      {/* Mobile hamburger */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="lg:hidden fixed top-4 right-4 z-50 p-2.5 bg-zinc-900 border border-white/10 rounded-xl shadow-lg"
-      >
-        {isOpen
-          ? <X className="w-5 h-5 text-white" />
-          : <Menu className="w-5 h-5 text-white" />
-        }
-      </button>
-
-      {/* Sidebar */}
-      <aside className={`fixed left-0 top-0 h-full w-64 bg-zinc-950/95 border-r border-white/8 backdrop-blur-xl p-6 z-40 transform transition-transform duration-200 ${
-        isOpen ? 'translate-x-0' : '-translate-x-full'
-      } lg:translate-x-0`}>
-
-        {/* Logo */}
-        <Link href="/" onClick={closeMenu} className="flex items-center gap-2.5 mb-10">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br bg-amber-500 flex items-center justify-center">
-            <MessageSquare className="w-4 h-4 text-white" />
+      {/* Mobile header bar */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 h-14 border-b border-white/[0.06] bg-zinc-950/80 backdrop-blur-xl">
+        <Link href="/" className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-amber-500 flex items-center justify-center">
+            <MessageSquare className="w-3.5 h-3.5 text-black" />
           </div>
           <span className="text-sm font-bold text-white">One Question</span>
         </Link>
+        <button
+          onClick={() => setIsOpen(!isOpen)}
+          className="p-2 text-zinc-400 hover:text-white transition-colors"
+        >
+          {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+        </button>
+      </div>
 
-        {/* Nav */}
-        <nav className="space-y-1">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={closeMenu}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                  isActive
-                    ? 'bg-amber-500/20 text-amber-500 border border-amber-500/20'
-                    : 'text-zinc-400 hover:text-white hover:bg-white/5'
-                }`}
-              >
-                <item.icon className={`w-4 h-4 ${isActive ? 'text-amber-500' : 'text-zinc-500'}`} />
-                {item.label}
-              </Link>
-            );
-          })}
+      {/* Mobile overlay */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            variants={overlayVariants}
+            initial="closed"
+            animate="open"
+            exit="closed"
+            className="lg:hidden fixed inset-0 z-30 bg-black/60 backdrop-blur-sm"
+            onClick={closeMenu}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Sidebar */}
+      <motion.aside
+        variants={sidebarVariants}
+        initial={false}
+        animate={isOpen ? 'open' : 'closed'}
+        className="fixed left-0 top-0 h-full w-64 bg-zinc-950/90 border-r border-white/[0.06] backdrop-blur-xl z-40 flex flex-col lg:translate-x-0"
+      >
+        {/* Logo */}
+        <div className="flex items-center gap-2.5 px-6 h-14 border-b border-white/[0.06] shrink-0">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
+            <MessageSquare className="w-4 h-4 text-black" />
+          </div>
+          <span className="text-sm font-bold text-white">One Question</span>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
+          <div>
+            <p className="px-3 text-[11px] font-medium text-zinc-600 uppercase tracking-widest mb-2">Main</p>
+            <div className="space-y-0.5">
+              {navItems.map((item) => {
+                const isActive = pathname === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={closeMenu}
+                    className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
+                      isActive
+                        ? 'text-amber-500 bg-amber-500/[0.08]'
+                        : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03]'
+                    }`}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeNav"
+                        className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-amber-500"
+                      />
+                    )}
+                    <item.icon className={`w-4 h-4 ${isActive ? 'text-amber-500' : 'text-zinc-500'}`} />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="pt-2 border-t border-white/[0.06]">
+            <p className="px-3 text-[11px] font-medium text-zinc-600 uppercase tracking-widest mb-2">Account</p>
+            <div className="space-y-0.5">
+              {secondaryItems.map((item) => {
+                const isActive = pathname === item.href;
+                if (item.label === 'Admin' && !isAdmin) return null;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={closeMenu}
+                    className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
+                      isActive
+                        ? 'text-amber-500 bg-amber-500/[0.08]'
+                        : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03]'
+                    }`}
+                  >
+                    {isActive && (
+                      <motion.div
+                        layoutId="activeNavSecondary"
+                        className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-amber-500"
+                      />
+                    )}
+                    <item.icon className={`w-4 h-4 ${isActive ? 'text-amber-500' : 'text-zinc-500'}`} />
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="pt-2 border-t border-white/[0.06]">
+            <p className="px-3 text-[11px] font-medium text-zinc-600 uppercase tracking-widest mb-2">Coming Soon</p>
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-3 px-3 py-2 rounded-xl text-zinc-600 cursor-not-allowed">
+                <Inbox className="w-4 h-4" />
+                <span className="text-xs">Inbox</span>
+                <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded-full bg-zinc-800 text-zinc-500">Soon</span>
+              </div>
+              <div className="flex items-center gap-3 px-3 py-2 rounded-xl text-zinc-600 cursor-not-allowed">
+                <Globe className="w-4 h-4" />
+                <span className="text-xs">Custom Domain</span>
+                <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded-full bg-zinc-800 text-zinc-500">Soon</span>
+              </div>
+            </div>
+          </div>
         </nav>
 
-        {/* Coming Soon */}
-        <div className='mt-6 pt-4 border-t border-white/8'>
-          <p className='text-xs text-zinc-600 font-medium uppercase tracking-widest mb-3 px-3'>Coming Soon</p>
-          {comingSoonItems.map(item => (
-            <div key={item.label} className='flex items-center gap-3 px-3 py-2 rounded-xl text-zinc-600 cursor-not-allowed'>
-              <item.icon className='w-4 h-4' />
-              <div>
-                <p className='text-xs font-medium'>{item.label}</p>
-                <p className='text-[10px] text-zinc-700'>{item.desc}</p>
-              </div>
-              <span className='ml-auto text-[9px] px-1.5 py-0.5 rounded-full bg-zinc-800 text-zinc-500'>Soon</span>
+        {/* User section at bottom */}
+        <div className="shrink-0 border-t border-white/[0.06] p-4">
+          <Link href="/dashboard/settings" onClick={closeMenu} className="flex items-center gap-3 group">
+            <Avatar
+              src={user?.imageUrl}
+              name={user?.fullName || user?.username}
+              size="sm"
+            />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-white truncate">
+                {user?.fullName || user?.username || 'User'}
+              </p>
+              <p className="text-xs text-zinc-500 truncate">
+                {user?.primaryEmailAddress?.emailAddress || ''}
+              </p>
             </div>
-          ))}
-        </div>
-
-        {/* Bottom */}
-        <div className="absolute bottom-6 left-6 right-6 space-y-3">
-          <div className="h-px bg-white/8" />
-          <Link href="/" onClick={closeMenu} className="flex items-center gap-2 text-xs text-zinc-500 hover:text-white transition-colors">
-            <ArrowLeft className="w-3.5 h-3.5" />
-            Back to Home
+            <ChevronRight className="w-3.5 h-3.5 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
           </Link>
         </div>
-      </aside>
-
-      {/* Overlay */}
-      {isOpen && (
-        <div className="lg:hidden fixed inset-0 bg-black/60 z-30 backdrop-blur-sm" onClick={closeMenu} />
-      )}
+      </motion.aside>
 
       {/* Main content */}
-      <main className="lg:pl-64 pt-16 lg:pt-0 p-4 lg:p-10">
-        <div className="max-w-6xl mx-auto">
+      <main className="lg:pl-64 pt-14 lg:pt-0">
+        <div className="max-w-6xl mx-auto px-4 lg:px-10 py-6 lg:py-10">
           <div className="mb-8">
             <h1 className="text-2xl lg:text-3xl font-bold text-white mb-1">{title}</h1>
             {description && <p className="text-zinc-400 text-sm">{description}</p>}
           </div>
-          {children}
+          <ToastProvider>
+            {children}
+          </ToastProvider>
         </div>
       </main>
+
       <DashboardAI />
     </div>
   );

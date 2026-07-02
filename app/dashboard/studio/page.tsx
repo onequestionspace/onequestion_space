@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { DashboardLayout } from '@/components/DashboardLayout';
@@ -10,11 +11,21 @@ import { Input, Textarea, Label } from '@/components/dashboard/Input';
 import { Button } from '@/components/dashboard/Button';
 import {
   User, Palette, Link as LinkIcon, Quote,
-  Pin, Check, Loader2, Save, Eye, Code2,
+  Pin, Check, Save, Eye, Code2,
   Plus, Trash2, Sparkles, ExternalLink, RefreshCw
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
+
+const container = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.04 } },
+};
+
+const fadeUp = {
+  hidden: { opacity: 0, y: 10 },
+  show: { opacity: 1, y: 0 },
+};
 
 const TABS = [
   { id: 'profile', label: 'Profile', icon: User },
@@ -110,10 +121,9 @@ export default function StudioPage() {
 
   return (
     <DashboardLayout title="Space Studio" description="Changes go live instantly">
-      <div className="max-w-2xl mx-auto lg:max-w-7xl">
+      <motion.div variants={container} initial="hidden" animate="show" className="max-w-2xl mx-auto lg:max-w-7xl">
 
-        {/* Completion bar */}
-        <div className="mb-4 rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4">
+        <motion.div variants={fadeUp} className="mb-4 rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
@@ -137,7 +147,7 @@ export default function StudioPage() {
               </span>
             ))}
           </div>
-        </div>
+        </motion.div>
 
         {/* Mobile toggle */}
         <div className="flex items-center gap-1 p-1 rounded-xl bg-white/5 border border-white/[0.06] mb-4 lg:hidden">
@@ -376,7 +386,7 @@ export default function StudioPage() {
           </div>
         </div>
 
-      </div>
+        </motion.div>
       {showTour && (
         <TourTooltip
           steps={[

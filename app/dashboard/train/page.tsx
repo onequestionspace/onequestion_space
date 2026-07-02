@@ -1,11 +1,10 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { redirect } from 'next/navigation';
 import { DashboardLayout } from '@/components/DashboardLayout';
-import { useMutation } from 'convex/react';
-import { api } from '@/convex/_generated/api';
 import { Send, Loader2, Brain, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/dashboard/Button';
 
@@ -22,6 +21,21 @@ const QUESTIONS = [
   'What makes you unique or different from others in your field?',
 ];
 
+const container = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.06 } },
+};
+
+const msgItem = {
+  hidden: { opacity: 0, y: 10, scale: 0.98 },
+  show: { opacity: 1, y: 0, scale: 1 },
+};
+
+const msgItemUser = {
+  hidden: { opacity: 0, y: 10, scale: 0.98 },
+  show: { opacity: 1, y: 0, scale: 1 },
+};
+
 export default function TrainPage() {
   const { isSignedIn, isLoaded, userId } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
@@ -32,7 +46,6 @@ export default function TrainPage() {
   const [saving, setSaving] = useState(false);
   const [done, setDone] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const createKnowledge = useMutation(api.knowledge.createKnowledge);
 
   useEffect(() => {
     setTimeout(() => setMessages([{ role: 'assistant', content: 'Hi! I am going to help you train your AI. I will ask you a series of questions and turn your answers into knowledge your AI can use. Ready? Here is the first question:\n\n' + QUESTIONS[0] }]), 0);
@@ -107,9 +120,8 @@ export default function TrainPage() {
 
   return (
     <DashboardLayout title="Train Your AI" description="Chat with our AI to build your knowledge base automatically.">
-      <div className="max-w-2xl mx-auto">
-        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] overflow-hidden">
-          {/* Header */}
+      <motion.div variants={container} initial="hidden" animate="show" className="max-w-2xl mx-auto">
+        <motion.div variants={msgItem} className="rounded-2xl border border-white/[0.06] bg-white/[0.03] overflow-hidden">
           <div className="flex items-center gap-3 px-6 py-4 border-b border-white/[0.06] bg-white/[0.02]">
             <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
               <Brain className="w-4 h-4 text-amber-500" />
@@ -118,15 +130,21 @@ export default function TrainPage() {
               <p className="text-sm font-semibold text-white">AI Trainer</p>
               <p className="text-xs text-zinc-500">{qIndex} of {QUESTIONS.length} questions answered</p>
             </div>
-            <div className="ml-auto w-24 h-1.5 bg-white/5 rounded-full overflow-hidden border border-white/[0.06]">
-              <div className="h-full bg-amber-500 rounded-full transition-all" style={{ width: (qIndex / QUESTIONS.length * 100) + '%' }} />
+            <div className="ml-auto w-24 h-1.5 bg-white/5 rounded-full overflow-hidden">
+              <div className="h-full bg-amber-500 rounded-full transition-all duration-500" style={{ width: (qIndex / QUESTIONS.length * 100) + '%' }} />
             </div>
           </div>
 
-          {/* Messages */}
           <div className="h-96 overflow-y-auto p-4 space-y-4">
             {messages.map((m, i) => (
-              <div key={i} className={'flex ' + (m.role === 'user' ? 'justify-end' : 'justify-start')}>
+              <motion.div
+                key={i}
+                variants={m.role === 'user' ? msgItemUser : msgItem}
+                initial="hidden"
+                animate="show"
+                transition={{ delay: 0 }}
+                className={'flex ' + (m.role === 'user' ? 'justify-end' : 'justify-start')}
+              >
                 <div className={'max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ' + (
                   m.role === 'user'
                     ? 'bg-amber-500 text-black'
@@ -134,7 +152,7 @@ export default function TrainPage() {
                 )}>
                   {m.content}
                 </div>
-              </div>
+              </motion.div>
             ))}
             {loading && (
               <div className="flex justify-start">
@@ -146,7 +164,6 @@ export default function TrainPage() {
             <div ref={bottomRef} />
           </div>
 
-          {/* Input / Save */}
           {!done ? (
             <div className="flex items-center gap-3 px-4 py-3 border-t border-white/[0.06] bg-white/[0.02]">
               <input
@@ -157,7 +174,7 @@ export default function TrainPage() {
                 className="flex-1 bg-transparent text-sm text-white placeholder:text-zinc-600 focus:outline-none"
                 autoFocus
               />
-              <button onClick={send} disabled={loading || !input.trim()} className="w-8 h-8 rounded-xl bg-amber-500 flex items-center justify-center disabled:opacity-40 transition-opacity">
+              <button onClick={send} disabled={loading || !input.trim()} className="w-8 h-8 rounded-xl bg-amber-500 flex items-center justify-center disabled:opacity-40 transition-opacity active:scale-95">
                 <Send className="w-3.5 h-3.5 text-black" />
               </button>
             </div>
@@ -180,8 +197,8 @@ export default function TrainPage() {
               )}
             </div>
           )}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     </DashboardLayout>
   );
 }

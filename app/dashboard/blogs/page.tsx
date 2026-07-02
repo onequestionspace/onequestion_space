@@ -1,15 +1,28 @@
 'use client';
 
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { useUser } from '@clerk/nextjs';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardHeader } from '@/components/dashboard/Card';
 import { EmptyState } from '@/components/dashboard/EmptyState';
+import { Badge } from '@/components/dashboard/Badge';
 import { Input, Textarea } from '@/components/dashboard/Input';
 import { Button } from '@/components/dashboard/Button';
+import { ListSkeleton } from '@/components/dashboard/Skeleton';
 import { Plus, Trash2, Eye, EyeOff, Edit3, Save, X } from 'lucide-react';
+
+const container = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.05 } },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0 },
+};
 
 export default function BlogsDashboard() {
   const { user } = useUser();
@@ -53,10 +66,9 @@ export default function BlogsDashboard() {
 
   return (
     <DashboardLayout title="Blog Posts" description="Write and publish posts for the Knowledge Explorer.">
-      <div className="space-y-6">
+      <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
 
-        {/* Header */}
-        <div className="flex items-center justify-between">
+        <motion.div variants={item} className="flex items-center justify-between">
           <div>
             <p className="text-sm text-zinc-500">{blogs?.length ?? 0} post{(blogs?.length ?? 0) !== 1 ? 's' : ''}</p>
           </div>
@@ -65,72 +77,70 @@ export default function BlogsDashboard() {
               New Post
             </Button>
           )}
-        </div>
+        </motion.div>
 
-        {/* Create form */}
         {isCreating && (
-          <Card className="border-amber-500/20">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-white">New Post</h3>
-              <button onClick={() => setIsCreating(false)} className="text-zinc-500 hover:text-white transition-colors">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="space-y-3">
-              <Input
-                value={form.title}
-                onChange={e => setForm(f => ({ ...f, title: e.target.value, slug: slugify(e.target.value) }))}
-                placeholder="Title"
-              />
-              <Input
-                value={form.slug}
-                onChange={e => setForm(f => ({ ...f, slug: e.target.value }))}
-                placeholder="slug (auto-generated)"
-              />
-              <Input
-                value={form.excerpt}
-                onChange={e => setForm(f => ({ ...f, excerpt: e.target.value }))}
-                placeholder="Short excerpt shown in blog list"
-              />
-              <Textarea
-                value={form.content}
-                onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
-                placeholder="Write your post here."
-                rows={10}
-              />
-              <Input
-                value={form.tags}
-                onChange={e => setForm(f => ({ ...f, tags: e.target.value }))}
-                placeholder="Tags: bootstrapping, AI, building in public"
-              />
-              <div className="flex items-center justify-between pt-1">
-                <label className="flex items-center gap-2 text-sm text-zinc-500 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={form.published}
-                    onChange={e => setForm(f => ({ ...f, published: e.target.checked }))}
-                    className="accent-amber-500"
-                  />
-                  Publish immediately
-                </label>
-                <Button
-                  onClick={handleCreate}
-                  loading={saving}
-                  disabled={!form.title || !form.content}
-                  icon={<Save className="w-4 h-4" />}
-                >
-                  {saving ? 'Saving...' : 'Save Post'}
-                </Button>
+          <motion.div variants={item}>
+            <Card className="border-amber-500/20">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-semibold text-white">New Post</h3>
+                <button onClick={() => setIsCreating(false)} className="text-zinc-500 hover:text-white transition-colors">
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-            </div>
-          </Card>
+              <div className="space-y-3">
+                <Input
+                  value={form.title}
+                  onChange={e => setForm(f => ({ ...f, title: e.target.value, slug: slugify(e.target.value) }))}
+                  placeholder="Title"
+                />
+                <Input
+                  value={form.slug}
+                  onChange={e => setForm(f => ({ ...f, slug: e.target.value }))}
+                  placeholder="slug (auto-generated)"
+                />
+                <Input
+                  value={form.excerpt}
+                  onChange={e => setForm(f => ({ ...f, excerpt: e.target.value }))}
+                  placeholder="Short excerpt shown in blog list"
+                />
+                <Textarea
+                  value={form.content}
+                  onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
+                  placeholder="Write your post here."
+                  rows={10}
+                />
+                <Input
+                  value={form.tags}
+                  onChange={e => setForm(f => ({ ...f, tags: e.target.value }))}
+                  placeholder="Tags: bootstrapping, AI, building in public"
+                />
+                <div className="flex items-center justify-between pt-1">
+                  <label className="flex items-center gap-2 text-sm text-zinc-500 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={form.published}
+                      onChange={e => setForm(f => ({ ...f, published: e.target.checked }))}
+                      className="accent-amber-500"
+                    />
+                    Publish immediately
+                  </label>
+                  <Button
+                    onClick={handleCreate}
+                    loading={saving}
+                    disabled={!form.title || !form.content}
+                    icon={<Save className="w-4 h-4" />}
+                  >
+                    {saving ? 'Saving...' : 'Save Post'}
+                  </Button>
+                </div>
+              </div>
+            </Card>
+          </motion.div>
         )}
 
-        {/* Blog list */}
-        <div className="space-y-3">
-          {blogs === undefined && (
-            <div className="text-center py-12 text-zinc-500 text-sm">Loading posts...</div>
-          )}
+        <motion.div variants={item} className="space-y-3">
+          {blogs === undefined && <ListSkeleton rows={4} />}
           {blogs && blogs.length === 0 && !isCreating && (
             <EmptyState
               icon={<Edit3 />}
@@ -144,16 +154,12 @@ export default function BlogsDashboard() {
             />
           )}
           {blogs && blogs.map((blog) => (
-            <div key={blog._id} className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4">
+            <div key={blog._id} className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4 transition-all duration-150 hover:bg-white/[0.05] hover:border-white/[0.12]">
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 mb-1">
                     <h3 className="text-white font-medium text-sm truncate">{blog.title}</h3>
-                    <span className={`text-xs px-2 py-0.5 rounded-full ${
-                      blog.published ? 'bg-green-500/20 text-green-400' : 'bg-yellow-500/20 text-yellow-400'
-                    }`}>
-                      {blog.published ? 'Live' : 'Draft'}
-                    </span>
+                    <Badge variant={blog.published ? 'success' : 'warning'}>{blog.published ? 'Live' : 'Draft'}</Badge>
                   </div>
                   <p className="text-zinc-500 text-xs line-clamp-1">{blog.excerpt}</p>
                   <p className="text-zinc-600 text-xs mt-1 font-mono">/{blog.slug}</p>
@@ -169,9 +175,9 @@ export default function BlogsDashboard() {
               </div>
             </div>
           ))}
-        </div>
+        </motion.div>
 
-      </div>
+      </motion.div>
     </DashboardLayout>
   );
 }

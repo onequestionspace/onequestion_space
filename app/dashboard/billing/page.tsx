@@ -1,6 +1,6 @@
 'use client';
-import { Suspense } from 'react';
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useUser } from '@clerk/nextjs';
@@ -9,8 +9,20 @@ import { DashboardLayout } from '@/components/DashboardLayout';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Card, CardHeader, ProgressBar } from '@/components/dashboard/Card';
+import { Badge } from '@/components/dashboard/Badge';
 import { Button } from '@/components/dashboard/Button';
+import { CardSkeleton } from '@/components/dashboard/Skeleton';
 import { Check, Zap, Sparkles, Minus, Plus, Loader2, ShieldCheck, AlertTriangle } from 'lucide-react';
+
+const container = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.06 } },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0 },
+};
 
 const CREDIT_PRICE_USD = 0.018;
 
@@ -27,7 +39,6 @@ const PLANS = [
     name: 'Pro',
     price: 9,
     credits: 500,
-    color: '#f59e0b',
     features: [
       '500 AI answers/month',
       'Advanced analytics',
@@ -59,7 +70,6 @@ function BillingContent() {
   useEffect(() => {
     const reference = searchParams.get('reference');
     if (!reference) return;
-    /* eslint-disable-next-line react-hooks/set-state-in-effect */
     setVerifyStatus('verifying');
     fetch('/api/paystack/verify?reference=' + reference)
       .then(r => r.json())
@@ -145,71 +155,85 @@ function BillingContent() {
 
   return (
     <DashboardLayout title="Billing" description="Honest pricing. No surprises.">
-      <div className="max-w-3xl mx-auto space-y-8">
+      <motion.div variants={container} initial="hidden" animate="show" className="max-w-3xl mx-auto space-y-8">
 
-        {/* Naira notice */}
-        <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-4 flex items-start gap-3">
-          <span className="text-lg shrink-0 mt-0.5">🇳🇬</span>
-          <div>
-            <p className="text-amber-400 text-xs font-semibold">Prices show in Nigerian Naira at checkout</p>
-            <p className="text-zinc-500 text-xs mt-0.5">
-              I&apos;m based in Nigeria and use Paystack. Your card works perfectly — it converts automatically at your bank&apos;s rate.
-            </p>
+        <motion.div variants={item}>
+          <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-4 flex items-start gap-3">
+            <span className="text-lg shrink-0 mt-0.5">🇳🇬</span>
+            <div>
+              <p className="text-amber-400 text-xs font-semibold">Prices show in Nigerian Naira at checkout</p>
+              <p className="text-zinc-500 text-xs mt-0.5">
+                I&apos;m based in Nigeria and use Paystack. Your card works perfectly — it converts automatically at your bank&apos;s rate.
+              </p>
+            </div>
           </div>
-        </div>
+        </motion.div>
 
-        {/* Status messages */}
         {error && (
-          <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-4 flex items-center gap-2 text-red-400 text-sm">
-            <AlertTriangle className="w-4 h-4 shrink-0" />
-            {error}
-          </div>
+          <motion.div variants={item}>
+            <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-4 flex items-center gap-2 text-red-400 text-sm">
+              <AlertTriangle className="w-4 h-4 shrink-0" />
+              {error}
+            </div>
+          </motion.div>
         )}
         {verifyStatus === 'verifying' && (
-          <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-4 flex items-center gap-2 text-amber-500 text-sm">
-            <Loader2 className="w-4 h-4 animate-spin shrink-0" />
-            Checking your payment...
-          </div>
+          <motion.div variants={item}>
+            <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-4 flex items-center gap-2 text-amber-500 text-sm">
+              <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+              Checking your payment...
+            </div>
+          </motion.div>
         )}
         {verifyStatus === 'success' && (
-          <div className="rounded-xl bg-green-500/10 border border-green-500/20 p-4 flex items-center gap-2 text-green-400 text-sm">
-            <ShieldCheck className="w-4 h-4 shrink-0" />
-            Payment confirmed. Your AI just got more runway.
-          </div>
+          <motion.div variants={item}>
+            <div className="rounded-xl bg-green-500/10 border border-green-500/20 p-4 flex items-center gap-2 text-green-400 text-sm">
+              <ShieldCheck className="w-4 h-4 shrink-0" />
+              Payment confirmed. Your AI just got more runway.
+            </div>
+          </motion.div>
         )}
         {verifyStatus === 'failed' && (
-          <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-4 text-sm text-red-400">
-            Payment verification failed. If you were charged, email asym@onequestion.space and I&apos;ll sort it out.
-          </div>
+          <motion.div variants={item}>
+            <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-4 text-sm text-red-400">
+              Payment verification failed. If you were charged, email asym@onequestion.space and I&apos;ll sort it out.
+            </div>
+          </motion.div>
         )}
 
-        {/* Usage */}
-        <Card>
-          <CardHeader title="Usage" description="What you have used this month" />
-          <div className="flex items-end gap-2 mb-3">
-            <span className="text-4xl font-bold text-white">{used}</span>
-            <span className="text-lg text-zinc-500 mb-1">/ {limit} credits</span>
-            <span className="ml-auto text-xs px-2.5 py-1 rounded-full font-medium capitalize bg-amber-500/15 text-amber-400">{plan}</span>
-          </div>
-          <ProgressBar value={used} max={limit} />
-          <p className="text-xs text-zinc-500 mt-2">{limit - used} credits left this month</p>
-        </Card>
+        <motion.div variants={item}>
+          {!subscription ? (
+            <CardSkeleton />
+          ) : (
+            <Card>
+              <CardHeader title="Usage" description="What you have used this month" />
+              <div className="flex items-end gap-2 mb-3">
+                <span className="text-4xl font-bold text-white">{used}</span>
+                <span className="text-lg text-zinc-500 mb-1">/ {limit} credits</span>
+                <span className="ml-auto">
+                  <Badge variant={plan === 'pro' ? 'default' : 'neutral'} className="capitalize">{plan}</Badge>
+                </span>
+              </div>
+              <ProgressBar value={used} max={limit} />
+              <p className="text-xs text-zinc-500 mt-2">{limit - used} credits left this month</p>
+            </Card>
+          )}
+        </motion.div>
 
-        {/* Plans */}
-        <div>
+        <motion.div variants={item}>
           <h2 className="text-base font-semibold text-white mb-4">Plans</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {PLANS.map(p => (
               <div
                 key={p.id}
-                className={`rounded-2xl p-6 border-2 transition-all bg-white/[0.03] ${
-                  plan === p.id ? 'border-amber-500' : 'border-white/[0.06]'
+                className={`rounded-2xl p-6 border-2 transition-all duration-200 ${
+                  plan === p.id
+                    ? 'border-amber-500 bg-amber-500/[0.03] shadow-[0_0_30px_rgba(245,158,11,0.08)]'
+                    : 'border-white/[0.06] bg-white/[0.03] hover:border-white/[0.12] hover:bg-white/[0.05]'
                 }`}
               >
                 {p.recommended && (
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-amber-500/15 text-amber-400 mb-3 inline-block">
-                    Recommended
-                  </span>
+                  <Badge variant="default" className="mb-3">Recommended</Badge>
                 )}
                 <div className="flex items-end gap-1 mb-1">
                   <span className="text-3xl font-bold text-white">
@@ -227,7 +251,7 @@ function BillingContent() {
                   ))}
                 </ul>
                 {plan === p.id ? (
-                  <div className="w-full py-2.5 rounded-xl border border-white/10 text-center text-sm text-zinc-500">
+                  <div className="w-full py-2.5 rounded-xl border border-amber-500/20 bg-amber-500/5 text-center text-sm text-amber-400 font-medium">
                     Current Plan
                   </div>
                 ) : (
@@ -244,96 +268,97 @@ function BillingContent() {
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
 
-        {/* Buy Credits */}
-        <Card>
-          <CardHeader
-            title="Buy Credits"
-            description="Run out mid-month? Top up here. Credits never expire."
-            icon={<Sparkles className="w-5 h-5 text-amber-500" />}
-          />
-
-          <div className="grid grid-cols-5 gap-2 mb-6">
-            {CREDIT_PACKS.map(pack => (
-              <button
-                key={pack.credits}
-                onClick={() => setCreditAmount(pack.credits)}
-                className={`p-3 rounded-xl border-2 text-center transition-all hover:scale-105 ${
-                  creditAmount === pack.credits
-                    ? 'border-amber-500 bg-amber-500/5'
-                    : 'border-white/[0.06] bg-white/[0.02]'
-                }`}
-              >
-                <p className="text-sm font-bold text-white">{pack.credits}</p>
-                <p className="text-xs text-zinc-500">{pack.label}</p>
-                <p className="text-xs font-medium text-amber-500 mt-1">
-                  ${(pack.credits * CREDIT_PRICE_USD).toFixed(2)}
-                </p>
-              </button>
-            ))}
-          </div>
-
-          <div className="mb-6">
-            <p className="text-xs text-zinc-500 mb-3">Custom amount</p>
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setCreditAmount(Math.max(10, creditAmount - 10))}
-                className="w-9 h-9 rounded-xl border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors"
-              >
-                <Minus className="w-4 h-4 text-zinc-400" />
-              </button>
-              <div className="flex-1 text-center">
-                <p className="text-2xl font-bold text-white">{creditAmount}</p>
-                <p className="text-xs text-zinc-500">credits</p>
-              </div>
-              <button
-                onClick={() => setCreditAmount(creditAmount + 10)}
-                className="w-9 h-9 rounded-xl border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors"
-              >
-                <Plus className="w-4 h-4 text-zinc-400" />
-              </button>
-            </div>
-            <input
-              type="range"
-              min={10}
-              max={2000}
-              step={10}
-              value={creditAmount}
-              onChange={e => setCreditAmount(Number(e.target.value))}
-              className="w-full mt-3 accent-amber-500"
+        <motion.div variants={item}>
+          <Card>
+            <CardHeader
+              title="Buy Credits"
+              description="Run out mid-month? Top up here. Credits never expire."
+              icon={<Sparkles className="w-5 h-5 text-amber-500" />}
             />
-            <div className="flex justify-between text-xs text-zinc-600 mt-1">
-              <span>10</span>
-              <span>2000</span>
-            </div>
-          </div>
 
-          <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20 mb-4">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-semibold text-white">{creditAmount} credits</p>
-                <p className="text-xs text-zinc-500">One time. Never expires.</p>
+            <div className="grid grid-cols-5 gap-2 mb-6">
+              {CREDIT_PACKS.map(pack => (
+                <button
+                  key={pack.credits}
+                  onClick={() => setCreditAmount(pack.credits)}
+                  className={`p-3 rounded-xl border-2 text-center transition-all duration-150 hover:scale-105 active:scale-95 ${
+                    creditAmount === pack.credits
+                      ? 'border-amber-500 bg-amber-500/5 shadow-[0_0_20px_rgba(245,158,11,0.06)]'
+                      : 'border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]'
+                  }`}
+                >
+                  <p className="text-sm font-bold text-white">{pack.credits}</p>
+                  <p className="text-xs text-zinc-500">{pack.label}</p>
+                  <p className="text-xs font-medium text-amber-500 mt-1">
+                    ${(pack.credits * CREDIT_PRICE_USD).toFixed(2)}
+                  </p>
+                </button>
+              ))}
+            </div>
+
+            <div className="mb-6">
+              <p className="text-xs text-zinc-500 mb-3">Custom amount</p>
+              <div className="flex items-center gap-4">
+                <button
+                  onClick={() => setCreditAmount(Math.max(10, creditAmount - 10))}
+                  className="w-9 h-9 rounded-xl border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors active:scale-95"
+                >
+                  <Minus className="w-4 h-4 text-zinc-400" />
+                </button>
+                <div className="flex-1 text-center">
+                  <p className="text-2xl font-bold text-white">{creditAmount}</p>
+                  <p className="text-xs text-zinc-500">credits</p>
+                </div>
+                <button
+                  onClick={() => setCreditAmount(creditAmount + 10)}
+                  className="w-9 h-9 rounded-xl border border-white/10 flex items-center justify-center hover:bg-white/5 transition-colors active:scale-95"
+                >
+                  <Plus className="w-4 h-4 text-zinc-400" />
+                </button>
               </div>
-              <p className="text-2xl font-bold text-white">${creditCostUSD}</p>
+              <input
+                type="range"
+                min={10}
+                max={2000}
+                step={10}
+                value={creditAmount}
+                onChange={e => setCreditAmount(Number(e.target.value))}
+                className="w-full mt-3 accent-amber-500 h-1.5"
+              />
+              <div className="flex justify-between text-xs text-zinc-600 mt-1">
+                <span>10</span>
+                <span>2000</span>
+              </div>
             </div>
-          </div>
 
-          <Button
-            variant="primary"
-            className="w-full"
-            onClick={handleBuyCredits}
-            loading={loading === 'credits'}
-            icon={<Zap className="w-4 h-4" />}
-          >
-            Buy {creditAmount} Credits for ${creditCostUSD}
-          </Button>
-          <p className="text-center text-xs text-zinc-600 mt-3">
-            Payments through Paystack — you might see Naira at checkout. Your international card works fine.
-          </p>
-        </Card>
+            <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20 mb-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-semibold text-white">{creditAmount} credits</p>
+                  <p className="text-xs text-zinc-500">One time. Never expires.</p>
+                </div>
+                <p className="text-2xl font-bold text-white">${creditCostUSD}</p>
+              </div>
+            </div>
 
-      </div>
+            <Button
+              variant="primary"
+              className="w-full"
+              onClick={handleBuyCredits}
+              loading={loading === 'credits'}
+              icon={<Zap className="w-4 h-4" />}
+            >
+              Buy {creditAmount} Credits for ${creditCostUSD}
+            </Button>
+            <p className="text-center text-xs text-zinc-600 mt-3">
+              Payments through Paystack — you might see Naira at checkout. Your international card works fine.
+            </p>
+          </Card>
+        </motion.div>
+
+      </motion.div>
     </DashboardLayout>
   );
 }

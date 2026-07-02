@@ -1,14 +1,26 @@
 'use client';
 
 import { useState } from 'react';
+import { motion } from 'framer-motion';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { useUser } from '@clerk/nextjs';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardHeader, StatsCard } from '@/components/dashboard/Card';
+import { Badge } from '@/components/dashboard/Badge';
 import { Input } from '@/components/dashboard/Input';
 import { Button } from '@/components/dashboard/Button';
 import { Crown, Zap, Users, Trash2, Plus, Shield, BarChart3, Search, Mail, CreditCard } from 'lucide-react';
+
+const container = {
+  hidden: { opacity: 0 },
+  show: { opacity: 1, transition: { staggerChildren: 0.05 } },
+};
+
+const item = {
+  hidden: { opacity: 0, y: 12 },
+  show: { opacity: 1, y: 0 },
+};
 
 const ADMIN_IDS = [
   'user_3EhKmuVyC1AhoBDlL7QNssllwgu',
@@ -96,7 +108,7 @@ export default function AdminPage() {
     !search || p.username?.toLowerCase().includes(search.toLowerCase()) || p.displayName?.toLowerCase().includes(search.toLowerCase())
   );
 
-  const tabs = [
+  const TABS = [
     { id: 'overview', label: 'Overview', icon: BarChart3 },
     { id: 'users', label: 'Users', icon: Users },
     { id: 'founding', label: 'Founders', icon: Crown },
@@ -107,11 +119,10 @@ export default function AdminPage() {
 
   return (
     <DashboardLayout title="Admin Panel" description="Manage users, badges, credits and spaces">
-      <div className="max-w-4xl mx-auto space-y-6">
+      <motion.div variants={container} initial="hidden" animate="show" className="max-w-4xl mx-auto space-y-6">
 
-        {/* Tabs */}
-        <div className="flex flex-wrap gap-2">
-          {tabs.map(t => (
+        <motion.div variants={item} className="flex flex-wrap gap-2">
+          {TABS.map(t => (
             <button key={t.id} onClick={() => setTab(t.id as any)}
               className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
                 tab === t.id ? 'bg-amber-500 text-black' : 'bg-white/5 text-zinc-400 hover:text-white'
@@ -120,13 +131,16 @@ export default function AdminPage() {
               <t.icon className="w-3.5 h-3.5" /> {t.label}
             </button>
           ))}
-        </div>
+        </motion.div>
 
-        {msg && <div className="px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-sm">{msg}</div>}
+        {msg && (
+          <motion.div variants={item}>
+            <div className="px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-sm">{msg}</div>
+          </motion.div>
+        )}
 
-        {/* Overview */}
         {tab === 'overview' && (
-          <div className="space-y-4">
+          <motion.div variants={item} className="space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <StatsCard label="Total Spaces" value={profiles?.length ?? 0} color="#f59e0b" />
               <StatsCard label="Founding Members" value={founders?.length ?? 0} color="#f59e0b" />
@@ -153,12 +167,11 @@ export default function AdminPage() {
                 </div>
               </div>
             </Card>
-          </div>
+          </motion.div>
         )}
 
-        {/* Users */}
         {tab === 'users' && (
-          <div className="space-y-3">
+          <motion.div variants={item} className="space-y-3">
             <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5">
               <Search className="w-4 h-4 text-zinc-500" />
               <input
@@ -170,18 +183,14 @@ export default function AdminPage() {
             </div>
             <p className="text-xs text-zinc-500">{filteredProfiles?.length ?? 0} of {profiles?.length ?? 0} users</p>
             {filteredProfiles?.map(p => (
-              <div key={p._id} className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4">
+              <div key={p._id} className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4 transition-all duration-150 hover:bg-white/[0.05]">
                 <div className="flex items-center justify-between gap-3 mb-2">
                   <div className="flex-1 min-w-0">
                     <p className="text-white font-medium text-sm">{p.displayName}</p>
                     <p className="text-zinc-500 text-xs font-mono">/{p.username}</p>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                      (p as any).plan === 'pro' ? 'bg-amber-500/20 text-amber-400' : 'bg-white/10 text-zinc-400'
-                    }`}>
-                      {(p as any).plan ?? 'free'}
-                    </span>
+                    <Badge variant={(p as any).plan === 'pro' ? 'default' : 'neutral'} className="capitalize">{(p as any).plan ?? 'free'}</Badge>
                     <button onClick={() => handleDeleteProfile(p._id)} className="p-2 rounded-lg bg-white/5 hover:bg-red-500/20 transition-colors">
                       <Trash2 className="w-3.5 h-3.5 text-zinc-500" />
                     </button>
@@ -195,12 +204,11 @@ export default function AdminPage() {
                 <p className="text-zinc-700 text-xs font-mono mt-1">{p.userId}</p>
               </div>
             ))}
-          </div>
+          </motion.div>
         )}
 
-        {/* Founders */}
         {tab === 'founding' && (
-          <div className="space-y-3">
+          <motion.div variants={item} className="space-y-3">
             <p className="text-xs text-zinc-500">{founders?.length ?? 0} / 5 founding members</p>
             <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
               <div className="h-full bg-gradient-to-r from-yellow-500 to-amber-500 rounded-full" style={{ width: ((founders?.length ?? 0) / 5 * 100) + '%' }} />
@@ -211,7 +219,7 @@ export default function AdminPage() {
                   <div className="flex items-center gap-2">
                     <Crown className="w-3.5 h-3.5 text-yellow-400 shrink-0" />
                     <p className="text-white font-medium text-sm">{f.displayName}</p>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-400">#{f.spotNumber}</span>
+                    <Badge variant="default">#{f.spotNumber}</Badge>
                   </div>
                   <p className="text-zinc-500 text-xs">/{f.username}</p>
                 </div>
@@ -220,12 +228,11 @@ export default function AdminPage() {
                 </button>
               </div>
             ))}
-          </div>
+          </motion.div>
         )}
 
-        {/* Early Adopters */}
         {tab === 'early' && (
-          <div className="space-y-3">
+          <motion.div variants={item} className="space-y-3">
             <p className="text-xs text-zinc-500">{earlyAdopters?.length ?? 0} / 50 early adopters</p>
             <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
               <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full" style={{ width: ((earlyAdopters?.length ?? 0) / 50 * 100) + '%' }} />
@@ -236,7 +243,7 @@ export default function AdminPage() {
                   <div className="flex items-center gap-2">
                     <Zap className="w-3.5 h-3.5 text-cyan-400 shrink-0" />
                     <p className="text-white font-medium text-sm">{e.displayName}</p>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-cyan-500/10 text-cyan-400">#{e.spotNumber}</span>
+                    <Badge variant="info">#{e.spotNumber}</Badge>
                   </div>
                   <p className="text-zinc-500 text-xs">/{e.username}</p>
                 </div>
@@ -245,12 +252,11 @@ export default function AdminPage() {
                 </button>
               </div>
             ))}
-          </div>
+          </motion.div>
         )}
 
-        {/* Waitlist */}
         {tab === 'waitlist' && (
-          <div className="space-y-3">
+          <motion.div variants={item} className="space-y-3">
             <p className="text-xs text-zinc-500">{waitlist?.length ?? 0} people waiting</p>
             {waitlist?.map((w: any) => (
               <div key={w._id} className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4">
@@ -264,44 +270,45 @@ export default function AdminPage() {
                 </div>
               </div>
             ))}
-          </div>
+          </motion.div>
         )}
 
-        {/* Grant badge */}
         {tab === 'grant' && (
-          <Card>
-            <CardHeader title="Grant Badge" icon={<Plus className="w-4 h-4 text-amber-500" />} />
-            <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  onClick={() => setGrantForm(f => ({ ...f, type: 'founding' }))}
-                  className={`py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${
-                    grantForm.type === 'founding' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' : 'bg-white/5 text-zinc-400'
-                  }`}
-                >
-                  <Crown className="w-3.5 h-3.5" /> Founding
-                </button>
-                <button
-                  onClick={() => setGrantForm(f => ({ ...f, type: 'earlyAdopter' }))}
-                  className={`py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${
-                    grantForm.type === 'earlyAdopter' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : 'bg-white/5 text-zinc-400'
-                  }`}
-                >
-                  <Zap className="w-3.5 h-3.5" /> Early Adopter
-                </button>
+          <motion.div variants={item}>
+            <Card>
+              <CardHeader title="Grant Badge" icon={<Plus className="w-4 h-4 text-amber-500" />} />
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    onClick={() => setGrantForm(f => ({ ...f, type: 'founding' }))}
+                    className={`py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                      grantForm.type === 'founding' ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' : 'bg-white/5 text-zinc-400'
+                    }`}
+                  >
+                    <Crown className="w-3.5 h-3.5" /> Founding
+                  </button>
+                  <button
+                    onClick={() => setGrantForm(f => ({ ...f, type: 'earlyAdopter' }))}
+                    className={`py-2.5 rounded-xl text-sm font-medium transition-all flex items-center justify-center gap-2 ${
+                      grantForm.type === 'earlyAdopter' ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : 'bg-white/5 text-zinc-400'
+                    }`}
+                  >
+                    <Zap className="w-3.5 h-3.5" /> Early Adopter
+                  </button>
+                </div>
+                <Input value={grantForm.userId} onChange={e => setGrantForm(f => ({ ...f, userId: e.target.value }))} placeholder="Clerk User ID (user_xxx)" />
+                <Input value={grantForm.username} onChange={e => setGrantForm(f => ({ ...f, username: e.target.value }))} placeholder="Username" />
+                <Input value={grantForm.displayName} onChange={e => setGrantForm(f => ({ ...f, displayName: e.target.value }))} placeholder="Display Name" />
+                {msg && <p className="text-xs text-center text-amber-500">{msg}</p>}
+                <Button variant="primary" className="w-full" onClick={handleGrant} loading={granting}>
+                  {granting ? 'Granting...' : 'Grant Badge'}
+                </Button>
               </div>
-              <Input value={grantForm.userId} onChange={e => setGrantForm(f => ({ ...f, userId: e.target.value }))} placeholder="Clerk User ID (user_xxx)" />
-              <Input value={grantForm.username} onChange={e => setGrantForm(f => ({ ...f, username: e.target.value }))} placeholder="Username" />
-              <Input value={grantForm.displayName} onChange={e => setGrantForm(f => ({ ...f, displayName: e.target.value }))} placeholder="Display Name" />
-              {msg && <p className="text-xs text-center text-amber-500">{msg}</p>}
-              <Button variant="primary" className="w-full" onClick={handleGrant} loading={granting}>
-                {granting ? 'Granting...' : 'Grant Badge'}
-              </Button>
-            </div>
-          </Card>
+            </Card>
+          </motion.div>
         )}
 
-      </div>
+      </motion.div>
     </DashboardLayout>
   );
 }
