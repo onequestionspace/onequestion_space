@@ -72,28 +72,33 @@ const CARD_STYLES: Record<string, string> = {
   minimal: 'bg-transparent',
 };
 
-const PARTICLES = [
-  { width: 3, height: 3, left: 10, top: 15, duration: 12, delay: 0 },
-  { width: 5, height: 5, left: 25, top: 40, duration: 16, delay: 1 },
-  { width: 2, height: 2, left: 40, top: 70, duration: 10, delay: 2 },
-  { width: 4, height: 4, left: 55, top: 20, duration: 14, delay: 0.5 },
-  { width: 3, height: 3, left: 70, top: 55, duration: 18, delay: 3 },
-  { width: 6, height: 6, left: 85, top: 30, duration: 11, delay: 1.5 },
-  { width: 2, height: 2, left: 15, top: 80, duration: 15, delay: 4 },
-  { width: 4, height: 4, left: 30, top: 10, duration: 13, delay: 2.5 },
-  { width: 3, height: 3, left: 60, top: 85, duration: 17, delay: 0.8 },
-  { width: 5, height: 5, left: 80, top: 65, duration: 12, delay: 3.5 },
-  { width: 2, height: 2, left: 90, top: 45, duration: 16, delay: 1.2 },
-  { width: 4, height: 4, left: 45, top: 50, duration: 10, delay: 4.5 },
-];
+const FLOATING_PARTICLES = Array.from({ length: 100 }).map(() => ({
+  size: 1 + Math.random() * 4,
+  left: Math.random() * 100,
+  top: Math.random() * 100,
+  duration: 8 + Math.random() * 20,
+  delay: Math.random() * 10,
+  driftX: (Math.random() - 0.5) * 50,
+  driftY: (Math.random() - 0.5) * 50,
+  twinkleDelay: Math.random() * 5,
+}));
 
 function ParticlesBackground({ color }: { color: string }) {
   return (
     <div className='fixed inset-0 -z-10 overflow-hidden pointer-events-none'>
-      {PARTICLES.map((p, i) => (
-        <div key={i} className='absolute rounded-full opacity-20 animate-float'
-          style={{ width: p.width + 'px', height: p.height + 'px', backgroundColor: color,
-            left: p.left + '%', top: p.top + '%', animationDuration: p.duration + 's', animationDelay: p.delay + 's' }} />
+      <div className='absolute inset-0 opacity-[0.15]' style={{
+        background: 'radial-gradient(circle at 30% 40%, '+color+'30 0%, transparent 50%), radial-gradient(circle at 70% 60%, '+color+'20 0%, transparent 40%)',
+      }} />
+      {FLOATING_PARTICLES.map((p, i) => (
+        <div key={i} className='absolute rounded-full' style={{
+          width: p.size+'px', height: p.size+'px',
+          left: p.left+'%', top: p.top+'%',
+          backgroundColor: i % 5 === 0 ? '#fff' : color,
+          opacity: 0.15 + Math.random() * 0.5,
+          boxShadow: i % 3 === 0 ? '0 0 '+(p.size*2)+'px '+color : 'none',
+          animation: `drift-particle ${p.duration}s ease-in-out ${p.delay}s infinite, twinkle ${1.5 + Math.random() * 3}s ease-in-out ${p.twinkleDelay}s infinite alternate`,
+          transform: `translate(${p.driftX}px, ${p.driftY}px)`,
+        }} />
       ))}
     </div>
   );
@@ -309,61 +314,193 @@ function PortalBackground({ color }: { color: string }) {
   );
 }
 
-const RAIN_DROPS = Array.from({ length: 60 }).map(() => ({
-  left: Math.random() * 100,
-  delay: Math.random() * 3,
-  duration: 0.6 + Math.random() * 0.8,
-  opacity: 0.1 + Math.random() * 0.2,
-  height: 30 + Math.random() * 50,
-}));
-
 function RainBackground({ color }: { color: string }) {
-  return (
-    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-      {RAIN_DROPS.map((d, i) => (
-        <div key={i} className="absolute rounded-full" style={{
-          left: d.left+'%', top: '-5%',
-          width: '1px', height: d.height+'px',
-          background: 'linear-gradient(to bottom, transparent, '+color+')',
-          opacity: d.opacity,
-          animation: 'rain-fall '+d.duration+'s linear '+d.delay+'s infinite',
-        }} />
-      ))}
-      <div className="absolute inset-0" style={{ background: 'radial-gradient(ellipse 60% 40% at 50% 80%, rgba(100,130,200,0.06), transparent)' }} />
-    </div>
-  );
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    let w = canvas.width = window.innerWidth;
+    let h = canvas.height = window.innerHeight;
+    const resize = () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; };
+    window.addEventListener('resize', resize);
+
+    const layers = [
+      { count: 80, speed: 8, len: 20, width: 1, opacity: 0.4, wind: 0.8 },
+      { count: 50, speed: 5, len: 14, width: 0.8, opacity: 0.25, wind: 0.5 },
+      { count: 120, speed: 12, len: 28, width: 1.2, opacity: 0.5, wind: 1.2 },
+    ];
+    const drops = layers.map(l => Array.from({ length: l.count }).map(() => ({
+      x: Math.random() * w, y: Math.random() * h, l, ...l
+    }))).flat();
+
+    interface Splash { x: number; y: number; vx: number; vy: number; life: number; maxLife: number; size: number }
+    const splashes: Splash[] = [];
+    let windAngle = 0;
+
+    let frame = 0;
+    const animate = () => {
+      frame++;
+      ctx.clearRect(0, 0, w, h);
+      windAngle = Math.sin(frame * 0.0005) * 0.3;
+
+      for (const d of drops) {
+        d.y += d.speed;
+        d.x += Math.sin(windAngle + d.wind) * 0.5;
+        if (d.y > h) {
+          if (frame % 3 === 0) {
+            for (let s = 0; s < 3; s++) {
+              splashes.push({
+                x: d.x + (Math.random() - 0.5) * 6, y: h - 2,
+                vx: (Math.random() - 0.5) * 2, vy: -(2 + Math.random() * 3),
+                life: 0, maxLife: 10 + Math.random() * 15, size: 1 + Math.random() * 2,
+              });
+            }
+          }
+          d.y = -20;
+          d.x = Math.random() * w;
+        }
+        ctx.beginPath();
+        ctx.moveTo(d.x, d.y);
+        ctx.lineTo(d.x + Math.sin(windAngle + d.wind) * 3, d.y + d.len);
+        ctx.strokeStyle = color + Math.round(d.opacity * 80).toString(16).padStart(2, '0');
+        ctx.lineWidth = d.width;
+        ctx.stroke();
+      }
+
+      for (let s = splashes.length - 1; s >= 0; s--) {
+        const sp = splashes[s];
+        sp.x += sp.vx;
+        sp.y += sp.vy;
+        sp.vy += 0.15;
+        sp.life++;
+        const alpha = 1 - sp.life / sp.maxLife;
+        ctx.beginPath();
+        ctx.arc(sp.x, sp.y, sp.size * alpha, 0, Math.PI * 2);
+        ctx.fillStyle = color + Math.round(alpha * 50).toString(16).padStart(2, '0');
+        ctx.fill();
+        if (sp.life > sp.maxLife) splashes.splice(s, 1);
+      }
+
+      ctx.fillStyle = 'rgba(100,130,200,0.015)';
+      ctx.fillRect(0, h * 0.7, w, h * 0.3);
+      requestAnimationFrame(animate);
+    };
+    animate();
+    return () => { window.removeEventListener('resize', resize); };
+  }, [color]);
+
+  return <canvas ref={canvasRef} className="fixed inset-0 -z-10 pointer-events-none" />;
 }
 
-const FIREFLIES = Array.from({ length: 20 }).map(() => ({
-  left: Math.random() * 100,
-  top: Math.random() * 100,
-  size: 2 + Math.random() * 4,
-  duration: 4 + Math.random() * 6,
-  delay: Math.random() * 5,
-  driftX: (Math.random() - 0.5) * 100,
-  driftY: (Math.random() - 0.5) * 100,
-}));
-
 function FirefliesBackground({ color }: { color: string }) {
-  return (
-    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
-      {FIREFLIES.map((f, i) => (
-        <div key={i} className="absolute animate-float" style={{
-          left: f.left+'%', top: f.top+'%',
-          width: f.size+'px', height: f.size+'px',
-          borderRadius: '50%',
-          backgroundColor: color,
-          boxShadow: '0 0 '+f.size*3+'px '+color+', 0 0 '+f.size*6+'px '+color+'60',
-          opacity: 0.6,
-          animationDuration: f.duration+'s',
-          animationDelay: f.delay+'s',
-        }} />
-      ))}
-      <div className="absolute inset-0" style={{
-        background: 'radial-gradient(ellipse 70% 50% at 50% 50%, '+color+'08, transparent 70%)',
-      }} />
-    </div>
-  );
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    let w = canvas.width = window.innerWidth;
+    let h = canvas.height = window.innerHeight;
+    const resize = () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; };
+    window.addEventListener('resize', resize);
+
+    const fireflies = Array.from({ length: 35 }).map(() => {
+      const baseX = Math.random() * w;
+      const baseY = h * 0.4 + Math.random() * h * 0.55; // cluster lower half
+      return {
+        x: baseX, y: baseY, baseX, baseY,
+        vx: 0, vy: 0,
+        glow: 0,
+        glowTarget: 0.1 + Math.random() * 0.9,
+        glowSpeed: 0.02 + Math.random() * 0.06,
+        flashTimer: 0,
+        flashInterval: 60 + Math.random() * 180,
+        flashDuration: 10 + Math.random() * 30,
+        isFlashing: false,
+        size: 1.5 + Math.random() * 2,
+        wanderAngle: Math.random() * Math.PI * 2,
+        wanderSpeed: 0.01 + Math.random() * 0.03,
+        trail: [] as {x: number, y: number, a: number}[],
+      };
+    });
+
+    const animate = () => {
+      ctx.clearRect(0, 0, w, h);
+
+      for (const f of fireflies) {
+        f.wanderAngle += f.wanderSpeed + (Math.random() - 0.5) * 0.1;
+        const targetX = f.baseX + Math.cos(f.wanderAngle) * 80;
+        const targetY = f.baseY + Math.sin(f.wanderAngle * 0.7) * 60;
+        f.vx += (targetX - f.x) * 0.002 + (Math.random() - 0.5) * 0.3;
+        f.vy += (targetY - f.y) * 0.002 + (Math.random() - 0.5) * 0.3;
+        f.vx *= 0.96;
+        f.vy *= 0.96;
+        f.x += f.vx;
+        f.y += f.vy;
+        f.x = Math.max(10, Math.min(w - 10, f.x));
+        f.y = Math.max(h * 0.2, Math.min(h - 10, f.y));
+
+        f.flashTimer++;
+        if (!f.isFlashing && f.flashTimer > f.flashInterval) {
+          f.isFlashing = true;
+          f.flashTimer = 0;
+        }
+        if (f.isFlashing && f.flashTimer > f.flashDuration) {
+          f.isFlashing = false;
+        }
+        f.glowTarget = f.isFlashing ? 0.8 + Math.random() * 0.2 : 0.1 + Math.random() * 0.2;
+        f.glow += (f.glowTarget - f.glow) * f.glowSpeed;
+
+        if (f.glow > 0.15) {
+          f.trail.push({ x: f.x, y: f.y, a: f.glow * 0.3 });
+          if (f.trail.length > 8) f.trail.shift();
+        }
+      }
+
+      for (const f of fireflies) {
+        for (const t of f.trail) {
+          t.a *= 0.85;
+          if (t.a > 0.01) {
+            ctx.beginPath();
+            ctx.arc(t.x, t.y, f.size * 0.5, 0, Math.PI * 2);
+            ctx.fillStyle = color + Math.round(t.a * 40).toString(16).padStart(2, '0');
+            ctx.fill();
+          }
+        }
+      }
+
+      for (const f of fireflies) {
+        if (f.glow > 0.1) {
+          const glowRadius = f.size * 2 + f.glow * 12;
+          const grad = ctx.createRadialGradient(f.x, f.y, 0, f.x, f.y, glowRadius);
+          grad.addColorStop(0, color + Math.round(f.glow * 120).toString(16).padStart(2, '0'));
+          grad.addColorStop(0.3, color + Math.round(f.glow * 60).toString(16).padStart(2, '0'));
+          grad.addColorStop(1, color + '00');
+          ctx.beginPath();
+          ctx.arc(f.x, f.y, glowRadius, 0, Math.PI * 2);
+          ctx.fillStyle = grad;
+          ctx.fill();
+        }
+
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, f.size, 0, Math.PI * 2);
+        ctx.fillStyle = '#fffbe6';
+        ctx.fill();
+        ctx.beginPath();
+        ctx.arc(f.x, f.y, f.size * 0.5, 0, Math.PI * 2);
+        ctx.fillStyle = '#fff';
+        ctx.fill();
+      }
+
+      requestAnimationFrame(animate);
+    };
+    animate();
+    return () => { window.removeEventListener('resize', resize); };
+  }, [color]);
+
+  return <canvas ref={canvasRef} className="fixed inset-0 -z-10 pointer-events-none" />;
 }
 
 const AURORA_BANDS = 4;
@@ -394,6 +531,180 @@ function NorthernBackground({ color }: { color: string }) {
   );
 }
 
+function FireBackground({ color }: { color: string }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    let w = canvas.width = window.innerWidth;
+    let h = canvas.height = window.innerHeight;
+    const resize = () => { w = canvas.width = window.innerWidth; h = canvas.height = window.innerHeight; };
+    window.addEventListener('resize', resize);
+
+    interface Ember { x: number; y: number; vx: number; vy: number; size: number; life: number; maxLife: number; color: string }
+    const embers: Ember[] = [];
+
+    const spawnEmber = () => {
+      const maxLife = 60 + Math.random() * 80;
+      const t = Math.random();
+      const colors = [
+        `hsl(${45 + Math.random() * 15}, 100%, ${70 + Math.random() * 30}%)`,
+        `hsl(${30 + Math.random() * 20}, 100%, ${50 + Math.random() * 20}%)`,
+        `hsl(${10 + Math.random() * 15}, 100%, ${40 + Math.random() * 20}%)`,
+      ];
+      embers.push({
+        x: w * (0.2 + Math.random() * 0.6),
+        y: h * (0.7 + Math.random() * 0.3),
+        vx: (Math.random() - 0.5) * 1.5,
+        vy: -(1.5 + Math.random() * 4),
+        size: 2 + Math.random() * 6,
+        life: 0, maxLife,
+        color: colors[Math.floor(t * 3)],
+      });
+    };
+
+    let spawnTimer = 0;
+    const animate = () => {
+      ctx.clearRect(0, 0, w, h);
+
+      spawnTimer++;
+      if (spawnTimer % 2 === 0) {
+        spawnEmber();
+        if (Math.random() < 0.3) spawnEmber();
+      }
+
+      for (let e = embers.length - 1; e >= 0; e--) {
+        const em = embers[e];
+        em.x += em.vx + (Math.random() - 0.5) * 0.4;
+        em.y += em.vy;
+        em.vy += 0.02;
+        em.vx += (Math.random() - 0.5) * 0.1;
+        em.vx *= 0.99;
+        em.life++;
+        const progress = em.life / em.maxLife;
+        const alpha = 1 - progress;
+
+        const grad = ctx.createRadialGradient(em.x, em.y, 0, em.x, em.y, em.size * (1 + progress * 2));
+        grad.addColorStop(0, em.color + Math.round(alpha * 200).toString(16).padStart(2, '0'));
+        grad.addColorStop(0.5, em.color + Math.round(alpha * 80).toString(16).padStart(2, '0'));
+        grad.addColorStop(1, em.color + '00');
+        ctx.beginPath();
+        ctx.arc(em.x, em.y, em.size * (1 + progress * 2), 0, Math.PI * 2);
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        if (em.size > 3 && em.life % 3 === 0 && progress < 0.3) {
+          ctx.beginPath();
+          ctx.arc(em.x - 2, em.y - 2, em.size * 0.3, 0, Math.PI * 2);
+          ctx.fillStyle = '#fff' + Math.round(alpha * 80).toString(16).padStart(2, '0');
+          ctx.fill();
+        }
+
+        if (em.life > em.maxLife) embers.splice(e, 1);
+      }
+
+      const bottomGrad = ctx.createLinearGradient(0, h * 0.85, 0, h);
+      bottomGrad.addColorStop(0, 'transparent');
+      bottomGrad.addColorStop(0.3, color + '15');
+      bottomGrad.addColorStop(0.7, color + '30');
+      bottomGrad.addColorStop(1, color + '40');
+      ctx.fillStyle = bottomGrad;
+      ctx.fillRect(0, h * 0.85, w, h * 0.15);
+
+      const heatGrad = ctx.createRadialGradient(w * 0.5, h * 0.9, 0, w * 0.5, h * 0.9, w * 0.4);
+      heatGrad.addColorStop(0, color + '10');
+      heatGrad.addColorStop(0.5, color + '08');
+      heatGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = heatGrad;
+      ctx.fillRect(0, 0, w, h);
+
+      requestAnimationFrame(animate);
+    };
+    animate();
+    return () => { window.removeEventListener('resize', resize); };
+  }, [color]);
+
+  return <canvas ref={canvasRef} className="fixed inset-0 -z-10 pointer-events-none" />;
+}
+
+function OilyBackground({ color }: { color: string }) {
+  return (
+    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+      <div className="absolute inset-0 opacity-30" style={{
+        background: `
+          repeating-conic-gradient(from 0deg, ${color}80 0deg 10deg, transparent 10deg 20deg,
+          #8b5cf680 20deg 30deg, transparent 30deg 40deg,
+          #06b6d480 40deg 50deg, transparent 50deg 60deg,
+          #ec489980 60deg 70deg, transparent 70deg 80deg)
+        `,
+        filter: 'blur(40px)',
+        animation: 'nebula-drift 20s linear infinite',
+      }} />
+      <div className="absolute inset-0 opacity-20" style={{
+        background: `
+          repeating-conic-gradient(from 45deg, transparent 0deg 15deg, ${color}60 15deg 25deg,
+          #f59e0b60 25deg 35deg, transparent 35deg 50deg)
+        `,
+        filter: 'blur(50px)',
+        animation: 'nebula-drift 25s linear infinite reverse',
+      }} />
+      <div className="absolute inset-0" style={{
+        background: 'radial-gradient(ellipse at 30% 50%, rgba(100,200,255,0.04) 0%, transparent 50%), radial-gradient(ellipse at 70% 50%, rgba(255,100,200,0.04) 0%, transparent 50%)',
+      }} />
+      {Array.from({ length: 8 }).map((_, i) => (
+        <div key={i} className="absolute rounded-full animate-aurora-1" style={{
+          width: (100 + i * 40)+'px', height: (60 + i * 20)+'px',
+          left: (10 + i * 10)+'%', top: (30 + Math.sin(i) * 20)+'%',
+          border: '1px solid '+color+`${20 - i * 2}`,
+          borderRadius: '50%',
+          opacity: 0.08,
+          filter: 'blur(3px)',
+          animationDuration: (12 + i * 3)+'s',
+          animationDelay: (i * 1.5)+'s',
+        }} />
+      ))}
+    </div>
+  );
+}
+
+function GlassyBackground({ color }: { color: string }) {
+  return (
+    <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+      <div className="absolute inset-0" style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }} />
+      <div className="absolute inset-0" style={{
+        background: `
+          linear-gradient(135deg, ${color}08 0%, transparent 30%, ${color}04 50%, transparent 70%, ${color}06 100%)
+        `,
+      }} />
+      <div className="absolute inset-0 opacity-[0.03]" style={{
+        background: 'repeating-linear-gradient(45deg, transparent, transparent 20px, rgba(255,255,255,0.1) 20px, rgba(255,255,255,0.1) 21px)',
+      }} />
+      <div className="absolute w-[200px] h-[400px] top-[-20%] left-[-10%] rotate-[30deg] animate-float-slow" style={{
+        background: 'linear-gradient(180deg, transparent, '+color+'20, transparent)',
+        filter: 'blur(60px)',
+        animationDuration: '15s',
+      }} />
+      <div className="absolute w-[150px] h-[300px] top-[30%] right-[-5%] rotate-[-20deg] animate-float-slow" style={{
+        background: 'linear-gradient(180deg, transparent, '+color+'15, transparent)',
+        filter: 'blur(50px)',
+        animationDuration: '18s',
+        animationDelay: '3s',
+      }} />
+      {Array.from({ length: 20 }).map((_, i) => (
+        <div key={i} className="absolute rounded-full" style={{
+          width: (1 + Math.random() * 2)+'px', height: (1 + Math.random() * 2)+'px',
+          left: Math.random() * 100+'%', top: Math.random() * 100+'%',
+          backgroundColor: '#fff',
+          opacity: 0.1 + Math.random() * 0.3,
+          animation: 'twinkle '+(2+Math.random()*4)+'s ease-in-out '+(Math.random()*3)+'s infinite alternate',
+        }} />
+      ))}
+    </div>
+  );
+}
+
 function SpaceBackground({ themeEffect, color }: { themeEffect: string; color: string }) {
   if (themeEffect.startsWith("custom:")) {
     const url = themeEffect.replace("custom:", "");
@@ -418,6 +729,9 @@ function SpaceBackground({ themeEffect, color }: { themeEffect: string; color: s
     case "rain": return <RainBackground color={color} />;
     case "fireflies": return <FirefliesBackground color={color} />;
     case "northern": return <NorthernBackground color={color} />;
+    case "fire": return <FireBackground color={color} />;
+    case "oily": return <OilyBackground color={color} />;
+    case "glassy": return <GlassyBackground color={color} />;
     default: return (
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[700px] h-[500px] rounded-full blur-[140px] opacity-25" style={{ backgroundColor: color }} />

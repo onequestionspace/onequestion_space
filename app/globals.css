@@ -373,3 +373,11 @@ html { scroll-behavior: smooth; font-family: sans-serif; }
   66% { transform: translate(-1%, 1%) rotate(-1deg); }
   100% { transform: translate(0, 0) rotate(0deg); }
 }
+
+@keyframes drift-particle {
+  0% { transform: translateY(0px) translateX(0px); }
+  25% { transform: translateY(-20px) translateX(10px); }
+  50% { transform: translateY(-5px) translateX(-15px); }
+  75% { transform: translateY(-30px) translateX(5px); }
+  100% { transform: translateY(0px) translateX(0px); }
+}

@@ -63,6 +63,9 @@ const EFFECTS = [
   { id: "rain",     label: "Rain",      desc: "Gentle downpour" },
   { id: "fireflies",label: "Fireflies", desc: "Floating glows" },
   { id: "northern", label: "Aurora",    desc: "Northern lights" },
+  { id: "fire",     label: "Fire",      desc: "Rising embers & flames" },
+  { id: "oily",     label: "Oil Slick", desc: "Iridescent sheen" },
+  { id: "glassy",   label: "Glassy",    desc: "Frosted refraction" },
 ];
 
 const LIGHT_BGS = ["fog", "parchment", "sand", "mint", "chalkwhite"];
