@@ -51,14 +51,7 @@ export default function AnalyticsPage() {
     profile?._id ? { profileId: profile._id } : 'skip'
   );
 
-  if (!isLoaded) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-pulse text-zinc-500 text-sm">Loading...</div>
-    </div>
-  );
-  if (!isSignedIn) { redirect('/'); }
-
-  const loading = analyticsData === undefined || questions === undefined;
+    const loading = analyticsData === undefined || questions === undefined;
 
   const totalQ = analyticsData?.totalQuestions || 0;
   const totalV = analyticsData?.totalVisitors || 0;
@@ -89,6 +82,13 @@ export default function AnalyticsPage() {
     { name: 'Answered', value: totalA, color: '#f59e0b' },
     { name: 'Pending', value: Math.max(0, totalQ - totalA), color: '#27272a' },
   ], [totalA, totalQ]);
+
+  if (!isLoaded) return (
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="animate-pulse text-zinc-500 text-sm">Loading...</div>
+    </div>
+  );
+  if (!isSignedIn) { redirect('/'); }
 
   return (
     <DashboardLayout title="Analytics" description="Real-time stats for your space">

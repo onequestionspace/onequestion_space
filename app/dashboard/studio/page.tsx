@@ -223,7 +223,7 @@ export default function StudioPage() {
             }`}>
             <Code2 className="w-3.5 h-3.5" /> Edit
           </button>
-          <button onClick={() => { setMode('preview'); setPreviewKey(k => k + 1); }}
+          <button onClick={() => setMode('preview')}
             className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium transition-all ${
               mode === 'preview' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-black' : 'text-zinc-500 hover:text-white'
             }`}>
