@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import { getUsdToNgnRate } from '../exchangeRate';
 import type { PaymentAdapter, InitializePaymentParams, InitializePaymentResult, VerifyPaymentResult, ValidateWebhookResult } from './adapter';
 
 const BASE = 'https://api.paystack.co';
@@ -7,15 +8,20 @@ const SECRET = process.env.PAYSTACK_SECRET_KEY!;
 export const PaystackAdapter: PaymentAdapter = {
   name: 'paystack',
 
-  async initialize({ email, amount, metadata, currency = 'USD' }): Promise<InitializePaymentResult> {
+  async initialize({ email, amount, metadata }): Promise<InitializePaymentResult> {
+    // amount arrives as USD cents from the frontend — Paystack NG accounts settle in NGN only
+    const rate = await getUsdToNgnRate();
+    const usdAmount = amount / 100;
+    const ngnKobo = Math.round(usdAmount * rate * 100);
+
     const res = await fetch(BASE + '/transaction/initialize', {
       method: 'POST',
       headers: { Authorization: 'Bearer ' + SECRET, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         email,
-        amount,
-        metadata,
-        currency,
+        amount: ngnKobo,
+        metadata: { ...metadata, usdAmount, ngnRate: rate },
+        currency: 'NGN',
         channels: ['card', 'apple_pay'],
       }),
     });
