@@ -69,7 +69,7 @@ export default function RootLayout({
           <ConvexClientProvider>
             <div className="flex flex-col min-h-screen mesh-background">
               <Navbar />
-              <main className="flex-1">{children}</main>
+              <div className="flex-1">{children}</div>
               <Footer />
             </div>
           </ConvexClientProvider>

@@ -12,7 +12,7 @@ const SUGGESTED = [
   'What is your refund policy?',
 ];
 
-export default function PrivacyPage() {
+export default function TermsPage() {
   const [question, setQuestion] = useState('');
   const [messages, setMessages] = useState([
     { role: 'ai', text: 'Hi! I am the One Question Terms Assistant. Ask me anything about how we handle your data and privacy.' }
@@ -56,7 +56,7 @@ export default function PrivacyPage() {
             <div className="w-16 h-16 rounded-full bg-gradient-to-br bg-primary mx-auto mb-4 flex items-center justify-center">
               <FileText className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-white mb-1">Privacy Assistant</h1>
+            <h1 className="text-2xl font-bold text-white mb-1">Terms Assistant</h1>
             <p className="text-muted-foreground text-sm mb-3">Ask anything about our terms of service.</p>
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs">
               <Sparkles className="w-3 h-3" />
@@ -77,7 +77,7 @@ export default function PrivacyPage() {
               {loading && (
                 <div className="flex justify-start">
                   <div className="bg-white/5 border border-white/10 rounded-2xl px-4 py-2">
-                    <p className="text-muted-foreground text-xs mb-1">Privacy AI</p>
+                    <p className="text-muted-foreground text-xs mb-1">Terms AI</p>
                     <div className="flex gap-1">
                       <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{animationDelay:'0ms'}} />
                       <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{animationDelay:'150ms'}} />

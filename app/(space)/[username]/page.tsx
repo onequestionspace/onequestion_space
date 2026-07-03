@@ -1010,10 +1010,10 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
             {FOUNDER_IDS.includes(profile.userId) && (
               <span className='inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/40 backdrop-blur-sm'>👑 Founder</span>
             )}
-            {profile.userId !== FOUNDER_ID && foundingMember && (
+            {foundingMember === true && (
               <span className='inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-500/10 text-yellow-400 border border-yellow-500/30'>👑 Founding Member</span>
             )}
-            {!foundingMember && earlyAdopter && (
+            {foundingMember === false && earlyAdopter === true && profile.userId !== FOUNDER_ID && (
               <span className='inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-white/10 text-white border border-white/20'>⚡ Early Adopter</span>
             )}
             {COFOUNDER_IDS.includes(profile.userId) && (
