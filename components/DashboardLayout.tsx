@@ -191,13 +191,6 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
             <div className="space-y-0.5">
               <div className="flex items-center gap-3 px-3 py-2 rounded-xl text-zinc-600 cursor-not-allowed">
                 <div className='w-8 h-8 rounded-lg flex items-center justify-center text-zinc-600'>
-                  <Inbox className="w-4 h-4" />
-                </div>
-                <span className="text-xs">Inbox</span>
-                <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded-full bg-zinc-800 text-zinc-500">Soon</span>
-              </div>
-              <div className="flex items-center gap-3 px-3 py-2 rounded-xl text-zinc-600 cursor-not-allowed">
-                <div className='w-8 h-8 rounded-lg flex items-center justify-center text-zinc-600'>
                   <Globe className="w-4 h-4" />
                 </div>
                 <span className="text-xs">Custom Domain</span>
