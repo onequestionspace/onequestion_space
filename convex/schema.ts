@@ -19,11 +19,14 @@ export default defineSchema({
     themeEffect: v.optional(v.string()),
     pinnedQuestions: v.optional(v.array(v.string())),
     suggestedQuestions: v.optional(v.array(v.string())),
+    isSeeded: v.optional(v.boolean()),
+    claimToken: v.optional(v.string()),
     createdAt: v.number(),
     updatedAt: v.number(),
   })
     .index('by_userId', ['userId'])
-    .index('by_username', ['username']),
+    .index('by_username', ['username'])
+    .index('by_claimToken', ['claimToken']),
 
   knowledge: defineTable({
     userId: v.string(),
