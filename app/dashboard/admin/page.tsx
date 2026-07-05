@@ -31,13 +31,19 @@ const ADMIN_ID = 'user_3EhKmuVyC1AhoBDlL7QNssllwgu';
 
 export default function AdminPage() {
   const { user, isLoaded: clerkLoaded } = useUser();
-  const [tab, setTab] = useState<'overview' | 'users' | 'founding' | 'early' | 'waitlist' | 'grant'>('overview');
+  const [tab, setTab] = useState<'overview' | 'users' | 'founding' | 'early' | 'waitlist' | 'grant' | 'seed'>('overview');
   const [search, setSearch] = useState('');
   const [grantForm, setGrantForm] = useState<{ userId: string; username: string; displayName: string; type: 'founding' | 'earlyAdopter' }>({ userId: '', username: '', displayName: '', type: 'founding' });
   const [granting, setGranting] = useState(false);
   const [msg, setMsg] = useState('');
   const [creditForm, setCreditForm] = useState({ userId: '', credits: 50 });
   const [addingCredits, setAddingCredits] = useState(false);
+  const [seedForm, setSeedForm] = useState({ username: '', displayName: '', bio: '' });
+  const [seeding, setSeeding] = useState(false);
+  const [claimUrl, setClaimUrl] = useState('');
+  const [seedForm, setSeedForm] = useState({ username: '', displayName: '', bio: '' });
+  const [seeding, setSeeding] = useState(false);
+  const [claimUrl, setClaimUrl] = useState('');
 
   const isAdmin = user?.id ? ADMIN_IDS.includes(user.id) : false;
   const adminId = user?.id || ADMIN_ID;
@@ -52,6 +58,8 @@ export default function AdminPage() {
   const removeBadge = useMutation(api.admin.removeBadge);
   const deleteProfile = useMutation(api.admin.deleteProfile);
   const addCredits = useMutation(api.subscriptions.addCredits);
+  const seedProfile = useMutation(api.profiles.seedProfile);
+  const seedProfile = useMutation(api.profiles.seedProfile);
 
   if (!clerkLoaded) return (
     <div className="min-h-screen flex items-center justify-center">
@@ -93,6 +101,30 @@ export default function AdminPage() {
     await deleteProfile({ adminId: adminId, profileId });
   };
 
+  const handleSeedProfile = async () => {
+    if (!seedForm.username || !seedForm.displayName) return;
+    setSeeding(true); setMsg(''); setClaimUrl('');
+    try {
+      const result: any = await seedProfile({ adminId, ...seedForm });
+      setClaimUrl(`https://onequestion.space${result.claimUrl}`);
+      setMsg('Profile seeded!');
+      setSeedForm({ username: '', displayName: '', bio: '' });
+    } catch (e: any) { setMsg(e.message || 'Error seeding profile'); }
+    setSeeding(false);
+  };
+
+  const handleSeedProfile = async () => {
+    if (!seedForm.username || !seedForm.displayName) return;
+    setSeeding(true); setMsg(''); setClaimUrl('');
+    try {
+      const result: any = await seedProfile({ adminId, ...seedForm });
+      setClaimUrl(`https://onequestion.space${result.claimUrl}`);
+      setMsg('Profile seeded!');
+      setSeedForm({ username: '', displayName: '', bio: '' });
+    } catch (e: any) { setMsg(e.message || 'Error seeding profile'); }
+    setSeeding(false);
+  };
+
   const handleAddCredits = async () => {
     if (!creditForm.userId || !creditForm.credits) return;
     setAddingCredits(true);
@@ -115,6 +147,8 @@ export default function AdminPage() {
     { id: 'early', label: 'Early', icon: Zap },
     { id: 'waitlist', label: 'Waitlist', icon: Mail },
     { id: 'grant', label: 'Grant', icon: Plus },
+    { id: 'seed', label: 'Seed', icon: Users },
+    { id: 'seed', label: 'Seed', icon: Users },
   ];
 
   return (
@@ -303,6 +337,48 @@ export default function AdminPage() {
                 <Button variant="primary" className="w-full" onClick={handleGrant} loading={granting}>
                   {granting ? 'Granting...' : 'Grant Badge'}
                 </Button>
+              </div>
+            </Card>
+          </motion.div>
+        )}
+
+        {tab === 'seed' && (
+          <motion.div variants={item}>
+            <Card>
+              <CardHeader title="Seed a Prospect Page" icon={<Users className="w-4 h-4 text-amber-500" />} />
+              <div className="space-y-3">
+                <Input value={seedForm.username} onChange={e => setSeedForm(f => ({ ...f, username: e.target.value }))} placeholder="Username (e.g. alexey)" />
+                <Input value={seedForm.displayName} onChange={e => setSeedForm(f => ({ ...f, displayName: e.target.value }))} placeholder="Display Name" />
+                <Input value={seedForm.bio} onChange={e => setSeedForm(f => ({ ...f, bio: e.target.value }))} placeholder="Bio (optional)" />
+                <Button variant="primary" className="w-full" onClick={handleSeedProfile} loading={seeding}>
+                  {seeding ? 'Seeding...' : 'Create Claim Link'}
+                </Button>
+                {claimUrl && (
+                  <div className="px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-xs text-amber-400 break-all select-all">
+                    {claimUrl}
+                  </div>
+                )}
+              </div>
+            </Card>
+          </motion.div>
+        )}
+
+        {tab === 'seed' && (
+          <motion.div variants={item}>
+            <Card>
+              <CardHeader title="Seed a Prospect Page" icon={<Users className="w-4 h-4 text-amber-500" />} />
+              <div className="space-y-3">
+                <Input value={seedForm.username} onChange={e => setSeedForm(f => ({ ...f, username: e.target.value }))} placeholder="Username (e.g. alexey)" />
+                <Input value={seedForm.displayName} onChange={e => setSeedForm(f => ({ ...f, displayName: e.target.value }))} placeholder="Display Name" />
+                <Input value={seedForm.bio} onChange={e => setSeedForm(f => ({ ...f, bio: e.target.value }))} placeholder="Bio (optional)" />
+                <Button variant="primary" className="w-full" onClick={handleSeedProfile} loading={seeding}>
+                  {seeding ? 'Seeding...' : 'Create Claim Link'}
+                </Button>
+                {claimUrl && (
+                  <div className="px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-xs text-amber-400 break-all select-all">
+                    {claimUrl}
+                  </div>
+                )}
               </div>
             </Card>
           </motion.div>
