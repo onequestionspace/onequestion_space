@@ -36,6 +36,8 @@ export default defineSchema({
     chunkIndex: v.optional(v.number()),
     fileUrl: v.optional(v.string()),
     fileType: v.optional(v.string()),
+    sourceType: v.optional(v.string()), // 'personal' | 'article' | 'url' | 'image' | 'pdf' | 'doc'
+    sourceUrl: v.optional(v.string()),  // original URL if sourceType is 'url' or 'article'
     createdAt: v.number(),
     updatedAt: v.number(),
   })

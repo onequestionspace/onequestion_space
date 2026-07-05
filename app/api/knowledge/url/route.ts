@@ -11,7 +11,7 @@ export async function POST(request: NextRequest) {
     const { userId } = await auth();
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { url } = await request.json();
+    const { url, sourceType, sourceUrl } = await request.json();
     if (!url) return NextResponse.json({ error: 'URL is required' }, { status: 400 });
 
     // Fetch the page
@@ -66,6 +66,8 @@ export async function POST(request: NextRequest) {
       embeddings: embeddings.length > 0 ? embeddings : undefined,
       fileUrl: url,
       fileType: 'url',
+      sourceType: sourceType || 'article',
+      sourceUrl: sourceUrl || url,
     });
 
     return NextResponse.json({ success: true, data: { id, title, chars: text.length } });

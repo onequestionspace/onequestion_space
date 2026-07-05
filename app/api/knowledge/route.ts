@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     if (!userId) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
 
     const body = await request.json();
-    const { title, content } = body;
+    const { title, content, sourceType } = body;
 
     if (!title || !content) {
       return NextResponse.json({ success: false, error: 'Title and content are required' }, { status: 400 });
@@ -50,6 +50,7 @@ export async function POST(request: NextRequest) {
       title,
       content,
       embeddings: embeddings.length > 0 ? embeddings : undefined,
+      sourceType: sourceType || undefined,
     });
 
     return NextResponse.json({ success: true, data: { id, title, content } }, { status: 201 });

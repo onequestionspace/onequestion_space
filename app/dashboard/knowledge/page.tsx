@@ -14,7 +14,8 @@ import { Button } from '@/components/dashboard/Button';
 import { ListSkeleton } from '@/components/dashboard/Skeleton';
 import {
   Brain, Upload, FileText, Trash2, Plus,
-  Loader2, CheckCircle2, AlertCircle, X, Lightbulb, ChevronDown, ChevronUp
+  Loader2, CheckCircle2, AlertCircle, X, Lightbulb, ChevronDown, ChevronUp,
+  Link, Globe, ImageIcon
 } from 'lucide-react';
 
 
@@ -25,18 +26,21 @@ export default function KnowledgePage() {
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState('');
   const [uploadSuccess, setUploadSuccess] = useState(false);
-  const [activeTab, setActiveTab] = useState<'text' | 'file'>('text');
+  const [activeTab, setActiveTab] = useState<'text' | 'file' | 'url' | 'image'>('text');
   const [showGuide, setShowGuide] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState({ title: '', content: '' });
+  const [url, setUrl] = useState('');
+  const [sourceType, setSourceType] = useState<'personal' | 'article'>('personal');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
   const knowledge = useQuery(
     api.knowledge.getKnowledgeByUserId,
     userId ? { userId } : 'skip'
   );
-  const createKnowledge = useMutation(api.knowledge.createKnowledge);
   const deleteKnowledge = useMutation(api.knowledge.deleteKnowledge);
 
   if (!isLoaded) return (
@@ -54,7 +58,7 @@ export default function KnowledgePage() {
       const res = await fetch('/api/knowledge', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title: form.title, content: form.content }),
+        body: JSON.stringify({ title: form.title, content: form.content, sourceType }),
       });
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
@@ -68,27 +72,46 @@ export default function KnowledgePage() {
     setUploading(false);
   };
 
+  const handleUrlSubmit = async () => {
+    if (!url.trim() || !form.title.trim() || !userId) return;
+    setUploading(true);
+    setUploadError('');
+    try {
+      const res = await fetch('/api/knowledge/url', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: url.trim(), sourceType: 'article', sourceUrl: url.trim() }),
+      });
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+      setForm({ title: '', content: '' });
+      setUrl('');
+      setUploadSuccess(true);
+      setIsAdding(false);
+      setTimeout(() => setUploadSuccess(false), 3000);
+    } catch (e: any) {
+      setUploadError(e.message || 'Failed to save URL. Try again.');
+    }
+    setUploading(false);
+  };
+
   const handleFileSubmit = async () => {
-    if (!selectedFile || !form.title.trim() || !userId) return;
+    const file = activeTab === 'image' ? selectedImage : selectedFile;
+    if (!file || !form.title.trim() || !userId) return;
     setUploading(true);
     setUploadError('');
     try {
       const formData = new FormData();
-      formData.append('file', selectedFile);
+      formData.append('file', file);
       formData.append('title', form.title);
-      formData.append('content', form.content || ' ');
+      formData.append('content', form.content || file.name);
+      formData.append('sourceType', activeTab === 'image' ? 'image' : sourceType);
       const res = await fetch('/api/upload', { method: 'POST', body: formData });
       const data = await res.json();
       if (!data.success) throw new Error(data.error);
-      await createKnowledge({
-        userId,
-        title: form.title,
-        content: form.content || selectedFile.name,
-        fileUrl: data.data?.fileUrl,
-        fileType: selectedFile.type,
-      });
       setForm({ title: '', content: '' });
       setSelectedFile(null);
+      setSelectedImage(null);
       setUploadSuccess(true);
       setIsAdding(false);
       setTimeout(() => setUploadSuccess(false), 3000);
@@ -103,9 +126,11 @@ export default function KnowledgePage() {
     await deleteKnowledge({ id });
   };
 
-  const fileTypeIcon = (type?: string) => (
-    <FileText className={`w-5 h-5 ${type?.includes('pdf') ? 'text-red-400' : 'text-amber-500'}`} />
-  );
+  const fileTypeIcon = (type?: string, sourceType?: string) => {
+    if (sourceType === 'url' || type === 'url') return <Link className="w-5 h-5 text-blue-400" />;
+    if (sourceType === 'image' || type?.startsWith('image/')) return <ImageIcon className="w-5 h-5 text-purple-400" />;
+    return <FileText className={`w-5 h-5 ${type?.includes('pdf') ? 'text-red-400' : 'text-amber-500'}`} />;
+  };
 
   const loading = knowledge === undefined;
 
@@ -144,7 +169,7 @@ export default function KnowledgePage() {
                 </button>
               </div>
 
-              <div className="flex gap-2 mb-4">
+              <div className="flex gap-2 mb-4 flex-wrap">
                 <button
                   onClick={() => setActiveTab('text')}
                   className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
@@ -159,9 +184,54 @@ export default function KnowledgePage() {
                     activeTab === 'file' ? 'bg-amber-500 text-black' : 'bg-white/5 text-zinc-400 hover:text-white border border-white/10'
                   }`}
                 >
-                  Upload File
+                  File
+                </button>
+                <button
+                  onClick={() => setActiveTab('url')}
+                  className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                    activeTab === 'url' ? 'bg-amber-500 text-black' : 'bg-white/5 text-zinc-400 hover:text-white border border-white/10'
+                  }`}
+                >
+                  <Link className="w-3.5 h-3.5 inline mr-1" />
+                  URL
+                </button>
+                <button
+                  onClick={() => setActiveTab('image')}
+                  className={`px-4 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                    activeTab === 'image' ? 'bg-amber-500 text-black' : 'bg-white/5 text-zinc-400 hover:text-white border border-white/10'
+                  }`}
+                >
+                  <ImageIcon className="w-3.5 h-3.5 inline mr-1" />
+                  Image
                 </button>
               </div>
+
+              {(activeTab === 'text' || activeTab === 'file') && (
+                <div className="mb-4">
+                  <Label>Source Type</Label>
+                  <div className="flex gap-2 mt-1">
+                    <button
+                      onClick={() => setSourceType('personal')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                        sourceType === 'personal' ? 'bg-amber-500 text-black' : 'bg-white/5 text-zinc-400 hover:text-white border border-white/10'
+                      }`}
+                    >
+                      My Own Content
+                    </button>
+                    <button
+                      onClick={() => setSourceType('article')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                        sourceType === 'article' ? 'bg-amber-500 text-black' : 'bg-white/5 text-zinc-400 hover:text-white border border-white/10'
+                      }`}
+                    >
+                      External Article
+                    </button>
+                  </div>
+                  {sourceType === 'article' && (
+                    <p className="text-xs text-zinc-600 mt-1">The AI will know this is reference material, not personal info.</p>
+                  )}
+                </div>
+              )}
 
               <div className="space-y-4">
                 <div>
@@ -181,6 +251,50 @@ export default function KnowledgePage() {
                       onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
                       placeholder="Paste your content here — bio, FAQ, blog post, anything your AI should know..."
                       rows={6}
+                    />
+                  </div>
+                ) : activeTab === 'url' ? (
+                  <div>
+                    <Label>URL</Label>
+                    <div className="flex items-center gap-2 bg-white/[0.03] border border-white/10 rounded-xl px-4 py-2.5 focus-within:border-amber-500/40 transition-all">
+                      <Globe className="w-4 h-4 text-zinc-500 shrink-0" />
+                      <input
+                        type="url"
+                        value={url}
+                        onChange={e => setUrl(e.target.value)}
+                        placeholder="https://example.com/article"
+                        className="flex-1 bg-transparent text-white text-sm outline-none placeholder:text-zinc-600"
+                      />
+                    </div>
+                    <p className="text-xs text-zinc-600 mt-1">The AI will reference this as an external source, not personal info.</p>
+                  </div>
+                ) : activeTab === 'image' ? (
+                  <div>
+                    <Label>Image</Label>
+                    <div
+                      onClick={() => imageInputRef.current?.click()}
+                      className="border-2 border-dashed border-white/10 rounded-xl p-8 text-center cursor-pointer hover:border-amber-500/50 hover:bg-amber-500/5 transition-all"
+                    >
+                      {selectedImage ? (
+                        <div className="flex items-center justify-center gap-2">
+                          <ImageIcon className="w-5 h-5 text-amber-500" />
+                          <span className="text-sm text-white">{selectedImage.name}</span>
+                          <span className="text-xs text-zinc-500">({(selectedImage.size / 1024).toFixed(1)} KB)</span>
+                        </div>
+                      ) : (
+                        <>
+                          <ImageIcon className="w-8 h-8 text-zinc-600 mx-auto mb-2" />
+                          <p className="text-sm text-zinc-500">Click to upload image</p>
+                          <p className="text-xs text-zinc-600 mt-1">JPG, PNG, WebP — Max 10MB</p>
+                        </>
+                      )}
+                    </div>
+                    <input
+                      ref={imageInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={e => setSelectedImage(e.target.files?.[0] || null)}
                     />
                   </div>
                 ) : (
@@ -224,9 +338,9 @@ export default function KnowledgePage() {
                 <Button
                   variant="primary"
                   className="w-full"
-                  onClick={activeTab === 'text' ? handleTextSubmit : handleFileSubmit}
+                  onClick={activeTab === 'text' ? handleTextSubmit : activeTab === 'url' ? handleUrlSubmit : handleFileSubmit}
                   loading={uploading}
-                  disabled={!form.title.trim() || (activeTab === 'text' ? !form.content.trim() : !selectedFile)}
+                  disabled={!form.title.trim() || (activeTab === 'text' ? !form.content.trim() : activeTab === 'url' ? !url.trim() : activeTab === 'image' ? !selectedImage : !selectedFile)}
                   icon={<Upload className="w-4 h-4" />}
                 >
                   {uploading ? 'Saving...' : 'Save to Knowledge Base'}
@@ -292,14 +406,34 @@ export default function KnowledgePage() {
             {knowledge.map(item => (
               <div key={item._id} className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5 flex items-start gap-4 transition-all duration-150 hover:bg-white/[0.05] hover:border-white/[0.12]">
                 <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
-                  {fileTypeIcon(item.fileType)}
+                  {fileTypeIcon(item.fileType, (item as any).sourceType)}
                 </div>
                 <div className="flex-1 min-w-0">
                   <h4 className="font-semibold text-white text-sm mb-1">{item.title}</h4>
                   <p className="text-xs text-zinc-500 line-clamp-2">{item.content}</p>
-                  <p className="text-xs text-zinc-600 mt-2">
-                    {new Date(item.createdAt).toLocaleDateString()}
-                  </p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <p className="text-xs text-zinc-600">
+                      {new Date(item.createdAt).toLocaleDateString()}
+                    </p>
+                    {(item as any).sourceType === 'article' && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-medium">
+                        <Globe className="w-2.5 h-2.5" />
+                        Article
+                      </span>
+                    )}
+                    {(item as any).sourceType === 'image' && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 text-[10px] font-medium">
+                        <ImageIcon className="w-2.5 h-2.5" />
+                        Image
+                      </span>
+                    )}
+                    {(item as any).sourceUrl && (
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-zinc-500/10 border border-zinc-500/20 text-zinc-400 text-[10px] font-medium">
+                        <Link className="w-2.5 h-2.5" />
+                        Source
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <button
                   onClick={() => handleDelete(item._id)}

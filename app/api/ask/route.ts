@@ -79,7 +79,14 @@ export async function POST(request: NextRequest) {
       .filter(k => k.score >= SIMILARITY_THRESHOLD)
       .slice(0, 5);
 
-    const topChunks = scoredChunks.map(k => k.content);
+    const topChunks = scoredChunks.map(k => {
+      const sourcePrefix = k.sourceType === 'article'
+        ? '(Source: External reference — this is from an article or website)\n'
+        : k.sourceType === 'image'
+        ? '(Source: Image description)\n'
+        : '(Source: Personal knowledge — this is about the owner)\n';
+      return sourcePrefix + k.content;
+    });
 
     if (topChunks.length === 0) {
       const fallbackAnswer = "I don't have details on that yet — feel free to reach out to me directly";

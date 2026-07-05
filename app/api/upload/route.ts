@@ -13,6 +13,8 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const file = formData.get('file') as File;
     const type = formData.get('type') as string;
+    const sourceType = formData.get('sourceType') as string;
+    const title = formData.get('title') as string;
 
     if (!file) return NextResponse.json({ error: 'No file' }, { status: 400 });
 
@@ -28,14 +30,32 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, url: dataUrl });
     }
 
+    // Handle image as knowledge (store as base64)
+    if (fileType.startsWith('image/') && type !== 'avatar') {
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+      const base64 = buffer.toString('base64');
+      const dataUrl = 'data:' + fileType + ';base64,' + base64;
+      await convex.mutation(api.knowledge.createKnowledge, {
+        userId,
+        title: title || file.name,
+        content: file.name,
+        fileUrl: dataUrl,
+        fileType,
+        sourceType: sourceType || 'image',
+      });
+      return NextResponse.json({ success: true, data: { fileUrl: dataUrl } });
+    }
+
     // Handle text file upload for knowledge base
     if (fileType === 'text/plain') {
       const content = await file.text();
       await convex.mutation(api.knowledge.createKnowledge, {
         userId,
-        title: file.name,
+        title: title || file.name,
         content,
         fileType,
+        sourceType: sourceType || 'personal',
       });
       return NextResponse.json({ success: true });
     }

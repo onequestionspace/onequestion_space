@@ -27,6 +27,8 @@ export const createKnowledge = mutation({
     chunkIndex: v.optional(v.number()),
     fileUrl: v.optional(v.string()),
     fileType: v.optional(v.string()),
+    sourceType: v.optional(v.string()),
+    sourceUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const now = Date.now();
@@ -38,6 +40,8 @@ export const createKnowledge = mutation({
       chunkIndex: args.chunkIndex,
       fileUrl: args.fileUrl,
       fileType: args.fileType,
+      sourceType: args.sourceType,
+      sourceUrl: args.sourceUrl,
       createdAt: now,
       updatedAt: now,
     });
