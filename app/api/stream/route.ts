@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
     const isAdmin = ADMIN_IDS.includes(profile.userId);
 
     if (!isAdmin) {
-      const subscription = await convex.query(api.subscriptions.getSubscription, { userId: profile.userId });
+      const subscription = await convex.mutation(api.subscriptions.getOrCreateSubscription, { userId: profile.userId });
       if (subscription) {
         const used = subscription.messagesUsed ?? 0;
         const limit = subscription.messagesLimit ?? 50;
