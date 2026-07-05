@@ -72,7 +72,7 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
       </div>
 
       {/* Mobile header bar */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 h-14 border-b border-white/[0.06] bg-background/80 backdrop-blur-2xl">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 h-14 border-b border-white/[0.06] bg-background/95">
         <Link href="/" className="flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
             <MessageSquare className="w-3.5 h-3.5 text-black" />
@@ -95,7 +95,7 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
             initial="closed"
             animate="open"
             exit="closed"
-            className="lg:hidden fixed inset-0 z-30 bg-black/60 backdrop-blur-sm"
+            className="lg:hidden fixed inset-0 z-30 bg-black/75"
             onClick={closeMenu}
           />
         )}
@@ -106,7 +106,7 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
         variants={sidebarVariants}
         initial={false}
         animate={isMobile ? (isOpen ? 'open' : 'closed') : 'open'}
-        className="fixed left-0 top-0 h-full w-64 bg-background/90 border-r border-white/[0.06] backdrop-blur-2xl z-40 flex flex-col"
+        className="fixed left-0 top-0 h-full w-64 bg-background/98 border-r border-white/[0.06] z-40 flex flex-col"
       >
         <div className="flex items-center gap-2.5 px-6 h-14 border-b border-white/[0.06] shrink-0">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
