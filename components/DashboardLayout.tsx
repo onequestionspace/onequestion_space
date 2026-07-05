@@ -65,11 +65,7 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="fixed inset-0 -z-10 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(245,158,11,0.12),transparent_50%)]" />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,rgba(239,68,68,0.08),transparent_50%)]" />
-        <div className="absolute inset-0 dot-pattern opacity-[0.12]" />
-      </div>
+      <div className="fixed inset-0 -z-10 overflow-hidden bg-[radial-gradient(circle_at_top_left,rgba(245,158,11,0.12),transparent_50%),radial-gradient(circle_at_bottom_right,rgba(239,68,68,0.08),transparent_50%)]" />
 
       {/* Mobile header bar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 h-14 border-b border-white/[0.06] bg-background/95">
