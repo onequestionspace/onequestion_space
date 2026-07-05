@@ -1,26 +1,12 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { ArrowRight, Sparkles, Zap, Check } from 'lucide-react';
-import { motion, useScroll, useTransform } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Image from 'next/image';
-
-const DEMO_QUESTIONS = [
-  'How can I work with Asym?',
-  'What tools does Asym use to build?',
-  'What is One Question?',
-  'How do you build without a laptop?',
-];
-
-const TYPING_PAIRS = [
-  { q: 'How can I work with Asym?', a: 'Book a call through my space and I will get back to you within 24 hours.' },
-  { q: 'What tools does Asym use to build?', a: 'Next.js, Convex, Tailwind CSS, and Gemini AI — all from an Android phone.' },
-  { q: 'What is One Question?', a: 'An AI-powered personal Q&A platform. Claim your space, upload your knowledge, let AI answer 24/7.' },
-  { q: 'How do you build without a laptop?', a: 'Termux on Android. Constraints force better decisions and faster shipping.' },
-];
 
 function FloatingOrb({ className, size, color, delay, duration }: { className?: string; size: number; color: string; delay: number; duration: number }) {
   return (
@@ -50,53 +36,11 @@ function FloatingOrb({ className, size, color, delay, duration }: { className?: 
 export function Hero() {
   const { isSignedIn, isLoaded } = useAuth();
   const [username, setUsername] = useState('');
-  const [pairIndex, setPairIndex] = useState(0);
-  const [phase, setPhase] = useState<'typing-q' | 'show-q' | 'typing-a' | 'show-a'>('typing-q');
-  const [displayed, setDisplayed] = useState('');
-
-  const { scrollY } = useScroll();
   const heroRef = useRef<HTMLDivElement>(null);
 
   const recentProfiles = useQuery(api.profiles.getRecentProfiles, { limit: 5 });
   const profilesCount = useQuery(api.profiles.getProfilesCount);
   const count = profilesCount ?? 0;
-
-  useEffect(() => {
-    const question = DEMO_QUESTIONS[pairIndex];
-    let timeout: ReturnType<typeof setTimeout>;
-    let interval: ReturnType<typeof setInterval>;
-
-    if (phase === 'typing-q') {
-      let i = 0;
-      setTimeout(() => setDisplayed(''), 0);
-      interval = setInterval(() => {
-        i++;
-        setDisplayed(question.slice(0, i));
-        if (i >= question.length) {
-          clearInterval(interval);
-          timeout = setTimeout(() => setPhase('show-q'), 400);
-        }
-      }, 35);
-    } else if (phase === "show-q") {
-      setTimeout(() => { setDisplayed(""); setPhase("typing-a"); }, 0);
-      const answer = TYPING_PAIRS[pairIndex].a;
-      let i = 0;
-      interval = setInterval(() => {
-        i++;
-        setDisplayed(answer.slice(0, i));
-        if (i >= answer.length) {
-          clearInterval(interval);
-          timeout = setTimeout(() => setPhase("show-a"), 2500);
-        }
-      }, 50);
-    } else if (phase === 'show-a') {
-      timeout = setTimeout(() => {
-        setPairIndex(p => (p + 1) % DEMO_QUESTIONS.length);
-        setPhase('typing-q');
-      }, 500);
-    }
-    return () => { clearInterval(interval); clearTimeout(timeout); };
-  }, [phase, pairIndex]);
 
   const handleClaim = () => {
     const u = username.trim().toLowerCase();
@@ -160,9 +104,13 @@ export function Hero() {
             {/* Social proof */}
             <div className='flex items-center gap-3 mb-8'>
               <div className='flex -space-x-2'>
-                {(recentProfiles && recentProfiles.length > 0 ? recentProfiles : [{ initials: "A", avatar: undefined, username: "asym" }]).map((p, i) => (
-                  <div key={i} className="relative w-8 h-8 rounded-full border-2 border-background overflow-hidden flex items-center justify-center text-[10px] font-bold text-white ring-2 ring-background" style={{ backgroundColor: ["#f59e0b","#ef4444","#3b82f6","#22c55e","#f97316"][i % 5], zIndex: 5 - i }}>
-                    {p.avatar ? <Image src={p.avatar} alt="" width={32} height={32} className="w-full h-full object-cover" /> : p.initials}
+                {(recentProfiles && recentProfiles.length > 0 ? recentProfiles : ['Asym', 'Sarah', 'Kwame', 'Priya', 'Carlos'].map(name => ({ avatar: undefined, username: name }))).map((p, i) => (
+                  <div key={i} className="relative w-8 h-8 rounded-full border-2 border-background overflow-hidden ring-2 ring-background" style={{ zIndex: 5 - i }}>
+                    {p.avatar ? (
+                      <Image src={p.avatar} alt="" width={32} height={32} className="w-full h-full object-cover" />
+                    ) : (
+                      <img src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${p.username || p.displayName || 'User'}`} alt="" className="w-full h-full object-cover" />
+                    )}
                   </div>
                 ))}
               </div>
@@ -244,50 +192,32 @@ export function Hero() {
               </div>
 
               <div className='px-5 py-4 border-b border-zinc-800/30 flex items-center gap-3'>
-                <div className='w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-black font-black text-sm shadow-lg shadow-amber-500/20'>A</div>
+                <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Asym" alt="" className="w-10 h-10 rounded-full shrink-0 shadow-lg shadow-amber-500/20" />
                 <div>
                   <p className='text-white text-sm font-bold'>Asym Alwali</p>
                   <p className='text-zinc-500 text-xs'>19yo · Building from Nigeria</p>
                 </div>
               </div>
 
-              {/* Chat area */}
+              {/* Chat area — static demo */}
               <div className='p-5 space-y-3 min-h-[260px] flex flex-col justify-end'>
-                {(phase === 'show-q' || phase === 'typing-a' || phase === 'show-a') && (
-                  <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className='flex justify-end'>
-                    <div className='max-w-[80%] px-4 py-2.5 rounded-2xl rounded-br-sm bg-zinc-800 border border-zinc-700/50'>
-                      <p className='text-white text-sm'>{TYPING_PAIRS[pairIndex].q}</p>
-                    </div>
-                  </motion.div>
-                )}
-                <div className='flex justify-start gap-2.5'>
-                  <div className='w-7 h-7 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shrink-0 mt-0.5 shadow-sm'>
-                    <Sparkles className='w-3.5 h-3.5 text-black' />
+                <div className='flex justify-end'>
+                  <div className='max-w-[80%] px-4 py-2.5 rounded-2xl rounded-br-sm bg-zinc-800 border border-zinc-700/50'>
+                    <p className='text-white text-sm'>How can I work with Asym?</p>
                   </div>
+                </div>
+                <div className='flex justify-start gap-2.5'>
+                  <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Asym" alt="" className="w-7 h-7 rounded-full shrink-0 mt-0.5 shadow-sm" />
                   <div className='max-w-[80%] px-4 py-2.5 rounded-2xl rounded-tl-sm bg-amber-500/10 border border-amber-500/20'>
-                    {(phase === 'typing-q' || phase === 'show-q') ? (
-                      <div className='flex gap-1 py-1'>
-                        {[0,1,2].map(i => <div key={i} className='w-1.5 h-1.5 rounded-full bg-amber-400 animate-bounce' style={{ animationDelay: i*150 + 'ms' }} />)}
-                      </div>
-                    ) : (
-                      <p className='text-white text-sm leading-relaxed'>
-                        {displayed}
-                        {phase === 'typing-a' && <span className='inline-block w-0.5 h-4 bg-amber-400 ml-0.5 animate-pulse' />}
-                      </p>
-                    )}
+                    <p className='text-white text-sm leading-relaxed'>
+                      Book a call through my space and I will get back to you within 24 hours.
+                    </p>
                   </div>
                 </div>
               </div>
 
               <div className='px-5 py-3 border-t border-zinc-800/50 flex items-center gap-3 bg-zinc-900/30'>
-                {phase === 'typing-q' ? (
-                  <div className='flex-1 text-sm text-white font-mono'>
-                    {displayed}
-                    <span className='inline-block w-0.5 h-4 bg-white/60 ml-0.5 animate-pulse' />
-                  </div>
-                ) : (
-                  <div className='flex-1 text-sm text-zinc-600'>Ask anything...</div>
-                )}
+                <div className='flex-1 text-sm text-zinc-600'>Ask anything...</div>
                 <div className='w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-sm'>
                   <ArrowRight className='w-3.5 h-3.5 text-black' />
                 </div>

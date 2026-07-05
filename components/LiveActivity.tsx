@@ -75,9 +75,7 @@ export function LiveActivity() {
                 transition={{ delay: i * 0.08 }}
                 className="flex items-center gap-3 px-4 py-3 rounded-2xl border border-white/5 bg-white/[0.02] hover:border-white/10 transition-all group"
               >
-                <div className="w-8 h-8 rounded-full shrink-0 flex items-center justify-center text-xs font-bold text-black" style={{ backgroundColor: item.color }}>
-                  {item.name.charAt(0)}
-                </div>
+                <img src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${item.name}`} alt="" className="w-8 h-8 rounded-full shrink-0" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-white text-sm font-medium truncate">{item.q}</span>

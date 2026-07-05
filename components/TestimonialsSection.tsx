@@ -92,12 +92,7 @@ export function TestimonialsSection() {
             >
               <div className='absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-transparent via-amber-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity' />
               <div className='flex items-center gap-3 mb-4'>
-                <div
-                  className='w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold text-black shrink-0 shadow-lg'
-                  style={{ backgroundColor: t.color }}
-                >
-                  {t.initial}
-                </div>
+                <img src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${t.name}`} alt="" className="w-10 h-10 rounded-full shrink-0 shadow-lg" />
                 <div>
                   <p className='text-white text-sm font-semibold'>{t.name}</p>
                   <p className='text-zinc-500 text-xs'>{t.role}</p>
