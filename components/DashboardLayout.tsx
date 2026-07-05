@@ -130,12 +130,11 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
                         : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03]'
                     }`}
                   >
-                    {isActive && (
-                      <motion.div
-                        layoutId="activeNav"
-                        className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-gradient-to-b from-amber-500 to-orange-500"
-                      />
-                    )}
+                    <div
+                      className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-gradient-to-b from-amber-500 to-orange-500 transition-opacity duration-150 ${
+                        isActive ? 'opacity-100' : 'opacity-0'
+                      }`}
+                    />
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
                       isActive ? 'bg-amber-500/15 text-amber-500' : 'text-zinc-500'
                     }`}>
@@ -165,12 +164,11 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
                         : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03]'
                     }`}
                   >
-                    {isActive && (
-                      <motion.div
-                        layoutId="activeNavSecondary"
-                        className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-gradient-to-b from-amber-500 to-orange-500"
-                      />
-                    )}
+                    <div
+                      className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-gradient-to-b from-amber-500 to-orange-500 transition-opacity duration-150 ${
+                        isActive ? 'opacity-100' : 'opacity-0'
+                      }`}
+                    />
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                       isActive ? 'bg-amber-500/15 text-amber-500' : 'text-zinc-500'
                     }`}>
