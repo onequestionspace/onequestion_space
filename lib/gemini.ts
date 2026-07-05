@@ -211,3 +211,52 @@ ${context ? `Your knowledge:\n${context}` : 'You have no knowledge uploaded yet.
     .replace(/__/g, '')
     .trim();
 }
+
+// ── Generic completion (used by tools like the post generator) ─────────────
+export async function generateCompletionGroq(prompt: string, maxTokens = 700): Promise<string> {
+  if (!GROQ_API_KEY) throw new Error('No Groq key');
+
+  const res = await fetch(GROQ_BASE, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${GROQ_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: 'llama-3.3-70b-versatile',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.8,
+      max_tokens: maxTokens,
+    }),
+  });
+
+  if (!res.ok) throw new Error(`Groq error: ${res.status}`);
+  const data = await res.json();
+  return data.choices?.[0]?.message?.content || '';
+}
+
+export async function generateCompletion(prompt: string): Promise<string> {
+  if (GROQ_API_KEY) {
+    try {
+      return await generateCompletionGroq(prompt);
+    } catch (groqError) {
+      console.error('Groq completion failed, falling back to Gemini:', groqError);
+    }
+  }
+
+  if (!GEMINI_API_KEY) throw new Error('No AI provider configured');
+
+  const res = await fetch(`${GEMINI_BASE}/${CHAT_MODEL}:generateContent?key=${GEMINI_API_KEY}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { maxOutputTokens: 700, temperature: 0.8 },
+    }),
+  });
+
+  const data = await res.json();
+  const raw = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+  if (!raw) throw new Error('Gemini empty response');
+  return raw;
+}

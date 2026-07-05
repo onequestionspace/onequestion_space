@@ -1,9 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import Groq from "groq-sdk";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
+import { generateCompletion } from "@/lib/gemini";
 
 const VOICE_GUIDE = `
 You write build-in-public posts for a 19-year-old solo founder from Kaduna, Nigeria
@@ -57,21 +53,6 @@ Git log:
 ${commits}`;
 }
 
-async function callGroq(prompt: string): Promise<string> {
-  const completion = await groq.chat.completions.create({
-    model: "llama-3.3-70b-versatile",
-    messages: [{ role: "user", content: prompt }],
-    temperature: 0.8,
-  });
-  return completion.choices[0]?.message?.content || "";
-}
-
-async function callGemini(prompt: string): Promise<string> {
-  const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-  const result = await model.generateContent(prompt);
-  return result.response.text();
-}
-
 function extractJson(raw: string): any {
   const cleaned = raw.replace(/```json|```/g, "").trim();
   return JSON.parse(cleaned);
@@ -85,12 +66,7 @@ export async function POST(req: NextRequest) {
     let workDescription = work;
 
     if (mode === "commits") {
-      const summaryPrompt = summarizeCommitsPrompt(commits);
-      try {
-        workDescription = await callGroq(summaryPrompt);
-      } catch {
-        workDescription = await callGemini(summaryPrompt);
-      }
+      workDescription = await generateCompletion(summarizeCommitsPrompt(commits));
     }
 
     const prompt =
@@ -98,14 +74,9 @@ export async function POST(req: NextRequest) {
         ? buildThreadPrompt({ work: workDescription, metric, mood })
         : buildSinglePrompt({ work: workDescription, metric, mood });
 
-    let raw: string;
-    try {
-      raw = await callGroq(prompt);
-    } catch (err) {
-      raw = await callGemini(prompt);
-    }
-
+    const raw = await generateCompletion(prompt);
     const parsed = extractJson(raw);
+
     return NextResponse.json(parsed);
   } catch (err) {
     console.error("post-generator error:", err);
