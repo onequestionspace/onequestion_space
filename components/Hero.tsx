@@ -30,7 +30,7 @@ function FloatingOrb({ className, size, color, delay, duration }: { className?: 
         width: size,
         height: size,
         background: `radial-gradient(circle at 30% 30%, ${color}80, ${color}20, transparent)`,
-        filter: 'blur(40px)',
+        filter: 'blur(20px)',
       }}
       animate={{
         x: [0, 30, -20, 15, 0],
@@ -88,7 +88,7 @@ export function Hero() {
           clearInterval(interval);
           timeout = setTimeout(() => setPhase("show-a"), 2500);
         }
-      }, 16);
+      }, 50);
     } else if (phase === 'show-a') {
       timeout = setTimeout(() => {
         setPairIndex(p => (p + 1) % DEMO_QUESTIONS.length);
@@ -180,7 +180,7 @@ export function Hero() {
 
             {/* Input */}
             <div className='relative mb-4 max-w-sm'>
-              <div className='flex items-center bg-zinc-900/80 border border-zinc-700/50 rounded-2xl px-4 py-3 focus-within:border-amber-500/60 transition-all shadow-lg shadow-amber-500/5 backdrop-blur-sm'>
+              <div className='flex items-center bg-zinc-900/80 border border-zinc-700/50 rounded-2xl px-4 py-3 focus-within:border-amber-500/60 transition-all shadow-lg shadow-amber-500/5'>
                 <span className='text-zinc-500 text-sm whitespace-nowrap shrink-0 font-mono'>onequestion.space/</span>
                 <input
                   type='text'
@@ -229,7 +229,7 @@ export function Hero() {
             className='relative'
           >
             <div className='absolute -inset-6 bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-red-500/15 rounded-3xl blur-3xl opacity-60 animate-float-slow' />
-            <div className='relative rounded-3xl border border-zinc-800/60 overflow-hidden bg-zinc-950/90 backdrop-blur-sm shadow-[0_0_60px_rgba(245,158,11,0.1)]'>
+            <div className='relative rounded-3xl border border-zinc-800/60 overflow-hidden bg-zinc-950/90 shadow-[0_0_60px_rgba(245,158,11,0.1)]'>
               <div className='px-4 py-3 border-b border-zinc-800/60 flex items-center gap-2 bg-zinc-900/50'>
                 <div className='flex gap-1.5'>
                   <div className='w-3 h-3 rounded-full bg-red-500/70' />
@@ -299,7 +299,7 @@ export function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
-              className='absolute -bottom-4 -left-4 bg-zinc-900/90 backdrop-blur-xl border border-zinc-700/50 rounded-2xl px-4 py-3 shadow-xl'
+              className='absolute -bottom-4 -left-4 bg-zinc-900/90 border border-zinc-700/50 rounded-2xl px-4 py-3 shadow-xl'
             >
               <p className='text-xs text-zinc-500'>Response time</p>
               <div className='flex items-center gap-1.5'>
@@ -311,7 +311,7 @@ export function Hero() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.8 }}
-              className='absolute -top-4 -right-4 bg-zinc-900/90 backdrop-blur-xl border border-zinc-700/50 rounded-2xl px-4 py-3 shadow-xl'
+              className='absolute -top-4 -right-4 bg-zinc-900/90 border border-zinc-700/50 rounded-2xl px-4 py-3 shadow-xl'
             >
               <p className='text-xs text-zinc-500'>Built from</p>
               <p className='text-white font-black text-lg'>📱 Phone</p>
