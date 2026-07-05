@@ -4,7 +4,6 @@ import { useUser } from '@clerk/nextjs';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
 import { Avatar } from '@/components/dashboard/Avatar';
 import { DashboardAI } from './DashboardAI';
 import { ToastProvider } from '@/components/dashboard/Toast';
@@ -36,16 +35,6 @@ const secondaryItems = [
   { label: 'Settings', href: '/dashboard/settings', icon: Brain },
   { label: 'Admin', href: '/dashboard/admin', icon: Sparkles },
 ];
-
-const sidebarVariants = {
-  open: { x: 0, transition: { type: 'spring' as const, stiffness: 300, damping: 30 } },
-  closed: { x: '-100%', transition: { type: 'spring' as const, stiffness: 300, damping: 30 } },
-} as const;
-
-const overlayVariants = {
-  open: { opacity: 1, transition: { duration: 0.2 } },
-  closed: { opacity: 0, transition: { duration: 0.2 } },
-};
 
 export function DashboardLayout({ children, title, description }: DashboardLayoutProps) {
   const pathname = usePathname();
@@ -84,25 +73,18 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
       </div>
 
       {/* Mobile overlay */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            variants={overlayVariants}
-            initial="closed"
-            animate="open"
-            exit="closed"
-            className="lg:hidden fixed inset-0 z-30 bg-black/75"
-            onClick={closeMenu}
-          />
-        )}
-      </AnimatePresence>
+      <div
+        className={`lg:hidden fixed inset-0 z-30 bg-black/75 transition-opacity duration-200 ${
+          isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        onClick={closeMenu}
+      />
 
       {/* Sidebar */}
-      <motion.aside
-        variants={sidebarVariants}
-        initial={false}
-        animate={isMobile ? (isOpen ? 'open' : 'closed') : 'open'}
-        className="fixed left-0 top-0 h-full w-64 bg-background/98 border-r border-white/[0.06] z-40 flex flex-col"
+      <aside
+        className={`fixed left-0 top-0 h-full w-64 bg-background/98 border-r border-white/[0.06] z-40 flex flex-col transition-transform duration-300 ease-out ${
+          isMobile ? (isOpen ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0'
+        }`}
       >
         <div className="flex items-center gap-2.5 px-6 h-14 border-b border-white/[0.06] shrink-0">
           <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
@@ -213,7 +195,7 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
             <ChevronRight className="w-3.5 h-3.5 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
           </Link>
         </div>
-      </motion.aside>
+      </aside>
 
       <main className="lg:pl-64 pt-14 lg:pt-0">
         <div className="max-w-6xl mx-auto px-4 lg:px-10 py-6 lg:py-10">

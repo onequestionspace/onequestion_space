@@ -4,7 +4,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useState, useMemo } from 'react';
 import { redirect, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { DashboardLayout } from '@/components/DashboardLayout';

@@ -1,8 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowRight, Sparkles, Brain, Share2, BarChart3 } from 'lucide-react';
+import { useState } from 'react';
+import { X } from 'lucide-react';
 
 const STEPS = [
   {
@@ -42,54 +41,42 @@ export function WelcomeModal({ onDone, username }: WelcomeModalProps) {
   const isLast = step === STEPS.length - 1;
 
   return (
-    <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-      >
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          className="w-full max-w-sm rounded-3xl border border-white/10 bg-zinc-950 p-8 relative"
-        >
-          <button onClick={onDone} className="absolute top-4 right-4 text-zinc-600 hover:text-white transition-colors">
-            <X className="w-4 h-4" />
-          </button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
+      <div className="w-full max-w-sm rounded-3xl border border-white/10 bg-zinc-950 p-8 relative animate-scale-in">
+        <button onClick={onDone} className="absolute top-4 right-4 text-zinc-600 hover:text-white transition-colors">
+          <X className="w-4 h-4" />
+        </button>
 
-          {/* Progress dots */}
-          <div className="flex gap-1.5 mb-8">
-            {STEPS.map((_, i) => (
-              <div key={i} className={"h-1 rounded-full transition-all duration-300 " + (i === step ? "bg-primary w-6" : i < step ? "bg-primary/40 w-3" : "bg-white/10 w-3")} />
-            ))}
+        {/* Progress dots */}
+        <div className="flex gap-1.5 mb-8">
+          {STEPS.map((_, i) => (
+            <div key={i} className={"h-1 rounded-full transition-all duration-300 " + (i === step ? "bg-primary w-6" : i < step ? "bg-primary/40 w-3" : "bg-white/10 w-3")} />
+          ))}
+        </div>
+
+        <div className="text-5xl mb-5">{current.icon}</div>
+        <h2 className="text-xl font-black text-white mb-3 tracking-tight">{current.title}</h2>
+        <p className="text-zinc-400 text-sm leading-relaxed mb-8">{current.desc}</p>
+
+        {username && step === 2 && (
+          <div className="mb-6 px-4 py-3 rounded-xl bg-primary/10 border border-primary/20">
+            <p className="text-primary text-sm font-mono font-bold">onequestion.space/{username}</p>
           </div>
+        )}
 
-          <div className="text-5xl mb-5">{current.icon}</div>
-          <h2 className="text-xl font-black text-white mb-3 tracking-tight">{current.title}</h2>
-          <p className="text-zinc-400 text-sm leading-relaxed mb-8">{current.desc}</p>
+        <button
+          onClick={() => isLast ? onDone() : setStep(s => s + 1)}
+          className="w-full py-3.5 rounded-2xl bg-primary text-black font-black text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-all"
+        >
+          {current.cta}
+        </button>
 
-          {username && step === 2 && (
-            <div className="mb-6 px-4 py-3 rounded-xl bg-primary/10 border border-primary/20">
-              <p className="text-primary text-sm font-mono font-bold">onequestion.space/{username}</p>
-            </div>
-          )}
-
-          <button
-            onClick={() => isLast ? onDone() : setStep(s => s + 1)}
-            className="w-full py-3.5 rounded-2xl bg-primary text-black font-black text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-all"
-          >
-            {current.cta}
+        {step > 0 && (
+          <button onClick={() => setStep(s => s - 1)} className="w-full mt-3 text-xs text-zinc-600 hover:text-zinc-400 transition-colors">
+            ← Back
           </button>
-
-          {step > 0 && (
-            <button onClick={() => setStep(s => s - 1)} className="w-full mt-3 text-xs text-zinc-600 hover:text-zinc-400 transition-colors">
-              ← Back
-            </button>
-          )}
-        </motion.div>
-      </motion.div>
-    </AnimatePresence>
+        )}
+      </div>
+    </div>
   );
 }
