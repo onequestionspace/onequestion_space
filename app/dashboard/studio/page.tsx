@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { motion } from 'framer-motion';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { DashboardLayout } from '@/components/DashboardLayout';
@@ -21,15 +20,7 @@ import {
 import Link from 'next/link';
 import Image from 'next/image';
 
-const container = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.04 } },
-};
 
-const fadeUp = {
-  hidden: { opacity: 0, y: 10 },
-  show: { opacity: 1, y: 0 },
-};
 
 const TABS = [
   { id: 'profile', label: 'Profile', icon: User },
@@ -169,10 +160,10 @@ export default function StudioPage() {
 
   return (
     <DashboardLayout title="Space Studio" description="Changes go live instantly">
-      <motion.div variants={container} initial="hidden" animate="show" className="space-y-4">
+      <div className="space-y-4">
 
         {/* Completion bar */}
-        <motion.div variants={fadeUp} className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4 backdrop-blur-sm">
+        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4 backdrop-blur-sm">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center">
@@ -201,22 +192,22 @@ export default function StudioPage() {
               </span>
             ))}
           </div>
-        </motion.div>
+        </div>
 
         {/* Save bar */}
         {dirty && (
-          <motion.div variants={fadeUp} className="flex items-center gap-3 px-4 py-3 rounded-2xl border border-amber-500/20 bg-gradient-to-r from-amber-500/[0.06] to-transparent backdrop-blur-sm">
+          <div className="flex items-center gap-3 px-4 py-3 rounded-2xl border border-amber-500/20 bg-gradient-to-r from-amber-500/[0.06] to-transparent backdrop-blur-sm">
             <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
             <p className="text-sm text-zinc-400 flex-1">You have unsaved changes</p>
             <Button variant="ghost" size="sm" onClick={handleReset} icon={<Undo2 className="w-3 h-3" />}>Reset</Button>
             <Button variant="primary" size="sm" onClick={handleSave} loading={saving} icon={<Save className="w-3 h-3" />}>
               {saving ? 'Saving...' : 'Save Changes'}
             </Button>
-          </motion.div>
+          </div>
         )}
 
         {/* Mobile toggle */}
-        <motion.div variants={fadeUp} className="flex items-center gap-1 p-1 rounded-xl bg-white/5 border border-white/[0.06] lg:hidden">
+        <div className="flex items-center gap-1 p-1 rounded-xl bg-white/5 border border-white/[0.06] lg:hidden">
           <button onClick={() => setMode('edit')}
             className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-medium transition-all ${
               mode === 'edit' ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-black' : 'text-zinc-500 hover:text-white'
@@ -229,7 +220,7 @@ export default function StudioPage() {
             }`}>
             <Eye className="w-3.5 h-3.5" /> Preview
           </button>
-        </motion.div>
+        </div>
 
         <div className="flex gap-6">
           <div className={`w-full lg:w-[420px] shrink-0 space-y-3 ${mode === 'preview' ? 'hidden lg:block' : ''}`}>
@@ -472,7 +463,7 @@ export default function StudioPage() {
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {showTour && (
         <TourTooltip

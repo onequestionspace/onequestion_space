@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { redirect } from 'next/navigation';
 import { DashboardLayout } from '@/components/DashboardLayout';
@@ -21,20 +20,7 @@ const QUESTIONS = [
   'What makes you unique or different from others in your field?',
 ];
 
-const container = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.06 } },
-};
 
-const msgItem = {
-  hidden: { opacity: 0, y: 10, scale: 0.98 },
-  show: { opacity: 1, y: 0, scale: 1 },
-};
-
-const msgItemUser = {
-  hidden: { opacity: 0, y: 10, scale: 0.98 },
-  show: { opacity: 1, y: 0, scale: 1 },
-};
 
 export default function TrainPage() {
   const { isSignedIn, isLoaded, userId } = useAuth();
@@ -120,8 +106,8 @@ export default function TrainPage() {
 
   return (
     <DashboardLayout title="Train Your AI" description="Chat with our AI to build your knowledge base automatically.">
-      <motion.div variants={container} initial="hidden" animate="show" className="max-w-2xl mx-auto">
-        <motion.div variants={msgItem} className="rounded-2xl border border-white/[0.06] bg-white/[0.03] overflow-hidden">
+      <div className="max-w-2xl mx-auto">
+        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] overflow-hidden">
           <div className="flex items-center gap-3 px-6 py-4 border-b border-white/[0.06] bg-white/[0.02]">
             <div className="w-8 h-8 rounded-full bg-amber-500/20 flex items-center justify-center">
               <Brain className="w-4 h-4 text-amber-500" />
@@ -137,12 +123,8 @@ export default function TrainPage() {
 
           <div className="h-96 overflow-y-auto p-4 space-y-4">
             {messages.map((m, i) => (
-              <motion.div
+              <div
                 key={i}
-                variants={m.role === 'user' ? msgItemUser : msgItem}
-                initial="hidden"
-                animate="show"
-                transition={{ delay: 0 }}
                 className={'flex ' + (m.role === 'user' ? 'justify-end' : 'justify-start')}
               >
                 <div className={'max-w-[85%] px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ' + (
@@ -152,7 +134,7 @@ export default function TrainPage() {
                 )}>
                   {m.content}
                 </div>
-              </motion.div>
+              </div>
             ))}
             {loading && (
               <div className="flex justify-start">
@@ -197,8 +179,8 @@ export default function TrainPage() {
               )}
             </div>
           )}
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </DashboardLayout>
   );
 }

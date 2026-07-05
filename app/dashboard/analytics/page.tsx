@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo } from 'react';
-import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { redirect } from 'next/navigation';
 import { DashboardLayout } from '@/components/DashboardLayout';
@@ -16,15 +15,7 @@ import {
   PieChart, Pie, Cell,
 } from 'recharts';
 
-const container = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.05 } },
-} as const;
 
-const item = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
-} as const;
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -92,9 +83,9 @@ export default function AnalyticsPage() {
 
   return (
     <DashboardLayout title="Analytics" description="Real-time stats for your space">
-      <motion.div variants={container} initial="hidden" animate="show" className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-4xl mx-auto space-y-6">
 
-        <motion.div variants={item} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
           {loading ? (
             Array.from({ length: 4 }).map((_, i) => <StatsCardSkeleton key={i} />)
           ) : (
@@ -105,9 +96,9 @@ export default function AnalyticsPage() {
               <StatsCard label="Response Rate" value={responseRate + '%'} icon={<TrendingUp className="w-4 h-4" />} color="#f97316" />
             </>
           )}
-        </motion.div>
+        </div>
 
-        <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {loading ? (
             <CardSkeleton />
           ) : (
@@ -155,9 +146,9 @@ export default function AnalyticsPage() {
               )}
             </Card>
           )}
-        </motion.div>
+        </div>
 
-        <motion.div variants={item}>
+        <div>
           <Card>
             <CardHeader
               title="All Questions"
@@ -194,10 +185,10 @@ export default function AnalyticsPage() {
               </div>
             )}
           </Card>
-        </motion.div>
+        </div>
 
         {visitorEmails && visitorEmails.length > 0 && (
-          <motion.div variants={item}>
+          <div>
             <Card>
               <CardHeader
                 title="Visitor Emails"
@@ -221,10 +212,10 @@ export default function AnalyticsPage() {
                 Copy all emails
               </button>
             </Card>
-          </motion.div>
+          </div>
         )}
 
-      </motion.div>
+      </div>
     </DashboardLayout>
   );
 }

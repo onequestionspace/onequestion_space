@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { redirect } from 'next/navigation';
 import { DashboardLayout } from '@/components/DashboardLayout';
@@ -18,15 +17,7 @@ import {
   Loader2, CheckCircle2, AlertCircle, X, Lightbulb, ChevronDown, ChevronUp
 } from 'lucide-react';
 
-const container = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.05 } },
-};
 
-const item = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0 },
-};
 
 export default function KnowledgePage() {
   const { isSignedIn, isLoaded, userId } = useAuth();
@@ -120,9 +111,9 @@ export default function KnowledgePage() {
 
   return (
     <DashboardLayout title="Knowledge Base" description="Train your AI with your content.">
-      <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
+      <div className="space-y-6">
 
-        <motion.div variants={item} className="flex items-center justify-between">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm text-zinc-500">
             <Brain className="w-5 h-5 text-amber-500" />
             {loading ? 'Loading...' : `${knowledge?.length ?? 0} item${knowledge?.length !== 1 ? 's' : ''} uploaded`}
@@ -132,19 +123,19 @@ export default function KnowledgePage() {
               Add Knowledge
             </Button>
           )}
-        </motion.div>
+        </div>
 
         {uploadSuccess && (
-          <motion.div variants={item}>
+          <div>
             <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-green-500/10 border border-green-500/30 text-green-400 text-sm">
               <CheckCircle2 className="w-4 h-4" />
               Knowledge added successfully!
             </div>
-          </motion.div>
+          </div>
         )}
 
         {isAdding && (
-          <motion.div variants={item}>
+          <div>
             <Card className="border-amber-500/20">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-white">Add Knowledge</h3>
@@ -242,10 +233,10 @@ export default function KnowledgePage() {
                 </Button>
               </div>
             </Card>
-          </motion.div>
+          </div>
         )}
 
-        <motion.div variants={item}>
+        <div>
           <Card>
             <button
               onClick={() => setShowGuide(g => !g)}
@@ -290,14 +281,14 @@ export default function KnowledgePage() {
               </div>
             )}
           </Card>
-        </motion.div>
+        </div>
 
         {loading ? (
-          <motion.div variants={item}>
+          <div>
             <ListSkeleton rows={3} />
-          </motion.div>
+          </div>
         ) : knowledge && knowledge.length > 0 ? (
-          <motion.div variants={item} className="space-y-3">
+          <div className="space-y-3">
             {knowledge.map(item => (
               <div key={item._id} className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-5 flex items-start gap-4 transition-all duration-150 hover:bg-white/[0.05] hover:border-white/[0.12]">
                 <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
@@ -318,9 +309,9 @@ export default function KnowledgePage() {
                 </button>
               </div>
             ))}
-          </motion.div>
+          </div>
         ) : !isAdding ? (
-          <motion.div variants={item}>
+          <div>
             <EmptyState
               icon={<Brain />}
               title="No knowledge yet"
@@ -331,10 +322,10 @@ export default function KnowledgePage() {
                 </Button>
               }
             />
-          </motion.div>
+          </div>
         ) : null}
 
-      </motion.div>
+      </div>
     </DashboardLayout>
   );
 }

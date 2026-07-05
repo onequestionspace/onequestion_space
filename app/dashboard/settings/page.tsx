@@ -1,6 +1,5 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
-import { motion } from 'framer-motion';
 import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { useClerk } from '@clerk/nextjs';
@@ -17,15 +16,7 @@ import {
   Save, Check, Camera, AtSign, Loader2
 } from 'lucide-react';
 
-const container = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.05 } },
-};
 
-const item = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0 },
-};
 
 const TABS = [
   { id: 'profile', label: 'Profile', icon: User },
@@ -149,9 +140,9 @@ export default function SettingsPage() {
 
   return (
     <DashboardLayout title="Settings" description="Manage your account and space.">
-      <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
+      <div className="space-y-6">
 
-        <motion.div variants={item} className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
           {TABS.map(tab => (
             <button
               key={tab.id}
@@ -166,10 +157,10 @@ export default function SettingsPage() {
               {tab.label}
             </button>
           ))}
-        </motion.div>
+        </div>
 
         {activeTab === 'profile' && (
-          <motion.div variants={item}>
+          <div>
             <Card>
               <div className="space-y-6">
                 <div className="flex items-center gap-5">
@@ -287,13 +278,13 @@ export default function SettingsPage() {
                 </div>
               </div>
             </Card>
-          </motion.div>
+          </div>
         )}
 
         {activeTab === 'appearance' && <AppearanceTab />}
 
         {activeTab !== 'profile' && activeTab !== 'appearance' && (
-          <motion.div variants={item}>
+          <div>
             <Card className="py-12 text-center">
               <div className="w-12 h-12 rounded-2xl bg-amber-500/10 flex items-center justify-center mx-auto mb-4">
                 {(() => { const T = TABS.find(t => t.id === activeTab)?.icon || Palette; return <T className="w-6 h-6 text-amber-500" />; })()}
@@ -305,10 +296,10 @@ export default function SettingsPage() {
                 Coming soon. We&apos;re building this next.
               </p>
             </Card>
-          </motion.div>
+          </div>
         )}
 
-        <motion.div variants={item}>
+        <div>
           <div className="rounded-2xl p-6 border border-red-500/15 bg-red-500/5">
             <h3 className="text-base font-semibold text-red-400 mb-1">Danger Zone</h3>
             <p className="text-sm text-zinc-500 mb-4">Permanently delete your account and all associated data. This cannot be undone.</p>
@@ -320,9 +311,9 @@ export default function SettingsPage() {
               {deleting ? 'Deleting...' : 'Delete Account'}
             </Button>
           </div>
-        </motion.div>
+        </div>
 
-      </motion.div>
+      </div>
     </DashboardLayout>
   );
 }

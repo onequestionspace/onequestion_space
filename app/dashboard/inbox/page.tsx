@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 import { useAuth } from '@/hooks/useAuth';
 import { redirect } from 'next/navigation';
 import { useQuery, useMutation } from 'convex/react';
@@ -15,15 +14,7 @@ import { ListSkeleton } from '@/components/dashboard/Skeleton';
 import { useToast } from '@/components/dashboard/Toast';
 import { Inbox, MessageSquare, Send, Sparkles } from 'lucide-react';
 
-const container = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.05 } },
-};
 
-const item = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0 },
-};
 
 export default function InboxPage() {
   const { isSignedIn, isLoaded } = useAuth();
@@ -72,8 +63,8 @@ export default function InboxPage() {
 
   return (
     <DashboardLayout title="Inbox" description="Questions your AI couldn't answer well">
-      <motion.div variants={container} initial="hidden" animate="show" className="max-w-3xl mx-auto space-y-6">
-        <motion.div variants={item}>
+      <div className="max-w-3xl mx-auto space-y-6">
+        <div>
           <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 flex items-start gap-3">
             <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
               <Sparkles className="w-5 h-5 text-amber-500" />
@@ -82,9 +73,9 @@ export default function InboxPage() {
               Every time your AI gives a weak or generic answer, it lands here. Answer it once and it's added straight to your knowledge base — so it never happens again.
             </p>
           </div>
-        </motion.div>
+        </div>
 
-        <motion.div variants={item}>
+        <div>
           <Card>
             <CardHeader
               title="Needs Your Answer"
@@ -137,8 +128,8 @@ export default function InboxPage() {
               </div>
             )}
           </Card>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
     </DashboardLayout>
   );
 }

@@ -1,6 +1,5 @@
 'use client';
 import { Suspense, useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useUser } from '@clerk/nextjs';
@@ -14,15 +13,7 @@ import { Button } from '@/components/dashboard/Button';
 import { CardSkeleton } from '@/components/dashboard/Skeleton';
 import { Check, Zap, Sparkles, Minus, Plus, Loader2, ShieldCheck, AlertTriangle } from 'lucide-react';
 
-const container = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.06 } },
-};
 
-const item = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0 },
-};
 
 const CREDIT_PRICE_USD = 0.018;
 
@@ -155,9 +146,9 @@ function BillingContent() {
 
   return (
     <DashboardLayout title="Billing" description="Honest pricing. No surprises.">
-      <motion.div variants={container} initial="hidden" animate="show" className="max-w-3xl mx-auto space-y-8">
+      <div className="max-w-3xl mx-auto space-y-8">
 
-        <motion.div variants={item}>
+        <div>
           <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-4 flex items-start gap-3">
             <span className="text-lg shrink-0 mt-0.5">🇳🇬</span>
             <div>
@@ -167,41 +158,41 @@ function BillingContent() {
               </p>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         {error && (
-          <motion.div variants={item}>
+          <div>
             <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-4 flex items-center gap-2 text-red-400 text-sm">
               <AlertTriangle className="w-4 h-4 shrink-0" />
               {error}
             </div>
-          </motion.div>
+          </div>
         )}
         {verifyStatus === 'verifying' && (
-          <motion.div variants={item}>
+          <div>
             <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-4 flex items-center gap-2 text-amber-500 text-sm">
               <Loader2 className="w-4 h-4 animate-spin shrink-0" />
               Checking your payment...
             </div>
-          </motion.div>
+          </div>
         )}
         {verifyStatus === 'success' && (
-          <motion.div variants={item}>
+          <div>
             <div className="rounded-xl bg-green-500/10 border border-green-500/20 p-4 flex items-center gap-2 text-green-400 text-sm">
               <ShieldCheck className="w-4 h-4 shrink-0" />
               Payment confirmed. Your AI just got more runway.
             </div>
-          </motion.div>
+          </div>
         )}
         {verifyStatus === 'failed' && (
-          <motion.div variants={item}>
+          <div>
             <div className="rounded-xl bg-red-500/10 border border-red-500/20 p-4 text-sm text-red-400">
               Payment verification failed. If you were charged, email asym@onequestion.space and I&apos;ll sort it out.
             </div>
-          </motion.div>
+          </div>
         )}
 
-        <motion.div variants={item}>
+        <div>
           {!subscription ? (
             <CardSkeleton />
           ) : (
@@ -218,9 +209,9 @@ function BillingContent() {
               <p className="text-xs text-zinc-500 mt-2">{limit - used} credits left this month</p>
             </Card>
           )}
-        </motion.div>
+        </div>
 
-        <motion.div variants={item}>
+        <div>
           <h2 className="text-base font-semibold text-white mb-4">Plans</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {PLANS.map(p => (
@@ -268,9 +259,9 @@ function BillingContent() {
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
 
-        <motion.div variants={item}>
+        <div>
           <Card>
             <CardHeader
               title="Buy Credits"
@@ -356,9 +347,9 @@ function BillingContent() {
               Payments through Paystack — you might see Naira at checkout. Your international card works fine.
             </p>
           </Card>
-        </motion.div>
+        </div>
 
-      </motion.div>
+      </div>
     </DashboardLayout>
   );
 }

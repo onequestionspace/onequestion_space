@@ -4,7 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useEffect, useState, useMemo } from 'react';
 import { redirect, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { DashboardLayout } from '@/components/DashboardLayout';
@@ -25,15 +25,7 @@ import {
   Settings, Bell, Layers, Send,
 } from 'lucide-react';
 
-const container = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.05 } },
-} as const;
 
-const item = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.4, ease: 'easeOut' } },
-} as const;
 
 type Period = '7d' | '30d' | 'all';
 
@@ -189,10 +181,10 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout title={`${greeting}, ${profile?.displayName || 'friend'} 👋`} description={spaceUrl}>
-      <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
+      <div className="space-y-6">
 
         {/* Top bar */}
-        <motion.div variants={item} className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-2 p-1 rounded-xl bg-white/[0.03] border border-white/[0.06]">
             {(['7d', '30d', 'all'] as Period[]).map(p => (
               <button key={p} onClick={() => setPeriod(p)}
@@ -214,26 +206,26 @@ export default function DashboardPage() {
               </Button>
             </Link>
           </div>
-        </motion.div>
+        </div>
 
         {loading ? (
           <>
-            <motion.div variants={item} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               {Array.from({ length: 4 }).map((_, i) => <StatsCardSkeleton key={i} />)}
-            </motion.div>
-            <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {Array.from({ length: 2 }).map((_, i) => <CardSkeleton key={i} />)}
-            </motion.div>
-            <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <CardSkeleton />
               <CardSkeleton />
-            </motion.div>
+            </div>
           </>
         ) : (
           <>
             {/* Space completion banner */}
             {completionScore < 100 && (
-              <motion.div variants={item}>
+              <div>
                 <div className="relative overflow-hidden rounded-2xl border border-amber-500/20 bg-gradient-to-r from-amber-500/[0.06] to-transparent p-5 backdrop-blur-sm">
                   <div className="flex items-center justify-between gap-4">
                     <div className="min-w-0">
@@ -258,12 +250,12 @@ export default function DashboardPage() {
                     ))}
                   </div>
                 </div>
-              </motion.div>
+              </div>
             )}
 
             {/* Insights banner */}
             {insights.length > 0 && (
-              <motion.div variants={item}>
+              <div>
                 <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 hover:bg-white/[0.04] transition-all">
                   <div className="flex items-start gap-3">
                     <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
@@ -276,11 +268,11 @@ export default function DashboardPage() {
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             )}
 
             {/* Stats */}
-            <motion.div variants={item} className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <StatsCard
                 label="Total Questions"
                 value={analytics?.totalQuestions?.toString() ?? '0'}
@@ -306,10 +298,10 @@ export default function DashboardPage() {
                 icon={<Brain className="w-5 h-5" />}
                 color="#f97316"
               />
-            </motion.div>
+            </div>
 
             {/* Quick actions */}
-            <motion.div variants={item}>
+            <div>
               <div className="flex items-center justify-between mb-3">
                 <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">Quick Actions</h2>
               </div>
@@ -325,10 +317,10 @@ export default function DashboardPage() {
                   </Link>
                 ))}
               </div>
-            </motion.div>
+            </div>
 
             {/* Middle row */}
-            <motion.div variants={item} className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Card hover>
                 <CardHeader title="Response Rate" action={<BarChart3 className="w-4 h-4 text-zinc-500" />} />
                 <div className="flex items-end gap-3 mb-3">
@@ -369,11 +361,11 @@ export default function DashboardPage() {
                   {messagesLimit - messagesUsed} credits remaining
                 </p>
               </Card>
-            </motion.div>
+            </div>
 
             {/* Unanswered questions */}
             {unansweredQuestions && unansweredQuestions.length > 0 && (
-              <motion.div variants={item}>
+              <div>
                 <Card>
                   <CardHeader
                     title="Unanswered Questions"
@@ -448,11 +440,11 @@ export default function DashboardPage() {
                     ))}
                   </div>
                 </Card>
-              </motion.div>
+              </div>
             )}
 
             {/* Bottom row */}
-            <motion.div variants={item} className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
               <Card>
                 <CardHeader
                   title="Recent Questions"
@@ -524,7 +516,7 @@ export default function DashboardPage() {
                   />
                 )}
               </Card>
-            </motion.div>
+            </div>
           </>
         )}
 
@@ -551,7 +543,7 @@ export default function DashboardPage() {
             }}
           />
         )}
-      </motion.div>
+      </div>
     </DashboardLayout>
   );
 }

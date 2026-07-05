@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { useUser } from '@clerk/nextjs';
@@ -12,15 +11,7 @@ import { Input } from '@/components/dashboard/Input';
 import { Button } from '@/components/dashboard/Button';
 import { Crown, Zap, Users, Trash2, Plus, Shield, BarChart3, Search, Mail, CreditCard } from 'lucide-react';
 
-const container = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.05 } },
-};
 
-const item = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0 },
-};
 
 const ADMIN_IDS = [
   'user_3EhKmuVyC1AhoBDlL7QNssllwgu',
@@ -136,9 +127,9 @@ export default function AdminPage() {
 
   return (
     <DashboardLayout title="Admin Panel" description="Manage users, badges, credits and spaces">
-      <motion.div variants={container} initial="hidden" animate="show" className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-4xl mx-auto space-y-6">
 
-        <motion.div variants={item} className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-2">
           {TABS.map(t => (
             <button key={t.id} onClick={() => setTab(t.id as any)}
               className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium transition-all ${
@@ -148,16 +139,16 @@ export default function AdminPage() {
               <t.icon className="w-3.5 h-3.5" /> {t.label}
             </button>
           ))}
-        </motion.div>
+        </div>
 
         {msg && (
-          <motion.div variants={item}>
+          <div>
             <div className="px-4 py-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-500 text-sm">{msg}</div>
-          </motion.div>
+          </div>
         )}
 
         {tab === 'overview' && (
-          <motion.div variants={item} className="space-y-4">
+          <div className="space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <StatsCard label="Total Spaces" value={profiles?.length ?? 0} color="#f59e0b" />
               <StatsCard label="Founding Members" value={founders?.length ?? 0} color="#f59e0b" />
@@ -184,11 +175,11 @@ export default function AdminPage() {
                 </div>
               </div>
             </Card>
-          </motion.div>
+          </div>
         )}
 
         {tab === 'users' && (
-          <motion.div variants={item} className="space-y-3">
+          <div className="space-y-3">
             <div className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5">
               <Search className="w-4 h-4 text-zinc-500" />
               <input
@@ -221,11 +212,11 @@ export default function AdminPage() {
                 <p className="text-zinc-700 text-xs font-mono mt-1">{p.userId}</p>
               </div>
             ))}
-          </motion.div>
+          </div>
         )}
 
         {tab === 'founding' && (
-          <motion.div variants={item} className="space-y-3">
+          <div className="space-y-3">
             <p className="text-xs text-zinc-500">{founders?.length ?? 0} / 5 founding members</p>
             <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
               <div className="h-full bg-gradient-to-r from-yellow-500 to-amber-500 rounded-full" style={{ width: ((founders?.length ?? 0) / 5 * 100) + '%' }} />
@@ -245,11 +236,11 @@ export default function AdminPage() {
                 </button>
               </div>
             ))}
-          </motion.div>
+          </div>
         )}
 
         {tab === 'early' && (
-          <motion.div variants={item} className="space-y-3">
+          <div className="space-y-3">
             <p className="text-xs text-zinc-500">{earlyAdopters?.length ?? 0} / 50 early adopters</p>
             <div className="w-full h-2 bg-white/5 rounded-full overflow-hidden">
               <div className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full" style={{ width: ((earlyAdopters?.length ?? 0) / 50 * 100) + '%' }} />
@@ -269,11 +260,11 @@ export default function AdminPage() {
                 </button>
               </div>
             ))}
-          </motion.div>
+          </div>
         )}
 
         {tab === 'waitlist' && (
-          <motion.div variants={item} className="space-y-3">
+          <div className="space-y-3">
             <p className="text-xs text-zinc-500">{waitlist?.length ?? 0} people waiting</p>
             {waitlist?.map((w: any) => (
               <div key={w._id} className="rounded-xl border border-white/[0.06] bg-white/[0.03] p-4">
@@ -287,11 +278,11 @@ export default function AdminPage() {
                 </div>
               </div>
             ))}
-          </motion.div>
+          </div>
         )}
 
         {tab === 'grant' && (
-          <motion.div variants={item}>
+          <div>
             <Card>
               <CardHeader title="Grant Badge" icon={<Plus className="w-4 h-4 text-amber-500" />} />
               <div className="space-y-3">
@@ -322,11 +313,11 @@ export default function AdminPage() {
                 </Button>
               </div>
             </Card>
-          </motion.div>
+          </div>
         )}
 
         {tab === 'seed' && (
-          <motion.div variants={item}>
+          <div>
             <Card>
               <CardHeader title="Seed a Prospect Page" icon={<Users className="w-4 h-4 text-amber-500" />} />
               <div className="space-y-3">
@@ -343,10 +334,10 @@ export default function AdminPage() {
                 )}
               </div>
             </Card>
-          </motion.div>
+          </div>
         )}
 
-      </motion.div>
+      </div>
     </DashboardLayout>
   );
 }

@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { useUser } from '@clerk/nextjs';
@@ -14,15 +13,7 @@ import { Button } from '@/components/dashboard/Button';
 import { ListSkeleton } from '@/components/dashboard/Skeleton';
 import { Plus, Trash2, Eye, EyeOff, Edit3, Save, X } from 'lucide-react';
 
-const container = {
-  hidden: { opacity: 0 },
-  show: { opacity: 1, transition: { staggerChildren: 0.05 } },
-};
 
-const item = {
-  hidden: { opacity: 0, y: 12 },
-  show: { opacity: 1, y: 0 },
-};
 
 export default function BlogsDashboard() {
   const { user } = useUser();
@@ -66,9 +57,9 @@ export default function BlogsDashboard() {
 
   return (
     <DashboardLayout title="Blog Posts" description="Write and publish posts for the Knowledge Explorer.">
-      <motion.div variants={container} initial="hidden" animate="show" className="space-y-6">
+      <div className="space-y-6">
 
-        <motion.div variants={item} className="flex items-center justify-between">
+        <div className="flex items-center justify-between">
           <div>
             <p className="text-sm text-zinc-500">{blogs?.length ?? 0} post{(blogs?.length ?? 0) !== 1 ? 's' : ''}</p>
           </div>
@@ -77,10 +68,10 @@ export default function BlogsDashboard() {
               New Post
             </Button>
           )}
-        </motion.div>
+        </div>
 
         {isCreating && (
-          <motion.div variants={item}>
+          <div>
             <Card className="border-amber-500/20">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-white">New Post</h3>
@@ -136,10 +127,10 @@ export default function BlogsDashboard() {
                 </div>
               </div>
             </Card>
-          </motion.div>
+          </div>
         )}
 
-        <motion.div variants={item} className="space-y-3">
+        <div className="space-y-3">
           {blogs === undefined && <ListSkeleton rows={4} />}
           {blogs && blogs.length === 0 && !isCreating && (
             <EmptyState
@@ -175,9 +166,9 @@ export default function BlogsDashboard() {
               </div>
             </div>
           ))}
-        </motion.div>
+        </div>
 
-      </motion.div>
+      </div>
     </DashboardLayout>
   );
 }
