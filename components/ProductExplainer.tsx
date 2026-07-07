@@ -28,21 +28,21 @@ export function ProductExplainer() {
           <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
             What is One Question?
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-zinc-400 text-base max-w-2xl mx-auto">
             Stop answering the same questions over and over. Create your space, upload your knowledge, and let AI handle it for you — 24/7.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {features.map((feature, index) => {
             const Icon = feature.icon;
             return (
-              <div key={index} className="glass rounded-2xl p-6 border border-white/10 card-hover">
-                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary/60 flex items-center justify-center mb-4">
-                  <Icon className="w-6 h-6 text-white" />
+              <div key={index} className="paper-card p-6">
+                <div className="w-11 h-11 rounded-xl bg-primary flex items-center justify-center mb-4">
+                  <Icon className="w-5 h-5 text-black" />
                 </div>
-                <h3 className="text-lg font-bold text-white mb-2">{feature.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{feature.description}</p>
+                <h3 className="text-base font-bold text-white mb-2">{feature.title}</h3>
+                <p className="text-zinc-400 text-sm leading-relaxed">{feature.description}</p>
               </div>
             );
           })}

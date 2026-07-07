@@ -13,7 +13,6 @@ import {
   MessageSquare, CreditCard,
   Layers, BookOpen, Sparkles,
   Globe, Inbox, ChevronRight,
-  Zap,
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -54,15 +53,13 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="fixed inset-0 -z-10 bg-black" />
-
       {/* Mobile header bar */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 h-14 border-b border-white/[0.06] bg-background/95">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 h-14 border-b border-white/[0.06] bg-background/95 backdrop-blur-xl">
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
+          <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center shadow-amber-glow">
             <MessageSquare className="w-3.5 h-3.5 text-black" />
           </div>
-          <span className="text-sm font-bold text-white">One<span className="text-amber-500">Question</span></span>
+          <span className="text-sm font-bold text-white">One<span className="text-primary">Question</span></span>
         </Link>
         <button
           onClick={() => setIsOpen(!isOpen)}
@@ -86,18 +83,18 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
           isMobile ? (isOpen ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0'
         }`}
       >
-        <div className="flex items-center gap-2.5 px-6 h-14 border-b border-white/[0.06] shrink-0">
-          <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-lg shadow-amber-500/20">
+        <div className="flex items-center gap-2.5 px-5 h-14 border-b border-white/[0.06] shrink-0">
+          <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center shadow-amber-glow">
             <MessageSquare className="w-4 h-4 text-black" />
           </div>
           <span className="text-sm font-bold text-white">
-            One<span className="text-amber-500">Question</span>
+            One<span className="text-primary">Question</span>
           </span>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
+        <nav className="flex-1 overflow-y-auto px-2 py-4 space-y-4">
           <div>
-            <p className="px-3 text-[11px] font-medium text-zinc-600 uppercase tracking-widest mb-2">Main</p>
+            <p className="px-3 text-[10px] font-medium text-zinc-600 uppercase tracking-[0.15em] mb-2">Main</p>
             <div className="space-y-0.5">
               {navItems.map((item) => {
                 const isActive = pathname === item.href;
@@ -106,19 +103,19 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
                     key={item.href}
                     href={item.href}
                     onClick={closeMenu}
-                    className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
+                    className={`relative flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150 ${
                       isActive
-                        ? 'text-amber-500 bg-gradient-to-r from-amber-500/[0.10] to-transparent'
+                        ? 'text-primary bg-primary/[0.08]'
                         : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03]'
                     }`}
                   >
                     <div
-                      className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-gradient-to-b from-amber-500 to-orange-500 transition-opacity duration-150 ${
+                      className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-full bg-primary transition-opacity duration-150 ${
                         isActive ? 'opacity-100' : 'opacity-0'
                       }`}
                     />
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
-                      isActive ? 'bg-amber-500/15 text-amber-500' : 'text-zinc-500'
+                      isActive ? 'bg-primary/15 text-primary' : 'text-zinc-500'
                     }`}>
                       <item.icon className="w-4 h-4" />
                     </div>
@@ -130,7 +127,7 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
           </div>
 
           <div className="pt-2 border-t border-white/[0.06]">
-            <p className="px-3 text-[11px] font-medium text-zinc-600 uppercase tracking-widest mb-2">Account</p>
+            <p className="px-3 text-[10px] font-medium text-zinc-600 uppercase tracking-[0.15em] mb-2">Account</p>
             <div className="space-y-0.5">
               {secondaryItems.map((item) => {
                 const isActive = pathname === item.href;
@@ -140,19 +137,19 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
                     key={item.href}
                     href={item.href}
                     onClick={closeMenu}
-                    className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 ${
+                    className={`relative flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150 ${
                       isActive
-                        ? 'text-amber-500 bg-gradient-to-r from-amber-500/[0.10] to-transparent'
+                        ? 'text-primary bg-primary/[0.08]'
                         : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03]'
                     }`}
                   >
                     <div
-                      className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 rounded-full bg-gradient-to-b from-amber-500 to-orange-500 transition-opacity duration-150 ${
+                      className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-full bg-primary transition-opacity duration-150 ${
                         isActive ? 'opacity-100' : 'opacity-0'
                       }`}
                     />
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                      isActive ? 'bg-amber-500/15 text-amber-500' : 'text-zinc-500'
+                      isActive ? 'bg-primary/15 text-primary' : 'text-zinc-500'
                     }`}>
                       <item.icon className="w-4 h-4" />
                     </div>
@@ -164,7 +161,7 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
           </div>
 
           <div className="pt-2 border-t border-white/[0.06]">
-            <p className="px-3 text-[11px] font-medium text-zinc-600 uppercase tracking-widest mb-2">Coming Soon</p>
+            <p className="px-3 text-[10px] font-medium text-zinc-600 uppercase tracking-[0.15em] mb-2">Coming Soon</p>
             <div className="space-y-0.5">
               <div className="flex items-center gap-3 px-3 py-2 rounded-xl text-zinc-600 cursor-not-allowed">
                 <div className='w-8 h-8 rounded-lg flex items-center justify-center text-zinc-600'>
@@ -177,8 +174,8 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
           </div>
         </nav>
 
-        <div className="shrink-0 border-t border-white/[0.06] p-4">
-          <Link href="/dashboard/settings" onClick={closeMenu} className="flex items-center gap-3 group">
+        <div className="shrink-0 border-t border-white/[0.06] p-3">
+          <Link href="/dashboard/settings" onClick={closeMenu} className="flex items-center gap-3 group rounded-xl px-2 py-2 hover:bg-white/[0.03] transition-all">
             <Avatar
               src={user?.imageUrl}
               name={user?.fullName || user?.username}
@@ -188,20 +185,20 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
               <p className="text-sm font-medium text-white truncate">
                 {user?.fullName || user?.username || 'User'}
               </p>
-              <p className="text-xs text-zinc-500 truncate">
+              <p className="text-[11px] text-zinc-500 truncate">
                 {user?.primaryEmailAddress?.emailAddress || ''}
               </p>
             </div>
-            <ChevronRight className="w-3.5 h-3.5 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
+            <ChevronRight className="w-3 h-3 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
           </Link>
         </div>
       </aside>
 
       <main className="lg:pl-64 pt-14 lg:pt-0">
-        <div className="max-w-6xl mx-auto px-4 lg:px-10 py-6 lg:py-10">
-          <div className="mb-8">
-            <h1 className="text-2xl lg:text-3xl font-bold text-white mb-1">{title}</h1>
-            {description && <p className="text-zinc-400 text-sm">{description}</p>}
+        <div className="max-w-6xl mx-auto px-4 lg:px-8 py-6 lg:py-8">
+          <div className="mb-6">
+            <h1 className="text-xl lg:text-2xl font-bold text-white mb-0.5">{title}</h1>
+            {description && <p className="text-zinc-500 text-sm">{description}</p>}
           </div>
           <ToastProvider>
             {children}

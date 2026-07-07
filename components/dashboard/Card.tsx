@@ -9,8 +9,8 @@ interface CardProps {
 export function Card({ children, className = '', hover = false }: CardProps) {
   return (
     <div
-      className={`rounded-2xl border border-white/[0.06] bg-white/[0.03] p-6 ${
-        hover ? 'transition-all duration-200 hover:border-white/[0.12] hover:bg-white/[0.05]' : ''
+      className={`paper-card p-5 sm:p-6 ${
+        hover ? 'hover:border-primary/20' : ''
       } ${className}`}
     >
       {children}
@@ -27,12 +27,12 @@ interface CardHeaderProps {
 
 export function CardHeader({ title, description, action, icon }: CardHeaderProps) {
   return (
-    <div className="flex items-start justify-between gap-4 mb-6">
+    <div className="flex items-start justify-between gap-4 mb-5">
       <div className="flex items-center gap-3 min-w-0">
         {icon && <span className="shrink-0">{icon}</span>}
         <div className="min-w-0">
-          <h3 className="text-base font-semibold text-white">{title}</h3>
-          {description && <p className="text-sm text-zinc-500 mt-0.5">{description}</p>}
+          <h3 className="text-sm font-semibold text-white">{title}</h3>
+          {description && <p className="text-xs text-zinc-500 mt-0.5">{description}</p>}
         </div>
       </div>
       {action && <div className="shrink-0">{action}</div>}
@@ -48,29 +48,25 @@ interface StatsCardProps {
   trend?: { value: string; positive: boolean };
 }
 
-export function StatsCard({ label, value, icon, color = '#f59e0b', trend }: StatsCardProps) {
+export function StatsCard({ label, value, icon, color = '#F5A623', trend }: StatsCardProps) {
   return (
-    <Card>
-      <div className="flex items-center justify-between mb-4">
+    <Card hover>
+      <div className="flex items-center justify-between mb-3">
         {icon && (
           <div
-            className="w-10 h-10 rounded-xl flex items-center justify-center"
-            style={{ backgroundColor: `${color}18` }}
+            className="w-9 h-9 rounded-xl flex items-center justify-center"
+            style={{ backgroundColor: `${color}15` }}
           >
-            <div style={{ color }}>{icon}</div>
+            <div style={{ color }} className="w-4 h-4">{icon}</div>
           </div>
         )}
         {trend && (
-          <span
-            className={`text-xs font-medium ${
-              trend.positive ? 'text-green-400' : 'text-red-400'
-            }`}
-          >
+          <span className={`text-[11px] font-medium ${trend.positive ? 'text-green-400' : 'text-red-400'}`}>
             {trend.value}
           </span>
         )}
       </div>
-      <p className="text-3xl font-bold text-white mb-1">{value}</p>
+      <p className="text-2xl font-bold text-white mb-0.5">{value}</p>
       <p className="text-xs text-zinc-500">{label}</p>
     </Card>
   );
@@ -85,15 +81,13 @@ interface ProgressBarProps {
 
 export function ProgressBar({ value, max = 100, color, size = 'md' }: ProgressBarProps) {
   const pct = Math.min(Math.round((value / max) * 100), 100);
-  const barColor =
-    color ||
-    (pct > 80 ? '#ef4444' : pct > 50 ? '#f97316' : '#f59e0b');
-  const h = size === 'sm' ? 'h-1.5' : 'h-2';
+  const barColor = color || (pct > 80 ? '#ef4444' : pct > 50 ? '#F5A623' : '#F5A623');
+  const h = size === 'sm' ? 'h-1' : 'h-1.5';
 
   return (
     <div className={`w-full ${h} bg-white/5 rounded-full overflow-hidden`}>
       <div
-        className={`h-full rounded-full transition-all duration-500`}
+        className={`h-full rounded-full transition-all duration-700 ease-out`}
         style={{ width: `${pct}%`, backgroundColor: barColor }}
       />
     </div>

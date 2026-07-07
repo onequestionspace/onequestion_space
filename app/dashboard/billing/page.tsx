@@ -219,7 +219,7 @@ function BillingContent() {
                 key={p.id}
                 className={`rounded-2xl p-6 border-2 transition-all duration-200 ${
                   plan === p.id
-                    ? 'border-amber-500 bg-amber-500/[0.03] shadow-[0_0_30px_rgba(245,158,11,0.08)]'
+                    ? 'border-amber-500 bg-amber-500/[0.03] shadow-[0_0_30px_rgba(245,166,35,0.08)]'
                     : 'border-white/[0.06] bg-white/[0.03] hover:border-white/[0.12] hover:bg-white/[0.05]'
                 }`}
               >
@@ -276,7 +276,7 @@ function BillingContent() {
                   onClick={() => setCreditAmount(pack.credits)}
                   className={`p-3 rounded-xl border-2 text-center transition-all duration-150 hover:scale-105 active:scale-95 ${
                     creditAmount === pack.credits
-                      ? 'border-amber-500 bg-amber-500/5 shadow-[0_0_20px_rgba(245,158,11,0.06)]'
+                      ? 'border-amber-500 bg-amber-500/5 shadow-[0_0_20px_rgba(245,166,35,0.06)]'
                       : 'border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04]'
                   }`}
                 >

@@ -42,7 +42,7 @@ export function TourTooltip({ steps, onDone }: TourTooltipProps) {
     <>
       <style>{`
         .tour-highlight {
-          outline: 2px solid #f59e0b !important;
+          outline: 2px solid #F5A623 !important;
           outline-offset: 4px !important;
           border-radius: 12px !important;
           position: relative;

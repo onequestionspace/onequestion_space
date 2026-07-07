@@ -92,7 +92,7 @@ export default function AdminPage() {
     if (!seedForm.username || !seedForm.displayName) return;
     setSeeding(true); setMsg(''); setClaimUrl('');
     try {
-      const result: any = await seedProfile({ adminId, ...seedForm });
+      const result: any = await seedProfile(seedForm);
       setClaimUrl(`https://onequestion.space${result.claimUrl}`);
       setMsg('Profile seeded!');
       setSeedForm({ username: '', displayName: '', bio: '' });
@@ -150,8 +150,8 @@ export default function AdminPage() {
         {tab === 'overview' && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <StatsCard label="Total Spaces" value={profiles?.length ?? 0} color="#f59e0b" />
-              <StatsCard label="Founding Members" value={founders?.length ?? 0} color="#f59e0b" />
+              <StatsCard label="Total Spaces" value={profiles?.length ?? 0} color="#F5A623" />
+              <StatsCard label="Founding Members" value={founders?.length ?? 0} color="#F5A623" />
               <StatsCard label="Early Adopters" value={earlyAdopters?.length ?? 0} color="#06b6d4" />
               <StatsCard label="Waitlist" value={waitlist?.length ?? 0} color="#22c55e" />
             </div>

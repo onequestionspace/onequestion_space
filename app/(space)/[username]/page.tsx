@@ -36,7 +36,7 @@ const BG_STYLES: Record<string, string> = {
 };
 
 const BG_GRADIENTS: Record<string, string> = {
-  dark: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(245,158,11,0.12), transparent)',
+  dark: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(245,166,35,0.12), transparent)',
   darker: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(80,20,160,0.12), transparent)',
   midnight: 'radial-gradient(ellipse 80% 50% at 50% -10%, rgba(30,60,200,0.15), transparent)',
   aurora: 'radial-gradient(ellipse 100% 60% at 30% 0%, rgba(20,180,80,0.12), transparent), radial-gradient(ellipse 80% 50% at 70% 100%, rgba(100,20,200,0.10), transparent)',
@@ -649,7 +649,7 @@ function OilyBackground({ color }: { color: string }) {
       <div className="absolute inset-0 opacity-20" style={{
         background: `
           repeating-conic-gradient(from 45deg, transparent 0deg 15deg, ${color}60 15deg 25deg,
-          #f59e0b60 25deg 35deg, transparent 35deg 50deg)
+          #F5A62360 25deg 35deg, transparent 35deg 50deg)
         `,
         filter: 'blur(50px)',
         animation: 'nebula-drift 25s linear infinite reverse',
@@ -959,7 +959,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
     </div>
   );
 
-  const color = profile.themeColor || '#f59e0b';
+  const color = profile.themeColor || '#F5A623';
   const bgClass = BG_STYLES[profile.themeBg || 'dark'];
   const bgGradient = BG_GRADIENTS[profile.themeBg || 'dark'] || 'none';
   const themeEffect = (profile as Record<string, unknown>).themeEffect as string || 'none';

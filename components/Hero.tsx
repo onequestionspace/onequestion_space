@@ -1,254 +1,311 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
-import { ArrowRight, Sparkles, Zap, Check } from 'lucide-react';
+import { ArrowRight, Sparkles, Globe, Brain, Star, Users, Play, Check, X as XIcon } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import AnimatedCounter from '@/components/motion/AnimatedCounter';
+import { FadeIn } from '@/components/motion/FadeIn';
 
-function FloatingOrb({ className, size, color, delay, duration }: { className?: string; size: number; color: string; delay: number; duration: number }) {
+function seededRandom(seed: number): number {
+  const x = Math.sin(seed * 9301 + 49297) * 49297;
+  return x - Math.floor(x);
+}
+
+function FloatingParticles({ count = 20 }) {
+  const particles = useMemo(() =>
+    Array.from({ length: count }, (_, i) => {
+      const s = i * 137.5;
+      return {
+        id: i,
+        x: seededRandom(s) * 100,
+        y: seededRandom(s + 1) * 100,
+        size: seededRandom(s + 2) * 2 + 0.5,
+        delay: seededRandom(s + 3) * 5,
+        duration: seededRandom(s + 4) * 12 + 10,
+        xDrift: (seededRandom(s + 5) - 0.5) * 40,
+        yDrift: (seededRandom(s + 6) - 0.5) * 40,
+      };
+    }), [count]);
+
   return (
-    <motion.div
-      className={`absolute rounded-full ${className || ''}`}
-      style={{
-        width: size,
-        height: size,
-        background: `radial-gradient(circle at 30% 30%, ${color}80, ${color}20, transparent)`,
-        filter: 'blur(20px)',
-      }}
-      animate={{
-        x: [0, 30, -20, 15, 0],
-        y: [0, -25, 15, -10, 0],
-        scale: [1, 1.1, 0.95, 1.05, 1],
-      }}
-      transition={{
-        duration,
-        delay,
-        repeat: Infinity,
-        ease: 'easeInOut',
-      }}
-    />
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {particles.map(p => (
+        <motion.div
+          key={p.id}
+          className="absolute rounded-full"
+          style={{
+            left: `${p.x}%`,
+            top: `${p.y}%`,
+            width: p.size,
+            height: p.size,
+            background: 'radial-gradient(circle, rgba(245,166,35,0.3), transparent)',
+          }}
+          animate={{
+            y: [0, p.yDrift * 0.5, p.yDrift * -0.3, p.yDrift * 0.2, 0],
+            x: [0, p.xDrift * 0.4, p.xDrift * -0.5, p.xDrift * 0.3, 0],
+            opacity: [0.1, 0.4, 0.15, 0.3, 0.1],
+            scale: [1, 1.2, 0.9, 1.1, 1],
+          }}
+          transition={{
+            duration: p.duration,
+            delay: p.delay,
+            repeat: Infinity,
+            ease: 'easeInOut',
+          }}
+        />
+      ))}
+    </div>
   );
 }
 
 export function Hero() {
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isSignedIn } = useAuth();
   const [username, setUsername] = useState('');
-  const heroRef = useRef<HTMLDivElement>(null);
 
   const recentProfiles = useQuery(api.profiles.getRecentProfiles, { limit: 5 });
   const profilesCount = useQuery(api.profiles.getProfilesCount);
   const count = profilesCount ?? 0;
 
-  const handleClaim = () => {
-    const u = username.trim().toLowerCase();
+  const handleClaim = useCallback(() => {
     if (isSignedIn) {
       window.location.href = '/dashboard';
     } else {
-      window.location.href = '/sign-up?username=' + u;
+      const u = username.trim().toLowerCase();
+      window.location.href = '/sign-up' + (u ? '?username=' + u : '');
     }
-  };
+  }, [isSignedIn, username]);
 
   return (
-    <section ref={heroRef} className='relative min-h-screen flex items-center justify-center overflow-hidden pt-24 pb-20'>
-      <div className="absolute inset-0 bg-gradient-to-b from-amber-500/5 via-transparent to-background pointer-events-none" />
+    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24 pb-16">
+      <div className="absolute inset-0 bg-background" />
+      <div className="absolute inset-0 amber-radial pointer-events-none" />
+      <div className="absolute inset-0 faint-grid opacity-50 pointer-events-none" />
+      <div className="absolute inset-0 grain opacity-[0.02] pointer-events-none mix-blend-soft-light" />
 
-      {/* Floating gradient orbs */}
-      <FloatingOrb size={600} color="#f59e0b" delay={0} duration={25} className="top-[-10%] left-[-5%] opacity-40" />
-      <FloatingOrb size={400} color="#ef4444" delay={2} duration={20} className="bottom-[10%] right-[-5%] opacity-30" />
-      <FloatingOrb size={300} color="#facc15" delay={4} duration={18} className="top-[40%] right-[20%] opacity-20" />
-      <FloatingOrb size={500} color="#f59e0b" delay={1} duration={22} className="top-[20%] left-[40%] opacity-10" />
+      {/* Top gradient line */}
+      <motion.div
+        className="absolute top-0 left-0 right-0 h-px pointer-events-none"
+        style={{
+          background: 'linear-gradient(90deg, transparent, rgba(245,166,35,0.3), rgba(245,166,35,0.5), rgba(245,166,35,0.3), transparent)',
+          backgroundSize: '200% 100%',
+        }}
+        animate={{ backgroundPosition: ['0% 0%', '200% 0%'] }}
+        transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+      />
 
-      {/* Grid overlay */}
-      <div className='absolute inset-0 opacity-[0.03]' style={{
-        backgroundImage: 'linear-gradient(rgba(245,158,11,0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(245,158,11,0.5) 1px, transparent 1px)',
-        backgroundSize: '80px 80px',
-      }} />
+      <FloatingParticles count={20} />
 
-      {/* Grain */}
-      <div className='absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-soft-light' style={{
-        backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E")`,
-        backgroundRepeat: 'repeat',
-        backgroundSize: '128px 128px',
-      }} />
+      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 w-full">
 
-      <div className='relative z-10 max-w-6xl mx-auto px-4 w-full'>
-        <div className='grid grid-cols-1 lg:grid-cols-2 gap-12 items-center'>
-
-          {/* Left */}
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <div className='inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-bold mb-6'>
-              <span className='relative flex h-2 w-2'>
-                <span className='animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75' />
-                <span className='relative inline-flex rounded-full h-2 w-2 bg-amber-500' />
-              </span>
-              Built from an Android phone · Nigeria
+        {/* === COMPARISON SECTION === */}
+        <FadeIn delay={0}>
+          <div className="text-center mb-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[11px] font-bold tracking-wide mb-4">
+              <Brain className="w-3 h-3" />
+              NOT ANOTHER AI CHATBOT
             </div>
-
-            <h1 className='text-5xl md:text-7xl font-black text-white leading-[1.02] tracking-tight mb-6'>
-              Your AI.<br />
-              Your voice.<br />
-              <span className='bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 bg-clip-text text-transparent animate-gradient'>Always on.</span>
-            </h1>
-
-            <p className='text-zinc-400 text-lg leading-relaxed mb-6 max-w-md'>
-              Upload your knowledge once. Let AI answer every visitor question instantly — in your voice, 24/7.
+            <p className="text-zinc-500 text-sm max-w-xl mx-auto">
+              ChatGPT answers from the internet. One Question answers from <span className="text-zinc-300 font-semibold">YOUR</span> knowledge.
             </p>
+          </div>
 
-            {/* Social proof */}
-            <div className='flex items-center gap-3 mb-8'>
-              <div className='flex -space-x-2'>
-                {(recentProfiles && recentProfiles.length > 0 ? recentProfiles : ['Asym', 'Sarah', 'Kwame', 'Priya', 'Carlos'].map(name => ({ avatar: undefined, username: name }))).map((p, i) => (
-                  <div key={i} className="relative w-8 h-8 rounded-full border-2 border-background overflow-hidden ring-2 ring-background" style={{ zIndex: 5 - i }}>
-                    {p.avatar ? (
-                      <Image src={p.avatar} alt="" width={32} height={32} className="w-full h-full object-cover" />
-                    ) : (
-                      <img src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${p.username || p.displayName || 'User'}`} alt="" className="w-full h-full object-cover" />
-                    )}
-                  </div>
-                ))}
-              </div>
-              <div className='flex items-center gap-1.5'>
-                <div className='flex'>
-                  {[1,2,3,4,5].map(i => (
-                    <svg key={i} className='w-3 h-3 text-amber-400' fill='currentColor' viewBox='0 0 20 20'>
-                      <path d='M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z' />
-                    </svg>
-                  ))}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 max-w-3xl mx-auto mb-12">
+            {/* ChatGPT card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              className="paper-card p-5"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-9 h-9 rounded-xl bg-white/[0.06] flex items-center justify-center">
+                  <Globe className="w-4 h-4 text-zinc-400" />
                 </div>
-                <span className='text-zinc-500 text-xs'><span className='text-white font-semibold'>{count}+</span> spaces live</span>
+                <span className="text-sm font-bold text-zinc-300">ChatGPT</span>
               </div>
-            </div>
+              <p className="text-xs text-zinc-500 mb-3">Answers from the internet.</p>
+              <ul className="space-y-2">
+                {['Internet knowledge', 'General answers', 'Same for everyone'].map((b, i) => (
+                  <li key={i} className="flex items-center gap-2 text-xs text-zinc-500">
+                    <XIcon className="w-3 h-3 text-red-400/60 shrink-0" />
+                    {b}
+                  </li>
+                ))}
+              </ul>
+            </motion.div>
 
-            {/* Input */}
-            <div className='relative mb-4 max-w-sm'>
-              <div className='flex items-center bg-zinc-900/80 border border-zinc-700/50 rounded-2xl px-4 py-3 focus-within:border-amber-500/60 transition-all shadow-lg shadow-amber-500/5'>
-                <span className='text-zinc-500 text-sm whitespace-nowrap shrink-0 font-mono'>onequestion.space/</span>
-                <input
-                  type='text'
-                  value={username}
-                  onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
-                  onKeyDown={e => e.key === 'Enter' && handleClaim()}
-                  placeholder='yourname'
-                  className='flex-1 bg-transparent text-white ml-1 outline-none placeholder:text-zinc-600 text-sm'
-                />
+            {/* One Question card */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              className="paper-card p-5 border-primary/20 bg-gradient-to-b from-primary/[0.04] to-transparent"
+            >
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
+                  <Brain className="w-4 h-4 text-black" />
+                </div>
+                <span className="text-sm font-bold text-white">One Question</span>
+                <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/25 ml-auto">
+                  YOUR AI
+                </span>
               </div>
-            </div>
+              <p className="text-xs text-primary/80 mb-3">Answers from YOUR knowledge.</p>
+              <ul className="space-y-2 mb-3">
+                {['YOUR documents', 'YOUR links', 'YOUR expertise', 'YOUR voice', 'Trained only on you'].map((b, i) => (
+                  <li key={i} className="flex items-center gap-2 text-xs text-zinc-300">
+                    <Check className="w-3 h-3 text-primary shrink-0" />
+                    {b}
+                  </li>
+                ))}
+              </ul>
+              <div className="text-[10px] text-center text-primary/60 font-medium pt-2 border-t border-primary/10">
+                Upload once. Answer forever.
+              </div>
+            </motion.div>
+          </div>
+        </FadeIn>
 
-            {username && (
-              <motion.p initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }}
-                className='text-xs text-amber-400/80 mb-2 ml-1'>
-                Your space → <span className='font-bold text-amber-400'>onequestion.space/{username}</span>
-              </motion.p>
-            )}
-            {isLoaded && (
+        {/* === HERO === */}
+        <div className="text-center max-w-4xl mx-auto">
+          <FadeIn delay={0.1} y={20}>
+            <h1 className="text-[clamp(2.5rem,8vw,5.5rem)] font-black text-white leading-[1.04] tracking-[-0.03em] mb-4">
+              YOUR AI.<br />
+              <span className="gradient-text">YOUR VOICE.</span><br />
+              <span className="text-white">ALWAYS ON.</span>
+            </h1>
+          </FadeIn>
+
+          <FadeIn delay={0.2} y={15}>
+            <p className="text-zinc-400 text-sm sm:text-base md:text-lg leading-relaxed max-w-xl mx-auto mb-8">
+              Upload your knowledge once. Let AI answer every visitor instantly — <span className="text-zinc-200 font-semibold">in your voice</span>.
+            </p>
+          </FadeIn>
+
+          {/* CTA Buttons */}
+          <FadeIn delay={0.35} y={15}>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleClaim}
-                className='group relative w-full max-w-sm py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 text-black font-black text-sm flex items-center justify-center gap-2 transition-all hover:shadow-[0_0_30px_rgba(245,158,11,0.4)] overflow-hidden'
+                className="group relative px-8 py-4 rounded-2xl bg-primary text-black font-black text-sm flex items-center gap-2 transition-all shadow-amber-glow-lg hover:shadow-amber-glow overflow-hidden"
               >
-                <div className='absolute inset-0 bg-gradient-to-r from-amber-400 to-orange-400 opacity-0 group-hover:opacity-100 transition-opacity' />
-                <span className='relative z-10 flex items-center gap-2'>
-                  <Sparkles className='w-4 h-4' />
-                  Claim your space free
-                  <ArrowRight className='w-4 h-4 group-hover:translate-x-1 transition-transform' />
-                </span>
+                <motion.div
+                  animate={{ opacity: [0, 0.4, 0] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg]"
+                />
+                <Sparkles className="w-4 h-4 relative" />
+                <span className="relative">Claim Your Space</span>
+                <ArrowRight className="w-4 h-4 relative group-hover:translate-x-0.5 transition-transform" />
               </motion.button>
-            )}
-            <div className='flex items-center gap-4 mt-4 text-zinc-600 text-xs'>
-              <span className='flex items-center gap-1'><Check className='w-3 h-3 text-amber-500' /> Free forever</span>
-              <span className='flex items-center gap-1'><Check className='w-3 h-3 text-amber-500' /> No credit card</span>
-              <span className='flex items-center gap-1'><Check className='w-3 h-3 text-amber-500' /> 2 min setup</span>
+
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="px-8 py-4 rounded-2xl border border-white/10 text-zinc-300 font-semibold text-sm flex items-center gap-2 hover:bg-white/[0.04] hover:border-white/20 transition-all"
+              >
+                <Play className="w-4 h-4" />
+                See Demo
+              </motion.button>
             </div>
-          </motion.div>
+          </FadeIn>
 
-          {/* Right — live demo */}
-          <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-            className='relative'
-          >
-            <div className='absolute -inset-6 bg-gradient-to-r from-amber-500/15 via-orange-500/10 to-red-500/15 rounded-3xl blur-3xl opacity-60 animate-float-slow' />
-            <div className='relative rounded-3xl border border-zinc-800/60 overflow-hidden bg-zinc-950/90 shadow-[0_0_60px_rgba(245,158,11,0.1)]'>
-              <div className='px-4 py-3 border-b border-zinc-800/60 flex items-center gap-2 bg-zinc-900/50'>
-                <div className='flex gap-1.5'>
-                  <div className='w-3 h-3 rounded-full bg-red-500/70' />
-                  <div className='w-3 h-3 rounded-full bg-amber-500/70' />
-                  <div className='w-3 h-3 rounded-full bg-green-500/70' />
+          {/* Social Proof */}
+          <FadeIn delay={0.45} y={15}>
+            <div className="flex flex-col items-center justify-center gap-4 mb-8">
+              <div className="flex items-center">
+                <div className="flex -space-x-2 mr-3">
+                  {(recentProfiles && recentProfiles.length > 0 ? recentProfiles : Array.from({ length: 5 }, (_, i) => ({ avatar: undefined, username: ['Asym', 'Sarah', 'Kwame', 'Priya', 'Carlos'][i] }))).map((p, i) => (
+                    <motion.div
+                      key={i}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.6 + i * 0.06 }}
+                      className="relative w-7 h-7 rounded-full border-2 border-background overflow-hidden ring-2 ring-background"
+                      style={{ zIndex: 5 - i }}
+                    >
+                      {p.avatar ? (
+                        <Image src={p.avatar} alt="" width={28} height={28} className="w-full h-full object-cover" />
+                      ) : (
+                        <img src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${p.username || 'User'}`} alt="" className="w-full h-full object-cover" />
+                      )}
+                    </motion.div>
+                  ))}
                 </div>
-                <span className='text-zinc-500 text-xs mx-auto font-mono'>onequestion.space/asym</span>
-                <div className='flex items-center gap-1.5 text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/15'>
-                  <span className='w-1 h-1 rounded-full bg-green-400 animate-pulse' />
-                  Live
-                </div>
-              </div>
-
-              <div className='px-5 py-4 border-b border-zinc-800/30 flex items-center gap-3'>
-                <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Asym" alt="" className="w-10 h-10 rounded-full shrink-0 shadow-lg shadow-amber-500/20" />
-                <div>
-                  <p className='text-white text-sm font-bold'>Asym Alwali</p>
-                  <p className='text-zinc-500 text-xs'>19yo · Building from Nigeria</p>
-                </div>
-              </div>
-
-              {/* Chat area — static demo */}
-              <div className='p-5 space-y-3 min-h-[260px] flex flex-col justify-end'>
-                <div className='flex justify-end'>
-                  <div className='max-w-[80%] px-4 py-2.5 rounded-2xl rounded-br-sm bg-zinc-800 border border-zinc-700/50'>
-                    <p className='text-white text-sm'>How can I work with Asym?</p>
+                <div className="flex items-center gap-1.5">
+                  <div className="flex">
+                    {[1,2,3,4,5].map(i => (
+                      <Star key={i} className="w-3 h-3 text-primary" fill="currentColor" />
+                    ))}
                   </div>
-                </div>
-                <div className='flex justify-start gap-2.5'>
-                  <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Asym" alt="" className="w-7 h-7 rounded-full shrink-0 mt-0.5 shadow-sm" />
-                  <div className='max-w-[80%] px-4 py-2.5 rounded-2xl rounded-tl-sm bg-amber-500/10 border border-amber-500/20'>
-                    <p className='text-white text-sm leading-relaxed'>
-                      Book a call through my space and I will get back to you within 24 hours.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className='px-5 py-3 border-t border-zinc-800/50 flex items-center gap-3 bg-zinc-900/30'>
-                <div className='flex-1 text-sm text-zinc-600'>Ask anything...</div>
-                <div className='w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center shadow-sm'>
-                  <ArrowRight className='w-3.5 h-3.5 text-black' />
                 </div>
               </div>
             </div>
 
-            {/* Floating stat cards */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className='absolute -bottom-4 -left-4 bg-zinc-900/90 border border-zinc-700/50 rounded-2xl px-4 py-3 shadow-xl'
-            >
-              <p className='text-xs text-zinc-500'>Response time</p>
-              <div className='flex items-center gap-1.5'>
-                <Zap className='w-4 h-4 text-amber-400' />
-                <p className='text-white font-black text-lg'>&lt;2s</p>
-              </div>
-            </motion.div>
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.8 }}
-              className='absolute -top-4 -right-4 bg-zinc-900/90 border border-zinc-700/50 rounded-2xl px-4 py-3 shadow-xl'
-            >
-              <p className='text-xs text-zinc-500'>Built from</p>
-              <p className='text-white font-black text-lg'>📱 Phone</p>
-            </motion.div>
-          </motion.div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-lg mx-auto mb-8">
+              {[
+                { icon: '🔥', label: 'Spaces Live', value: count },
+                { icon: '💬', label: 'Questions Answered', value: '1,200+' },
+                { icon: '⚡', label: 'AI Running 24/7', value: 'Always' },
+                { icon: '🌍', label: 'Builders Worldwide', value: count > 0 ? count : '50+' },
+              ].map((stat, i) => (
+                <div key={i} className="paper-card p-3 text-center">
+                  <p className="text-lg mb-0.5">{stat.icon}</p>
+                  <p className="text-sm font-bold text-white">
+                    {typeof stat.value === 'number' && stat.value > 0 ? (
+                      <AnimatedCounter value={stat.value} />
+                    ) : stat.value}
+                  </p>
+                  <p className="text-[10px] text-zinc-500">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          </FadeIn>
 
+          {/* Trust line */}
+          <FadeIn delay={0.55} y={10}>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/[0.05] border border-primary/10 text-primary/60 text-[10px] font-medium">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
+              </span>
+              Built from Nigeria {`🇳🇬`}
+            </div>
+          </FadeIn>
         </div>
+
+        {/* Username input */}
+        <FadeIn delay={0.6} y={10}>
+          <div className="flex justify-center mt-6">
+            <div className="flex items-center bg-white/[0.03] border border-white/10 rounded-xl px-3 py-2 focus-within:border-primary/40 transition-all shadow-inner shadow-black/20 max-w-xs w-full">
+              <span className="text-zinc-500 text-[11px] whitespace-nowrap shrink-0 font-mono">onequestion.space/</span>
+              <input
+                type="text"
+                value={username}
+                onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
+                onKeyDown={e => e.key === 'Enter' && username && handleClaim()}
+                placeholder="yourname"
+                className="flex-1 bg-transparent text-white ml-1 outline-none placeholder:text-zinc-600 text-[11px] font-mono"
+              />
+              {username && (
+                <motion.button
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  onClick={handleClaim}
+                  className="w-6 h-6 rounded-lg bg-primary flex items-center justify-center shrink-0 ml-2 hover:bg-primary-light transition-colors"
+                >
+                  <ArrowRight className="w-3 h-3 text-black" />
+                </motion.button>
+              )}
+            </div>
+          </div>
+        </FadeIn>
       </div>
     </section>
   );

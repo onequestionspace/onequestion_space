@@ -7,7 +7,7 @@ import { Check, Loader2, Save, Globe, Upload, X, Phone } from "lucide-react";
 import { FaXTwitter as XIcon, FaGithub as GithubIcon, FaLinkedin as LinkedinIcon } from "react-icons/fa6";
 
 const ACCENT_COLORS = [
-  { name: "Amber", value: "#f59e0b" },
+  { name: "Amber", value: "#F5A623" },
   { name: "Orange", value: "#f97316" },
   { name: "Red", value: "#ef4444" },
   { name: "Emerald", value: "#10b981" },
@@ -86,7 +86,7 @@ export function AppearanceTab() {
   const profile = useQuery(api.profiles.current);
   const updateProfile = useMutation(api.profiles.update);
 
-  const [themeColor, setThemeColor] = useState("#f59e0b");
+  const [themeColor, setThemeColor] = useState("#F5A623");
   const [themeBg, setThemeBg] = useState("dark");
   const [themeEffect, setThemeEffect] = useState("none");
   const [themeFont, setThemeFont] = useState("inter");
@@ -104,7 +104,7 @@ export function AppearanceTab() {
 
   useEffect(() => {
     if (!profile) return;
-    setThemeColor(profile.themeColor || "#f59e0b");
+    setThemeColor(profile.themeColor || "#F5A623");
     setThemeBg(profile.themeBg || "dark");
     setThemeFont(profile.themeFont || "inter");
     setThemeCardStyle(profile.themeCardStyle || "glass");

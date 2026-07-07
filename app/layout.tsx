@@ -35,7 +35,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport = {
-  themeColor: '#f59e0b',
+  themeColor: '#0A0A0A',
   width: 'device-width',
   initialScale: 1,
 };
@@ -58,16 +58,16 @@ export default function RootLayout({
               logoLinkUrl: '/',
             },
             variables: {
-              colorPrimary: '#f59e0b',
-              colorBackground: '#0a0a0a',
+              colorPrimary: '#F5A623',
+              colorBackground: '#0A0A0A',
               colorText: '#ffffff',
-              colorInputBackground: '#1a1a1a',
+              colorInputBackground: '#111113',
               colorInputText: '#ffffff',
             },
           }}
         >
           <ConvexClientProvider>
-            <div className="flex flex-col min-h-screen mesh-background">
+            <div className="flex flex-col min-h-screen">
               <Navbar />
               <div className="flex-1">{children}</div>
               <Footer />

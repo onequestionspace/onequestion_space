@@ -20,16 +20,14 @@ import {
   ExternalLink, Copy, CheckCircle2, AlertCircle,
   BookOpen, Clock, BarChart3, ChevronRight,
   TrendingUp, Sparkles, Target, Activity,
-  Star, ArrowUp, ArrowDown, FileText,
-  Settings, Bell, Layers, Send,
+  ArrowUp, ArrowDown, FileText,
+  Settings, Layers, Send,
 } from 'lucide-react';
-
-
 
 type Period = '7d' | '30d' | 'all';
 
 const QUICK_ACTIONS = [
-  { label: 'Upload Knowledge', href: '/dashboard/knowledge', icon: FileText, color: '#f59e0b' },
+  { label: 'Upload Knowledge', href: '/dashboard/knowledge', icon: FileText, color: '#F5A623' },
   { label: 'Edit Profile', href: '/dashboard/settings', icon: Settings, color: '#3b82f6' },
   { label: 'View Analytics', href: '/dashboard/analytics', icon: TrendingUp, color: '#22c55e' },
   { label: 'Space Studio', href: '/dashboard/studio', icon: Layers, color: '#a855f7' },
@@ -124,8 +122,7 @@ export default function DashboardPage() {
   const messagesLimit = subscription?.messagesLimit ?? 50;
   const pendingCount = unansweredQuestions?.length ?? 0;
 
-
-    const insights: string[] = useMemo(() => {
+  const insights: string[] = useMemo(() => {
     const tips: string[] = [];
     if (isNewUser) {
       tips.push('Upload your first knowledge item to get started');
@@ -150,6 +147,7 @@ export default function DashboardPage() {
     }
     return tips.slice(0, 3);
   }, [isNewUser, knowledgeCount, pendingCount, messagesUsed, messagesLimit, profile?.avatar, profile?.vibeQuote]);
+
   const responseRate = analytics && analytics.totalQuestions > 0
     ? Math.round((analytics.totalAnswers / analytics.totalQuestions) * 100)
     : 0;
@@ -169,8 +167,6 @@ export default function DashboardPage() {
   ];
   const completionScore = Math.round((completionChecks.filter(Boolean).length / completionChecks.length) * 100);
 
-
-
   if (!isLoaded) return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="animate-pulse text-zinc-500 text-sm">Loading...</div>
@@ -179,16 +175,16 @@ export default function DashboardPage() {
   if (!isSignedIn) { redirect('/'); }
 
   return (
-    <DashboardLayout title={`${greeting}, ${profile?.displayName || 'friend'} 👋`} description={spaceUrl}>
-      <div className="space-y-6">
+    <DashboardLayout title={`${greeting}, ${profile?.displayName || 'friend'}`} description={spaceUrl}>
+      <div className="space-y-5">
 
         {/* Top bar */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-2 p-1 rounded-xl bg-white/[0.03] border border-white/[0.06]">
+          <div className="flex items-center gap-1 p-0.5 rounded-xl bg-white/[0.03] border border-white/[0.06]">
             {(['7d', '30d', 'all'] as Period[]).map(p => (
               <button key={p} onClick={() => setPeriod(p)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  period === p ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-black' : 'text-zinc-500 hover:text-white'
+                  period === p ? 'bg-primary text-black' : 'text-zinc-500 hover:text-white'
                 }`}>
                 {p === '7d' ? '7 days' : p === '30d' ? '30 days' : 'All time'}
               </button>
@@ -209,13 +205,13 @@ export default function DashboardPage() {
 
         {loading ? (
           <>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               {Array.from({ length: 4 }).map((_, i) => <StatsCardSkeleton key={i} />)}
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {Array.from({ length: 2 }).map((_, i) => <CardSkeleton key={i} />)}
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
               <CardSkeleton />
               <CardSkeleton />
             </div>
@@ -224,90 +220,84 @@ export default function DashboardPage() {
           <>
             {/* Space completion banner */}
             {completionScore < 100 && (
-              <div>
-                <div className="relative overflow-hidden rounded-2xl border border-amber-500/20 bg-gradient-to-r from-amber-500/[0.06] to-transparent p-5 backdrop-blur-sm">
-                  <div className="flex items-center justify-between gap-4">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-2 mb-0.5">
-                        <Target className="w-4 h-4 text-amber-500" />
-                        <p className="text-sm font-semibold text-white">Space setup {completionScore}% complete</p>
-                      </div>
-                      <p className="text-xs text-zinc-500">Complete all steps to unlock your full potential</p>
+              <Card className="border-primary/20 bg-gradient-to-r from-primary/[0.04] to-transparent">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5">
+                      <Target className="w-4 h-4 text-primary" />
+                      <p className="text-sm font-semibold text-white">Space setup {completionScore}% complete</p>
                     </div>
-                    <Link href="/dashboard/studio" className="shrink-0">
-                      <Button variant="primary" size="sm">Continue →</Button>
-                    </Link>
+                    <p className="text-xs text-zinc-500">Complete all steps to unlock your full potential</p>
                   </div>
-                  <div className="mt-3"><ProgressBar value={completionScore} size="sm" color="#f59e0b" /></div>
-                  <div className="flex gap-2 mt-2">
-                    {['Name', 'Photo', 'Bio', 'Welcome', 'Vibe', 'Links', 'Pinned'].map((label, i) => (
-                      <span key={label} className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${
-                        completionChecks[i] ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-zinc-800 text-zinc-600'
-                      }`}>
-                        {completionChecks[i] ? '✓' : '○'} {label}
-                      </span>
-                    ))}
-                  </div>
+                  <Link href="/dashboard/studio" className="shrink-0">
+                    <Button variant="primary" size="sm">Continue</Button>
+                  </Link>
                 </div>
-              </div>
+                <div className="mt-3"><ProgressBar value={completionScore} size="sm" color="#F5A623" /></div>
+                <div className="flex gap-2 mt-2 flex-wrap">
+                  {['Name', 'Photo', 'Bio', 'Welcome', 'Vibe', 'Links'].map((label, i) => (
+                    <span key={label} className={`text-[9px] px-1.5 py-0.5 rounded-full font-medium ${
+                      completionChecks[i] ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-zinc-800 text-zinc-600'
+                    }`}>
+                      {completionChecks[i] ? '✓' : '○'} {label}
+                    </span>
+                  ))}
+                </div>
+              </Card>
             )}
 
             {/* Insights banner */}
             {insights.length > 0 && (
-              <div>
-                <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 hover:bg-white/[0.04] transition-all">
-                  <div className="flex items-start gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-amber-500/10 flex items-center justify-center shrink-0">
-                      <Sparkles className="w-5 h-5 text-amber-500" />
-                    </div>
-                    <div className="space-y-1.5 min-w-0">
-                      {insights.map((tip, i) => (
-                        <p key={i} className="text-sm text-zinc-400">{tip}</p>
-                      ))}
-                    </div>
+              <Card>
+                <div className="flex items-start gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                    <Sparkles className="w-5 h-5 text-primary" />
+                  </div>
+                  <div className="space-y-1.5 min-w-0">
+                    {insights.map((tip, i) => (
+                      <p key={i} className="text-sm text-zinc-400">{tip}</p>
+                    ))}
                   </div>
                 </div>
-              </div>
+              </Card>
             )}
 
             {/* Stats */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
               <StatsCard
-                label="Total Questions"
+                label="Questions"
                 value={analytics?.totalQuestions?.toString() ?? '0'}
-                icon={<MessageSquare className="w-5 h-5" />}
-                color="#f59e0b"
+                icon={<MessageSquare className="w-4 h-4" />}
+                color="#F5A623"
               />
               <StatsCard
-                label="Profile Visitors"
+                label="Visitors"
                 value={analytics?.totalVisitors?.toString() ?? '0'}
-                icon={<Users className="w-5 h-5" />}
+                icon={<Users className="w-4 h-4" />}
                 color="#3b82f6"
                 trend={analytics?.totalVisitors ? { value: '+12%', positive: true } : undefined}
               />
               <StatsCard
                 label="AI Answers"
                 value={analytics?.totalAnswers?.toString() ?? '0'}
-                icon={<Zap className="w-5 h-5" />}
+                icon={<Zap className="w-4 h-4" />}
                 color="#22c55e"
               />
               <StatsCard
                 label="Knowledge Items"
                 value={knowledgeCount?.toString() ?? '0'}
-                icon={<Brain className="w-5 h-5" />}
-                color="#f97316"
+                icon={<Brain className="w-4 h-4" />}
+                color="#F5A623"
               />
             </div>
 
             {/* Quick actions */}
             <div>
-              <div className="flex items-center justify-between mb-3">
-                <h2 className="text-xs font-semibold text-zinc-500 uppercase tracking-widest">Quick Actions</h2>
-              </div>
-              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-[0.15em] mb-2">Quick Actions</p>
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                 {QUICK_ACTIONS.map(action => (
                   <Link key={action.label} href={action.href}
-                    className="flex items-center gap-3 p-3 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/[0.12] transition-all duration-150 group">
+                    className="flex items-center gap-3 p-3 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/[0.12] transition-all group">
                     <div className="w-9 h-9 rounded-lg flex items-center justify-center"
                       style={{ backgroundColor: action.color + '15', color: action.color }}>
                       <action.icon className="w-4 h-4" />
@@ -319,18 +309,18 @@ export default function DashboardPage() {
             </div>
 
             {/* Middle row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <Card hover>
                 <CardHeader title="Response Rate" action={<BarChart3 className="w-4 h-4 text-zinc-500" />} />
                 <div className="flex items-end gap-3 mb-3">
-                  <p className="text-4xl font-bold text-white">{responseRate}%</p>
+                  <p className="text-3xl font-bold text-white">{responseRate}%</p>
                   <span className="text-sm text-zinc-500 mb-1">
                     {analytics?.totalAnswers ?? 0} of {analytics?.totalQuestions ?? 0} answered
                   </span>
                 </div>
-                <ProgressBar value={responseRate} color="#f59e0b" />
+                <ProgressBar value={responseRate} color="#F5A623" />
                 {pendingCount > 0 && (
-                  <Link href="/dashboard/analytics" className="flex items-center gap-1.5 text-xs text-amber-500 hover:text-amber-500/80 mt-3 transition-colors">
+                  <Link href="/dashboard/analytics" className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 mt-3 transition-colors">
                     <AlertCircle className="w-3 h-3" />
                     {pendingCount} pending question{pendingCount === 1 ? '' : 's'} — answer them to boost your rate
                   </Link>
@@ -347,7 +337,7 @@ export default function DashboardPage() {
                   }
                 />
                 <div className="flex items-end gap-2 mb-3">
-                  <p className="text-4xl font-bold text-white">
+                  <p className="text-3xl font-bold text-white">
                     {messagesUsed}
                     <span className="text-lg text-zinc-500 font-normal">/{messagesLimit}</span>
                   </p>
@@ -355,7 +345,7 @@ export default function DashboardPage() {
                     {subscription?.plan ?? 'free'}
                   </Badge>
                 </div>
-                <ProgressBar value={messagesUsed} max={messagesLimit} />
+                <ProgressBar value={messagesUsed} max={messagesLimit} color={messagesUsed > messagesLimit * 0.8 ? '#ef4444' : '#F5A623'} />
                 <p className="text-xs text-zinc-500 mt-2">
                   {messagesLimit - messagesUsed} credits remaining
                 </p>
@@ -364,90 +354,76 @@ export default function DashboardPage() {
 
             {/* Unanswered questions */}
             {unansweredQuestions && unansweredQuestions.length > 0 && (
-              <div>
-                <Card>
-                  <CardHeader
-                    title="Unanswered Questions"
-                    icon={<AlertCircle className="w-4 h-4 text-amber-500" />}
-                    description="These visitors are waiting for a response. Answer them directly."
-                  />
-                  <div className="space-y-2">
-                    {unansweredQuestions.map((q) => (
-                      <div key={q._id} className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                        <div className="flex items-start justify-between gap-2 mb-2">
-                          <div className="min-w-0">
-                            <p className="text-white text-sm font-medium">{q.question}</p>
-                            <p className="text-xs text-zinc-600 flex items-center gap-1 mt-1">
-                              <Clock className="w-3 h-3" />
-                              {new Date(q.createdAt).toLocaleDateString()}
-                              {q.visitorId && q.visitorId !== 'anonymous' && (
-                                <> · {q.visitorId}</>
-                              )}
-                            </p>
+              <Card>
+                <CardHeader
+                  title="Unanswered Questions"
+                  icon={<AlertCircle className="w-4 h-4 text-primary" />}
+                  description="These visitors are waiting for a response."
+                />
+                <div className="space-y-2">
+                  {unansweredQuestions.map((q) => (
+                    <div key={q._id} className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <div className="min-w-0">
+                          <p className="text-white text-sm font-medium">{q.question}</p>
+                          <p className="text-xs text-zinc-600 flex items-center gap-1 mt-1">
+                            <Clock className="w-3 h-3" />
+                            {new Date(q.createdAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                      </div>
+                      {answeringId === q._id ? (
+                        <div className="space-y-2">
+                          <textarea
+                            value={answerText}
+                            onChange={(e) => setAnswerText(e.target.value)}
+                            placeholder="Write your answer..."
+                            rows={3}
+                            className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:border-primary/40 resize-none"
+                          />
+                          <div className="flex items-center gap-2">
+                            <Button variant="primary" size="sm" icon={<Send className="w-3 h-3" />}
+                              disabled={!answerText.trim() || submittingAnswer === q._id}
+                              onClick={async () => {
+                                if (!answerText.trim()) return;
+                                setSubmittingAnswer(q._id);
+                                try {
+                                  await answerQuestion({ id: q._id, answer: answerText.trim() });
+                                  setAnswerText('');
+                                  setAnsweringId(null);
+                                  toast({ type: 'success', title: 'Answered!', description: 'Your answer is now live.' });
+                                } catch {
+                                  toast({ type: 'error', title: 'Failed', description: 'Could not save your answer.' });
+                                }
+                                setSubmittingAnswer(null);
+                              }}
+                            >
+                              {submittingAnswer === q._id ? 'Saving...' : 'Send Answer'}
+                            </Button>
+                            <Button variant="ghost" size="sm"
+                              onClick={() => { setAnsweringId(null); setAnswerText(''); }}>
+                              Cancel
+                            </Button>
                           </div>
                         </div>
-                        {answeringId === q._id ? (
-                          <div className="space-y-2">
-                            <textarea
-                              value={answerText}
-                              onChange={(e) => setAnswerText(e.target.value)}
-                              placeholder="Write your answer..."
-                              rows={3}
-                              className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:border-amber-500/40 resize-none"
-                            />
-                            <div className="flex items-center gap-2">
-                              <Button
-                                variant="primary"
-                                size="sm"
-                                icon={<Send className="w-3 h-3" />}
-                                disabled={!answerText.trim() || submittingAnswer === q._id}
-                                onClick={async () => {
-                                  if (!answerText.trim()) return;
-                                  setSubmittingAnswer(q._id);
-                                  try {
-                                    await answerQuestion({ id: q._id, answer: answerText.trim() });
-                                    setAnswerText('');
-                                    setAnsweringId(null);
-                                    toast({ type: 'success', title: 'Answered!', description: 'Your answer is now live on your space.' });
-                                  } catch {
-                                    toast({ type: 'error', title: 'Failed', description: 'Could not save your answer.' });
-                                  }
-                                  setSubmittingAnswer(null);
-                                }}
-                              >
-                                {submittingAnswer === q._id ? 'Saving...' : 'Send Answer'}
-                              </Button>
-                              <Button
-                                variant="ghost"
-                                size="sm"
-                                onClick={() => { setAnsweringId(null); setAnswerText(''); }}
-                              >
-                                Cancel
-                              </Button>
-                            </div>
-                          </div>
-                        ) : (
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => { setAnsweringId(q._id); setAnswerText(''); }}
-                          >
-                            Answer
-                          </Button>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-                </Card>
-              </div>
+                      ) : (
+                        <Button variant="secondary" size="sm"
+                          onClick={() => { setAnsweringId(q._id); setAnswerText(''); }}>
+                          Answer
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </Card>
             )}
 
             {/* Bottom row */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
               <Card>
                 <CardHeader
                   title="Recent Questions"
-                  icon={<MessageSquare className="w-4 h-4 text-amber-500" />}
+                  icon={<MessageSquare className="w-4 h-4 text-primary" />}
                   action={
                     <Link href="/dashboard/analytics">
                       <Button variant="ghost" size="sm" icon={<ChevronRight className="w-3 h-3" />}>View all</Button>
@@ -457,7 +433,7 @@ export default function DashboardPage() {
                 {recentQuestions && recentQuestions.length > 0 ? (
                   <div className="space-y-2">
                     {recentQuestions.map((q) => (
-                      <div key={q._id} className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06] transition-all duration-150 hover:bg-white/[0.04] hover:border-white/[0.10]">
+                      <div key={q._id} className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] transition-all hover:bg-white/[0.04]">
                         <div className="flex items-start justify-between gap-2 mb-1">
                           <p className="text-white text-sm font-medium line-clamp-1">{q.question}</p>
                           <Badge variant={q.isAnswered ? 'success' : 'warning'} className="shrink-0">
@@ -476,7 +452,7 @@ export default function DashboardPage() {
                   <EmptyState
                     icon={<MessageSquare />}
                     title="No questions yet"
-                    description="Your AI is ready though — share your link and the first question will land here."
+                    description="Your AI is ready — share your link and the first question will land here."
                   />
                 )}
               </Card>
@@ -484,7 +460,7 @@ export default function DashboardPage() {
               <Card>
                 <CardHeader
                   title="Knowledge Base"
-                  icon={<BookOpen className="w-4 h-4 text-amber-500" />}
+                  icon={<BookOpen className="w-4 h-4 text-primary" />}
                   action={
                     <Link href="/dashboard/knowledge">
                       <Button variant="ghost" size="sm" icon={<ChevronRight className="w-3 h-3" />}>Manage</Button>
@@ -493,20 +469,20 @@ export default function DashboardPage() {
                 />
                 {knowledgeCount && knowledgeCount > 0 ? (
                   <div className="text-center py-6">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center mx-auto mb-3 ring-2 ring-amber-500/10">
-                      <Brain className="w-7 h-7 text-amber-500" />
+                    <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3 ring-2 ring-primary/10">
+                      <Brain className="w-7 h-7 text-primary" />
                     </div>
                     <p className="text-3xl font-bold text-white mb-1">{knowledgeCount}</p>
                     <p className="text-sm text-zinc-500">knowledge items uploaded</p>
                     {knowledgeCount < 5 && (
-                      <p className="text-xs text-amber-500 mt-2">Add {5 - knowledgeCount} more for optimal AI performance</p>
+                      <p className="text-xs text-primary mt-2">Add {5 - knowledgeCount} more for optimal AI performance</p>
                     )}
                   </div>
                 ) : (
                   <EmptyState
                     icon={<Brain />}
                     title="Your AI has nothing to work with yet"
-                    description="Upload anything — a bio, your FAQs, what you do. Start there."
+                    description="Upload anything — a bio, your FAQs, what you do."
                     action={
                       <Link href="/dashboard/knowledge">
                         <Button variant="primary" size="sm">Upload Knowledge</Button>

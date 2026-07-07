@@ -4,20 +4,20 @@ type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
 const variants: Record<Variant, string> = {
   primary:
-    'bg-amber-500 text-black hover:opacity-90 font-semibold',
+    'bg-primary text-black hover:bg-primary-light font-semibold shadow-amber-glow hover:shadow-amber-glow-lg',
   secondary:
-    'border border-white/10 bg-white/5 text-white hover:bg-white/10 font-medium',
+    'border border-white/10 bg-white/[0.04] text-white hover:bg-white/[0.08] font-medium',
   ghost:
     'text-zinc-400 hover:text-white font-medium',
   danger:
-    'border border-red-500/30 text-red-400 hover:bg-red-500 hover:text-white font-semibold',
+    'border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white font-medium',
 };
 
 const sizes: Record<string, string> = {
-  sm: 'px-3 py-1.5 text-xs rounded-lg',
+  sm: 'px-3 py-1.5 text-xs rounded-xl',
   md: 'px-4 py-2.5 text-sm rounded-xl',
   lg: 'px-6 py-3 text-sm rounded-xl',
-  icon: 'p-2 rounded-lg',
+  icon: 'p-2 rounded-xl',
 };
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -40,7 +40,7 @@ export function Button({
 }: ButtonProps) {
   return (
     <button
-      className={`inline-flex items-center justify-center gap-2 transition-all disabled:opacity-50 disabled:pointer-events-none ${variants[variant]} ${sizes[size] || sizes.md} ${className}`}
+      className={`inline-flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98] ${variants[variant]} ${sizes[size] || sizes.md} ${className}`}
       disabled={disabled || loading}
       {...props}
     >
@@ -52,7 +52,7 @@ export function Button({
       ) : icon ? (
         <span className="w-4 h-4">{icon}</span>
       ) : null}
-      {children}
+      {children && <span>{children}</span>}
     </button>
   );
 }
