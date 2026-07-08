@@ -11,11 +11,17 @@ export default function AnimatedCounter({
   suffix?: string;
   prefix?: string;
 }) {
-  const [count, setCount] = useState(0);
+  const [count, setCount] = useState(value);
   const [hasAnimated, setHasAnimated] = useState(false);
+  const [ready, setReady] = useState(false);
   const ref = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
+    setReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!ready) return;
     const el = ref.current;
     if (!el) return;
 
@@ -23,6 +29,7 @@ export default function AnimatedCounter({
       ([entry]) => {
         if (entry.isIntersecting && !hasAnimated) {
           setHasAnimated(true);
+          setCount(0);
           let current = 0;
           const increment = Math.max(1, Math.floor(value / 40));
           const timer = setInterval(() => {
@@ -41,7 +48,7 @@ export default function AnimatedCounter({
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [value, hasAnimated]);
+  }, [value, hasAnimated, ready]);
 
   return (
     <span ref={ref}>

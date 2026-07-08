@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { cn } from '@/lib/utils';
 
 interface CardProps {
   children: ReactNode;
@@ -9,9 +10,7 @@ interface CardProps {
 export function Card({ children, className = '', hover = false }: CardProps) {
   return (
     <div
-      className={`paper-card p-5 sm:p-6 ${
-        hover ? 'hover:border-primary/20' : ''
-      } ${className}`}
+      className={cn('paper-card p-5 sm:p-6', hover ? 'hover:border-primary/20' : '', className)}
     >
       {children}
     </div>
@@ -54,10 +53,10 @@ export function StatsCard({ label, value, icon, color = '#F5A623', trend }: Stat
       <div className="flex items-center justify-between mb-3">
         {icon && (
           <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center"
-            style={{ backgroundColor: `${color}15` }}
+            className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
+            style={{ backgroundColor: `${color}15`, color }}
           >
-            <div style={{ color }} className="w-4 h-4">{icon}</div>
+            {icon}
           </div>
         )}
         {trend && (
@@ -87,7 +86,7 @@ export function ProgressBar({ value, max = 100, color, size = 'md' }: ProgressBa
   return (
     <div className={`w-full ${h} bg-white/5 rounded-full overflow-hidden`}>
       <div
-        className={`h-full rounded-full transition-all duration-700 ease-out`}
+        className="h-full rounded-full transition-all duration-700 ease-out"
         style={{ width: `${pct}%`, backgroundColor: barColor }}
       />
     </div>

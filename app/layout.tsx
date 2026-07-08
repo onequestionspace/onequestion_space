@@ -5,12 +5,9 @@ import { ClerkProvider } from '@clerk/nextjs';
 import { ConvexClientProvider } from '@/components/ConvexClientProvider';
 import { Navbar } from '@/components/Navbar';
 import { Footer } from '@/components/Footer';
-import { cn } from "@/lib/utils";
-
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
-  preload: false,
 });
 
 export const metadata: Metadata = {
@@ -48,7 +45,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("dark bg-background", inter.variable)}
+      className="dark bg-background"
     >
       <body className={`${inter.className} antialiased`}>
         <ClerkProvider
@@ -69,7 +66,7 @@ export default function RootLayout({
           <ConvexClientProvider>
             <div className="flex flex-col min-h-screen">
               <Navbar />
-              <div className="flex-1">{children}</div>
+              <main className="flex-1">{children}</main>
               <Footer />
             </div>
           </ConvexClientProvider>

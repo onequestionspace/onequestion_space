@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { ReactNode } from 'react';
 
 interface StaggerItemProps {
@@ -10,6 +10,12 @@ interface StaggerItemProps {
 }
 
 export function StaggerItem({ children, index = 0, className = '' }: StaggerItemProps) {
+  const prefersReducedMotion = useReducedMotion();
+
+  if (prefersReducedMotion) {
+    return <div className={className}>{children}</div>;
+  }
+
   return (
     <motion.div
       className={className}

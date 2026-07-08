@@ -11,8 +11,8 @@ import {
   LayoutDashboard, Brain, BarChart3,
   Menu, X,
   MessageSquare, CreditCard,
-  Layers, BookOpen, Sparkles,
-  Globe, Inbox, ChevronRight,
+  Layers, BookOpen,
+  ChevronRight, Inbox,
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -32,7 +32,6 @@ const navItems = [
 
 const secondaryItems = [
   { label: 'Settings', href: '/dashboard/settings', icon: Brain },
-  { label: 'Admin', href: '/dashboard/admin', icon: Sparkles },
 ];
 
 export function DashboardLayout({ children, title, description }: DashboardLayoutProps) {
@@ -54,8 +53,8 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
   return (
     <div className="min-h-screen bg-background">
       {/* Mobile header bar */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 h-14 border-b border-white/[0.06] bg-background/95 backdrop-blur-xl">
-        <Link href="/" className="flex items-center gap-2">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 h-14 border-b border-white/[0.06] bg-background/95 backdrop-blur-xl">
+        <Link href="/" className="flex items-center gap-2" aria-label="Home">
           <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center shadow-amber-glow">
             <MessageSquare className="w-3.5 h-3.5 text-black" />
           </div>
@@ -63,6 +62,7 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
         </Link>
         <button
           onClick={() => setIsOpen(!isOpen)}
+          aria-label={isOpen ? 'Close sidebar' : 'Open sidebar'}
           className="p-2 text-zinc-400 hover:text-white transition-colors"
         >
           {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -71,10 +71,11 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
 
       {/* Mobile overlay */}
       <div
-        className={`lg:hidden fixed inset-0 z-30 bg-black/75 transition-opacity duration-200 ${
+        className={`lg:hidden fixed inset-0 z-40 bg-black/75 transition-opacity duration-200 ${
           isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
         onClick={closeMenu}
+        aria-hidden="true"
       />
 
       {/* Sidebar */}
@@ -82,6 +83,7 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
         className={`fixed left-0 top-0 h-full w-64 bg-background/98 border-r border-white/[0.06] z-40 flex flex-col transition-transform duration-300 ease-out ${
           isMobile ? (isOpen ? 'translate-x-0' : '-translate-x-full') : 'translate-x-0'
         }`}
+        aria-label="Dashboard navigation"
       >
         <div className="flex items-center gap-2.5 px-5 h-14 border-b border-white/[0.06] shrink-0">
           <div className="w-8 h-8 rounded-xl bg-primary flex items-center justify-center shadow-amber-glow">
@@ -92,12 +94,12 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
           </span>
         </div>
 
-        <nav className="flex-1 overflow-y-auto px-2 py-4 space-y-4">
+        <nav className="flex-1 overflow-y-auto overflow-x-hidden px-2 py-4 space-y-4">
           <div>
             <p className="px-3 text-[10px] font-medium text-zinc-600 uppercase tracking-[0.15em] mb-2">Main</p>
             <div className="space-y-0.5">
               {navItems.map((item) => {
-                const isActive = pathname === item.href;
+                const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
                 return (
                   <Link
                     key={item.href}
@@ -108,6 +110,7 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
                         ? 'text-primary bg-primary/[0.08]'
                         : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03]'
                     }`}
+                    aria-current={isActive ? 'page' : undefined}
                   >
                     <div
                       className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-full bg-primary transition-opacity duration-150 ${
@@ -131,7 +134,6 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
             <div className="space-y-0.5">
               {secondaryItems.map((item) => {
                 const isActive = pathname === item.href;
-                if (item.label === 'Admin' && !isAdmin) return null;
                 return (
                   <Link
                     key={item.href}
@@ -142,6 +144,7 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
                         ? 'text-primary bg-primary/[0.08]'
                         : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03]'
                     }`}
+                    aria-current={isActive ? 'page' : undefined}
                   >
                     <div
                       className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-full bg-primary transition-opacity duration-150 ${
@@ -157,6 +160,27 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
                   </Link>
                 );
               })}
+              {isAdmin && (
+                <Link
+                  href="/dashboard/admin"
+                  onClick={closeMenu}
+                  className={`relative flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all duration-150 ${
+                    pathname === '/dashboard/admin'
+                      ? 'text-primary bg-primary/[0.08]'
+                      : 'text-zinc-400 hover:text-zinc-200 hover:bg-white/[0.03]'
+                  }`}
+                >
+                  <div
+                    className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 rounded-full bg-primary transition-opacity duration-150 ${
+                      pathname === '/dashboard/admin' ? 'opacity-100' : 'opacity-0'
+                    }`}
+                  />
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center text-zinc-500">
+                    <Brain className="w-4 h-4" />
+                  </div>
+                  Admin
+                </Link>
+              )}
             </div>
           </div>
 
@@ -165,7 +189,7 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
             <div className="space-y-0.5">
               <div className="flex items-center gap-3 px-3 py-2 rounded-xl text-zinc-600 cursor-not-allowed">
                 <div className='w-8 h-8 rounded-lg flex items-center justify-center text-zinc-600'>
-                  <Globe className="w-4 h-4" />
+                  <MessageSquare className="w-4 h-4" />
                 </div>
                 <span className="text-xs">Custom Domain</span>
                 <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded-full bg-zinc-800 text-zinc-500">Soon</span>
@@ -194,7 +218,7 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
         </div>
       </aside>
 
-      <main className="lg:pl-64 pt-14 lg:pt-0">
+      <main className="lg:pl-64 pt-14 lg:pt-0 min-h-screen">
         <div className="max-w-6xl mx-auto px-4 lg:px-8 py-6 lg:py-8">
           <div className="mb-6">
             <h1 className="text-xl lg:text-2xl font-bold text-white mb-0.5">{title}</h1>

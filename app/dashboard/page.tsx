@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/hooks/useAuth';
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useCallback } from 'react';
 import { redirect, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useQuery, useMutation } from 'convex/react';
@@ -13,15 +13,15 @@ import { Card, CardHeader, StatsCard, ProgressBar } from '@/components/dashboard
 import { EmptyState } from '@/components/dashboard/EmptyState';
 import { Button } from '@/components/dashboard/Button';
 import { Badge } from '@/components/dashboard/Badge';
-import { Skeleton, CardSkeleton, StatsCardSkeleton, ListSkeleton } from '@/components/dashboard/Skeleton';
+import { Skeleton } from '@/components/dashboard/Skeleton';
 import { useToast } from '@/components/dashboard/Toast';
 import {
   MessageSquare, Users, Zap, Brain,
   ExternalLink, Copy, CheckCircle2, AlertCircle,
   BookOpen, Clock, BarChart3, ChevronRight,
-  TrendingUp, Sparkles, Target, Activity,
-  ArrowUp, ArrowDown, FileText,
-  Settings, Layers, Send,
+  TrendingUp, Sparkles, Target,
+  ArrowUp, ArrowRight, FileText,
+  Settings, Layers, Inbox,
 } from 'lucide-react';
 
 type Period = '7d' | '30d' | 'all';
@@ -46,11 +46,6 @@ export default function DashboardPage() {
   const createProfile = useMutation(api.profiles.createIfMissing);
   const getOrCreateSubscription = useMutation(api.subscriptions.getOrCreateSubscription);
   const resetMonthlyUsage = useMutation(api.subscriptions.resetMonthlyUsage);
-  const answerQuestion = useMutation(api.questions.answerQuestion);
-
-  const [answeringId, setAnsweringId] = useState<string | null>(null);
-  const [answerText, setAnswerText] = useState('');
-  const [submittingAnswer, setSubmittingAnswer] = useState<string | null>(null);
 
   const analytics = useQuery(
     api.analytics.getAnalytics,
@@ -80,16 +75,19 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (profile === null && isSignedIn) {
-      createProfile({}).catch(console.error);
-    }
-    if (profile && !localStorage.getItem('oq_welcome_seen')) {
-      setShowWelcome(true);
+      createProfile({}).catch(() => {});
     }
   }, [profile, isSignedIn, createProfile]);
 
   useEffect(() => {
+    if (profile && !localStorage.getItem('oq_welcome_seen')) {
+      setShowWelcome(true);
+    }
+  }, [profile]);
+
+  useEffect(() => {
     if (profile?._id) {
-      getOrCreateAnalytics({ profileId: profile._id }).catch(console.error);
+      getOrCreateAnalytics({ profileId: profile._id }).catch(() => {});
     }
   }, [profile?._id, getOrCreateAnalytics]);
 
@@ -103,21 +101,26 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (userId && subscription === null) {
-      getOrCreateSubscription({ userId }).catch(console.error);
+      getOrCreateSubscription({ userId }).catch(() => {});
     }
+  }, [userId, subscription, getOrCreateSubscription]);
+
+  useEffect(() => {
     if (userId && subscription) {
       resetMonthlyUsage({ userId }).catch(() => {});
     }
-  }, [userId, subscription, getOrCreateSubscription, resetMonthlyUsage]);
+  }, [userId, subscription, resetMonthlyUsage]);
 
-  const copyProfileLink = () => {
-    navigator.clipboard.writeText('https://onequestion.space/' + profile?.username);
+  const copyProfileLink = useCallback(() => {
+    if (!profile?.username) return;
+    navigator.clipboard.writeText('https://onequestion.space/' + profile.username);
     setCopied(true);
     toast({ type: 'success', title: 'Link copied!', description: 'Share it with anyone to get questions.' });
     setTimeout(() => setCopied(false), 2000);
-  };
+  }, [profile?.username, toast]);
+
   const loading = !profile || analytics === undefined || knowledgeCount === undefined || subscription === undefined;
-  const isNewUser = !knowledgeCount || knowledgeCount === 0;
+  const isNewUser = knowledgeCount === 0;
   const messagesUsed = subscription?.messagesUsed ?? 0;
   const messagesLimit = subscription?.messagesLimit ?? 50;
   const pendingCount = unansweredQuestions?.length ?? 0;
@@ -152,7 +155,7 @@ export default function DashboardPage() {
     ? Math.round((analytics.totalAnswers / analytics.totalQuestions) * 100)
     : 0;
 
-  const spaceUrl = 'onequestion.space/' + profile?.username;
+  const spaceUrl = profile?.username ? 'onequestion.space/' + profile.username : '';
 
   const hour = new Date().getHours();
   const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
@@ -167,17 +170,23 @@ export default function DashboardPage() {
   ];
   const completionScore = Math.round((completionChecks.filter(Boolean).length / completionChecks.length) * 100);
 
-  if (!isLoaded) return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-pulse text-zinc-500 text-sm">Loading...</div>
-    </div>
-  );
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-primary/20 animate-pulse flex items-center justify-center">
+            <MessageSquare className="w-4 h-4 text-primary" />
+          </div>
+          <p className="text-zinc-500 text-sm">Loading your space...</p>
+        </div>
+      </div>
+    );
+  }
   if (!isSignedIn) { redirect('/'); }
 
   return (
     <DashboardLayout title={`${greeting}, ${profile?.displayName || 'friend'}`} description={spaceUrl}>
-      <div className="space-y-5">
-
+      <div className="space-y-6">
         {/* Top bar */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div className="flex items-center gap-1 p-0.5 rounded-xl bg-white/[0.03] border border-white/[0.06]">
@@ -195,27 +204,40 @@ export default function DashboardPage() {
               icon={copied ? <CheckCircle2 className="w-3.5 h-3.5 text-green-400" /> : <Copy className="w-3.5 h-3.5" />}>
               {copied ? 'Copied!' : 'Copy link'}
             </Button>
-            <Link href={'/' + profile?.username} target="_blank">
-              <Button variant="secondary" size="sm" icon={<ExternalLink className="w-3.5 h-3.5" />}>
-                View Space
-              </Button>
-            </Link>
+            {profile?.username && (
+              <Link href={'/' + profile.username} target="_blank">
+                <Button variant="secondary" size="sm" icon={<ExternalLink className="w-3.5 h-3.5" />}>
+                  View Space
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
 
         {loading ? (
-          <>
+          <div className="space-y-6">
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-              {Array.from({ length: 4 }).map((_, i) => <StatsCardSkeleton key={i} />)}
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="paper-card p-5 space-y-3">
+                  <Skeleton className="h-9 w-9 rounded-xl" />
+                  <Skeleton className="h-7 w-20" />
+                  <Skeleton className="h-3 w-16" />
+                </div>
+              ))}
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {Array.from({ length: 2 }).map((_, i) => <CardSkeleton key={i} />)}
+              <div className="paper-card p-6 space-y-4">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-8 w-24" />
+                <Skeleton className="h-1.5 w-full" />
+              </div>
+              <div className="paper-card p-6 space-y-4">
+                <Skeleton className="h-4 w-32" />
+                <Skeleton className="h-8 w-24" />
+                <Skeleton className="h-1.5 w-full" />
+              </div>
             </div>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-              <CardSkeleton />
-              <CardSkeleton />
-            </div>
-          </>
+          </div>
         ) : (
           <>
             {/* Space completion banner */}
@@ -224,7 +246,7 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between gap-4">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2 mb-0.5">
-                      <Target className="w-4 h-4 text-primary" />
+                      <Target className="w-4 h-4 text-primary shrink-0" />
                       <p className="text-sm font-semibold text-white">Space setup {completionScore}% complete</p>
                     </div>
                     <p className="text-xs text-zinc-500">Complete all steps to unlock your full potential</p>
@@ -293,12 +315,12 @@ export default function DashboardPage() {
 
             {/* Quick actions */}
             <div>
-              <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-[0.15em] mb-2">Quick Actions</p>
+              <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-[0.15em] mb-3">Quick Actions</p>
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
                 {QUICK_ACTIONS.map(action => (
                   <Link key={action.label} href={action.href}
                     className="flex items-center gap-3 p-3 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/[0.12] transition-all group">
-                    <div className="w-9 h-9 rounded-lg flex items-center justify-center"
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
                       style={{ backgroundColor: action.color + '15', color: action.color }}>
                       <action.icon className="w-4 h-4" />
                     </div>
@@ -320,7 +342,7 @@ export default function DashboardPage() {
                 </div>
                 <ProgressBar value={responseRate} color="#F5A623" />
                 {pendingCount > 0 && (
-                  <Link href="/dashboard/analytics" className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 mt-3 transition-colors">
+                  <Link href="/dashboard/inbox" className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 mt-3 transition-colors">
                     <AlertCircle className="w-3 h-3" />
                     {pendingCount} pending question{pendingCount === 1 ? '' : 's'} — answer them to boost your rate
                   </Link>
@@ -359,9 +381,14 @@ export default function DashboardPage() {
                   title="Unanswered Questions"
                   icon={<AlertCircle className="w-4 h-4 text-primary" />}
                   description="These visitors are waiting for a response."
+                  action={
+                    <Link href="/dashboard/inbox">
+                      <Button variant="ghost" size="sm" icon={<ArrowRight className="w-3 h-3" />}>Go to Inbox</Button>
+                    </Link>
+                  }
                 />
                 <div className="space-y-2">
-                  {unansweredQuestions.map((q) => (
+                  {unansweredQuestions.slice(0, 3).map((q) => (
                     <div key={q._id} className="p-3.5 rounded-xl bg-white/[0.02] border border-white/[0.06]">
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <div className="min-w-0">
@@ -372,46 +399,6 @@ export default function DashboardPage() {
                           </p>
                         </div>
                       </div>
-                      {answeringId === q._id ? (
-                        <div className="space-y-2">
-                          <textarea
-                            value={answerText}
-                            onChange={(e) => setAnswerText(e.target.value)}
-                            placeholder="Write your answer..."
-                            rows={3}
-                            className="w-full px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:border-primary/40 resize-none"
-                          />
-                          <div className="flex items-center gap-2">
-                            <Button variant="primary" size="sm" icon={<Send className="w-3 h-3" />}
-                              disabled={!answerText.trim() || submittingAnswer === q._id}
-                              onClick={async () => {
-                                if (!answerText.trim()) return;
-                                setSubmittingAnswer(q._id);
-                                try {
-                                  await answerQuestion({ id: q._id, answer: answerText.trim() });
-                                  setAnswerText('');
-                                  setAnsweringId(null);
-                                  toast({ type: 'success', title: 'Answered!', description: 'Your answer is now live.' });
-                                } catch {
-                                  toast({ type: 'error', title: 'Failed', description: 'Could not save your answer.' });
-                                }
-                                setSubmittingAnswer(null);
-                              }}
-                            >
-                              {submittingAnswer === q._id ? 'Saving...' : 'Send Answer'}
-                            </Button>
-                            <Button variant="ghost" size="sm"
-                              onClick={() => { setAnsweringId(null); setAnswerText(''); }}>
-                              Cancel
-                            </Button>
-                          </div>
-                        </div>
-                      ) : (
-                        <Button variant="secondary" size="sm"
-                          onClick={() => { setAnsweringId(q._id); setAnswerText(''); }}>
-                          Answer
-                        </Button>
-                      )}
                     </div>
                   ))}
                 </div>
@@ -469,7 +456,7 @@ export default function DashboardPage() {
                 />
                 {knowledgeCount && knowledgeCount > 0 ? (
                   <div className="text-center py-6">
-                    <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3 ring-2 ring-primary/10">
+                    <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-3">
                       <Brain className="w-7 h-7 text-primary" />
                     </div>
                     <p className="text-3xl font-bold text-white mb-1">{knowledgeCount}</p>

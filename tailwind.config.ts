@@ -51,6 +51,7 @@ const config: Config = {
         'slide-up': 'slideUp 0.3s ease-out',
         'float': 'float 20s ease-in-out infinite',
         'shimmer': 'shimmer 2.5s linear infinite',
+        'gradient': 'gradientShift 3s ease infinite',
         'pulse-soft': 'pulseSoft 3s ease-in-out infinite',
         'counter': 'counter 2s ease-out forwards',
       },
@@ -83,6 +84,10 @@ const config: Config = {
         pulseSoft: {
           '0%, 100%': { opacity: '0.4' },
           '50%': { opacity: '0.7' },
+        },
+        gradientShift: {
+          '0%, 100%': { backgroundPosition: '0% 50%' },
+          '50%': { backgroundPosition: '100% 50%' },
         },
       },
     },

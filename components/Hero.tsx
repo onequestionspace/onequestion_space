@@ -4,7 +4,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
-import { ArrowRight, Sparkles, Globe, Brain, Star, Users, Play, Check, X as XIcon } from 'lucide-react';
+import { ArrowRight, Sparkles, Globe, Brain, Check, X as XIcon, Play, Star, MessageSquare } from 'lucide-react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
 import AnimatedCounter from '@/components/motion/AnimatedCounter';
@@ -70,6 +70,11 @@ export function Hero() {
   const profilesCount = useQuery(api.profiles.getProfilesCount);
   const count = profilesCount ?? 0;
 
+  const scrollToSection = (id: string) => {
+    const el = document.getElementById(id);
+    el?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   const handleClaim = useCallback(() => {
     if (isSignedIn) {
       window.location.href = '/dashboard';
@@ -82,9 +87,10 @@ export function Hero() {
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24 pb-16">
       <div className="absolute inset-0 bg-background" />
-      <div className="absolute inset-0 amber-radial pointer-events-none" />
+      <div className="absolute inset-0 amber-radial-hero pointer-events-none" />
       <div className="absolute inset-0 faint-grid opacity-50 pointer-events-none" />
       <div className="absolute inset-0 grain opacity-[0.02] pointer-events-none mix-blend-soft-light" />
+      <div className="absolute inset-0 paper-texture pointer-events-none" />
 
       {/* Top gradient line */}
       <motion.div
@@ -97,28 +103,25 @@ export function Hero() {
         transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
       />
 
-      <FloatingParticles count={20} />
+      <FloatingParticles count={15} />
 
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 w-full">
 
-        {/* === COMPARISON SECTION === */}
+        {/* === COMPARISON SECTION (FIRST) === */}
         <FadeIn delay={0}>
-          <div className="text-center mb-10">
+          <div className="text-center mb-8">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[11px] font-bold tracking-wide mb-4">
               <Brain className="w-3 h-3" />
               NOT ANOTHER AI CHATBOT
             </div>
-            <p className="text-zinc-500 text-sm max-w-xl mx-auto">
-              ChatGPT answers from the internet. One Question answers from <span className="text-zinc-300 font-semibold">YOUR</span> knowledge.
-            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 max-w-3xl mx-auto mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4 max-w-3xl mx-auto mb-16">
             {/* ChatGPT card */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.6, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
               className="paper-card p-5"
             >
               <div className="flex items-center gap-3 mb-4">
@@ -127,7 +130,7 @@ export function Hero() {
                 </div>
                 <span className="text-sm font-bold text-zinc-300">ChatGPT</span>
               </div>
-              <p className="text-xs text-zinc-500 mb-3">Answers from the internet.</p>
+              <p className="text-xs text-zinc-500 mb-3">Answers from the internet. General knowledge. Same for everyone.</p>
               <ul className="space-y-2">
                 {['Internet knowledge', 'General answers', 'Same for everyone'].map((b, i) => (
                   <li key={i} className="flex items-center gap-2 text-xs text-zinc-500">
@@ -136,15 +139,19 @@ export function Hero() {
                   </li>
                 ))}
               </ul>
+              <div className="mt-4 pt-3 border-t border-white/[0.06]">
+                <p className="text-[10px] text-zinc-600 text-center">Answers anyone could give</p>
+              </div>
             </motion.div>
 
             {/* One Question card */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
-              className="paper-card p-5 border-primary/20 bg-gradient-to-b from-primary/[0.04] to-transparent"
+              transition={{ duration: 0.6, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              className="paper-card p-5 border-primary/20 bg-gradient-to-b from-primary/[0.04] to-transparent relative overflow-hidden"
             >
+              <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center">
                   <Brain className="w-4 h-4 text-black" />
@@ -154,7 +161,7 @@ export function Hero() {
                   YOUR AI
                 </span>
               </div>
-              <p className="text-xs text-primary/80 mb-3">Answers from YOUR knowledge.</p>
+              <p className="text-xs text-primary/80 mb-3">Answers from YOUR knowledge. In YOUR voice.</p>
               <ul className="space-y-2 mb-3">
                 {['YOUR documents', 'YOUR links', 'YOUR expertise', 'YOUR voice', 'Trained only on you'].map((b, i) => (
                   <li key={i} className="flex items-center gap-2 text-xs text-zinc-300">
@@ -170,7 +177,7 @@ export function Hero() {
           </div>
         </FadeIn>
 
-        {/* === HERO === */}
+        {/* === HERO SECTION (SECOND) === */}
         <div className="text-center max-w-4xl mx-auto">
           <FadeIn delay={0.1} y={20}>
             <h1 className="text-[clamp(2.5rem,8vw,5.5rem)] font-black text-white leading-[1.04] tracking-[-0.03em] mb-4">
@@ -208,17 +215,18 @@ export function Hero() {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
+                onClick={() => scrollToSection('how-it-works')}
                 className="px-8 py-4 rounded-2xl border border-white/10 text-zinc-300 font-semibold text-sm flex items-center gap-2 hover:bg-white/[0.04] hover:border-white/20 transition-all"
               >
                 <Play className="w-4 h-4" />
-                See Demo
+                See How It Works
               </motion.button>
             </div>
           </FadeIn>
 
           {/* Social Proof */}
           <FadeIn delay={0.45} y={15}>
-            <div className="flex flex-col items-center justify-center gap-4 mb-8">
+            <div className="flex flex-col items-center justify-center gap-4 mb-6">
               <div className="flex items-center">
                 <div className="flex -space-x-2 mr-3">
                   {(recentProfiles && recentProfiles.length > 0 ? recentProfiles : Array.from({ length: 5 }, (_, i) => ({ avatar: undefined, username: ['Asym', 'Sarah', 'Kwame', 'Priya', 'Carlos'][i] }))).map((p, i) => (
@@ -248,7 +256,7 @@ export function Hero() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-lg mx-auto mb-8">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-lg mx-auto mb-6">
               {[
                 { icon: '🔥', label: 'Spaces Live', value: count },
                 { icon: '💬', label: 'Questions Answered', value: '1,200+' },
@@ -270,7 +278,7 @@ export function Hero() {
 
           {/* Trust line */}
           <FadeIn delay={0.55} y={10}>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/[0.05] border border-primary/10 text-primary/60 text-[10px] font-medium">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/[0.05] border border-primary/10 text-primary/60 text-[10px] font-medium mb-4">
               <span className="relative flex h-1.5 w-1.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
@@ -282,7 +290,7 @@ export function Hero() {
 
         {/* Username input */}
         <FadeIn delay={0.6} y={10}>
-          <div className="flex justify-center mt-6">
+          <div className="flex justify-center mt-4">
             <div className="flex items-center bg-white/[0.03] border border-white/10 rounded-xl px-3 py-2 focus-within:border-primary/40 transition-all shadow-inner shadow-black/20 max-w-xs w-full">
               <span className="text-zinc-500 text-[11px] whitespace-nowrap shrink-0 font-mono">onequestion.space/</span>
               <input

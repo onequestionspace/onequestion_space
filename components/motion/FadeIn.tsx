@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { ReactNode } from 'react';
 
 interface FadeInProps {
@@ -20,6 +20,12 @@ export function FadeIn({
   className = '',
   once = true,
 }: FadeInProps) {
+  const prefersReducedMotion = useReducedMotion();
+
+  if (prefersReducedMotion) {
+    return <div className={className}>{children}</div>;
+  }
+
   return (
     <motion.div
       className={className}

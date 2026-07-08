@@ -180,8 +180,8 @@ export default function StudioPage() {
               <Badge variant={dirty ? 'warning' : 'success'}>{dirty ? 'Unsaved' : 'Saved'}</Badge>
             </div>
           </div>
-          <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden mb-3">
-            <div className="h-full rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 animate-gradient transition-all duration-700" style={{ width: score + '%', backgroundSize: '200% 100%' }} />
+            <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden mb-3">
+            <div className="h-full rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 animate-gradient transition-all duration-700" style={{ width: `${score}%`, backgroundSize: '200% 100%' }} />
           </div>
           <div className="flex flex-wrap gap-1.5">
             {completionChecks.map((c, i) => (

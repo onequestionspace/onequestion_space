@@ -14,33 +14,17 @@ import { FAQSection } from '@/components/FAQSection';
 
 export default function Home() {
   return (
-    <main className='relative'>
+    <main className="relative">
       <Hero />
-      <StatsBar />
-      <FadeInSection delay={0}>
-        <ProblemSection />
-      </FadeInSection>
-      <FadeInSection delay={0}>
-        <HowItWorksSection />
-      </FadeInSection>
-      <FadeInSection delay={0}>
-        <BentoSection />
-      </FadeInSection>
-      <FadeInSection delay={0}>
-        <LiveActivity />
-      </FadeInSection>
-      <FadeInSection delay={0}>
-        <TestimonialsSection />
-      </FadeInSection>
-      <FadeInSection delay={0}>
-        <PricingSection />
-      </FadeInSection>
-      <FadeInSection delay={0}>
-        <FAQSection />
-      </FadeInSection>
-      <FadeInSection delay={0}>
-        <CTASection />
-      </FadeInSection>
+      <FadeInSection><StatsBar /></FadeInSection>
+      <FadeInSection><ProblemSection /></FadeInSection>
+      <div id="how-it-works"><FadeInSection><HowItWorksSection /></FadeInSection></div>
+      <FadeInSection><BentoSection /></FadeInSection>
+      <FadeInSection><LiveActivity /></FadeInSection>
+      <FadeInSection><TestimonialsSection /></FadeInSection>
+      <FadeInSection><PricingSection /></FadeInSection>
+      <FadeInSection><FAQSection /></FadeInSection>
+      <FadeInSection><CTASection /></FadeInSection>
     </main>
   );
 }

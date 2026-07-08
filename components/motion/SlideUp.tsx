@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { ReactNode } from 'react';
 
 interface SlideUpProps {
@@ -10,6 +10,12 @@ interface SlideUpProps {
 }
 
 export function SlideUp({ children, delay = 0, className = '' }: SlideUpProps) {
+  const prefersReducedMotion = useReducedMotion();
+
+  if (prefersReducedMotion) {
+    return <div className={className}>{children}</div>;
+  }
+
   return (
     <motion.div
       className={className}
