@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { auth } from '@clerk/nextjs/server';
 import { generateEmbeddings, cosineSimilarity } from '@/lib/gemini';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
@@ -188,8 +189,12 @@ async function streamGroq(prompt: string): Promise<ReadableStream<Uint8Array> | 
 
 export async function POST(request: NextRequest) {
   try {
+    const { userId: sessionUserId } = await auth();
+    if (!sessionUserId) return new Response('Unauthorized', { status: 401 });
+
     const { question, userId } = await request.json();
     if (!question?.trim() || !userId?.trim()) return new Response('Missing params', { status: 400 });
+    if (userId !== sessionUserId) return new Response('Forbidden', { status: 403 });
 
     const knowledgeChunks = await convex.query(api.knowledge.getKnowledgeByUserId, { userId });
     const hasKnowledge = knowledgeChunks && knowledgeChunks.length > 0;

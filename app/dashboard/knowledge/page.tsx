@@ -12,6 +12,7 @@ import { EmptyState } from '@/components/dashboard/EmptyState';
 import { Input, Textarea, Label } from '@/components/dashboard/Input';
 import { Button } from '@/components/dashboard/Button';
 import { ListSkeleton } from '@/components/dashboard/Skeleton';
+import { KnowledgeHealthCard, KnowledgeGapsCard, CoverageCard, AutoFAQCard } from '@/components/KnowledgeIntelligence';
 import {
   Brain, Upload, FileText, Trash2, Plus,
   CheckCircle2, AlertCircle, X, Lightbulb, ChevronDown, ChevronUp,
@@ -334,6 +335,16 @@ export default function KnowledgePage() {
             </div>
           )}
         </Card>
+
+        {/* Knowledge Intelligence */}
+        {userId && knowledge && knowledge.length > 0 && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
+            <KnowledgeHealthCard userId={userId} />
+            <KnowledgeGapsCard userId={userId} />
+            <CoverageCard userId={userId} />
+            <AutoFAQCard userId={userId} />
+          </div>
+        )}
 
         {loading ? (
           <ListSkeleton rows={3} />

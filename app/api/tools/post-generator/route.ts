@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@clerk/nextjs/server";
 import { generateCompletion } from "@/lib/gemini";
 
 const VOICE_GUIDE = `
@@ -60,6 +61,9 @@ function extractJson(raw: string): any {
 
 export async function POST(req: NextRequest) {
   try {
+    const { userId } = await auth();
+    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const body = await req.json();
     const { mode, work, commits, metric, mood, postType } = body;
 

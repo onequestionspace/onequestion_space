@@ -15,6 +15,7 @@ import type * as chats from "../chats.js";
 import type * as earlyAdopters from "../earlyAdopters.js";
 import type * as founding from "../founding.js";
 import type * as knowledge from "../knowledge.js";
+import type * as knowledgeHealth from "../knowledgeHealth.js";
 import type * as migrations from "../migrations.js";
 import type * as profiles from "../profiles.js";
 import type * as questions from "../questions.js";
@@ -37,6 +38,7 @@ declare const fullApi: ApiFromModules<{
   earlyAdopters: typeof earlyAdopters;
   founding: typeof founding;
   knowledge: typeof knowledge;
+  knowledgeHealth: typeof knowledgeHealth;
   migrations: typeof migrations;
   profiles: typeof profiles;
   questions: typeof questions;

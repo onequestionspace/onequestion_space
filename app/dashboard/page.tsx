@@ -11,6 +11,7 @@ import { StatsCard } from '@/components/dashboard/Card';
 import { EmptyState } from '@/components/dashboard/EmptyState';
 import { Button } from '@/components/dashboard/Button';
 import { Badge } from '@/components/dashboard/Badge';
+import { KnowledgeHealthCard, KnowledgeGapsCard, CoverageCard, AutoFAQCard, AICoachCard } from '@/components/KnowledgeIntelligence';
 import {
   MessageSquare, Users, Zap, Brain,
   Sparkles, BarChart3, Clock,
@@ -223,6 +224,19 @@ export default function DashboardPage() {
                 </div>
               </div>
             </div>
+
+            {/* AI Coach */}
+            {userId && <AICoachCard userId={userId} knowledgeCount={knowledgeCount ?? 0} />}
+
+            {/* Knowledge Intelligence Grid */}
+            {knowledgeCount && knowledgeCount > 0 && userId && (
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
+                <KnowledgeHealthCard userId={userId} />
+                <KnowledgeGapsCard userId={userId} />
+                <CoverageCard userId={userId} />
+                <AutoFAQCard userId={userId} />
+              </div>
+            )}
 
             {/* Bottom section - recent activity or empty state */}
             {knowledgeCount === 0 && (
