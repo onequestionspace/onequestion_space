@@ -12,7 +12,7 @@ import {
   Send, Copy, Check, RefreshCw, Share2, ChevronDown, BookOpen,
   Sparkles, Brain, Zap, FileText, Star, Settings, ChevronLeft,
   Menu, X, Download, Pin, Edit3, GripVertical,
-  Lightbulb, Target, PenTool, Trello, Notebook, Link, Twitter,
+  Lightbulb, Target, PenTool, Notebook, Link,
   Newspaper, BarChart3, Sword, Clock, Quote, ExternalLink,
   DollarSign, Layers, FolderOpen,
 } from 'lucide-react';
@@ -34,7 +34,7 @@ interface Message {
 const WELCOME_SUGGESTIONS = [
   { icon: Sparkles, label: 'Summarize my startup', action: 'Summarize my startup vision in 3 bullet points' },
   { icon: PenTool, label: 'Generate today\'s X post', action: 'Generate a viral X thread about my latest work' },
-  { icon: Trello, label: 'Explain my roadmap', action: 'Explain my product roadmap as a clear narrative' },
+  { icon: Layers, label: 'Explain my roadmap', action: 'Explain my product roadmap as a clear narrative' },
   { icon: Notebook, label: 'Organize my notes', action: 'Help me organize all my notes into categories' },
   { icon: Lightbulb, label: 'Create FAQs', action: 'Generate FAQs from my knowledge base' },
   { icon: Zap, label: 'Dump my memory', action: '/dump I want to dump my brain and have you organize everything' },
