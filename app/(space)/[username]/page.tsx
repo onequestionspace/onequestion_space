@@ -4,7 +4,7 @@ import { useState, use, useRef, useEffect, useMemo } from 'react';
 import Image from 'next/image';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
-import { motion, AnimatePresence } from 'framer-motion';
+// framer-motion removed for mobile stability
 import Link from 'next/link';
 import { Send, Copy, Check, Globe, ExternalLink, Sparkles, ChevronDown, Heart, Zap, MessageSquare, Clock, CheckCheck } from 'lucide-react';
 import { LinkPreviewCard } from '@/components/LinkPreviewCard';
@@ -989,7 +989,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
       <div className='max-w-xl mx-auto px-4 py-10 pb-8'>
 
         {/* Profile Header */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className='text-center mb-10'>
+        <div className='text-center mb-10'>
           <div className='relative w-32 h-32 mx-auto mb-5'>
             <div className='absolute inset-0 rounded-full animate-pulse-glow' style={{ boxShadow: '0 0 0 3px ' + color + '60, 0 0 40px ' + color + '30' }} />
             <div className='relative w-32 h-32 rounded-full overflow-hidden flex items-center justify-center text-4xl font-bold text-white ring-2 ring-white/10'
@@ -1097,25 +1097,25 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
 
           {/* Vibe quote */}
           {vibeQuote && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+            <div
               className='mt-6 px-5 py-4 rounded-2xl text-center backdrop-blur-sm'
               style={{ backgroundColor: color + '0d', border: '1px solid ' + color + '20' }}>
               <p className='text-sm leading-relaxed italic opacity-75'>&ldquo;{vibeQuote}&rdquo;</p>
-            </motion.div>
+            </div>
           )}
 
           {/* Links */}
           {spaceLinks.length > 0 && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className='mt-4 space-y-2'>
+            <div className='mt-4 space-y-2'>
               {spaceLinks.map((link, i) => (
                 <LinkPreviewCard key={i} title={link.title} url={link.url} color={color} />
               ))}
-            </motion.div>
+            </div>
           )}
 
           {/* Pinned answers */}
           {pinnedAnswers.length > 0 && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className='mt-8'>
+            <div className='mt-8'>
               <p className='text-xs font-medium uppercase tracking-widest opacity-30 mb-3'>Pinned</p>
               <div className='space-y-2'>
                 {pinnedAnswers.map((q, i) => (
@@ -1126,15 +1126,8 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
                       <span className='text-xs opacity-30 shrink-0 transition-transform duration-200'
                         style={{ transform: expandedPin === i ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
                     </div>
-                    <AnimatePresence>
                       {expandedPin === i && (
-                        <motion.div
-                          initial={{ height: 0, opacity: 0 }}
-                          animate={{ height: 'auto', opacity: 1 }}
-                          exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className='overflow-hidden'
-                        >
+                        <div className='overflow-hidden'>
                           <div className='px-4 py-3 border-t border-white/5' style={{ backgroundColor: color + '08' }}>
                             <div className='flex items-center gap-2 mb-2'>
                               <div className='w-4 h-4 rounded-full overflow-hidden flex items-center justify-center text-[9px] font-bold shrink-0 text-white' style={{ backgroundColor: color }}>
@@ -1144,59 +1137,58 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
                             </div>
                             <p className='text-sm opacity-80 leading-relaxed'>{q.answer ? stripMarkdown(q.answer) : ''}</p>
                           </div>
-                        </motion.div>
+                        </div>
                       )}
-                    </AnimatePresence>
                   </div>
                 ))}
               </div>
-            </motion.div>
+            </div>
           )}
-        </motion.div>
+        </div>
 
         {/* Conversation thread */}
         <div className="space-y-4 mb-4">
           {/* Welcome bubble */}
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="flex items-end gap-2">
+          <div className="flex items-end gap-2">
             <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 mb-1 flex items-center justify-center text-xs font-bold text-white shadow-lg" style={{ backgroundColor: color }}>
               {profile.avatar ? <Image src={profile.avatar} alt="" width={28} height={28} className="w-full h-full object-cover" /> : initials}
             </div>
             <div className={"px-4 py-3 rounded-3xl rounded-tl-sm text-sm leading-relaxed max-w-[85%] shadow-sm " + (isLight ? "bg-zinc-100 text-zinc-800" : "bg-white/8 text-white/90")}>
               {welcomeMessage}
             </div>
-          </motion.div>
+          </div>
 
           {/* Suggested question chips */}
           {history.length === 0 && !submitted && suggestedQuestions.length > 0 && (
-            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="flex flex-wrap gap-2 pl-9">
+            <div className="flex flex-wrap gap-2 pl-9">
               {suggestedQuestions.map((q, i) => (
                 <button key={i} onClick={() => { setQuestion(q); setCharCount(q.length); }}
                   className={"px-3 py-1.5 rounded-full border text-xs transition-all active:scale-95 backdrop-blur-sm " + (isLight ? "border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50 shadow-sm" : "border-white/10 bg-white/5 text-zinc-400 hover:text-white hover:bg-white/10")}>
                   {q}
                 </button>
               ))}
-            </motion.div>
+            </div>
           )}
 
           {/* Quick suggestions row */}
           {history.length === 0 && !submitted && suggestedQuestions.length === 0 && creatorQuestions.length > 0 && (
-            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="flex flex-wrap gap-2 pl-9">
+            <div className="flex flex-wrap gap-2 pl-9">
               {creatorQuestions.slice(0, 3).map((q, i) => (
                 <button key={i} onClick={() => { setQuestion(q); setCharCount(q.length); }}
                   className="px-3 py-1.5 rounded-full border border-white/10 bg-white/5 text-zinc-400 text-xs transition-all hover:text-white hover:bg-white/10 active:scale-95 backdrop-blur-sm">
                   {q}
                 </button>
               ))}
-            </motion.div>
+            </div>
           )}
 
           {/* History thread — collapsible */}
           {history.map((item, i) => {
             const isExpanded = expandedIndex === i;
             return (
-              <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}>
+              <div key={i}>
                 {/* Collapsed: question badge */}
-                <motion.div
+                <div
                   onClick={() => setExpandedIndex(isExpanded ? null : i)}
                   className={"flex items-center gap-2 px-4 py-2 rounded-full cursor-pointer transition-all border " + (isExpanded ? "border-white/20 bg-white/8" : "border-white/5 bg-white/4 hover:bg-white/8")}
                   style={{ borderColor: isExpanded ? color + '60' : undefined }}
@@ -1208,18 +1200,13 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
                   <span className="text-[9px] opacity-30 shrink-0">
                     {new Date(item.ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
-                  <motion.div animate={{ rotate: isExpanded ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                  <div>
                     <ChevronDown className="w-3 h-3 opacity-30 shrink-0" />
-                  </motion.div>
-                </motion.div>
+                  </div>
+                </div>
                 {/* Expanded: answer */}
-                <AnimatePresence>
                   {isExpanded && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.2 }}
-                      className="overflow-hidden"
-                    >
+                    <div className="overflow-hidden">
                       <div className="flex items-end gap-2 pt-2 pb-1 pl-2">
                         <div className="w-6 h-6 rounded-full overflow-hidden shrink-0 flex items-center justify-center text-[9px] font-bold text-white shadow" style={{ backgroundColor: color }}>
                           {profile.avatar ? <Image src={profile.avatar} alt="" width={24} height={24} className="w-full h-full object-cover" /> : initials}
@@ -1228,16 +1215,15 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
                           {item.a}
                         </div>
                       </div>
-                    </motion.div>
+                    </div>
                   )}
-                </AnimatePresence>
-              </motion.div>
+              </div>
             );
           })}
 
           {/* Current question */}
           {submitted && lastQuestion && (
-            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex justify-end">
+            <div className="flex justify-end">
               <div className="max-w-[80%] group relative">
                 <div className="px-4 py-2.5 rounded-3xl rounded-br-sm text-white text-sm leading-relaxed shadow-md" style={{ backgroundColor: color }}>
                   {lastQuestion}
@@ -1246,12 +1232,12 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
                   <span className="text-[9px] opacity-30">{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
 
           {/* Typing indicator */}
           {isTyping && !aiResponse && (
-            <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex items-end gap-2">
+            <div className="flex items-end gap-2">
               <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 mb-1 flex items-center justify-center text-xs font-bold text-white shadow-lg" style={{ backgroundColor: color }}>
                 {profile.avatar ? <Image src={profile.avatar} alt="" width={28} height={28} className="w-full h-full object-cover" /> : initials}
               </div>
@@ -1260,12 +1246,12 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
                   {[0,150,300].map(d => <div key={d} className="w-1.5 h-1.5 rounded-full animate-bounce opacity-60" style={{ backgroundColor: color, animationDelay: d + "ms" }} />)}
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
 
           {/* AI response */}
           {aiResponse && (
-            <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex items-end gap-2" ref={responseRef}>
+            <div className="flex items-end gap-2" ref={responseRef}>
               <div className="w-7 h-7 rounded-full overflow-hidden shrink-0 mb-1 flex items-center justify-center text-xs font-bold text-white shadow-lg" style={{ backgroundColor: color }}>
                 {profile.avatar ? <Image src={profile.avatar} alt="" width={28} height={28} className="w-full h-full object-cover" /> : initials}
               </div>
@@ -1277,12 +1263,12 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
                   {!isTyping && responseTime && <span className="text-[9px] opacity-30">{responseTime}s</span>}
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
 
           {/* Post-answer actions */}
           {!isTyping && aiResponse && (
-            <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex items-center gap-3 pl-9">
+            <div className="flex items-center gap-3 pl-9">
               {["🔥","👏","💡","❤️"].map(emoji => (
                 <button key={emoji} onClick={() => handleReaction(emoji)}
                   className={"text-sm px-2 py-1 rounded-full border transition-all backdrop-blur-sm " + (reacted === emoji ? "border-white/30 bg-white/10" : "border-white/8 bg-white/4 hover:bg-white/10")}>
@@ -1291,7 +1277,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
               ))}
               <button onClick={copyAnswer} className="text-xs opacity-40 hover:opacity-70 transition-opacity ml-1">copy</button>
               <button onClick={shareToX} className="text-xs opacity-40 hover:opacity-70 transition-opacity">share</button>
-            </motion.div>
+            </div>
           )}
 
           {/* Clear history */}
@@ -1304,7 +1290,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
         </div>
 
         {/* Input bar */}
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="mb-6">
+        <div className="mb-6">
           <div className={"flex items-end gap-2 px-3 py-2 rounded-3xl border shadow-lg backdrop-blur-sm " + (isLight ? "border-zinc-200 bg-white/90" : "border-zinc-700/40 bg-zinc-900/50")}>
             <textarea
               value={question}
@@ -1328,10 +1314,10 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
               </span>
             </div>
           )}
-        </motion.div>
+        </div>
 
         {/* Footer */}
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }}
+        <div
           className={'mt-10 text-center pt-8 border-t ' + (isLight ? 'border-zinc-200' : 'border-white/5')}>
           <Link href='/' className='inline-flex items-center gap-1.5 text-sm font-bold' style={{ color }}>
             <span className="opacity-60 text-xs font-normal text-zinc-500">Powered by</span>
@@ -1343,7 +1329,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
               Create your own AI space — free →
             </Link>
           </p>
-        </motion.div>
+        </div>
 
       </div>
     </div>

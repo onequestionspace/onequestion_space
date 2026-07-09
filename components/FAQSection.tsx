@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+// framer-motion removed for mobile stability
 import { ChevronDown, HelpCircle } from 'lucide-react';
 import { FadeIn } from '@/components/motion/FadeIn';
 
@@ -40,12 +40,8 @@ export function FAQSection() {
 
         <div className="space-y-2">
           {FAQS.map((faq, i) => (
-            <motion.div
+            <div
               key={i}
-              initial={{ opacity: 0, y: 8 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: i * 0.04 }}
               className="paper-card-static overflow-hidden"
             >
               <button
@@ -53,26 +49,20 @@ export function FAQSection() {
                 className="w-full flex items-center justify-between gap-3 px-5 py-4 text-left"
               >
                 <span className="text-sm font-medium text-white">{faq.q}</span>
-                <motion.div animate={{ rotate: open === i ? 180 : 0 }} transition={{ duration: 0.2 }}>
+                <div>
                   <ChevronDown className="w-4 h-4 text-zinc-500 shrink-0" />
-                </motion.div>
+                </div>
               </button>
-              <AnimatePresence>
                 {open === i && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.2, ease: 'easeInOut' }}
+                  <div
                     className="overflow-hidden"
                   >
                     <div className="px-5 pb-4 pt-0">
                       <p className="text-sm text-zinc-400 leading-relaxed">{faq.a}</p>
                     </div>
-                  </motion.div>
+                  </div>
                 )}
-              </AnimatePresence>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>

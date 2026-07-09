@@ -5,7 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { ArrowRight, Sparkles, Globe, Brain, Check, X as XIcon, Play, Star, MessageSquare } from 'lucide-react';
-import { motion } from 'framer-motion';
+// framer-motion removed for mobile stability
 import Image from 'next/image';
 import AnimatedCounter from '@/components/motion/AnimatedCounter';
 import { FadeIn } from '@/components/motion/FadeIn';
@@ -34,7 +34,7 @@ function FloatingParticles({ count = 20 }) {
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
       {particles.map(p => (
-        <motion.div
+        <div
           key={p.id}
           className="absolute rounded-full"
           style={{
@@ -44,18 +44,7 @@ function FloatingParticles({ count = 20 }) {
             height: p.size,
             background: 'radial-gradient(circle, rgba(245,166,35,0.3), transparent)',
           }}
-          animate={{
-            y: [0, p.yDrift * 0.5, p.yDrift * -0.3, p.yDrift * 0.2, 0],
-            x: [0, p.xDrift * 0.4, p.xDrift * -0.5, p.xDrift * 0.3, 0],
-            opacity: [0.1, 0.4, 0.15, 0.3, 0.1],
-            scale: [1, 1.2, 0.9, 1.1, 1],
-          }}
-          transition={{
-            duration: p.duration,
-            delay: p.delay,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
+
         />
       ))}
     </div>
@@ -92,14 +81,13 @@ export function Hero() {
       <div className="absolute inset-0 grain opacity-[0.02] pointer-events-none mix-blend-soft-light" />
       <div className="absolute inset-0 paper-texture pointer-events-none" />
 
-      <motion.div
+      <div
         className="absolute top-0 left-0 right-0 h-px pointer-events-none"
         style={{
           background: 'linear-gradient(90deg, transparent, rgba(245,166,35,0.3), rgba(245,166,35,0.5), rgba(245,166,35,0.3), transparent)',
           backgroundSize: '200% 100%',
         }}
-        animate={{ backgroundPosition: ['0% 0%', '200% 0%'] }}
-        transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+        
       />
 
       <FloatingParticles count={15} />
@@ -163,31 +151,23 @@ export function Hero() {
         {/* CTA Buttons */}
         <FadeIn delay={0.2} y={15}>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+            <button
               onClick={handleClaim}
               className="group relative px-8 py-4 rounded-2xl bg-primary text-black font-black text-sm flex items-center gap-2 transition-all shadow-amber-glow-lg hover:shadow-amber-glow overflow-hidden"
             >
-              <motion.div
-                animate={{ opacity: [0, 0.4, 0] }}
-                transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg]"
-              />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg]" />
               <Sparkles className="w-4 h-4 relative" />
               <span className="relative">Claim Your Space</span>
               <ArrowRight className="w-4 h-4 relative group-hover:translate-x-0.5 transition-transform" />
-            </motion.button>
+            </button>
 
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+            <button
               onClick={() => scrollToSection('how-it-works')}
               className="px-8 py-4 rounded-2xl border border-white/10 text-zinc-300 font-semibold text-sm flex items-center gap-2 hover:bg-white/[0.04] hover:border-white/20 transition-all"
             >
               <Play className="w-4 h-4" />
               See How It Works
-            </motion.button>
+            </button>
           </div>
         </FadeIn>
 
@@ -197,11 +177,8 @@ export function Hero() {
             <div className="flex items-center">
               <div className="flex -space-x-2 mr-3">
                 {(recentProfiles && recentProfiles.length > 0 ? recentProfiles : Array.from({ length: 5 }, (_, i) => ({ avatar: undefined, username: ['Asym', 'Sarah', 'Kwame', 'Priya', 'Carlos'][i] }))).map((p, i) => (
-                  <motion.div
+                  <div
                     key={i}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.5 + i * 0.06 }}
                     className="relative w-7 h-7 rounded-full border-2 border-background overflow-hidden ring-2 ring-background"
                     style={{ zIndex: 5 - i }}
                   >
@@ -210,7 +187,7 @@ export function Hero() {
                     ) : (
                       <img src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${p.username || 'User'}`} alt="" className="w-full h-full object-cover" />
                     )}
-                  </motion.div>
+                  </div>
                 ))}
               </div>
               <div className="flex items-center gap-1.5">
@@ -268,14 +245,12 @@ export function Hero() {
                 className="flex-1 bg-transparent text-white ml-1 outline-none placeholder:text-zinc-600 text-[11px] font-mono"
               />
               {username && (
-                <motion.button
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
+                <button
                   onClick={handleClaim}
                   className="w-6 h-6 rounded-lg bg-primary flex items-center justify-center shrink-0 ml-2 hover:bg-primary-light transition-colors"
                 >
                   <ArrowRight className="w-3 h-3 text-black" />
-                </motion.button>
+                </button>
               )}
             </div>
           </div>

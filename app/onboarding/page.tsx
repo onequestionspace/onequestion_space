@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { useMutation, useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
-import { motion, AnimatePresence } from 'framer-motion';
+// framer-motion removed for mobile stability
 import { ArrowRight, Check, Crown, Copy, Share2, Sparkles, Brain, MessageSquare } from 'lucide-react';
 
 export default function OnboardingPage() {
@@ -170,9 +170,7 @@ export default function OnboardingPage() {
   const StepIndicator = () => (
     <div className="flex items-center gap-1.5 mb-6 justify-center">
       {SETUP_STEPS.map((_, i) => (
-        <motion.div
-          key={i}
-          animate={{ width: i === setupIndex ? 24 : 8, opacity: i <= setupIndex ? 1 : 0.3 }}
+        <div key={i}
           className={`h-1.5 rounded-full transition-all duration-300 ${
             i < setupIndex ? 'bg-primary' : i === setupIndex ? 'bg-primary' : 'bg-white/10'
           }`}
@@ -196,14 +194,7 @@ export default function OnboardingPage() {
           <span className="text-lg font-bold text-white">One<span className="text-primary">Question</span></span>
         </div>
 
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={step}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-          >
+          <div>
             {/* Step 0: Welcome */}
             {step === 0 && (
               <div className="paper-card p-8 text-center">
@@ -247,11 +238,11 @@ export default function OnboardingPage() {
                     <input type="range" min="1" max="30" value={minutesPerAnswer} onChange={e => setMinutesPerAnswer(Number(e.target.value))} className="w-full accent-amber-500" />
                     <div className="flex justify-between text-xs text-zinc-600 mt-1"><span>1 min</span><span>15 min</span><span>30 min</span></div>
                   </div>
-                  <motion.div className="rounded-2xl p-4 bg-primary/10 border border-primary/30 text-center" animate={{ scale: [1, 1.02, 1] }} transition={{ duration: 0.3 }} key={hoursPerMonth}>
+                  <div className="rounded-2xl p-4 bg-primary/10 border border-primary/30 text-center">
                     <p className="text-xs text-zinc-400 mb-1">You are spending</p>
                     <p className="text-3xl font-black text-white">{hoursPerMonth} hours</p>
                     <p className="text-xs text-zinc-400">per month answering the same questions</p>
-                  </motion.div>
+                  </div>
                 </div>
                 <button onClick={() => setStep(2)}
                   className="w-full mt-6 py-3.5 rounded-xl bg-primary text-black font-bold text-sm flex items-center justify-center gap-2 hover:opacity-90 transition-all">
@@ -264,7 +255,7 @@ export default function OnboardingPage() {
             {step === 2 && (
               <div className="paper-card p-8">
                 <div className="text-center mb-8">
-                  <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', duration: 0.5 }} className="text-5xl mb-4">😮</motion.div>
+                  <div className="text-5xl mb-4">😮</div>
                   <h2 className="text-xl font-bold text-white mb-2">This is what you are losing every year.</h2>
                   <p className="text-sm text-zinc-400">Based on what you just told me.</p>
                 </div>
@@ -275,13 +266,13 @@ export default function OnboardingPage() {
                     { icon: '🔁', label: 'Same questions repeated', value: 'Over and over', color: 'text-zinc-400' },
                     { icon: '🤖', label: 'With One Question AI', value: '0 hours', color: 'text-green-400' },
                   ].map((item, i) => (
-                    <motion.div key={i} initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.1 }} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10">
+                    <div key={i} className="flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10">
                       <div className="flex items-center gap-3">
                         <span className="text-lg">{item.icon}</span>
                         <span className="text-sm text-zinc-300">{item.label}</span>
                       </div>
                       <span className={"font-bold text-sm " + item.color}>{item.value}</span>
-                    </motion.div>
+                    </div>
                   ))}
                 </div>
                 <div className="rounded-2xl p-4 bg-green-500/10 border border-green-500/30 mb-6 text-center">
@@ -344,18 +335,16 @@ export default function OnboardingPage() {
                         {!checking && usernameAvailable === false && <span className="text-xs text-red-400">Taken</span>}
                       </div>
                     </div>
-                    <AnimatePresence>
                       {usernameAvailable === true && (
-                        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-green-400">
+                        <p className="text-xs text-green-400">
                           ✓ onequestion.space/{form.username} is yours!
-                        </motion.p>
+                        </p>
                       )}
                       {usernameAvailable === false && (
-                        <motion.p initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="text-xs text-red-400">
+                        <p className="text-xs text-red-400">
                           That username is taken. Try another one.
-                        </motion.p>
+                        </p>
                       )}
-                    </AnimatePresence>
                   </div>
                 )}
 
@@ -470,7 +459,7 @@ export default function OnboardingPage() {
             {/* Step 8: Celebrate */}
             {step === 8 && (
               <div className="paper-card p-8 text-center">
-                <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: "spring", duration: 0.6 }} className="text-6xl mb-4">🚀</motion.div>
+                <div className="text-6xl mb-4">🚀</div>
                 <h2 className="text-2xl font-bold text-white mb-2">You are live!</h2>
                 <p className="text-sm text-zinc-400 mb-6">
                   onequestion.space/{form.username} is live right now. Share this link — your AI handles everything from here.
@@ -506,8 +495,7 @@ export default function OnboardingPage() {
               </div>
             )}
 
-          </motion.div>
-        </AnimatePresence>
+          </div>
       </div>
     </div>
   );

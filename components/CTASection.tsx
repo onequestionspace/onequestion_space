@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import { Check, Sparkles, ArrowRight } from 'lucide-react';
-import { motion } from 'framer-motion';
+// framer-motion removed for mobile stability
 import { FadeIn } from '@/components/motion/FadeIn';
 
 export function CTASection() {
@@ -15,7 +15,7 @@ export function CTASection() {
       <div className="absolute inset-0 grain opacity-[0.02] pointer-events-none mix-blend-soft-light" />
       <div className="absolute top-0 left-0 right-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(245,166,35,0.3), transparent)' }} />
 
-      <motion.div className='absolute top-20 left-[20%] w-64 h-64 rounded-full blur-[100px] opacity-20 animate-float'
+      <div className='absolute top-20 left-[20%] w-64 h-64 rounded-full blur-[100px] opacity-20 animate-float'
         style={{ background: 'radial-gradient(circle, rgba(245,166,35,0.5), transparent 70%)' }} />
 
       <div className="relative max-w-2xl mx-auto px-4 sm:px-6 text-center">

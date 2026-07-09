@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+// framer-motion removed for mobile stability
 import { Sparkles } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { FadeIn } from '@/components/motion/FadeIn';
@@ -59,12 +59,8 @@ export function LiveActivity() {
           <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-background pointer-events-none z-10" />
           <div className="space-y-2">
             {items.map((item, i) => (
-              <motion.div
+              <div
                 key={i}
-                initial={{ opacity: 0, x: -10 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
                 className="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] transition-all group"
               >
                 <img src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${item.name}`} alt="" className="w-7 h-7 rounded-full shrink-0" />
@@ -82,7 +78,7 @@ export function LiveActivity() {
                   <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
                   Answered
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>

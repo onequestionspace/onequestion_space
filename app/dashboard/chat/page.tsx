@@ -6,7 +6,7 @@ import { redirect } from 'next/navigation';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
-import { motion, AnimatePresence } from 'framer-motion';
+// framer-motion removed for mobile stability
 import {
   MessageSquare, Plus, Search, Trash2, PanelRightOpen, PanelRightClose,
   Send, Copy, Check, RefreshCw, Share2, ChevronDown, BookOpen,
@@ -435,19 +435,12 @@ export default function ChatYourKnowledgePage() {
   return (
     <div className="h-dvh bg-[#0A0A0A] flex overflow-hidden select-none">
       {/* Command Palette */}
-      <AnimatePresence>
         {showToolPalette && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+          <div
             className="fixed inset-0 z-50 flex items-start justify-center pt-[15vh] bg-black/60 backdrop-blur-sm"
             onClick={() => setShowToolPalette(false)}
           >
-            <motion.div
-              initial={{ opacity: 0, scale: 0.96, y: -10 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.96, y: -10 }}
+            <div
               className="w-full max-w-lg bg-[#111113] border border-white/[0.08] rounded-2xl shadow-2xl overflow-hidden"
               onClick={e => e.stopPropagation()}
             >
@@ -493,29 +486,23 @@ export default function ChatYourKnowledgePage() {
                   Press <kbd className="px-1 py-0.5 rounded bg-white/[0.06] text-zinc-400">⌘K</kbd> to open anytime
                 </p>
               </div>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         )}
-      </AnimatePresence>
 
       {/* Mobile sidebar overlay */}
-      <AnimatePresence>
         {showMobileSidebar && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+          <div
             className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm lg:hidden"
             onClick={() => setShowMobileSidebar(false)}
           />
         )}
-      </AnimatePresence>
 
       {/* Sidebar */}
-      <motion.aside
-        animate={{ width: sidebarOpen ? 280 : 0 }}
+      <aside
         className={`h-dvh bg-[#0A0A0A] border-r border-white/[0.06] flex flex-col shrink-0 overflow-hidden
-          ${showMobileSidebar ? 'fixed left-0 top-0 z-50 w-[280px]' : 'hidden lg:flex'}`}
+          ${!sidebarOpen ? 'w-0 hidden lg:hidden' : 'hidden lg:flex w-[280px]'}
+          ${showMobileSidebar ? '!flex fixed left-0 top-0 z-50 w-[280px]' : ''}`}
       >
         <div className="flex items-center justify-between px-3 h-12 border-b border-white/[0.06] shrink-0">
           <button
@@ -671,7 +658,7 @@ export default function ChatYourKnowledgePage() {
             </a>
           ))}
         </div>
-      </motion.aside>
+      </aside>
 
       {/* Main Chat Area */}
       <div className="flex-1 flex flex-col min-w-0">
@@ -732,11 +719,7 @@ export default function ChatYourKnowledgePage() {
         <div ref={chatContainerRef} className="flex-1 overflow-y-auto scrollbar-hide">
           {messages.length === 0 ? (
             <div className="h-full flex flex-col items-center justify-center px-4 py-8">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                className="text-center max-w-xl mx-auto w-full"
-              >
+              <div className="text-center max-w-xl mx-auto w-full">
                 <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center mx-auto mb-5 shadow-amber-glow">
                   <Brain className="w-7 h-7 text-primary" />
                 </div>
@@ -748,12 +731,7 @@ export default function ChatYourKnowledgePage() {
                 </p>
 
                 {!hasKnowledge ? (
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.2 }}
-                    className="mb-6 p-5 rounded-xl bg-amber-500/5 border border-amber-500/20 max-w-sm mx-auto"
-                  >
+                  <div className="mb-6 p-5 rounded-xl bg-amber-500/5 border border-amber-500/20 max-w-sm mx-auto">
                     <div className="flex items-center gap-2 mb-2">
                       <Zap className="w-4 h-4 text-amber-400" />
                       <span className="text-sm font-semibold text-amber-300">Your AI has nothing to learn yet.</span>
@@ -768,23 +746,20 @@ export default function ChatYourKnowledgePage() {
                       <Plus className="w-3.5 h-3.5" />
                       Upload your first document
                     </a>
-                  </motion.div>
+                  </div>
                 ) : (
                   <>
                     {/* Suggested Actions */}
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 max-w-xl mx-auto mb-6">
                       {WELCOME_SUGGESTIONS.slice(0, 8).map((suggestion, i) => (
-                        <motion.button
+                        <button
                           key={suggestion.label}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: 0.15 + i * 0.04 }}
                           onClick={() => handleSubmit(suggestion.action)}
                           className="flex flex-col items-center gap-1.5 p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.05] hover:border-white/[0.12] transition-all group"
                         >
                           <suggestion.icon className="w-4 h-4 text-primary/60 group-hover:text-primary transition-colors" />
                           <span className="text-[10px] text-zinc-400 group-hover:text-zinc-200 leading-tight text-center">{suggestion.label}</span>
-                        </motion.button>
+                        </button>
                       ))}
                     </div>
 
@@ -810,16 +785,13 @@ export default function ChatYourKnowledgePage() {
                     </div>
                   </>
                 )}
-              </motion.div>
+              </div>
             </div>
           ) : (
             <div className="max-w-3xl mx-auto px-4 py-4 space-y-4">
               {messages.map((msg, i) => (
-                <motion.div
+                <div
                   key={msg.id}
-                  initial={{ opacity: 0, y: 8 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.15 }}
                   className={`flex gap-3 ${msg.role === 'user' ? 'justify-end' : 'justify-start'} group`}
                 >
                   {msg.role === 'assistant' && (
@@ -907,12 +879,12 @@ export default function ChatYourKnowledgePage() {
                       </div>
                     )}
                   </div>
-                </motion.div>
+                </div>
               ))}
 
               {/* Typing indicator */}
               {isStreaming && messages[messages.length - 1]?.role === 'user' && (
-                <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="flex gap-3">
+                <div className="flex gap-3">
                   <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center shrink-0">
                     <Brain className="w-3.5 h-3.5 text-primary" />
                   </div>
@@ -921,12 +893,12 @@ export default function ChatYourKnowledgePage() {
                     <span className="w-1.5 h-1.5 rounded-full bg-zinc-500 animate-bounce" style={{ animationDelay: '150ms' }} />
                     <span className="w-1.5 h-1.5 rounded-full bg-zinc-500 animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
-                </motion.div>
+                </div>
               )}
 
               {/* Continue generating */}
               {!isStreaming && messages.length > 0 && messages[messages.length - 1]?.role === 'assistant' && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-center">
+                <div className="flex justify-center">
                   <button
                     onClick={handleContinueGeneration}
                     className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.03] transition-all border border-white/[0.06]"
@@ -934,7 +906,7 @@ export default function ChatYourKnowledgePage() {
                     <Plus className="w-3 h-3" />
                     Continue generating
                   </button>
-                </motion.div>
+                </div>
               )}
 
               <div ref={messagesEndRef} />
@@ -991,14 +963,9 @@ export default function ChatYourKnowledgePage() {
       </div>
 
       {/* Knowledge Panel */}
-      <AnimatePresence>
         {knowledgePanel && (
-          <motion.aside
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 300, opacity: 1 }}
-            exit={{ width: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="h-dvh border-l border-white/[0.06] bg-[#0A0A0A] overflow-hidden shrink-0 hidden lg:block"
+          <aside
+            className="h-dvh border-l border-white/[0.06] bg-[#0A0A0A] overflow-hidden shrink-0 hidden lg:block w-[300px]"
           >
             <div className="w-[300px] h-full flex flex-col">
               <div className="flex items-center justify-between px-3 h-12 border-b border-white/[0.06] shrink-0">
@@ -1054,9 +1021,8 @@ export default function ChatYourKnowledgePage() {
                 )}
               </div>
             </div>
-          </motion.aside>
+      </aside>
         )}
-      </AnimatePresence>
     </div>
   );
 }

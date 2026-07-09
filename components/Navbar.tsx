@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { useClerk } from '@clerk/nextjs';
-import { motion, AnimatePresence } from 'framer-motion';
+// framer-motion removed for mobile stability
 import { Menu, X, ChevronRight, LayoutDashboard, Settings, LogOut, User, Sparkles, MessageSquare } from 'lucide-react';
 import Image from 'next/image';
 
@@ -96,13 +96,8 @@ export function Navbar() {
                         ) : (profile?.displayName?.charAt(0)?.toUpperCase() || "U")}
                       </div>
                     </button>
-                    <AnimatePresence>
-                      {isProfileOpen && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -6, scale: 0.96 }}
-                          animate={{ opacity: 1, y: 0, scale: 1 }}
-                          exit={{ opacity: 0, y: -6, scale: 0.96 }}
-                          transition={{ duration: 0.12 }}
+                    {isProfileOpen && (
+                        <div
                           className="absolute right-0 top-10 w-56 bg-black/90 backdrop-blur-2xl rounded-2xl shadow-premium border border-white/[0.06] p-2 space-y-0.5"
                           role="menu"
                         >
@@ -133,9 +128,8 @@ export function Navbar() {
                             <LogOut className="w-4 h-4" />
                             Sign out
                           </button>
-                        </motion.div>
+                        </div>
                       )}
-                    </AnimatePresence>
                   </div>
                 </div>
               ) : (
@@ -169,13 +163,8 @@ export function Navbar() {
           </div>
         </div>
 
-        <AnimatePresence>
           {isMobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -6, scale: 0.98 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -6, scale: 0.98 }}
-              transition={{ duration: 0.12 }}
+            <div
               className="mt-1 bg-black/90 backdrop-blur-2xl rounded-2xl shadow-premium border border-white/[0.06] px-4 py-5 space-y-4"
             >
               {navLinks.map((link) => (
@@ -219,9 +208,8 @@ export function Navbar() {
                   </Link>
                 </div>
               )}
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
       </div>
     </nav>
   );

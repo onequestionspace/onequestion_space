@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+// framer-motion removed for mobile stability
 import { FadeIn } from '@/components/motion/FadeIn';
 
 const dms = [

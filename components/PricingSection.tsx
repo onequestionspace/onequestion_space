@@ -1,5 +1,5 @@
 'use client';
-import { motion, useInView, AnimatePresence } from 'framer-motion';
+// framer-motion removed for mobile stability
 import { useRef, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Check, Zap, Sparkles } from 'lucide-react';
@@ -44,19 +44,13 @@ function FaqCards({ inView }: { inView: boolean }) {
     <div className='mt-12'>
       <p className='text-zinc-500 text-xs uppercase tracking-widest mb-6 font-semibold'>Questions people actually ask</p>
       <div className='relative overflow-hidden rounded-2xl paper-card-static min-h-[140px]'>
-        <AnimatePresence mode='wait'>
-          <motion.div
+          <div
             key={active}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.3, ease: 'easeInOut' }}
             className='p-6'
           >
             <p className='text-white font-bold text-base mb-3'>{FAQS[active].q}</p>
             <p className='text-zinc-400 text-sm leading-relaxed'>{FAQS[active].a}</p>
-          </motion.div>
-        </AnimatePresence>
+          </div>
       </div>
       <div className='flex items-center justify-center gap-2 mt-4'>
         {FAQS.map((_, i) => (
@@ -70,7 +64,7 @@ function FaqCards({ inView }: { inView: boolean }) {
 
 export function PricingSection() {
   const ref = useRef(null);
-  const inView = useInView(ref, { once: true, margin: '-60px' });
+  const inView = true;
 
   return (
     <section className='relative py-24 overflow-hidden' ref={ref}>
@@ -92,10 +86,7 @@ export function PricingSection() {
         </div>
 
         <div className='grid grid-cols-1 md:grid-cols-2 gap-5'>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5, delay: 0.1 }}
+          <div
             className='paper-card p-7 flex flex-col'
           >
             <div className='mb-6'>
@@ -116,12 +107,9 @@ export function PricingSection() {
             <Link href='/sign-up' className='w-full py-3 rounded-xl border border-white/15 text-white text-sm font-bold text-center hover:bg-white/[0.04] hover:border-white/30 transition-all block'>
               Get started free
             </Link>
-          </motion.div>
+          </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={inView ? { opacity: 1, y: 0 } : {}}
-            transition={{ duration: 0.5, delay: 0.2 }}
+          <div
             className='relative paper-card p-7 flex flex-col border-primary/30 bg-gradient-to-b from-primary/[0.04] to-transparent'
           >
             <div className='absolute -top-3 left-1/2 -translate-x-1/2'>
@@ -142,28 +130,22 @@ export function PricingSection() {
                 </li>
               ))}
             </ul>
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={inView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.4, delay: 0.35 }}
+            <div
               className='mb-4 p-3 rounded-xl bg-primary/[0.06] border border-primary/20'
             >
               <p className='text-primary text-xs font-semibold mb-1'>🇳🇬 Checkout shows Nigerian Naira</p>
               <p className='text-zinc-500 text-xs leading-relaxed'>Your international card works perfectly — Visa, Mastercard, wherever you are. Paystack converts automatically. No hidden fees.</p>
               <p className='text-zinc-600 text-xs mt-1 italic'>Weird? Maybe. Honest? Always. — Asym</p>
-            </motion.div>
+            </div>
             <Link href='/sign-up' className='w-full py-3 rounded-xl bg-primary text-black text-sm font-bold text-center hover:bg-primary-light transition-all flex items-center justify-center gap-2 shadow-amber-glow'>
               <Zap className='w-4 h-4' /> Start with Pro
             </Link>
-          </motion.div>
+          </div>
         </div>
 
         <p className='text-center text-zinc-600 text-sm mt-6'>Need more? Buy credits anytime from your dashboard. No commitment.</p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={inView ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 0.6, delay: 0.4 }}
+        <div
           className='mt-10 paper-card p-5'
         >
           <div className='flex items-start gap-4'>
@@ -177,7 +159,7 @@ export function PricingSection() {
               <p className='text-primary text-sm font-bold mt-3'>— Asym, 19 · Yobe, Nigeria 🇳🇬</p>
             </div>
           </div>
-        </motion.div>
+        </div>
 
         <FaqCards inView={inView} />
       </div>

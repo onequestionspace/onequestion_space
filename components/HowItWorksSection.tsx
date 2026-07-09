@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+// framer-motion removed for mobile stability
 import { Sparkles, Brain, Link2 } from 'lucide-react';
 import { FadeIn } from '@/components/motion/FadeIn';
 
