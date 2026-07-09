@@ -200,7 +200,7 @@ export default function StudioPage() {
             <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
             <p className="text-sm text-zinc-400 flex-1">You have unsaved changes</p>
             <Button variant="ghost" size="sm" onClick={handleReset} icon={<Undo2 className="w-3 h-3" />}>Reset</Button>
-            <Button variant="primary" size="sm" onClick={handleSave} loading={saving} icon={<Save className="w-3 h-3" />}>
+            <Button variant="primary" size="sm" onClick={handleSave} loading={saving} icon={<Save className="w-3 h-3" />} data-tour="save">
               {saving ? 'Saving...' : 'Save Changes'}
             </Button>
           </div>

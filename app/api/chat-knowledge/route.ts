@@ -7,27 +7,93 @@ const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY!;
 const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
 
-function buildPrompt(question: string, chunks: { title: string; content: string; score: number }[]): string {
+function isMemoryDump(question: string): boolean {
+  const lower = question.trim().toLowerCase();
+  return lower.startsWith('/dump') || lower.startsWith('dump my memory') || lower.startsWith('brain dump');
+}
+
+function buildDumpPrompt(content: string): string {
+  const dumpContent = content.replace(/^\/dump\s*/i, '').replace(/^(dump my memory|brain dump)\s*/i, '').trim();
+  return `You are the user's personal knowledge operating system. The user has just dumped raw thoughts, notes, or memories.
+
+Your job is to organize this dump automatically.
+
+1. First, acknowledge what they shared.
+2. CATEGORIZE the content into logical sections (Projects, Ideas, Tasks, Links, People, Questions, etc.)
+3. For each item, suggest how it could be turned into knowledge — e.g., "Turn this into a knowledge article", "Create a FAQ from this question", "Save as a project note"
+4. Extract any action items, dates, names, or links.
+5. Group related items together.
+6. Suggest a title for this knowledge collection.
+7. Use markdown with clear sections.
+
+User's dump:
+"""
+${dumpContent || '(No content — user wants to know how to use the memory dump feature)'}
+"
+
+If no content was provided, explain how the memory dump feature works:
+- Paste any amount of text (thoughts, notes, transcripts, links, ideas)
+- The AI will automatically organize everything into categories
+- Extract action items and links
+- Suggest knowledge articles to create
+- Remove duplicates
+- The goal: users should never manually organize knowledge again.`;
+}
+
+function buildAgentPrompt(
+  question: string,
+  chunks: { title: string; content: string; score: number }[],
+  hasKnowledge: boolean,
+  knowledgeCount: number,
+): string {
   const context = chunks.length > 0
-    ? chunks.map((c, i) => `[Source ${i + 1}: ${c.title}]\n${c.content}`).join('\n\n---\n\n')
+    ? chunks.map((c, i) => `[Source ${i + 1}: "${c.title}"]\n${c.content}`).join('\n\n---\n\n')
     : '';
-  return `You are an AI assistant that answers questions based solely on the user's provided knowledge. 
 
-Your goal is to be helpful, accurate, and conversational — like ChatGPT but trained only on the user's documents.
+  const isAgentAction = /^(create|rename|edit|update|delete|organize|generate|summarize|find|search|explain|suggest|improve|draft|write|make)/i.test(question.trim());
 
-Rules:
-- Answer based ONLY on the knowledge provided below. If the answer is not in the knowledge, say "I don't have information about that in your knowledge base."
-- Use markdown formatting: **bold** for emphasis, bullet points for lists, headings where appropriate.
-- Include inline citations like [Source 1], [Source 2] etc. when referencing specific knowledge items.
-- Be thorough and detailed — the user wants to explore their knowledge deeply.
-- Never mention that you're an AI or that you're pulling from knowledge — just answer naturally.
-- Format code blocks with triple backticks if relevant.
+  let prompt = `You are an AI operating system for the user's personal knowledge. You are NOT a generic chatbot — you ONLY use the knowledge provided below.
 
-${context ? `\nUser's knowledge:\n${context}\n` : '\nNo knowledge available.\n'}
+## Core Identity
+- You are an expert knowledge curator, analyst, and content strategist
+- You speak directly and conversationally — like a brilliant colleague, not a robot
+- You are specific, detailed, and grounded in the user's actual content
+- You NEVER hallucinate. If information is missing, say so clearly and suggest what the user should upload
 
-User's question: ${question}
+## Response Rules
+1. Answer based ONLY on the user's knowledge below
+2. Use **markdown** formatting: **bold**, bullet points, headings, code blocks as needed
+3. Cite sources inline like [Source 1] when referencing specific items
+4. Be thorough — explore the knowledge deeply, connect related ideas
+5. If the knowledge is missing or incomplete:
+   - Say "I don't have information about that in your knowledge base"
+   - Suggest specific things the user could upload to fill the gap
+6. Always reference sources and explain your reasoning
+7. Prioritize the user's knowledge over any general knowledge
+8. Keep your tone warm, specific, and personal — never generic`;
 
-Answer:`;
+  if (isAgentAction) {
+    prompt += `\n\n## Agent Mode
+The user is asking you to perform an action. Based on your analysis of their knowledge:
+
+- **Create/Suggest**: Propose specific content with clear structure
+- **Organize**: Group related items, suggest categories and tags
+- **Analyze**: Identify patterns, gaps, duplicates, outdated info
+- **Generate**: Draft the content directly using their knowledge and voice
+- **Improve**: Give actionable suggestions with examples
+
+Always explain WHY you recommend something. Connect it back to their actual knowledge.`;
+  }
+
+  if (context) {
+    prompt += `\n\n## User's Knowledge Base (${knowledgeCount} items total, showing ${chunks.length} most relevant)\n\n${context}`;
+  } else {
+    prompt += `\n\n## Knowledge Status\nNo knowledge has been uploaded yet. Explain that you need content to work with, and suggest what they can upload (documents, notes, PDFs, URLs, text).`;
+  }
+
+  prompt += `\n\n## Question\n${question}\n\n## Response`;
+
+  return prompt;
 }
 
 async function streamGemini(prompt: string): Promise<ReadableStream<Uint8Array> | null> {
@@ -39,7 +105,7 @@ async function streamGemini(prompt: string): Promise<ReadableStream<Uint8Array> 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { maxOutputTokens: 1500, temperature: 0.7 },
+          generationConfig: { maxOutputTokens: 2048, temperature: 0.7 },
         }),
       }
     );
@@ -87,7 +153,7 @@ async function streamGroq(prompt: string): Promise<ReadableStream<Uint8Array> | 
       body: JSON.stringify({
         model: 'llama-3.3-70b-versatile',
         messages: [{ role: 'user', content: prompt }],
-        temperature: 0.7, max_tokens: 1500, stream: true,
+        temperature: 0.7, max_tokens: 2048, stream: true,
       }),
     });
     if (!res.ok || !res.body) return null;
@@ -128,6 +194,45 @@ export async function POST(request: NextRequest) {
     const knowledgeChunks = await convex.query(api.knowledge.getKnowledgeByUserId, { userId });
     const hasKnowledge = knowledgeChunks && knowledgeChunks.length > 0;
 
+    // Memory Dump mode
+    if (isMemoryDump(question)) {
+      const prompt = buildDumpPrompt(question);
+      let stream = await streamGemini(prompt);
+      if (!stream) stream = await streamGroq(prompt);
+      if (!stream) return new Response('Could not process memory dump.', { status: 500 });
+
+      const responseStream = new ReadableStream({
+        async start(controller) {
+          const encoder = new TextEncoder();
+          const reader = stream!.getReader();
+          try {
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              const chunk = new TextDecoder().decode(value);
+              controller.enqueue(encoder.encode(JSON.stringify({ type: 'content', text: chunk }) + '\n'));
+            }
+            controller.enqueue(encoder.encode(JSON.stringify({ type: 'done', sources: [] }) + '\n'));
+          } catch {
+            controller.enqueue(encoder.encode(JSON.stringify({ type: 'error' }) + '\n'));
+          } finally {
+            controller.close();
+            reader.releaseLock();
+          }
+        },
+      });
+
+      return new Response(responseStream, {
+        headers: {
+          'Content-Type': 'text/event-stream',
+          'Cache-Control': 'no-cache',
+          'Connection': 'keep-alive',
+          'X-Accel-Buffering': 'no',
+        },
+      });
+    }
+
+    // Normal RAG mode
     let topChunks: { title: string; content: string; score: number }[] = [];
 
     if (hasKnowledge) {
@@ -141,11 +246,9 @@ export async function POST(request: NextRequest) {
             score: cosineSimilarity(qEmbed, k.embeddings!),
           }))
           .sort((a, b) => b.score - a.score)
-          .slice(0, 8);
-        topChunks = scored.filter(c => c.score > 0.45);
-        if (topChunks.length === 0) {
-          topChunks = scored.slice(0, 3);
-        }
+          .slice(0, 10);
+        topChunks = scored.filter(c => c.score > 0.40);
+        if (topChunks.length === 0) topChunks = scored.slice(0, 3);
       } else {
         topChunks = knowledgeChunks.slice(0, 5).map(k => ({
           title: k.title,
@@ -155,7 +258,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const prompt = buildPrompt(question, topChunks);
+    const prompt = buildAgentPrompt(question, topChunks, hasKnowledge, knowledgeChunks?.length || 0);
 
     let stream = await streamGemini(prompt);
     if (!stream) stream = await streamGroq(prompt);
@@ -182,7 +285,7 @@ export async function POST(request: NextRequest) {
               score: c.score,
             })),
           }) + '\n'));
-        } catch (e) {
+        } catch {
           controller.enqueue(encoder.encode(JSON.stringify({ type: 'error' }) + '\n'));
         } finally {
           controller.close();

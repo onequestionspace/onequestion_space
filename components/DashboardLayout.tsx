@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { Avatar } from '@/components/dashboard/Avatar';
-import { DashboardAI } from './DashboardAI';
 import { ToastProvider } from '@/components/dashboard/Toast';
 import {
   LayoutDashboard, Brain, BarChart3,
@@ -185,18 +184,6 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
             </div>
           </div>
 
-          <div className="pt-2 border-t border-white/[0.06]">
-            <p className="px-3 text-[10px] font-medium text-zinc-600 uppercase tracking-[0.15em] mb-2">Coming Soon</p>
-            <div className="space-y-0.5">
-              <div className="flex items-center gap-3 px-3 py-2 rounded-xl text-zinc-600 cursor-not-allowed">
-                <div className='w-8 h-8 rounded-lg flex items-center justify-center text-zinc-600'>
-                  <MessageSquare className="w-4 h-4" />
-                </div>
-                <span className="text-xs">Custom Domain</span>
-                <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded-full bg-zinc-800 text-zinc-500">Soon</span>
-              </div>
-            </div>
-          </div>
         </nav>
 
         <div className="shrink-0 border-t border-white/[0.06] p-3">
@@ -231,7 +218,6 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
         </div>
       </main>
 
-      <DashboardAI />
     </div>
   );
 }
