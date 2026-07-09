@@ -7,7 +7,7 @@ import { api } from '@/convex/_generated/api';
 import { ArrowRight, Sparkles, Globe, Brain, Check, X as XIcon, Play, Star, MessageSquare } from 'lucide-react';
 // framer-motion removed for mobile stability
 import Image from 'next/image';
-import AnimatedCounter from '@/components/motion/AnimatedCounter';
+import { AnimatedCounter } from '@/components/motion/AnimatedCounter';
 import { FadeIn } from '@/components/motion/FadeIn';
 
 function seededRandom(seed: number): number {
