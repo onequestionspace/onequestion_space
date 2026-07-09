@@ -134,5 +134,28 @@ export default defineSchema({
     role: v.optional(v.string()),
     createdAt: v.number(),
   }).index('by_email', ['email']),
+
+  chats: defineTable({
+    userId: v.string(),
+    title: v.string(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index('by_userId', ['userId'])
+    .index('by_userId_updatedAt', ['userId', 'updatedAt']),
+
+  chat_messages: defineTable({
+    chatId: v.id('chats'),
+    role: v.union(v.literal('user'), v.literal('assistant')),
+    content: v.string(),
+    sources: v.optional(v.array(v.object({
+      title: v.string(),
+      content: v.string(),
+      score: v.number(),
+    }))),
+    createdAt: v.number(),
+  })
+    .index('by_chatId', ['chatId'])
+    .index('by_chatId_createdAt', ['chatId', 'createdAt']),
 });
 // customBg added via patch — no schema change needed, stored in themeEffect as "custom:URL"

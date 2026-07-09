@@ -11,7 +11,7 @@ import {
   LayoutDashboard, Brain, BarChart3,
   Menu, X,
   MessageSquare, CreditCard,
-  Layers, BookOpen,
+  Layers, BookOpen, Sparkles,
   ChevronRight, Inbox,
 } from 'lucide-react';
 
@@ -23,6 +23,7 @@ interface DashboardLayoutProps {
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+  { label: 'Chat Your Knowledge', href: '/dashboard/chat', icon: Sparkles },
   { label: 'Space Studio', href: '/dashboard/studio', icon: Layers },
   { label: 'Inbox', href: '/dashboard/inbox', icon: Inbox },
   { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
