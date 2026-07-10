@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { Suspense } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { redirect } from 'next/navigation';
 import { useQuery, useMutation } from 'convex/react';
@@ -15,7 +16,7 @@ import { ListSkeleton } from '@/components/dashboard/Skeleton';
 import { useToast } from '@/components/dashboard/Toast';
 import { Inbox, MessageSquare, Send, Sparkles, HelpCircle } from 'lucide-react';
 
-export default function InboxPage() {
+function InboxPageContent() {
   const { isSignedIn, isLoaded } = useAuth();
   const profile = useQuery(api.profiles.current);
 
@@ -238,5 +239,13 @@ export default function InboxPage() {
 
       </div>
     </DashboardLayout>
+  );
+}
+
+export default function InboxPage() {
+  return (
+    <Suspense>
+      <InboxPageContent />
+    </Suspense>
   );
 }
