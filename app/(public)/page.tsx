@@ -8,7 +8,6 @@ import { TestimonialsSection } from '@/components/TestimonialsSection';
 import { PricingSection } from '@/components/PricingSection';
 import { CTASection } from '@/components/CTASection';
 import { FadeInSection } from '@/components/FadeInSection';
-import { StatsBar } from '@/components/StatsBar';
 import { LiveActivity } from '@/components/LiveActivity';
 import { FAQSection } from '@/components/FAQSection';
 
@@ -16,7 +15,6 @@ export default function Home() {
   return (
     <main className="relative">
       <Hero />
-      <FadeInSection><StatsBar /></FadeInSection>
       <FadeInSection><ProblemSection /></FadeInSection>
       <div id="how-it-works"><FadeInSection><HowItWorksSection /></FadeInSection></div>
       <FadeInSection><BentoSection /></FadeInSection>
