@@ -53,7 +53,7 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
   return (
     <div className="min-h-screen bg-background">
       {/* Mobile header bar */}
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 h-14 border-b border-white/[0.06] bg-background/95 backdrop-blur-xl">
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 h-14 border-b border-white/[0.06] bg-background">
         <Link href="/" className="flex items-center gap-2" aria-label="Home">
           <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center shadow-amber-glow">
             <MessageSquare className="w-3.5 h-3.5 text-black" />
