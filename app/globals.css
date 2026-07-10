@@ -154,6 +154,10 @@ html { scroll-behavior: smooth; }
   animation: shimmer 2s linear infinite;
 }
 
+.cl-formFieldInput {
+}
+.cl-formFieldInput::placeholder {
+}
 .cl-formFieldInput:-webkit-autofill,
 .cl-formFieldInput:-webkit-autofill:hover,
 .cl-formFieldInput:-webkit-autofill:focus,
@@ -171,6 +175,17 @@ html { scroll-behavior: smooth; }
 .cl-logoImage, .cl-logoBox img { border-radius: 12px !important; }
 .cl-logoBox { background: transparent !important; }
 .cl-card { background: transparent !important; }
+.cl-rootBox,
+.cl-card,
+.cl-main,
+.cl-form,
+.cl-socialButtons,
+.cl-formButtonPrimary,
+.cl-formFieldRow,
+.cl-formField {
+}
+.cl-formFieldInput {
+}
 
 @keyframes shimmer {
   0% { background-position: -200% center; }
