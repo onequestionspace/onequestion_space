@@ -1,6 +1,7 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { redirect } from 'next/navigation';
 import { useQuery, useMutation } from 'convex/react';
@@ -18,7 +19,15 @@ export default function InboxPage() {
   const { isSignedIn, isLoaded } = useAuth();
   const profile = useQuery(api.profiles.current);
 
+  const searchParams = useSearchParams();
   const [activeTab, setActiveTab] = useState<'review' | 'unanswered'>('review');
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'unanswered' || tab === 'review') {
+      setActiveTab(tab);
+    }
+  }, [searchParams]);
 
   const needsReview = useQuery(
     api.questions.listNeedsReview,

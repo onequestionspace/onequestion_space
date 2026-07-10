@@ -154,7 +154,7 @@ export default function DashboardPage() {
                   </Link>
                 )}
                 {pendingCount > 0 && (
-                  <Link href="/dashboard/inbox" className="flex items-center gap-2 p-2.5 rounded-lg bg-blue-500/5 border border-blue-500/20 hover:bg-blue-500/10 transition-all">
+                  <Link href="/dashboard/inbox?tab=unanswered" className="flex items-center gap-2 p-2.5 rounded-lg bg-blue-500/5 border border-blue-500/20 hover:bg-blue-500/10 transition-all">
                     <MessageSquare className="w-4 h-4 text-blue-400 shrink-0" />
                     <span className="text-xs text-blue-300">{pendingCount} unanswered question{pendingCount !== 1 ? 's' : ''}</span>
                   </Link>
