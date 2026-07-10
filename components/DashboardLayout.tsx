@@ -1,6 +1,8 @@
 'use client';
 
 import { useUser } from '@clerk/nextjs';
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -37,6 +39,7 @@ const secondaryItems = [
 export function DashboardLayout({ children, title, description }: DashboardLayoutProps) {
   const pathname = usePathname();
   const { user } = useUser();
+  const profile = useQuery(api.profiles.current);
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const closeMenu = () => setIsOpen(false);
@@ -189,7 +192,7 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
         <div className="shrink-0 border-t border-white/[0.06] p-3">
           <Link href="/dashboard/settings" onClick={closeMenu} className="flex items-center gap-3 group rounded-xl px-2 py-2 hover:bg-white/[0.03] transition-all">
             <Avatar
-              src={user?.imageUrl}
+              src={profile?.avatar || user?.imageUrl}
               name={user?.fullName || user?.username}
               size="sm"
             />
