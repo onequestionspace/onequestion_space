@@ -118,7 +118,7 @@ export function Hero() {
             <div className="paper-card p-3 border-white/[0.04]">
               <div className="flex items-center gap-2 mb-2">
                 <Globe className="w-3 h-3 text-zinc-500 shrink-0" />
-                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">ChatGPT</span>
+                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Generic AI</span>
               </div>
               <ul className="space-y-1">
                 {['Internet knowledge', 'Generic answers', 'Same for everyone'].map((b, i) => (
