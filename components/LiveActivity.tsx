@@ -6,15 +6,15 @@ import { useEffect, useState } from 'react';
 import { FadeIn } from '@/components/motion/FadeIn';
 
 const ACTIVITY_POOL = [
-  { name: 'Sarah K.', q: 'Hey what exactly do you do?', time: '2m ago', color: '#F5A623' },
-  { name: 'Paraja M.', q: 'What is One Question about?', time: '4m ago' },
-  { name: 'James O.', q: 'How much do you charge?', time: '5m ago' },
-  { name: 'Amina B.', q: 'Can we work together?', time: '8m ago' },
-  { name: 'Raj P.', q: 'What services do you offer?', time: '11m ago' },
-  { name: 'Lena M.', q: 'How do I contact you?', time: '14m ago' },
-  { name: 'Carlos T.', q: 'Do you do consulting?', time: '17m ago' },
-  { name: 'Fatima A.', q: 'Can you explain your process?', time: '20m ago' },
-  { name: 'Mike D.', q: 'Are you available for hire?', time: '23m ago' },
+  { name: 'Sarah K.', q: 'Hey what exactly do you do?', time: '2m ago', avatar: 'https://i.pravatar.cc/150?img=47' },
+  { name: 'Paraja M.', q: 'What is One Question about?', time: '4m ago', avatar: 'https://i.pravatar.cc/150?img=12' },
+  { name: 'James O.', q: 'How much do you charge?', time: '5m ago', avatar: 'https://i.pravatar.cc/150?img=33' },
+  { name: 'Amina B.', q: 'Can we work together?', time: '8m ago', avatar: 'https://i.pravatar.cc/150?img=45' },
+  { name: 'Raj P.', q: 'What services do you offer?', time: '11m ago', avatar: 'https://i.pravatar.cc/150?img=51' },
+  { name: 'Lena M.', q: 'How do I contact you?', time: '14m ago', avatar: 'https://i.pravatar.cc/150?img=29' },
+  { name: 'Carlos T.', q: 'Do you do consulting?', time: '17m ago', avatar: 'https://i.pravatar.cc/150?img=14' },
+  { name: 'Fatima A.', q: 'Can you explain your process?', time: '20m ago', avatar: 'https://i.pravatar.cc/150?img=48' },
+  { name: 'Mike D.', q: 'Are you available for hire?', time: '23m ago', avatar: 'https://i.pravatar.cc/150?img=8' },
 ];
 
 export function LiveActivity() {
@@ -63,7 +63,7 @@ export function LiveActivity() {
                 key={i}
                 className="flex items-center gap-3 px-4 py-3 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] transition-all group"
               >
-                <img src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${item.name}`} alt="" className="w-7 h-7 rounded-full shrink-0" />
+                <img src={item.avatar} alt={item.name} className="w-7 h-7 rounded-full shrink-0 object-cover" loading="lazy" />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <span className="text-white text-xs font-medium truncate">{item.q}</span>
