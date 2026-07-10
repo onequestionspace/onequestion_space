@@ -4,23 +4,26 @@
 import { FadeIn } from '@/components/motion/FadeIn';
 
 const dms = [
-  { name: 'Sarah K.', msg: 'Hey what exactly do you do?', time: '2m ago', color: '#F5A623' },
-  { name: 'Paraja M.', msg: 'What is One Question about?', time: '4m ago', color: '#F5A623' },
-  { name: 'James O.', msg: 'How much do you charge?', time: '5m ago', color: '#F5A623' },
-  { name: 'Amina B.', msg: 'Can we work together?', time: '8m ago', color: '#F5A623' },
-  { name: 'Raj P.', msg: 'What services do you offer?', time: '11m ago', color: '#F5A623' },
-  { name: 'Lena M.', msg: 'How do I contact you?', time: '14m ago', color: '#F5A623' },
-  { name: 'Carlos T.', msg: 'Do you do consulting?', time: '17m ago', color: '#F5A623' },
-  { name: 'Fatima A.', msg: 'Can you explain your process?', time: '20m ago', color: '#F5A623' },
-  { name: 'Mike D.', msg: 'Are you available for hire?', time: '23m ago', color: '#F5A623' },
+  { name: 'Sarah K.', msg: 'Hey what exactly do you do?', time: '2m ago', avatar: 'https://i.pravatar.cc/150?img=47' },
+  { name: 'Paraja M.', msg: 'What is One Question about?', time: '4m ago', avatar: 'https://i.pravatar.cc/150?img=12' },
+  { name: 'James O.', msg: 'How much do you charge?', time: '5m ago', avatar: 'https://i.pravatar.cc/150?img=33' },
+  { name: 'Amina B.', msg: 'Can we work together?', time: '8m ago', avatar: 'https://i.pravatar.cc/150?img=45' },
+  { name: 'Raj P.', msg: 'What services do you offer?', time: '11m ago', avatar: 'https://i.pravatar.cc/150?img=51' },
+  { name: 'Lena M.', msg: 'How do I contact you?', time: '14m ago', avatar: 'https://i.pravatar.cc/150?img=29' },
+  { name: 'Carlos T.', msg: 'Do you do consulting?', time: '17m ago', avatar: 'https://i.pravatar.cc/150?img=14' },
+  { name: 'Fatima A.', msg: 'Can you explain your process?', time: '20m ago', avatar: 'https://i.pravatar.cc/150?img=48' },
+  { name: 'Mike D.', msg: 'Are you available for hire?', time: '23m ago', avatar: 'https://i.pravatar.cc/150?img=8' },
 ];
 
-function DmBubble({ name, msg, time, color }: { name: string; msg: string; time: string; color: string }) {
+function DmBubble({ name, msg, time, avatar }: { name: string; msg: string; time: string; avatar: string }) {
   return (
     <div className="flex items-start gap-2.5 mb-3">
-      <div className="w-6 h-6 rounded-full shrink-0 flex items-center justify-center text-[9px] font-bold text-black shadow-lg" style={{ backgroundColor: color }}>
-        {name.charAt(0)}
-      </div>
+      <img
+        src={avatar}
+        alt={name}
+        className="w-6 h-6 rounded-full shrink-0 object-cover shadow-lg ring-1 ring-white/10"
+        loading="lazy"
+      />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-0.5">
           <span className="text-zinc-300 text-[11px] font-medium">{name}</span>
