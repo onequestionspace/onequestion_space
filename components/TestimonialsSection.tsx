@@ -9,25 +9,25 @@ const testimonials = [
     quote: 'I used to get the same 5 questions every single day. Now I just send people my space and let the AI handle it. Best decision I made all year.',
     name: 'Lena M.',
     role: 'Freelance Designer',
-    color: '#F5A623',
+    avatar: 'https://i.pravatar.cc/150?img=29',
   },
   {
     quote: 'Honestly was skeptical about AI answering for me, but it sounds exactly like how I would respond. Even uses my slang correctly.',
     name: 'Kwame A.',
     role: 'Software Engineer',
-    color: '#F5A623',
+    avatar: 'https://i.pravatar.cc/150?img=13',
   },
   {
     quote: 'Setup took literally 3 minutes. Now my bio link page actually answers questions instead of just showing my face. Game changer.',
     name: 'Priya S.',
     role: 'Product Manager',
-    color: '#F5A623',
+    avatar: 'https://i.pravatar.cc/150?img=44',
   },
   {
     quote: 'I train my AI on every new project I launch. My visitors get instant answers about pricing, timeline, process — even at 3 AM.',
     name: 'Carlos T.',
     role: 'Independent Consultant',
-    color: '#F5A623',
+    avatar: 'https://i.pravatar.cc/150?img=14',
   },
 ];
 
@@ -57,7 +57,7 @@ export function TestimonialsSection() {
               <div className='paper-card p-5 relative group'>
                 <div className='absolute top-0 left-0 w-0.5 h-full bg-gradient-to-b from-primary/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity' />
                 <div className='flex items-center gap-3 mb-3'>
-                  <img src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${t.name}`} alt="" className="w-9 h-9 rounded-full shrink-0 shadow-lg" />
+                  <img src={t.avatar} alt={t.name} className="w-9 h-9 rounded-full shrink-0 shadow-lg object-cover" loading="lazy" />
                   <div>
                     <p className='text-white text-sm font-semibold'>{t.name}</p>
                     <p className='text-zinc-500 text-[11px]'>{t.role}</p>
