@@ -176,7 +176,13 @@ export function Hero() {
           <div className="flex flex-col items-center justify-center gap-4 mb-6">
             <div className="flex items-center">
               <div className="flex -space-x-2 mr-3">
-                {(recentProfiles && recentProfiles.length > 0 ? recentProfiles : Array.from({ length: 5 }, (_, i) => ({ avatar: undefined, username: ['Asym', 'Sarah', 'Kwame', 'Priya', 'Carlos'][i] }))).map((p, i) => (
+                {(recentProfiles && recentProfiles.length > 0 ? recentProfiles : [
+                  { avatar: 'https://i.pravatar.cc/150?img=1', username: 'Asym' },
+                  { avatar: 'https://i.pravatar.cc/150?img=47', username: 'Sarah' },
+                  { avatar: 'https://i.pravatar.cc/150?img=13', username: 'Kwame' },
+                  { avatar: 'https://i.pravatar.cc/150?img=44', username: 'Priya' },
+                  { avatar: 'https://i.pravatar.cc/150?img=14', username: 'Carlos' },
+                ]).map((p, i) => (
                   <div
                     key={i}
                     className="relative w-7 h-7 rounded-full border-2 border-background overflow-hidden ring-2 ring-background"
@@ -185,17 +191,20 @@ export function Hero() {
                     {p.avatar ? (
                       <Image src={p.avatar} alt="" width={28} height={28} className="w-full h-full object-cover" />
                     ) : (
-                      <img src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${p.username || 'User'}`} alt="" className="w-full h-full object-cover" />
+                      <img src={p.username ? `https://i.pravatar.cc/150?u=${p.username}` : 'https://i.pravatar.cc/150?img=1'} alt="" className="w-full h-full object-cover" />
                     )}
                   </div>
                 ))}
               </div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex flex-col items-start gap-1">
                 <div className="flex">
                   {[1,2,3,4,5].map(i => (
                     <Star key={i} className="w-3 h-3 text-primary" fill="currentColor" />
                   ))}
                 </div>
+                <span className="text-zinc-500 text-[11px] font-medium">
+                  Trusted by {count > 0 ? count : '50'}+ builders
+                </span>
               </div>
             </div>
           </div>
