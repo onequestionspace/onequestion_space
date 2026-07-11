@@ -812,7 +812,8 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
         referrer: typeof document !== 'undefined' ? document.referrer : undefined,
       }).catch(() => {});
     }
-  }, [profile?._id, incrementVisitor, trackPageview, username, visitorId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?._id, incrementVisitor, trackPageview, username]);
 
   useEffect(() => {
     if (responseRef.current) {

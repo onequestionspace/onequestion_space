@@ -403,7 +403,7 @@ export default function OnboardingPage() {
                           </div>
                           <div>
                             <p className="text-sm font-semibold text-white">{form.displayName || "Your Name"}</p>
-                            <p className="text-xs text-zinc-400 italic">"{form.welcomeMessage}"</p>
+                            <p className="text-xs text-zinc-400 italic">&ldquo;{form.welcomeMessage}&rdquo;</p>
                           </div>
                         </div>
                       </div>

@@ -6,7 +6,9 @@ export function AnimatedCounter({ value, className = '' }: { value: number; clas
   const [display, setDisplay] = useState(value);
 
   useEffect(() => {
+    setTimeout(() => {
     setDisplay(value);
+      }, 0);
   }, [value]);
 
   return <span className={className}>{display.toLocaleString()}</span>;

@@ -297,7 +297,6 @@ export default function AdminPage() {
               )}
             </div>
           )}
-          </div>
         )}
 
         {tab === 'founding' && (
