@@ -19,6 +19,28 @@ export const getAllProfiles = query({
   },
 });
 
+export const getAllProfilesWithStats = query({
+  args: { adminId: v.string() },
+  handler: async (ctx, args) => {
+    checkAdmin(args.adminId);
+    const profiles = await ctx.db.query('profiles').order('desc').collect();
+    const result = await Promise.all(profiles.map(async (p) => {
+      const sub = await ctx.db.query('subscriptions').withIndex('by_userId', (q) => q.eq('userId', p.userId)).unique();
+      const knowledge = await ctx.db.query('knowledge').withIndex('by_userId', (q) => q.eq('userId', p.userId)).collect();
+      const analytics = await ctx.db.query('analytics').withIndex('by_profileId', (q) => q.eq('profileId', p._id)).unique();
+      return {
+        ...p,
+        plan: sub?.plan ?? 'free',
+        messagesUsed: sub?.messagesUsed ?? 0,
+        messagesLimit: sub?.messagesLimit ?? 50,
+        knowledgeCount: knowledge.length,
+        totalQuestions: analytics?.totalQuestions ?? 0,
+      };
+    }));
+    return result;
+  },
+});
+
 export const getAllFoundingMembers = query({
   args: { adminId: v.string() },
   handler: async (ctx, args) => {

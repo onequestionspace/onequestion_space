@@ -36,7 +36,7 @@ export default function AdminPage() {
   const isAdmin = user?.id ? ADMIN_IDS.includes(user.id) : false;
   const adminId = user?.id || ADMIN_ID;
 
-  const profiles = useQuery(api.admin.getAllProfiles, isAdmin ? { adminId } : 'skip');
+  const profiles = useQuery(api.admin.getAllProfilesWithStats, isAdmin ? { adminId } : 'skip');
   const founders = useQuery(api.admin.getAllFoundingMembers, isAdmin ? { adminId } : 'skip');
   const earlyAdopters = useQuery(api.admin.getAllEarlyAdopters, isAdmin ? { adminId } : 'skip');
   const waitlist = useQuery(api.waitlist.getWaitlist, isAdmin ? {} : 'skip');
@@ -45,7 +45,7 @@ export default function AdminPage() {
   const grantEarlyAdopterBadge = useMutation(api.admin.grantEarlyAdopterBadge);
   const removeBadge = useMutation(api.admin.removeBadge);
   const deleteProfile = useMutation(api.admin.deleteProfile);
-  const addCredits = useMutation(api.subscriptions.addCredits);
+  const addCreditsM = useMutation(api.subscriptions.addCredits);
   const seedProfile = useMutation(api.profiles.seedProfile);
 
   if (!clerkLoaded) return (
@@ -101,10 +101,15 @@ export default function AdminPage() {
   };
 
   const handleAddCredits = async () => {
-    if (!creditForm.userId || !creditForm.credits) return;
-    setAddingCredits(true);
+    if (!creditForm.userId || !creditForm.credits) { setMsg('Fill in user ID and credits'); return; }
+    setAddingCredits(true); setMsg('');
     try {
-      await addCredits({ userId: creditForm.userId, credits: creditForm.credits });
+      await addCreditsM({ userId: creditForm.userId, credits: Number(creditForm.credits) });
+      setMsg('Credits added successfully!');
+      setCreditForm({ userId: '', credits: 50 });
+    } catch (e: unknown) { setMsg(e instanceof Error ? e.message : 'Error adding credits'); }
+    setAddingCredits(false);
+  };);
       setMsg('Credits added!');
       setCreditForm({ userId: '', credits: 50 });
     } catch { setMsg('Error adding credits'); }
