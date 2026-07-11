@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { redirect } from 'next/navigation';
 import { DashboardLayout } from '@/components/DashboardLayout';
@@ -16,8 +16,21 @@ import { KnowledgeHealthCard, KnowledgeGapsCard, CoverageCard, AutoFAQCard } fro
 import {
   Brain, Upload, FileText, Trash2, Plus,
   CheckCircle2, AlertCircle, X, Lightbulb, ChevronDown, ChevronUp,
-  Link, Globe, ImageIcon
+  Link, Globe, ImageIcon, Search, Circle
 } from 'lucide-react';
+
+type CoverageItem = { id: string; label: string; covered: boolean };
+
+const GUIDE_TIPS: Record<string, { desc: string; example: string; color: string }> = {
+  bio: { desc: 'Who you are, what you do, your background.', example: '"I am a solo founder building One Question from Damaturu, Nigeria..."', color: '#F5A623' },
+  pricing: { desc: 'Rates, plans, or how much things cost.', example: '"One Question costs $9/month on the founding plan..."', color: '#3b82f6' },
+  contact: { desc: 'Email, X handle, website, Calendly link.', example: '"Best way to reach me is X @Asym_Alwali"', color: '#ec4899' },
+  services: { desc: 'Describe consulting, coaching, or products.', example: '"I help founders build AI-powered Q&A pages..."', color: '#f97316' },
+  experience: { desc: 'Projects, work history, things you have built.', example: '"I built One Question in a few weeks, entirely from my phone..."', color: '#22c55e' },
+  faq: { desc: 'Write Q&A pairs for questions you get often.', example: '"Q: How can I hire you? A: DM me on X..."', color: '#a855f7' },
+  testimonials: { desc: 'Reviews or feedback from clients or partners.', example: '"One client said: this saved me hours every week..."', color: '#06b6d4' },
+  skills: { desc: 'Tools, technologies, and expertise you have.', example: '"I work with Next.js, Convex, Groq, and Gemini..."', color: '#eab308' },
+};
 
 export default function KnowledgePage() {
   const { isSignedIn, isLoaded, userId } = useAuth();
@@ -27,6 +40,7 @@ export default function KnowledgePage() {
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [activeTab, setActiveTab] = useState<'text' | 'file' | 'url' | 'image'>('text');
   const [showGuide, setShowGuide] = useState(false);
+  const [search, setSearch] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
@@ -35,6 +49,16 @@ export default function KnowledgePage() {
   const [sourceType, setSourceType] = useState<'personal' | 'article'>('personal');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+
+  const [coverage, setCoverage] = useState<{ covered: CoverageItem[]; totalCovered: number; totalCategories: number } | null>(null);
+  const [coverageLoading, setCoverageLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/knowledge/coverage')
+      .then(r => r.json())
+      .then(d => { setCoverage(d.data); setCoverageLoading(false); })
+      .catch(() => setCoverageLoading(false));
+  }, []);
 
   const knowledge = useQuery(
     api.knowledge.getKnowledgeByUserId,
@@ -131,7 +155,14 @@ export default function KnowledgePage() {
     return <FileText className={`w-5 h-5 ${type?.includes('pdf') ? 'text-red-400' : 'text-primary'}`} />;
   };
 
+  const wordCount = (text: string) => text.trim().split(/\s+/).filter(Boolean).length;
+
   const loading = knowledge === undefined;
+  const filteredKnowledge = (knowledge ?? []).filter(item => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return item.title.toLowerCase().includes(q) || item.content.toLowerCase().includes(q);
+  });
 
   return (
     <DashboardLayout title="Knowledge Base" description="Train your AI with your content.">
@@ -211,7 +242,7 @@ export default function KnowledgePage() {
 
               {activeTab === 'text' ? (
                 <div>
-                  <Label>Content</Label>
+                  <Label suffix={form.content.trim() ? `${wordCount(form.content)} words` : undefined}>Content</Label>
                   <Textarea value={form.content}
                     onChange={e => setForm(f => ({ ...f, content: e.target.value }))}
                     placeholder="Paste your content here..."
@@ -293,43 +324,52 @@ export default function KnowledgePage() {
           </Card>
         )}
 
-        {/* Guide */}
+        {/* Guide with live checklist */}
         <Card>
           <button onClick={() => setShowGuide(g => !g)} className="w-full flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Lightbulb className="w-4 h-4 text-yellow-400" />
               <span className="text-sm font-semibold text-white">How to make your AI powerful</span>
+              {!coverageLoading && coverage && (
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-medium">
+                  {coverage.totalCovered}/{coverage.totalCategories} covered
+                </span>
+              )}
             </div>
             {showGuide ? <ChevronUp className="w-4 h-4 text-zinc-500" /> : <ChevronDown className="w-4 h-4 text-zinc-500" />}
           </button>
           {showGuide && (
             <div className="mt-5 space-y-4 border-t border-white/[0.06] pt-4">
               <p className="text-xs text-zinc-500 leading-relaxed">
-                Your AI only knows what you upload. The more specific and structured your knowledge, the better it answers.
+                Your AI only knows what you upload. Here is your live checklist — items are marked done automatically as your knowledge base grows.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {[
-                  { title: '1. Start with your bio', desc: 'Who you are, what you do, your background.', example: '"I am a 19-year-old CS student from Nigeria..."', color: '#F5A623' },
-                  { title: '2. Add an FAQ', desc: 'Write Q&A pairs for questions you get often.', example: '"Q: How can I hire you? A: DM me on X..."', color: '#3b82f6' },
-                  { title: '3. Upload your work', desc: 'Paste project descriptions, case studies.', example: '"I built One Question in 3 weeks from my phone..."', color: '#22c55e' },
-                  { title: '4. Add services', desc: 'Describe consulting, coaching, or products.', example: '"I offer 1-on-1 consulting at $50/hr..."', color: '#f97316' },
-                  { title: '5. Contact info', desc: 'Email, X handle, website, Calendly link.', example: '"Best way to reach me is X @yourhandle"', color: '#ec4899' },
-                  { title: '6. Keep it updated', desc: 'Add new projects, change your rates.', example: 'Add items when something big changes.', color: '#06b6d4' },
-                ].map(tip => (
-                  <div key={tip.title} className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.06]">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: tip.color }} />
-                      <h4 className="text-xs font-semibold text-white">{tip.title}</h4>
+                {coverageLoading ? (
+                  <div className="col-span-2 animate-pulse h-32 bg-white/[0.03] rounded-xl" />
+                ) : coverage?.covered.map((cat) => {
+                  const tip = GUIDE_TIPS[cat.id] || { desc: '', example: '', color: '#F5A623' };
+                  return (
+                    <div key={cat.id} className={`p-4 rounded-xl border transition-all ${
+                      cat.covered ? 'bg-green-500/[0.04] border-green-500/20' : 'bg-white/[0.02] border-white/[0.06]'
+                    }`}>
+                      <div className="flex items-center gap-2 mb-2">
+                        {cat.covered ? (
+                          <CheckCircle2 className="w-4 h-4 text-green-400 shrink-0" />
+                        ) : (
+                          <Circle className="w-4 h-4 text-zinc-600 shrink-0" />
+                        )}
+                        <h4 className={`text-xs font-semibold ${cat.covered ? 'text-green-300' : 'text-white'}`}>{cat.label}</h4>
+                      </div>
+                      <p className="text-xs text-zinc-500 mb-2 leading-relaxed">{tip.desc}</p>
+                      {!cat.covered && <p className="text-xs text-zinc-600 italic">{tip.example}</p>}
                     </div>
-                    <p className="text-xs text-zinc-500 mb-2 leading-relaxed">{tip.desc}</p>
-                    <p className="text-xs text-zinc-600 italic">{tip.example}</p>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
               <div className="p-4 rounded-xl bg-primary/[0.05] border border-primary/20">
                 <p className="text-xs text-primary font-semibold mb-1">Pro tip</p>
                 <p className="text-xs text-zinc-500 leading-relaxed">
-                  Upload separate items for each topic — do not dump everything in one block. Smaller focused items = more accurate AI matching. Aim for 5-10 items.
+                  Upload separate items for each topic — do not dump everything in one block. Smaller focused items = more accurate AI matching. Aim for 5-10 items covering the categories above.
                 </p>
               </div>
             </div>
@@ -346,11 +386,29 @@ export default function KnowledgePage() {
           </div>
         )}
 
+        {/* Search */}
+        {!loading && knowledge && knowledge.length > 0 && (
+          <div className="flex items-center gap-2 bg-white/[0.03] border border-white/10 rounded-xl px-4 py-2.5 focus-within:border-primary/40 transition-all">
+            <Search className="w-4 h-4 text-zinc-500 shrink-0" />
+            <input
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              placeholder="Search your knowledge base..."
+              className="flex-1 bg-transparent text-white text-sm outline-none placeholder:text-zinc-600"
+            />
+            {search && (
+              <button onClick={() => setSearch('')} className="text-zinc-500 hover:text-white transition-colors">
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        )}
+
         {loading ? (
           <ListSkeleton rows={3} />
-        ) : knowledge && knowledge.length > 0 ? (
+        ) : filteredKnowledge.length > 0 ? (
           <div className="space-y-2">
-            {knowledge.map(item => (
+            {filteredKnowledge.map(item => (
               <div key={item._id} className="paper-card p-4 flex items-start gap-4 hover:border-white/[0.12] transition-all">
                 <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
                   {fileTypeIcon(item.fileType, (item as any).sourceType)}
@@ -360,6 +418,8 @@ export default function KnowledgePage() {
                   <p className="text-xs text-zinc-500 line-clamp-2">{item.content}</p>
                   <div className="flex items-center gap-2 mt-2 flex-wrap">
                     <p className="text-xs text-zinc-600">{new Date(item.createdAt).toLocaleDateString()}</p>
+                    <span className="text-xs text-zinc-700">•</span>
+                    <p className="text-xs text-zinc-600">{wordCount(item.content)} words</p>
                     {(item as any).sourceType === 'article' && (
                       <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-medium">
                         <Globe className="w-2.5 h-2.5" /> Article
@@ -379,6 +439,12 @@ export default function KnowledgePage() {
               </div>
             ))}
           </div>
+        ) : knowledge && knowledge.length > 0 && search ? (
+          <EmptyState
+            icon={<Search />}
+            title="No matches found"
+            description={`No knowledge items match "${search}".`}
+          />
         ) : !isAdding ? (
           <EmptyState
             icon={<Brain />}
@@ -391,7 +457,6 @@ export default function KnowledgePage() {
             }
           />
         ) : null}
-
       </div>
     </DashboardLayout>
   );
