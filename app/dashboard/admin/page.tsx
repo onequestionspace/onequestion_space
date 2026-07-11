@@ -271,7 +271,7 @@ export default function AdminPage() {
                   <div className="flex items-center gap-2">
                     <Crown className="w-3.5 h-3.5 text-yellow-400 shrink-0" />
                     <p className="text-white font-medium text-sm">{f.displayName}</p>
-                    <Badge variant="default">#{f.spotNumber}</Badge>
+                    <span className='text-xs px-2 py-0.5 rounded-full bg-yellow-500/10 text-yellow-400'>#{f.spotNumber}</span>
                   </div>
                   <p className="text-zinc-500 text-xs">/{f.username}</p>
                 </div>

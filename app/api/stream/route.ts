@@ -204,7 +204,40 @@ export async function POST(request: NextRequest) {
     convex.mutation(api.analytics.incrementAnswerCount, { profileId: profile._id }).catch(() => {});
     if (!isAdmin) convex.mutation(api.subscriptions.incrementMessagesUsed, { userId: profile.userId }).catch(() => {});
 
-    return new Response(stream, {
+    // Wrap stream to capture full answer and save to DB
+    const encoder = new TextEncoder();
+    const decoder = new TextDecoder();
+    let fullAnswer = '';
+    const wrappedStream = new ReadableStream({
+      async start(controller) {
+        const reader = stream.getReader();
+        try {
+          while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            const chunk = decoder.decode(value, { stream: true });
+            fullAnswer += chunk;
+            controller.enqueue(encoder.encode(chunk));
+          }
+        } finally {
+          controller.close();
+          reader.releaseLock();
+          // Save full answer to DB after stream completes
+          if (fullAnswer.trim()) {
+            convex.mutation(api.questions.createQuestion, {
+              profileId: profile._id,
+              question,
+              answer: fullAnswer.trim(),
+              isAnswered: true,
+              createdAt: Date.now(),
+              answeredAt: Date.now(),
+            }).catch(() => {});
+          }
+        }
+      },
+    });
+
+    return new Response(wrappedStream, {
       headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Transfer-Encoding': 'chunked', 'X-Accel-Buffering': 'no', 'Cache-Control': 'no-cache' },
     });
   } catch (error) {
