@@ -12,6 +12,7 @@ import { EmptyState } from '@/components/dashboard/EmptyState';
 import { Button } from '@/components/dashboard/Button';
 import { Badge } from '@/components/dashboard/Badge';
 import { KnowledgeHealthCard, KnowledgeGapsCard, CoverageCard, AutoFAQCard, AICoachCard } from '@/components/KnowledgeIntelligence';
+import { AIProactiveTip } from '@/components/AIProactiveTip';
 import {
   MessageSquare, Users, Zap, Brain,
   Sparkles, BarChart3, Clock,
@@ -254,6 +255,7 @@ export default function DashboardPage() {
           </>
         )}
       </div>
+      {profile?._id && <AIProactiveTip profileId={profile._id} />}
     </DashboardLayout>
   );
 }
