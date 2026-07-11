@@ -74,7 +74,7 @@ export async function generateAnswer(
 
     // Dynamic token limit
     const wordCount = question.split(' ').length;
-    const maxTokens = wordCount > 15 ? 250 : wordCount > 8 ? 180 : 120;
+    const maxTokens = wordCount > 15 ? 400 : wordCount > 8 ? 280 : 180;
 
     const prompt = `You are ${name}. A visitor is asking you a question on your personal AI space. Answer as yourself — in your own voice, naturally, like you are personally replying.
 
@@ -101,7 +101,7 @@ Reply as ${name}:`;
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: maxTokens, temperature: 0.7 },
+        generationConfig: { maxOutputTokens: maxTokens, temperature: 0.4 },
       }),
     });
 
