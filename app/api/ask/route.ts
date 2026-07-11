@@ -51,6 +51,18 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // 1c. Check if this exact question was already answered (cache hit)
+    const existingAnswer = await convex.query(api.questions.getAnsweredQuestionByText, {
+      profileId: profile._id,
+      question: question.trim(),
+    });
+    if (existingAnswer?.answer) {
+      return NextResponse.json({
+        success: true,
+        data: { question, answer: existingAnswer.answer, cached: true }
+      }, { status: 200 });
+    }
+
     // 2. Fetch all knowledge chunks for this user
     const knowledgeChunks = await convex.query(api.knowledge.getKnowledgeByUserId, { userId: profile.userId });
     

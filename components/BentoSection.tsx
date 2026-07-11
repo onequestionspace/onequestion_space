@@ -68,7 +68,7 @@ export function BentoSection() {
         </div>
 
         <div className='grid grid-cols-1 md:grid-cols-3 gap-3'>
-          <FadeIn delay={0} className='md:col-span-2'>
+          <FadeIn className='md:col-span-2'>
             <div className='paper-card p-6 relative overflow-hidden group'>
               <div className='absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700'
                 style={{ background: 'linear-gradient(135deg, rgba(245,166,35,0.08), transparent 60%)' }} />
@@ -83,7 +83,7 @@ export function BentoSection() {
             </div>
           </FadeIn>
 
-          <FadeIn delay={0.08}>
+          <FadeIn>
             <div className='paper-card p-5 relative overflow-hidden group'>
               <BarChart3 className='w-5 h-5 text-primary mb-3 relative' />
               <h3 className='text-sm font-bold text-white mb-1 relative'>Real Analytics</h3>
@@ -102,7 +102,7 @@ export function BentoSection() {
             </div>
           </FadeIn>
 
-          <FadeIn delay={0.12}>
+          <FadeIn>
             <div className='paper-card p-5 relative overflow-hidden group'>
               <Palette className='w-5 h-5 text-primary mb-3 relative' />
               <h3 className='text-sm font-bold text-white mb-1 relative'>Full Customization</h3>
@@ -115,7 +115,7 @@ export function BentoSection() {
             </div>
           </FadeIn>
 
-          <FadeIn delay={0.16}>
+          <FadeIn>
             <div className='paper-card p-5 relative overflow-hidden group'>
               <Zap className='w-5 h-5 text-primary mb-3 relative' />
               <h3 className='text-sm font-bold text-white mb-1 relative'>Instant Answers</h3>
@@ -127,7 +127,7 @@ export function BentoSection() {
             </div>
           </FadeIn>
 
-          <FadeIn delay={0.2}>
+          <FadeIn>
             <div className='paper-card p-5 relative overflow-hidden group'>
               <Shield className='w-5 h-5 text-primary mb-3 relative' />
               <h3 className='text-sm font-bold text-white mb-1 relative'>Private by Default</h3>
@@ -135,7 +135,7 @@ export function BentoSection() {
             </div>
           </FadeIn>
 
-          <FadeIn delay={0.08} className='md:col-span-2'>
+          <FadeIn className='md:col-span-2'>
             <div className='paper-card p-6 relative overflow-hidden group'>
               <div className='absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700'
                 style={{ background: 'linear-gradient(135deg, rgba(245,166,35,0.08), transparent 60%)' }} />

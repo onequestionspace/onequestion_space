@@ -1192,7 +1192,6 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
                   onClick={() => setExpandedIndex(isExpanded ? null : i)}
                   className={"flex items-center gap-2 px-4 py-2 rounded-full cursor-pointer transition-all border " + (isExpanded ? "border-white/20 bg-white/8" : "border-white/5 bg-white/4 hover:bg-white/8")}
                   style={{ borderColor: isExpanded ? color + '60' : undefined }}
-                  layout layoutId={'hist-' + i}
                 >
                   <span className={"text-xs font-medium truncate flex-1 " + (isLight ? "text-zinc-800" : "text-white/90")}>
                     {item.q}
