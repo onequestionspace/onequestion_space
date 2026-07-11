@@ -257,46 +257,6 @@ export default function AdminPage() {
               </div>
             ))}
           </div>
-
-          {/* User Activity Drawer */}
-          {selectedUserId && userActivity && (
-            <div className="rounded-2xl border border-amber-500/20 bg-amber-500/5 p-4 space-y-3">
-              <div className="flex items-center justify-between">
-                <p className="text-sm font-bold text-white">User Activity</p>
-                <button onClick={() => setSelectedUserId('')} className="text-xs text-zinc-500 hover:text-white">Close ×</button>
-              </div>
-              <div className="grid grid-cols-3 gap-2 text-xs">
-                <div className="rounded-xl bg-white/5 p-3 text-center">
-                  <p className="text-white font-bold text-lg">{userActivity.questions.length}</p>
-                  <p className="text-zinc-500">Questions</p>
-                </div>
-                <div className="rounded-xl bg-white/5 p-3 text-center">
-                  <p className="text-white font-bold text-lg">{userActivity.knowledgeCount}</p>
-                  <p className="text-zinc-500">Knowledge</p>
-                </div>
-                <div className="rounded-xl bg-white/5 p-3 text-center">
-                  <p className="text-white font-bold text-lg">{userActivity.pageviewCount}</p>
-                  <p className="text-zinc-500">Pageviews</p>
-                </div>
-              </div>
-              <div>
-                <p className="text-xs text-zinc-500 mb-2">Plan: <span className="text-amber-400 font-bold">{userActivity.subscription?.plan ?? 'free'}</span> · Credits: {userActivity.subscription?.messagesUsed ?? 0}/{userActivity.subscription?.messagesLimit ?? 50}</p>
-              </div>
-              {userActivity.questions.length > 0 && (
-                <div>
-                  <p className="text-xs text-zinc-500 mb-2">Recent Questions</p>
-                  <div className="space-y-2">
-                    {userActivity.questions.slice(0, 5).map((q, i) => (
-                      <div key={i} className="rounded-xl bg-white/5 p-3">
-                        <p className="text-xs text-white line-clamp-1">{q.question}</p>
-                        <p className="text-[10px] text-zinc-600 mt-1">{new Date(q.createdAt).toLocaleString()}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
         )}
 
         {tab === 'founding' && (
