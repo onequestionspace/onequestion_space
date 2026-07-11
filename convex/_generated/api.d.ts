@@ -20,6 +20,7 @@ import type * as migrations from "../migrations.js";
 import type * as profiles from "../profiles.js";
 import type * as questions from "../questions.js";
 import type * as reactions from "../reactions.js";
+import type * as siteAnalytics from "../siteAnalytics.js";
 import type * as subscriptions from "../subscriptions.js";
 import type * as waitlist from "../waitlist.js";
 import type * as whoami from "../whoami.js";
@@ -43,6 +44,7 @@ declare const fullApi: ApiFromModules<{
   profiles: typeof profiles;
   questions: typeof questions;
   reactions: typeof reactions;
+  siteAnalytics: typeof siteAnalytics;
   subscriptions: typeof subscriptions;
   waitlist: typeof waitlist;
   whoami: typeof whoami;

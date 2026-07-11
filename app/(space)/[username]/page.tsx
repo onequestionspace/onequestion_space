@@ -794,6 +794,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   const reactions = useQuery(api.reactions.getReactions, profile?._id ? { profileId: profile._id } : 'skip');
   const blogs = useQuery(api.blogs.getPublishedBlogs, {});
   const incrementVisitor = useMutation(api.analytics.incrementVisitorCount);
+  const trackPageview = useMutation(api.siteAnalytics.trackPageview);
 
   useEffect(() => {
     if (profile?._id) {
@@ -804,8 +805,14 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
         incrementVisitor({ profileId: profile._id }).catch(() => {});
         localStorage.setItem(key, now.toString());
       }
+      // Track sitewide pageview
+      trackPageview({
+        page: '/' + username,
+        visitorId: visitorId || 'anon',
+        referrer: typeof document !== 'undefined' ? document.referrer : undefined,
+      }).catch(() => {});
     }
-  }, [profile?._id, incrementVisitor]);
+  }, [profile?._id, incrementVisitor, trackPageview, username, visitorId]);
 
   useEffect(() => {
     if (responseRef.current) {

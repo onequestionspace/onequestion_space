@@ -127,6 +127,28 @@ export default defineSchema({
     .index('by_userId', ['userId'])
     .index('by_username', ['username']),
 
+  pageviews: defineTable({
+    page: v.string(),
+    referrer: v.optional(v.string()),
+    userAgent: v.optional(v.string()),
+    visitorId: v.optional(v.string()),
+    userId: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index('by_page', ['page'])
+    .index('by_createdAt', ['createdAt']),
+
+  events: defineTable({
+    type: v.string(),
+    userId: v.optional(v.string()),
+    visitorId: v.optional(v.string()),
+    metadata: v.optional(v.string()),
+    createdAt: v.number(),
+  })
+    .index('by_type', ['type'])
+    .index('by_userId', ['userId'])
+    .index('by_createdAt', ['createdAt']),
+
   waitlist: defineTable({
     name: v.optional(v.string()),
     username: v.optional(v.string()),
