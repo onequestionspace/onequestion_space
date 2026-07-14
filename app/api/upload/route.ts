@@ -47,20 +47,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: true, data: { fileUrl: dataUrl } });
     }
 
-    // Handle text file upload for knowledge base
-    if (fileType === 'text/plain') {
+    // Handle text-based file uploads for knowledge base.
+    // Mobile browsers often misreport or omit MIME type for .md/.txt files,
+    // so we also check the file extension as a fallback.
+    const textMimeTypes = ['text/plain', 'text/markdown', 'text/x-markdown', 'application/octet-stream', ''];
+    const textExtensions = ['.txt', '.md', '.markdown', '.csv'];
+    const lowerName = (file.name || '').toLowerCase();
+    const looksLikeText = textMimeTypes.includes(fileType) || textExtensions.some(ext => lowerName.endsWith(ext));
+
+    if (looksLikeText) {
       const content = await file.text();
       await convex.mutation(api.knowledge.createKnowledge, {
         userId,
         title: title || file.name,
         content,
-        fileType,
+        fileType: fileType || 'text/plain',
         sourceType: sourceType || 'personal',
       });
       return NextResponse.json({ success: true });
     }
 
-    return NextResponse.json({ error: 'Unsupported file type' }, { status: 400 });
+    return NextResponse.json({ error: 'Unsupported file type: ' + (fileType || 'unknown') + '. Supported: .txt, .md, images. PDF support coming soon.' }, { status: 400 });
   } catch (e) {
     console.error(e);
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
