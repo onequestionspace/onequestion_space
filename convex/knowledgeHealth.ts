@@ -71,6 +71,18 @@ export const getKnowledgeHealth = query({
   },
 });
 
+
+const GAP_CATEGORIES = [
+  { id: 'bio', category: 'About', severity: 'high' as const, keywords: ['i am', "i'm", 'my name', 'based in', 'from'], suggestion: 'Upload a personal bio or background document so your AI knows who you are.' },
+  { id: 'pricing', category: 'Pricing', severity: 'high' as const, keywords: ['pricing', 'price', 'cost', 'plan', 'pay', 'subscription', 'per month', 'per hour'], suggestion: 'Add a document describing your pricing, plans, or rates so visitors know what things cost.' },
+  { id: 'contact', category: 'Contact', severity: 'high' as const, keywords: ['email', 'contact', 'reach', 'dm', 'twitter', 'x.com', 'linkedin', 'calendly'], suggestion: 'Add contact details so visitors know how to reach you (email, social, calendar link).' },
+  { id: 'services', category: 'Services', severity: 'medium' as const, keywords: ['service', 'offer', 'consulting', 'coaching', 'freelance', 'build', 'develop'], suggestion: 'Describe what services, products, or work you do to help visitors understand your value.' },
+  { id: 'experience', category: 'Experience', severity: 'medium' as const, keywords: ['experience', 'work', 'built', 'created', 'project', 'client', 'company'], suggestion: 'Add a document describing past work, projects, or experience.' },
+  { id: 'faq', category: 'FAQ', severity: 'medium' as const, keywords: ['faq', 'frequently asked', 'what is', 'how do', 'can you'], suggestion: 'Create an FAQ document with common questions you receive.' },
+  { id: 'testimonials', category: 'Testimonials', severity: 'low' as const, keywords: ['testimonial', 'review', 'client said', 'customer', 'feedback'], suggestion: 'Add testimonials from clients or partners to build trust with visitors.' },
+  { id: 'skills', category: 'Skills', severity: 'low' as const, keywords: ['skill', 'expertise', 'proficient', 'know', 'technology', 'tool', 'language'], suggestion: 'Describe your skills, tools, and areas of expertise.' },
+];
+
 export const getKnowledgeGaps = query({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
@@ -78,33 +90,22 @@ export const getKnowledgeGaps = query({
       .withIndex('by_userId', (q) => q.eq('userId', args.userId))
       .collect();
 
-    const profile = await ctx.db.query('profiles')
-      .withIndex('by_userId', (q) => q.eq('userId', args.userId))
-      .unique();
-
-    const allContent = items.map(i => i.content.toLowerCase()).join(' ');
-    const allTitles = items.map(i => i.title.toLowerCase()).join(' ');
+    const allContent = items.map(i => i.content.toLowerCase() + ' ' + i.title.toLowerCase()).join(' ');
 
     const gaps: { category: string; severity: 'low' | 'medium' | 'high'; description: string; suggestion: string }[] = [];
 
-    if (!allContent.includes('pricing') && !allTitles.includes('pricing') && !allContent.includes('price') && !allContent.includes('cost')) {
-      gaps.push({ category: 'Pricing', severity: 'high', description: 'No pricing information found', suggestion: 'Add a document describing your pricing, plans, or rates so visitors know what things cost.' });
+    for (const cat of GAP_CATEGORIES) {
+      const covered = cat.keywords.some(kw => allContent.includes(kw));
+      if (!covered) {
+        gaps.push({
+          category: cat.category,
+          severity: cat.severity,
+          description: `No ${cat.category.toLowerCase()} content found`,
+          suggestion: cat.suggestion,
+        });
+      }
     }
-    if (!allContent.includes('about me') && !allContent.includes('about') && !profile?.bio) {
-      gaps.push({ category: 'About', severity: 'high', description: 'No about/bio content found', suggestion: 'Upload a personal bio or background document so your AI knows who you are.' });
-    }
-    if (!allContent.includes('contact') && !allContent.includes('email') && !allContent.includes('reach')) {
-      gaps.push({ category: 'Contact', severity: 'high', description: 'No contact information found', suggestion: 'Add contact details so visitors know how to reach you (email, social, calendar link).' });
-    }
-    if (!allContent.includes('faq') && !allTitles.includes('faq') && !allContent.includes('frequently asked')) {
-      gaps.push({ category: 'FAQ', severity: 'medium', description: 'No FAQ section found', suggestion: 'Create an FAQ document with common questions you receive.' });
-    }
-    if (!allContent.includes('service') && !allContent.includes('offer') && !allContent.includes('product')) {
-      gaps.push({ category: 'Services', severity: 'medium', description: 'No services or offerings described', suggestion: 'Describe what services, products, or work you do to help visitors understand your value.' });
-    }
-    if (!allContent.includes('testimonial') && !allContent.includes('review') && !allContent.includes('client')) {
-      gaps.push({ category: 'Testimonials', severity: 'low', description: 'No testimonials or reviews found', suggestion: 'Add testimonials from clients or partners to build trust with visitors.' });
-    }
+
     if (items.length < 5) {
       gaps.push({ category: 'Quantity', severity: 'medium', description: `Only ${items.length} knowledge item(s) — aim for 5+`, suggestion: 'Upload more content to give your AI a broader knowledge base to draw from.' });
     }

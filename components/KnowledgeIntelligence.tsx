@@ -1,33 +1,21 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { useQuery } from 'convex/react';
+import { api } from '@/convex/_generated/api';
 import {
   Brain, AlertTriangle, CheckCircle2, FileText, Sparkles,
   Lightbulb, Target, ChevronRight, RefreshCw, Quote,
   Layers, BarChart3, Clock
 } from 'lucide-react';
 
-type HealthData = {
-  score: number; freshness: number; completeness: number; coverage: number; quality: number; items: number;
-  details: { label: string; met: boolean; weight: number }[];
-};
-
-type GapItem = { category: string; severity: 'low' | 'medium' | 'high'; description: string; suggestion: string };
-
-type CoverageItem = { id: string; label: string; keywords: string[]; covered: boolean };
-
 type FAQItem = { question: string; answer: string };
 
 export function KnowledgeHealthCard({ userId }: { userId: string }) {
-  const [health, setHealth] = useState<HealthData | null>(null);
-  const [loading, setLoading] = useState(true);
+  const health = useQuery(api.knowledgeHealth.getKnowledgeHealth, { userId });
 
-  useEffect(() => {
-    fetch('/api/knowledge/health').then(r => r.json()).then(d => { setHealth(d.data); setLoading(false); }).catch(() => setLoading(false));
-  }, []);
-
-  if (loading) return <div className="paper-card p-4"><div className="animate-pulse h-20 bg-white/[0.03] rounded-xl" /></div>;
-  if (!health) return null;
+  if (health === undefined) return <div className="paper-card p-4"><div className="animate-pulse h-20 bg-white/[0.03] rounded-xl" /></div>;
+  if (!health || health.items === 0) return null;
 
   const scoreColor = health.score >= 80 ? '#22c55e' : health.score >= 50 ? '#F5A623' : '#ef4444';
   const scoreLabel = health.score >= 80 ? 'Great' : health.score >= 50 ? 'Needs work' : 'Poor';
@@ -78,14 +66,9 @@ export function KnowledgeHealthCard({ userId }: { userId: string }) {
 }
 
 export function KnowledgeGapsCard({ userId }: { userId: string }) {
-  const [gaps, setGaps] = useState<{ gaps: GapItem[]; total: number } | null>(null);
-  const [loading, setLoading] = useState(true);
+  const gaps = useQuery(api.knowledgeHealth.getKnowledgeGaps, { userId });
 
-  useEffect(() => {
-    fetch('/api/knowledge/gaps').then(r => r.json()).then(d => { setGaps(d.data); setLoading(false); }).catch(() => setLoading(false));
-  }, []);
-
-  if (loading) return <div className="paper-card p-4"><div className="animate-pulse h-20 bg-white/[0.03] rounded-xl" /></div>;
+  if (gaps === undefined) return <div className="paper-card p-4"><div className="animate-pulse h-20 bg-white/[0.03] rounded-xl" /></div>;
   if (!gaps || gaps.gaps.length === 0) return null;
 
   const severityColor = (s: string) => s === 'high' ? '#ef4444' : s === 'medium' ? '#F5A623' : '#3b82f6';
@@ -117,14 +100,9 @@ export function KnowledgeGapsCard({ userId }: { userId: string }) {
 }
 
 export function CoverageCard({ userId }: { userId: string }) {
-  const [coverage, setCoverage] = useState<{ score: number; covered: CoverageItem[]; totalCovered: number; totalCategories: number } | null>(null);
-  const [loading, setLoading] = useState(true);
+  const coverage = useQuery(api.knowledgeHealth.getCoverageScore, { userId });
 
-  useEffect(() => {
-    fetch('/api/knowledge/coverage').then(r => r.json()).then(d => { setCoverage(d.data); setLoading(false); }).catch(() => setLoading(false));
-  }, []);
-
-  if (loading) return <div className="paper-card p-4"><div className="animate-pulse h-20 bg-white/[0.03] rounded-xl" /></div>;
+  if (coverage === undefined) return <div className="paper-card p-4"><div className="animate-pulse h-20 bg-white/[0.03] rounded-xl" /></div>;
   if (!coverage) return null;
 
   return (
@@ -221,17 +199,12 @@ export function AutoFAQCard({ userId }: { userId: string }) {
 }
 
 export function AICoachCard({ userId, knowledgeCount }: { userId: string; knowledgeCount: number }) {
-  const [insights, setInsights] = useState<string[]>([]);
-
-  useEffect(() => {
-    const items: string[] = [];
-    if (knowledgeCount === 0) items.push('Upload your first knowledge item to activate your AI.');
-    if (knowledgeCount > 0 && knowledgeCount < 5) items.push(`Add ${5 - knowledgeCount} more items for optimal AI performance.`);
-    const day = new Date().getDay();
-    if (day < 2) items.push('Start of the week — review your unanswered questions in the inbox.');
-    if (day === 4) items.push('Tip: Update any outdated knowledge items to keep your AI fresh.');
-    setInsights(items);
-  }, [knowledgeCount]);
+  const insights: string[] = [];
+  if (knowledgeCount === 0) insights.push('Upload your first knowledge item to activate your AI.');
+  if (knowledgeCount > 0 && knowledgeCount < 5) insights.push(`Add ${5 - knowledgeCount} more items for optimal AI performance.`);
+  const day = new Date().getDay();
+  if (day < 2) insights.push('Start of the week — review your unanswered questions in the inbox.');
+  if (day === 4) insights.push('Tip: Update any outdated knowledge items to keep your AI fresh.');
 
   return (
     <div className="paper-card p-4">

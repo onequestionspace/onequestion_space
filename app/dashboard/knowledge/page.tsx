@@ -50,15 +50,11 @@ export default function KnowledgePage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
 
-  const [coverage, setCoverage] = useState<{ covered: CoverageItem[]; totalCovered: number; totalCategories: number } | null>(null);
-  const [coverageLoading, setCoverageLoading] = useState(true);
-
-  useEffect(() => {
-    fetch('/api/knowledge/coverage')
-      .then(r => r.json())
-      .then(d => { setCoverage(d.data); setCoverageLoading(false); })
-      .catch(() => setCoverageLoading(false));
-  }, []);
+  const coverage = useQuery(
+    api.knowledgeHealth.getCoverageScore,
+    userId ? { userId } : 'skip'
+  );
+  const coverageLoading = coverage === undefined;
 
   const knowledge = useQuery(
     api.knowledge.getKnowledgeByUserId,
