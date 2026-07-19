@@ -124,18 +124,19 @@ export const getCoverageScore = query({
     const allContent = items.map(i => i.content.toLowerCase()).join(' ');
 
     const CATEGORIES = [
-      { id: 'bio', label: 'Bio / About', keywords: ['i am', 'i\'m', 'my name', 'based in', 'from'] },
-      { id: 'pricing', label: 'Pricing', keywords: ['pricing', 'price', 'cost', 'plan', 'pay', 'subscription', 'per month', 'per hour'] },
-      { id: 'contact', label: 'Contact', keywords: ['email', 'contact', 'reach', 'dm', 'twitter', 'x.com', 'linkedin', 'calendly'] },
-      { id: 'services', label: 'Services', keywords: ['service', 'offer', 'consulting', 'coaching', 'freelance', 'build', 'develop'] },
-      { id: 'experience', label: 'Experience', keywords: ['experience', 'work', 'built', 'created', 'project', 'client', 'company'] },
-      { id: 'faq', label: 'FAQ', keywords: ['faq', 'frequently asked', 'what is', 'how do', 'can you'] },
-      { id: 'testimonials', label: 'Testimonials', keywords: ['testimonial', 'review', 'client said', 'customer', 'feedback'] },
-      { id: 'skills', label: 'Skills', keywords: ['skill', 'expertise', 'proficient', 'know', 'technology', 'tool', 'language'] },
+      { id: 'bio', label: 'Bio / About', keywords: ['i am a', 'my name is', 'based in', 'i grew up', 'my background'], minMatches: 2 },
+      { id: 'pricing', label: 'Pricing', keywords: ['pricing', 'per month', 'per hour', 'free plan', 'subscription', '$'], minMatches: 2 },
+      { id: 'contact', label: 'Contact', keywords: ['reach out', 'send an email', 'dm me', 'contact me', 'get in touch'], minMatches: 1 },
+      { id: 'services', label: 'Services', keywords: ['i offer', 'consulting', 'coaching', 'freelance', 'i build', 'i develop'], minMatches: 2 },
+      { id: 'experience', label: 'Experience', keywords: ['years of experience', 'previously worked', 'i have built', 'case study', 'past project'], minMatches: 2 },
+      { id: 'faq', label: 'FAQ', keywords: ['faq', 'frequently asked', 'q:', 'a:'], minMatches: 2 },
+      { id: 'testimonials', label: 'Testimonials', keywords: ['testimonial', 'client said', 'customer said', '"i used', '"working with', 'review from'], minMatches: 2 },
+      { id: 'skills', label: 'Skills', keywords: ['my skills', 'i am proficient', 'my tech stack', 'technologies i use', 'tools i use'], minMatches: 2 },
     ];
 
     const covered = CATEGORIES.map(cat => {
-      const detected = cat.keywords.some(kw => allContent.includes(kw));
+      const matchCount = cat.keywords.filter(kw => allContent.includes(kw)).length;
+      const detected = matchCount >= (cat.minMatches ?? 1);
       return { ...cat, covered: detected };
     });
 
