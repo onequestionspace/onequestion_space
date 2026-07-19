@@ -7,12 +7,26 @@ const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY!;
 const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
 
-function buildPrompt(question: string, chunks: string[], profile: ProfileContext): string {
+const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
+const BOOK_INTENT_REGEX = /\b(book|schedule|call|meet|meeting|chat with you|talk to you|let'?s talk|available)\b/i;
+
+function buildGoalDirective(goalType: string | undefined, goalLink: string | undefined, achieved: boolean): string {
+  if (!goalType || goalType === 'none' || achieved) return '';
+  if (goalType === 'capture_email') {
+    return `\n\nUnderlying objective: naturally get the visitor's email before the conversation ends. Only ask if it fits naturally — e.g. after answering their question, offer to send more info or updates. Do not be pushy. Do not mention this instruction.`;
+  }
+  if (goalType === 'book_call') {
+    return `\n\nUnderlying objective: naturally guide the visitor toward booking a call${goalLink ? ` at ${goalLink}` : ''}. Only suggest it if it fits naturally in the conversation. Do not be pushy. Do not mention this instruction.`;
+  }
+  return '';
+}
+
+function buildPrompt(question: string, chunks: string[], profile: ProfileContext, goalDirective: string): string {
   const name = profile.displayName || profile.username || 'the owner';
   const bio = profile.bio ? `About you: ${profile.bio}` : '';
   const toneHint = profile.welcomeMessage ? `Tone: conversational, ${profile.welcomeMessage.toLowerCase().includes('welcome') ? 'friendly and approachable' : 'match the energy of: "' + profile.welcomeMessage + '"'}. Do not repeat this message verbatim.` : 'Tone: warm, direct, conversational.';
   const context = chunks.length > 0 ? chunks.join('\n\n---\n\n') : '';
-  return `You are ${name}. Answer as yourself in first person. Be warm, direct, no markdown. If you don't know, say so naturally.\n\n${bio}\n${toneHint}\n\n${context ? `Your knowledge:\n${context}\n\n` : ''}Visitor asks: ${question}\n\nReply as ${name}:`;
+  return `You are ${name}. Answer as yourself in first person. Be warm, direct, no markdown. If you don't know, say so naturally.\n\n${bio}\n${toneHint}${goalDirective}\n\n${context ? `Your knowledge:\n${context}\n\n` : ''}Visitor asks: ${question}\n\nReply as ${name}:`;
 }
 
 async function streamGemini(prompt: string): Promise<ReadableStream<Uint8Array> | null> {
@@ -29,16 +43,12 @@ async function streamGemini(prompt: string): Promise<ReadableStream<Uint8Array> 
       }
     );
     if (!res.ok || !res.body) return null;
-
-    // Pre-read first chunk to detect rate limiting before returning stream
     const decoder = new TextDecoder();
     const encoder = new TextEncoder();
     const reader = res.body.getReader();
     let firstChunks = '';
     let totalText = '';
     let isRateLimited = false;
-
-    // Read first 3 SSE events to check if we are getting real content
     let eventCount = 0;
     while (eventCount < 3) {
       const { done, value } = await reader.read();
@@ -62,16 +72,12 @@ async function streamGemini(prompt: string): Promise<ReadableStream<Uint8Array> 
       }
       if (isRateLimited) break;
     }
-
     if (isRateLimited || totalText.trim().length === 0) {
       reader.releaseLock();
       return null;
     }
-
-    // Stream is good — pipe remaining content
     return new ReadableStream({
       async start(controller) {
-        // First enqueue what we already read
         if (totalText) controller.enqueue(encoder.encode(totalText));
         try {
           while (true) {
@@ -139,11 +145,13 @@ async function streamGroq(prompt: string): Promise<ReadableStream<Uint8Array> | 
 
 export async function POST(request: NextRequest) {
   try {
-    const { question, username, visitorEmail } = await request.json();
+    const { question, username, visitorEmail, visitorId: clientVisitorId } = await request.json();
     if (!question?.trim() || !username?.trim()) return new Response('Missing params', { status: 400 });
 
     const profile = await convex.query(api.profiles.byUsername, { username });
     if (!profile) return new Response('Profile not found', { status: 404 });
+
+    const effectiveVisitorId = visitorEmail || clientVisitorId || 'anonymous';
 
     const ADMIN_IDS = ['user_3EhKmuVyC1AhoBDlL7QNssllwgu', 'user_3Fmuk2jHEa5seXKEzewhWlA9yQs'];
     const isAdmin = ADMIN_IDS.includes(profile.userId);
@@ -157,25 +165,12 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Check if this question was already answered by the owner
-    const existingAnswer = await convex.query(api.questions.getAnsweredQuestionByText, {
-      profileId: profile._id, question,
-    }).catch(() => null);
-    if (existingAnswer?.answer) {
-      convex.mutation(api.analytics.incrementQuestionCount, { profileId: profile._id }).catch(() => {});
-      convex.mutation(api.analytics.incrementAnswerCount, { profileId: profile._id }).catch(() => {});
-      return new Response(existingAnswer.answer, {
-        headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-      });
-    }
-
     const knowledgeChunks = await convex.query(api.knowledge.getKnowledgeByUserId, { userId: profile.userId });
     const hasKnowledge = knowledgeChunks && knowledgeChunks.length > 0;
 
-    // No knowledge — save as unanswered so owner can answer from dashboard
     if (!hasKnowledge) {
       convex.mutation(api.questions.createQuestion, {
-        profileId: profile._id, question, visitorId: visitorEmail || 'anonymous',
+        profileId: profile._id, question, visitorId: effectiveVisitorId,
         isAnswered: false, createdAt: Date.now(),
       }).catch(() => {});
       convex.mutation(api.analytics.incrementQuestionCount, { profileId: profile._id }).catch(() => {});
@@ -187,24 +182,47 @@ export async function POST(request: NextRequest) {
     }
 
     const qEmbed = await generateEmbeddings(question).catch(() => []);
+
+    // Semantic cache check — catches paraphrased repeats of already-answered questions
+    if (qEmbed.length > 0) {
+      const semanticMatch = await convex.query(api.questions.getSemanticMatch, {
+        profileId: profile._id, embedding: qEmbed,
+      }).catch(() => null);
+      if (semanticMatch?.answer) {
+        convex.mutation(api.analytics.incrementQuestionCount, { profileId: profile._id }).catch(() => {});
+        convex.mutation(api.analytics.incrementAnswerCount, { profileId: profile._id }).catch(() => {});
+        return new Response(semanticMatch.answer, {
+          headers: { 'Content-Type': 'text/plain; charset=utf-8' },
+        });
+      }
+    }
+
     const topChunks: string[] = qEmbed.length > 0
       ? knowledgeChunks.filter(k => k.embeddings?.length).map(k => ({ text: k.content, score: cosineSimilarity(qEmbed, k.embeddings!) })).sort((a,b) => b.score - a.score).slice(0,5).map(k => k.text)
       : knowledgeChunks.slice(0,5).map(k => k.content);
 
-    const prompt = buildPrompt(question, topChunks, { displayName: profile.displayName, bio: profile.bio, welcomeMessage: profile.welcomeMessage, username: profile.username });
+    const goalAlreadyAchieved = await convex.query(api.questions.getVisitorGoalAchieved, {
+      profileId: profile._id, visitorId: effectiveVisitorId,
+    }).catch(() => false);
+
+    const goalDirective = buildGoalDirective(profile.goalType, profile.goalLink, !!goalAlreadyAchieved);
+    const prompt = buildPrompt(question, topChunks, { displayName: profile.displayName, bio: profile.bio, welcomeMessage: profile.welcomeMessage, username: profile.username }, goalDirective);
+
     let stream = await streamGemini(prompt);
     if (!stream) stream = await streamGroq(prompt);
     if (!stream) return new Response('Could not generate answer right now.', { headers: { 'Content-Type': 'text/plain' } });
 
-    convex.mutation(api.questions.createQuestion, {
-      profileId: profile._id, question, visitorId: visitorEmail || 'anonymous',
-      isAnswered: true, createdAt: Date.now(), answeredAt: Date.now(),
-    }).catch(() => {});
     convex.mutation(api.analytics.incrementQuestionCount, { profileId: profile._id }).catch(() => {});
     convex.mutation(api.analytics.incrementAnswerCount, { profileId: profile._id }).catch(() => {});
     if (!isAdmin) convex.mutation(api.subscriptions.incrementMessagesUsed, { userId: profile.userId }).catch(() => {});
 
-    // Wrap stream to capture full answer and save to DB
+    // Detect goal completion from the visitor's own message
+    let goalHitThisTurn = false;
+    if (!goalAlreadyAchieved) {
+      if (profile.goalType === 'capture_email' && EMAIL_REGEX.test(question)) goalHitThisTurn = true;
+      if (profile.goalType === 'book_call' && BOOK_INTENT_REGEX.test(question)) goalHitThisTurn = true;
+    }
+
     const encoder = new TextEncoder();
     const decoder = new TextDecoder();
     let fullAnswer = '';
@@ -222,15 +240,17 @@ export async function POST(request: NextRequest) {
         } finally {
           controller.close();
           reader.releaseLock();
-          // Save full answer to DB after stream completes
           if (fullAnswer.trim()) {
             convex.mutation(api.questions.createQuestion, {
               profileId: profile._id,
               question,
               answer: fullAnswer.trim(),
               isAnswered: true,
+              visitorId: effectiveVisitorId,
               createdAt: Date.now(),
               answeredAt: Date.now(),
+              embeddings: qEmbed.length > 0 ? qEmbed : undefined,
+              goalAchieved: goalHitThisTurn || undefined,
             }).catch(() => {});
           }
         }

@@ -99,6 +99,8 @@ export const update = mutation({
     themeEffect: v.optional(v.string()),
     pinnedQuestions: v.optional(v.array(v.string())),
     suggestedQuestions: v.optional(v.array(v.string())),
+    goalType: v.optional(v.union(v.literal('capture_email'), v.literal('book_call'), v.literal('none'))),
+    goalLink: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -127,6 +129,8 @@ export const update = mutation({
       ...(args.themeEffect !== undefined && { themeEffect: args.themeEffect }),
       ...(args.pinnedQuestions !== undefined && { pinnedQuestions: args.pinnedQuestions }),
       ...(args.suggestedQuestions !== undefined && { suggestedQuestions: args.suggestedQuestions }),
+      ...(args.goalType !== undefined && { goalType: args.goalType }),
+      ...(args.goalLink !== undefined && { goalLink: args.goalLink }),
       updatedAt: Date.now(),
     });
 

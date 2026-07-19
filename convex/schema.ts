@@ -19,6 +19,8 @@ export default defineSchema({
     themeEffect: v.optional(v.string()),
     pinnedQuestions: v.optional(v.array(v.string())),
     suggestedQuestions: v.optional(v.array(v.string())),
+    goalType: v.optional(v.union(v.literal('capture_email'), v.literal('book_call'), v.literal('none'))),
+    goalLink: v.optional(v.string()),
     isSeeded: v.optional(v.boolean()),
     claimToken: v.optional(v.string()),
     createdAt: v.number(),
@@ -52,6 +54,8 @@ export default defineSchema({
     needsReview: v.optional(v.boolean()),
     createdAt: v.number(),
     answeredAt: v.optional(v.number()),
+    embeddings: v.optional(v.array(v.number())),
+    goalAchieved: v.optional(v.boolean()),
   })
     .index('by_profileId', ['profileId'])
     .index('by_isAnswered', ['isAnswered'])

@@ -1,5 +1,4 @@
 'use client';
-import Link from 'next/link';
 
 import { useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,7 +9,7 @@ import { api } from '@/convex/_generated/api';
 import { Card, CardHeader, StatsCard } from '@/components/dashboard/Card';
 import { EmptyState } from '@/components/dashboard/EmptyState';
 import { StatsCardSkeleton, CardSkeleton, ListSkeleton } from '@/components/dashboard/Skeleton';
-import { MessageSquare, Users, Brain, TrendingUp, Clock, ChevronDown, ChevronUp, Download, AlertTriangle, Link } from 'lucide-react';
+import { MessageSquare, Users, Brain, TrendingUp, Clock, ChevronDown, ChevronUp, Download, AlertTriangle } from 'lucide-react';
 import { BarChart, Bar, XAxis, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 const CustomTooltip = ({ active, payload, label }: any) => {

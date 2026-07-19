@@ -808,7 +808,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
       // Track sitewide pageview
       trackPageview({
         page: '/' + username,
-        visitorId: visitorId || 'anon',
+        visitorId: (typeof window !== 'undefined' ? localStorage.getItem('oq_visitor_id') : null) || 'anon',
         referrer: typeof document !== 'undefined' ? document.referrer : undefined,
       }).catch(() => {});
     }
@@ -851,6 +851,16 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
       .catch(() => setSuggestedQuestions(defaults));
   }, [profile?.displayName, profile?.bio, creatorQuestions.length, suggestedQuestions.length]);
 
+  const getOrCreateVisitorId = () => {
+    if (typeof window === 'undefined') return '';
+    let id = localStorage.getItem('oq_visitor_id');
+    if (!id) {
+      id = 'v_' + Math.random().toString(36).slice(2) + Date.now().toString(36);
+      localStorage.setItem('oq_visitor_id', id);
+    }
+    return id;
+  };
+
   const handleSubmit = async () => {
     if (!question.trim() || !profile?._id) return;
     if (!question.trim() || isTyping) return;
@@ -871,7 +881,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
       const res = await fetch('/api/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question, username, visitorEmail: visitorEmail || undefined }),
+        body: JSON.stringify({ question, username, visitorEmail: visitorEmail || undefined, visitorId: getOrCreateVisitorId() }),
         signal: controller.signal,
       });
       clearTimeout(timeout);

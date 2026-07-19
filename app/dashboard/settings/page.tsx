@@ -60,6 +60,8 @@ export default function SettingsPage() {
     displayName: '',
     bio: '',
     welcomeMessage: '',
+    goalType: 'none',
+    goalLink: '',
   });
 
   useEffect(() => {
@@ -69,6 +71,8 @@ export default function SettingsPage() {
         displayName: profile.displayName || '',
         bio: profile.bio || '',
         welcomeMessage: profile.welcomeMessage || '',
+        goalType: profile.goalType || 'none',
+        goalLink: profile.goalLink || '',
       }), 0);
     }
   }, [profile]);
@@ -127,6 +131,8 @@ export default function SettingsPage() {
         displayName: form.displayName,
         bio: form.bio,
         welcomeMessage: form.welcomeMessage,
+        goalType: form.goalType as 'capture_email' | 'book_call' | 'none',
+        goalLink: form.goalLink,
       });
       setShowSaved(true);
       setTimeout(() => setShowSaved(false), 3000);
@@ -227,6 +233,28 @@ export default function SettingsPage() {
                   onChange={e => setForm(f => ({ ...f, welcomeMessage: e.target.value }))}
                   placeholder="Ask me anything about building in public!" />
                 <p className="text-xs text-zinc-600">First thing visitors see on your space.</p>
+              </div>
+
+              <div className="space-y-2">
+                <Label>AI Goal</Label>
+                <select
+                  value={form.goalType}
+                  onChange={e => setForm(f => ({ ...f, goalType: e.target.value }))}
+                  className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 text-sm text-zinc-200"
+                >
+                  <option value="none">No goal — just answer questions</option>
+                  <option value="capture_email">Capture visitor emails</option>
+                  <option value="book_call">Get visitors to book a call</option>
+                </select>
+                <p className="text-xs text-zinc-600">Your AI will naturally work toward this during conversations.</p>
+                {form.goalType === 'book_call' && (
+                  <Input
+                    value={form.goalLink}
+                    onChange={e => setForm(f => ({ ...f, goalLink: e.target.value }))}
+                    placeholder="https://cal.com/yourname"
+                    className="mt-2"
+                  />
+                )}
               </div>
 
               <div className="flex items-center justify-between pt-2">
