@@ -1,5 +1,10 @@
 # One Question - Project Roadmap
 
+> **Historical snapshot (June 2026).** Kept for planning context — not a description of
+> the current codebase. Some endpoint names and dependencies below no longer exist
+> (e.g. `POST /api/ask` was replaced by `/api/stream`; Zustand and Axios were removed).
+> For the live architecture see **[PROJECT_CONTEXT.md](../../PROJECT_CONTEXT.md)**.
+
 **Last Updated:** June 2, 2026  
 **Project Status:** Foundation & Scaffolding Phase  
 **Current Version:** 0.1.0

@@ -32,7 +32,7 @@ Built entirely from an Android phone using Termux. No laptop. No office. Just co
 | Auth | Clerk |
 | AI Answers | Gemini 2.5 Flash |
 | Embeddings | Gemini Embedding 001 (3072 dims) |
-| Styling | Tailwind CSS + shadcn/ui |
+| Styling | Tailwind CSS + custom `components/dashboard/` kit |
 | Payments | Paystack |
 | Deployment | Vercel |
 
@@ -85,31 +85,35 @@ Constraints force better decisions. Shipping beats perfection.
 
 ```
 app/
+├── (public)/             — "/", blog, pricing, early, founding, features,
+│                           contact, privacy, terms, sign-in, sign-up
 ├── (space)/[username]/   — public AI Q&A space
-├── dashboard/            — user dashboard
-│   ├── train/            — AI training chat
-│   ├── knowledge/        — knowledge base manager
-│   ├── analytics/        — real-time stats
-│   ├── blogs/            — blog editor
-│   └── settings/         — appearance + profile
-├── blog/                 — Knowledge Explorer + blog
-├── founding/             — founding members page
-└── api/
-    ├── ask/              — main AI answer route
-    ├── knowledge/        — knowledge save + embed
-    └── paystack/         — payments
+├── dashboard/            — overview, knowledge, train, chat, inbox, analytics,
+│                           blogs, studio, billing, settings, admin,
+│                           tools/post-generator
+├── onboarding/           — new-user flow
+└── api/                  — stream (main answer route), chat-knowledge,
+                            knowledge, upload, paystack, og, explore, …
 
 convex/
-├── schema.ts
-├── profiles.ts
-├── knowledge.ts
-├── questions.ts
-├── analytics.ts
-├── blogs.ts
-├── reactions.ts
-├── founding.ts
-└── subscriptions.ts
+├── schema.ts             — 15 tables
+├── profiles.ts           — profile CRUD (hot path)
+├── knowledge.ts          — knowledge + embeddings
+├── questions.ts          — Q&A records, needs-review queue
+├── knowledgeHealth.ts    — health, gaps, coverage
+├── siteAnalytics.ts      — pageviews, site stats
+├── analytics.ts          — per-profile counters
+├── subscriptions.ts      — plans + usage
+├── admin.ts, blogs.ts, chats.ts, reactions.ts,
+├── founding.ts, earlyAdopters.ts, waitlist.ts, migrations.ts
+
+components/dashboard/     — UI kit (Button, Card, Input, Badge, Toast, …)
+lib/gemini.ts             — Gemini + Groq, both via raw fetch
+lib/payments/             — Paystack adapter
+proxy.ts                  — Next 16 middleware (Clerk route protection)
 ```
+
+> Full architecture, request flow, and known issues: **[PROJECT_CONTEXT.md](PROJECT_CONTEXT.md)**
 
 ---
 
