@@ -7,6 +7,7 @@ import { redirect } from 'next/navigation';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
+import { isAdmin as checkIsAdmin } from '@/lib/identities';
 import { Card, CardHeader, ProgressBar } from '@/components/dashboard/Card';
 import { Badge } from '@/components/dashboard/Badge';
 import { Button } from '@/components/dashboard/Button';
@@ -83,8 +84,7 @@ function BillingContent() {
   );
   if (!isSignedIn) { redirect('/'); }
 
-  const ADMIN_IDS = ['user_3EhKmuVyC1AhoBDlL7QNssllwgu', 'user_3Fmuk2jHEa5seXKEzewhWlA9yQs'];
-  const isAdmin = userId ? ADMIN_IDS.includes(userId) : false;
+  const isAdmin = checkIsAdmin(userId);
   const used = subscription?.messagesUsed ?? 0;
   const limit = subscription?.messagesLimit ?? 50;
   const plan = subscription?.plan ?? 'free';

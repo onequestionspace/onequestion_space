@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { useUser } from '@clerk/nextjs';
+import { ADMIN_USER_IDS, isAdmin as checkIsAdmin } from '@/lib/identities';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { Card, CardHeader, StatsCard } from '@/components/dashboard/Card';
 import { Badge } from '@/components/dashboard/Badge';
@@ -13,12 +14,7 @@ import { Crown, Zap, Users, Trash2, Plus, Shield, BarChart3, Search, Mail, Credi
 
 
 
-const ADMIN_IDS = [
-  'user_3EhKmuVyC1AhoBDlL7QNssllwgu',
-  'user_3Ev3UAWNTTDAlVWSYFGGsEI6qQz',
-  'user_3Fmuk2jHEa5seXKEzewhWlA9yQs',
-];
-const ADMIN_ID = 'user_3EhKmuVyC1AhoBDlL7QNssllwgu';
+const ADMIN_ID = ADMIN_USER_IDS[0];
 
 export default function AdminPage() {
   const { user, isLoaded: clerkLoaded } = useUser();
@@ -33,7 +29,7 @@ export default function AdminPage() {
   const [seeding, setSeeding] = useState(false);
   const [claimUrl, setClaimUrl] = useState('');
 
-  const isAdmin = user?.id ? ADMIN_IDS.includes(user.id) : false;
+  const isAdmin = checkIsAdmin(user?.id);
   const adminId = user?.id || ADMIN_ID;
 
   const profiles = useQuery(api.admin.getAllProfilesWithStats, isAdmin ? { adminId } : 'skip');

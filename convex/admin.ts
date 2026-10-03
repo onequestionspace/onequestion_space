@@ -1,14 +1,9 @@
 import { query, mutation } from './_generated/server';
 import { v } from 'convex/values';
-
-const ADMIN_IDS = [
-  'user_3EhKmuVyC1AhoBDlL7QNssllwgu', // Asym Alwali @Asym_Alwali (dev)
-  'user_3Fmuk2jHEa5seXKEzewhWlA9yQs', // Asym Alwali @Asym_Alwali (prod)
-  'user_3Ev3UAWNTTDAlVWSYFGGsEI6qQz', // Paraja @MuhammadParaja
-];
+import { ADMIN_USER_IDS } from './identities';
 
 const checkAdmin = (userId: string) => {
-  if (!ADMIN_IDS.includes(userId)) throw new Error('Unauthorized');
+  if (!ADMIN_USER_IDS.includes(userId)) throw new Error('Unauthorized');
 };
 
 export const getAllProfiles = query({

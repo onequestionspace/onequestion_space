@@ -1,5 +1,6 @@
 import { NextRequest } from 'next/server';
 import { generateEmbeddings, cosineSimilarity, ProfileContext } from '@/lib/gemini';
+import { isAdmin as checkIsAdmin } from '@/lib/identities';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
 
@@ -153,8 +154,7 @@ export async function POST(request: NextRequest) {
 
     const effectiveVisitorId = visitorEmail || clientVisitorId || 'anonymous';
 
-    const ADMIN_IDS = ['user_3EhKmuVyC1AhoBDlL7QNssllwgu', 'user_3Fmuk2jHEa5seXKEzewhWlA9yQs'];
-    const isAdmin = ADMIN_IDS.includes(profile.userId);
+    const isAdmin = checkIsAdmin(profile.userId);
 
     if (!isAdmin) {
       const subscription = await convex.mutation(api.subscriptions.getOrCreateSubscription, { userId: profile.userId });

@@ -7,6 +7,21 @@ on:
     branches: [main, develop]
 
 jobs:
+  identities:
+    name: Identity Constants
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Check lib/identities.ts matches convex/identities.ts
+        run: node scripts/check-identities.mjs
+
   lint:
     name: Lint
     runs-on: ubuntu-latest
@@ -42,8 +57,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Several routes construct ConvexHttpClient at module scope, so the build
+      # aborts during page-data collection without this. A dummy value is enough:
+      # no requests are made at build time.
       - name: Build Next.js project
         run: npm run build
+        env:
+          NEXT_PUBLIC_CONVEX_URL: https://placeholder.convex.cloud
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

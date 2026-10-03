@@ -3,6 +3,7 @@
 import { useUser } from '@clerk/nextjs';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
+import { isAdmin as checkIsAdmin } from '@/lib/identities';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
@@ -51,7 +52,7 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
     return () => window.removeEventListener('resize', check);
   }, []);
 
-  const isAdmin = user?.id === 'user_3EhKmuVyC1AhoBDlL7QNssllwgu' || user?.id === 'user_3Ev3UAWNTTDAlVWSYFGGsEI6qQz';
+  const isAdmin = checkIsAdmin(user?.id);
 
   return (
     <div className="min-h-screen bg-background">

@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
 import { generateEmbeddings, cosineSimilarity } from '@/lib/gemini';
+import { FOUNDER_USER_ID } from '@/lib/identities';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY!;
 const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
@@ -9,9 +10,6 @@ const MODEL = 'gemini-2.5-flash';
 const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
-
-// Asym's admin user ID — explore uses his real knowledge
-const FOUNDER_USER_IDS = ['user_3EhKmuVyC1AhoBDlL7QNssllwgu', 'user_3Fmuk2jHEa5seXKEzewhWlA9yQs'];
 
 const FALLBACK_KNOWLEDGE = `
 One Question is an AI-powered personal Q&A platform built by Asym Alwali, a 19-year-old CS student from Yobe, Nigeria. He builds entirely from an Android phone using Termux — no laptop.
@@ -39,7 +37,7 @@ async function fetchLiveKnowledge(question: string): Promise<string> {
   try {
     // Fetch founder's knowledge + published blogs in parallel
     const [knowledgeItems, blogs] = await Promise.all([
-      convex.query(api.knowledge.getKnowledgeByUserId, { userId: FOUNDER_USER_IDS[0] }),
+      convex.query(api.knowledge.getKnowledgeByUserId, { userId: FOUNDER_USER_ID }),
       convex.query(api.blogs.getPublishedBlogs, {}),
     ]);
 

@@ -8,10 +8,11 @@ import { api } from '@/convex/_generated/api';
 import Link from 'next/link';
 import { Send, Copy, Check, Globe, ExternalLink, Sparkles, ChevronDown, Heart, Zap, MessageSquare, Clock, CheckCheck } from 'lucide-react';
 import { LinkPreviewCard } from '@/components/LinkPreviewCard';
-
-const COFOUNDER_IDS = ['user_3Ev3UAWNTTDAlVWSYFGGsEI6qQz'];
-const FOUNDER_ID = 'user_3EhKmuVyC1AhoBDlL7QNssllwgu';
-const FOUNDER_IDS = ['user_3EhKmuVyC1AhoBDlL7QNssllwgu', 'user_3Fmuk2jHEa5seXKEzewhWlA9yQs'];
+import {
+  FOUNDER_USER_ID,
+  FOUNDER_USER_IDS,
+  COFOUNDER_USER_IDS,
+} from '@/lib/identities';
 
 const stripMarkdown = (text: string) => {
   return text
@@ -1025,16 +1026,16 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
           <h1 className='text-3xl font-black mb-1 tracking-tight'>{profile.displayName}</h1>
           <div className='flex items-center justify-center gap-2 mb-4 flex-wrap'>
             <p className='text-sm font-medium opacity-60' style={{ color }}>@{profile.username}</p>
-            {FOUNDER_IDS.includes(profile.userId) && (
+            {FOUNDER_USER_IDS.includes(profile.userId) && (
               <span className='inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-500/20 text-yellow-400 border border-yellow-500/40 backdrop-blur-sm'>👑 Founder</span>
             )}
             {foundingMember === true && (
               <span className='inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-yellow-500/10 text-yellow-400 border border-yellow-500/30'>👑 Founding Member</span>
             )}
-            {foundingMember === false && earlyAdopter === true && profile.userId !== FOUNDER_ID && (
+            {foundingMember === false && earlyAdopter === true && profile.userId !== FOUNDER_USER_ID && (
               <span className='inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-white/10 text-white border border-white/20'>⚡ Early Adopter</span>
             )}
-            {COFOUNDER_IDS.includes(profile.userId) && (
+            {COFOUNDER_USER_IDS.includes(profile.userId) && (
               <span className='inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-blue-500/20 text-blue-400 border border-blue-500/30'>🤝 Co-Founder</span>
             )}
           </div>
