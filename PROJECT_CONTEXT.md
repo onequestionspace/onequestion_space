@@ -161,7 +161,14 @@ waitlist, chats, chat_messages`.
 run manually from the Convex dashboard after a Clerk account migration. Keep.
 It does **not** use `@convex-dev/migrations`; that component is not installed.
 
-`convex/_generated/` is **generated code** — gitignored as of `764ced2`, never edit or commit it.
+`convex/_generated/` is **generated code, but it IS committed — and must stay that way.**
+59 source files import `@/convex/_generated/api`. Vercel builds from a fresh clone and
+never runs `convex dev`, so codegen does not run there. Untracking these files breaks the
+entire production build (`Module not found: Can't resolve '@/convex/_generated/api'`) —
+this happened in `764ced2` and was reverted in `d3a1270`. There is no `.gitignore`
+entry for this path, deliberately.
+
+Do not hand-edit these files; run `npx convex dev` locally and commit the result.
 Read `convex/_generated/ai/guidelines.md` before writing Convex code.
 
 ---
@@ -301,7 +308,8 @@ Commit `764ced2` (2026-10-03) removed 69 dead files and 12 unused deps (398 pack
   and a byte-identical Apple Pay domain-association file in `public/`.
 - REST wrappers superseded by direct Convex queries: `analytics`, `knowledge/{coverage,gaps,health}`,
   `subscription`, `events`.
-- `convex/_generated/` untracked; `.gitignore` deduplicated.
+- ~~`convex/_generated/` untracked~~ — **this was wrong and broke the Vercel build.**
+  Reverted in `d3a1270`; the files must remain tracked. `.gitignore` deduplicated.
 
 **Lesson for contributors:** this repo accumulated 28 ad-hoc root-level patch scripts. Prefer
 normal commits. If you must script a migration, put it in a branch you delete, never at repo root.
@@ -313,9 +321,14 @@ normal commits. If you must script a migration, put it in a branch you delete, n
 1. Read `convex/_generated/ai/guidelines.md` before writing any Convex code.
 2. Run `npx tsc --noEmit` — the Next build will not catch type errors.
 3. Verify builds with `NEXT_PUBLIC_CONVEX_URL=https://example.convex.cloud npx next build --webpack`.
-4. Never commit `convex/_generated/`, `.next/`, `tsconfig.tsbuildinfo`, or `.env*`.
-5. Before deleting a file, confirm **zero** references — including string literals in
+4. Never commit `.next/`, `tsconfig.tsbuildinfo`, or `.env*`.
+   `convex/_generated/` **is** committed — see §7 before touching it.
+5. **Verify changes the way Vercel does:** clone the repo to a scratch directory, `npm ci`,
+   then build. A build on your working tree can pass while a fresh checkout fails, because
+   generated or untracked files on your disk are absent from the clone. This is exactly how
+   `764ced2` shipped a broken build.
+6. Before deleting a file, confirm **zero** references — including string literals in
    `proxy.ts`, `vercel.json`, `next.config.js`, and `components.json`. Several "unused"
    things here are loaded by framework convention (`proxy.ts`) or called externally
    (`/api/paystack/webhook`, `/api/well-known`).
-6. Keep the `components/dashboard/` kit as the single UI primitive source.
+7. Keep the `components/dashboard/` kit as the single UI primitive source.
