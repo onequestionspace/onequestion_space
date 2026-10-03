@@ -33,5 +33,7 @@ next-env.d.ts
 # clerk configuration (can include secrets)
 /.clerk/
 
-# convex generated code
-convex/_generated/
+# NOTE: convex/_generated/ is deliberately COMMITTED.
+# App source imports @/convex/_generated/api, and Vercel builds from a fresh
+# clone without running `convex dev`, so these files must be tracked for the
+# production build to resolve the Convex API types and runtime.
