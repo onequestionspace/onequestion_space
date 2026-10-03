@@ -68,20 +68,42 @@ function InboxPageContent() {
       setBulkStatus(MAGIC_MESSAGES[msgIdx]);
     }, 1800);
     try {
-      const res = await fetch('/api/inbox/answer-all', { method: 'POST' });
-      const data = await res.json();
+      const res = await fetch('/api/inbox/answer-all', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ limit: Math.min(plainUnanswered.length, 10) }),
+      });
+      const data = await res.json().catch(() => ({}));
       clearInterval(interval);
-      if (data.success) {
-        setBulkStatus('✅ Answered ' + data.processed + ' questions!');
+      if (res.ok && data.success) {
+        const { processed = 0, failed = 0 } = data;
         setBulkDone(true);
-        toast({ type: 'success', title: 'Magic done!', description: 'Answered ' + data.processed + ' questions.' });
+        if (processed > 0) {
+          setBulkStatus(`✅ Answered ${processed} question${processed === 1 ? '' : 's'}!`);
+          toast({
+            type: 'success',
+            title: 'Magic done!',
+            description:
+              failed > 0
+                ? `Answered ${processed}. ${failed} could not be answered — try those manually.`
+                : `Answered ${processed} question${processed === 1 ? '' : 's'}.`,
+          });
+        } else {
+          setBulkStatus('Could not answer any of these — please answer them manually.');
+          toast({ type: 'error', title: 'Nothing answered', description: 'The AI could not answer these questions.' });
+        }
       } else {
         setBulkStatus('Something went wrong. Try again.');
-        toast({ type: 'error', title: 'Failed', description: 'Could not answer all questions.' });
+        toast({
+          type: 'error',
+          title: 'Failed',
+          description: data?.error || 'Could not answer all questions.',
+        });
       }
     } catch (e) {
       clearInterval(interval);
       setBulkStatus('Connection error. Try again.');
+      toast({ type: 'error', title: 'Connection error', description: 'Please try again.' });
     }
     setBulkAnswering(false);
   };
