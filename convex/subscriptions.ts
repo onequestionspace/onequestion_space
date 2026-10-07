@@ -1,5 +1,18 @@
-import { mutation, query } from './_generated/server';
+import { action, internalMutation, mutation, query } from './_generated/server';
+import { internal } from './_generated/api';
 import { v } from 'convex/values';
+
+const PLAN_LIMITS: Record<string, number> = {
+  free: 50,
+  starter: 500,
+  pro: 500,
+  business: 10000,
+  enterprise: -1,
+};
+
+type PaymentApplicationResult =
+  | { success: false; applied: false; reason?: 'account_mismatch' }
+  | { success: true; applied: boolean; userId: string; kind: 'subscription' | 'credits' };
 
 export const getSubscription = query({
   args: { userId: v.string() },
@@ -33,72 +46,132 @@ export const getOrCreateSubscription = mutation({
   },
 });
 
-export const createSubscription = mutation({
+export const applyVerifiedPayment = internalMutation({
   args: {
     userId: v.string(),
-    plan: v.union(
-      v.literal('free'),
-      v.literal('starter'),
-      v.literal('pro'),
-      v.literal('business'),
-      v.literal('enterprise')
-    ),
-    paymentReference: v.optional(v.string()),
-    amount: v.optional(v.number()),
-    currency: v.optional(v.string()),
+    reference: v.string(),
+    kind: v.union(v.literal('subscription'), v.literal('credits')),
+    credits: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
-    const now = Date.now();
-    const limits: Record<string, number> = {
-      free: 50,
-      starter: 500,
-      pro: 2000,
-      business: 10000,
-      enterprise: -1,
-    };
-    return await ctx.db.insert('subscriptions', {
-      userId: args.userId,
-      plan: args.plan,
-      status: 'active',
-      messagesUsed: 0,
-      messagesLimit: limits[args.plan] ?? 50,
-      paymentReference: args.paymentReference,
-      amount: args.amount,
-      currency: args.currency,
-      createdAt: now,
-      updatedAt: now,
-    });
-  },
-});
+    const existingReceipt = await ctx.db.query('paidTransactions')
+      .withIndex('by_reference', (q) => q.eq('reference', args.reference))
+      .unique();
+    if (existingReceipt) return false;
 
-export const updateSubscription = mutation({
-  args: {
-    userId: v.string(),
-    plan: v.optional(v.union(
-      v.literal('free'),
-      v.literal('starter'),
-      v.literal('pro'),
-      v.literal('business'),
-      v.literal('enterprise')
-    )),
-    status: v.optional(v.union(
-      v.literal('active'),
-      v.literal('inactive'),
-      v.literal('cancelled'),
-      v.literal('trial')
-    )),
-  },
-  handler: async (ctx, args) => {
     const record = await ctx.db
       .query('subscriptions')
       .withIndex('by_userId', (q) => q.eq('userId', args.userId))
       .unique();
-    if (!record) return;
-    await ctx.db.patch(record._id, {
-      ...(args.plan !== undefined && { plan: args.plan }),
-      ...(args.status !== undefined && { status: args.status }),
-      updatedAt: Date.now(),
+    const now = Date.now();
+    let subscription = record;
+    if (!subscription) {
+      const id = await ctx.db.insert('subscriptions', {
+        userId: args.userId,
+        plan: 'free',
+        status: 'active',
+        messagesUsed: 0,
+        messagesLimit: 50,
+        createdAt: now,
+        updatedAt: now,
+      });
+      subscription = await ctx.db.get(id);
+    }
+
+    if (!subscription) throw new Error('Could not create subscription record');
+    if (args.kind === 'subscription') {
+      await ctx.db.patch(subscription._id, {
+        plan: 'pro',
+        status: 'active',
+        messagesLimit: PLAN_LIMITS.pro,
+        messagesUsed: 0,
+        renewalDate: now + 30 * 24 * 60 * 60 * 1000,
+        updatedAt: now,
+      });
+    } else {
+      const credits = args.credits ?? 0;
+      if (!Number.isSafeInteger(credits) || credits < 1 || credits > 100000) {
+        throw new Error('Invalid purchased credit amount');
+      }
+      await ctx.db.patch(subscription._id, {
+        messagesLimit: subscription.messagesLimit + credits,
+        updatedAt: now,
+      });
+    }
+
+    await ctx.db.insert('paidTransactions', {
+      reference: args.reference,
+      userId: args.userId,
+      kind: args.kind,
+      createdAt: now,
     });
+    return true;
+  },
+});
+
+export const verifyAndApplyPayment = action({
+  args: { reference: v.string(), expectedUserId: v.optional(v.string()) },
+  handler: async (ctx, args): Promise<PaymentApplicationResult> => {
+    const secret = process.env.PAYSTACK_SECRET_KEY;
+    if (!secret) throw new Error('PAYSTACK_SECRET_KEY is not configured for Convex');
+
+    const response = await fetch(
+      `https://api.paystack.co/transaction/verify/${encodeURIComponent(args.reference)}`,
+      { headers: { Authorization: `Bearer ${secret}` } }
+    );
+    if (!response.ok) throw new Error(`Paystack verification failed (${response.status})`);
+    const result = await response.json() as {
+      status?: boolean;
+      data?: {
+        status?: string;
+        reference?: string;
+        metadata?: { userId?: string; type?: string; plan?: string; credits?: number };
+      };
+    };
+    const transaction = result.data;
+    if (!result.status || transaction?.status !== 'success') {
+      return { success: false, applied: false };
+    }
+
+    const metadata = transaction.metadata;
+    if (!metadata?.userId || transaction.reference !== args.reference) {
+      throw new Error('Verified transaction is missing valid account metadata');
+    }
+    if (args.expectedUserId && metadata.userId !== args.expectedUserId) {
+      return { success: false, applied: false, reason: 'account_mismatch' };
+    }
+
+    if (metadata.type === 'subscription' && metadata.plan === 'pro') {
+      const applied: boolean = await ctx.runMutation(internal.subscriptions.applyVerifiedPayment, {
+        userId: metadata.userId,
+        reference: args.reference,
+        kind: 'subscription',
+      });
+      return { success: true, applied, userId: metadata.userId, kind: 'subscription' as const };
+    }
+    if (metadata.type === 'credits' && Number.isSafeInteger(metadata.credits) && metadata.credits! > 0) {
+      const applied: boolean = await ctx.runMutation(internal.subscriptions.applyVerifiedPayment, {
+        userId: metadata.userId,
+        reference: args.reference,
+        kind: 'credits',
+        credits: metadata.credits,
+      });
+      return { success: true, applied, userId: metadata.userId, kind: 'credits' as const };
+    }
+    throw new Error('Verified payment metadata does not match a supported product');
+  },
+});
+
+export const isProPlan = query({
+  args: { profileId: v.id('profiles') },
+  handler: async (ctx, args) => {
+    const profile = await ctx.db.get(args.profileId);
+    if (!profile) return false;
+    const subscription = await ctx.db
+      .query('subscriptions')
+      .withIndex('by_userId', (q) => q.eq('userId', profile.userId))
+      .unique();
+    return subscription?.plan === 'pro' && subscription.status === 'active';
   },
 });
 
@@ -110,9 +183,10 @@ export const incrementMessagesUsed = mutation({
       .withIndex('by_userId', (q) => q.eq('userId', args.userId))
       .unique();
     if (!record) return;
+    const now = Date.now();
     await ctx.db.patch(record._id, {
       messagesUsed: record.messagesUsed + 1,
-      updatedAt: Date.now(),
+      updatedAt: now,
     });
   },
 });
@@ -128,47 +202,6 @@ export const cancelSubscription = mutation({
     await ctx.db.patch(record._id, {
       status: 'cancelled',
       updatedAt: Date.now(),
-    });
-  },
-});
-
-export const addCredits = mutation({
-  args: { userId: v.string(), credits: v.number() },
-  handler: async (ctx, args) => {
-    const record = await ctx.db
-      .query('subscriptions')
-      .withIndex('by_userId', (q) => q.eq('userId', args.userId))
-      .unique();
-    if (!record) return;
-    await ctx.db.patch(record._id, {
-      messagesLimit: record.messagesLimit + args.credits,
-      updatedAt: Date.now(),
-    });
-  },
-});
-
-export const resetMonthlyUsage = mutation({
-  args: { userId: v.string() },
-  handler: async (ctx, args) => {
-    const record = await ctx.db
-      .query('subscriptions')
-      .withIndex('by_userId', (q) => q.eq('userId', args.userId))
-      .unique();
-    if (!record) return;
-
-    const now = Date.now();
-    const renewalDate = record.renewalDate;
-
-    // Only reset if renewal date has passed
-    if (renewalDate && now < renewalDate) return;
-
-    // Set next renewal to 30 days from now
-    const nextRenewal = now + 30 * 24 * 60 * 60 * 1000;
-
-    await ctx.db.patch(record._id, {
-      messagesUsed: 0,
-      renewalDate: nextRenewal,
-      updatedAt: now,
     });
   },
 });

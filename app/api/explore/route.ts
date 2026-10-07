@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
-import { generateEmbeddings, cosineSimilarity } from '@/lib/gemini';
+import { generateEmbeddings, rankKnowledge } from '@/lib/gemini';
+import { PRIMARY_FOUNDER_USER_ID } from '@/convex/userIds';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY!;
 const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
@@ -9,9 +10,6 @@ const MODEL = 'gemini-2.5-flash';
 const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
-
-// Asym's admin user ID — explore uses his real knowledge
-const FOUNDER_USER_IDS = ['user_3EhKmuVyC1AhoBDlL7QNssllwgu', 'user_3Fmuk2jHEa5seXKEzewhWlA9yQs'];
 
 const FALLBACK_KNOWLEDGE = `
 One Question is an AI-powered personal Q&A platform built by Asym Alwali, a 19-year-old CS student from Yobe, Nigeria. He builds entirely from an Android phone using Termux — no laptop.
@@ -39,45 +37,23 @@ async function fetchLiveKnowledge(question: string): Promise<string> {
   try {
     // Fetch founder's knowledge + published blogs in parallel
     const [knowledgeItems, blogs] = await Promise.all([
-      convex.query(api.knowledge.getKnowledgeByUserId, { userId: FOUNDER_USER_IDS[0] }),
+      convex.query(api.knowledge.getKnowledgeByUserId, { userId: PRIMARY_FOUNDER_USER_ID }),
       convex.query(api.blogs.getPublishedBlogs, {}),
     ]);
 
-    const allChunks: Array<{ text: string; score: number }> = [];
-
-    // Score knowledge items
-    if (knowledgeItems && knowledgeItems.length > 0) {
-      let questionEmbedding: number[] = [];
-      try {
-        questionEmbedding = await generateEmbeddings(question);
-      } catch {}
-
-      for (const item of knowledgeItems) {
-        if (item.embeddings && item.embeddings.length > 0 && questionEmbedding.length > 0) {
-          const score = cosineSimilarity(questionEmbedding, item.embeddings);
-          allChunks.push({ text: item.content, score });
-        } else {
-          allChunks.push({ text: item.content, score: 0.5 });
-        }
-      }
-    }
-
-    // Add blog content
-    if (blogs && blogs.length > 0) {
-      for (const blog of blogs) {
-        const blogText = `BLOG: ${blog.title}\n${blog.excerpt}\n${blog.content.slice(0, 1000)}`;
-        allChunks.push({ text: blogText, score: 0.4 });
-      }
-    }
-
-    if (allChunks.length === 0) return FALLBACK_KNOWLEDGE;
-
-    // Sort by score, take top 5
-    const top = allChunks
-      .sort((a, b) => b.score - a.score)
-      .slice(0, 5)
-      .map(c => c.text)
+    const questionEmbedding = await generateEmbeddings(question);
+    const candidates = [
+      ...knowledgeItems,
+      ...blogs.map((blog) => ({
+        title: `Blog: ${blog.title}`,
+        content: `${blog.excerpt}\n${blog.content.slice(0, 1000)}`,
+      })),
+    ];
+    const top = rankKnowledge(question, questionEmbedding, candidates)
+      .map((chunk) => `[${chunk.title}]\n${chunk.content}`)
       .join('\n\n---\n\n');
+
+    if (!top) return FALLBACK_KNOWLEDGE;
 
     return top + '\n\n---\n\n' + FALLBACK_KNOWLEDGE;
   } catch (err) {

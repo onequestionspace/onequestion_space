@@ -1,5 +1,6 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
+import { isAdminUser } from './userIds';
 
 export const createIfMissing = mutation({
   args: { username: v.optional(v.string()) },
@@ -170,6 +171,9 @@ export const seedProfile = mutation({
     welcomeMessage: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity || !isAdminUser(identity.subject)) throw new Error('Unauthorized');
+
     const existing = await ctx.db
       .query('profiles')
       .withIndex('by_username', (q) => q.eq('username', args.username))
@@ -221,6 +225,12 @@ export const claimProfile = mutation({
 
     if (!profile) throw new Error('Invalid or expired claim link');
     if (!profile.isSeeded) throw new Error('This profile has already been claimed');
+    const prospect = await ctx.db.query('prospects')
+      .withIndex('by_profileId', (q) => q.eq('profileId', profile._id))
+      .unique();
+    if (prospect && identity.email?.toLowerCase() !== prospect.email) {
+      throw new Error('Sign in with the email address this page was prepared for');
+    }
 
     const alreadyHasProfile = await ctx.db
       .query('profiles')
@@ -237,6 +247,15 @@ export const claimProfile = mutation({
       claimToken: undefined,
       updatedAt: Date.now(),
     });
+    if (prospect) {
+      const knowledge = await ctx.db.query('knowledge')
+        .withIndex('by_userId', (q) => q.eq('userId', profile.userId))
+        .take(20);
+      for (const item of knowledge) {
+        await ctx.db.patch(item._id, { userId: identity.subject });
+      }
+      await ctx.db.patch(prospect._id, { status: 'claimed', updatedAt: Date.now() });
+    }
 
     return await ctx.db.get(profile._id);
   },

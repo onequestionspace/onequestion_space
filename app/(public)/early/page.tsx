@@ -167,7 +167,7 @@ export default function EarlyPage() {
               <div className="text-center">
                 <p className="text-white font-bold mb-2">All spots claimed</p>
                 <p className="text-muted-foreground text-sm mb-4">Join the waitlist to be notified of next opportunities.</p>
-                <Link href="/" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-white text-sm font-medium hover:opacity-90 transition-opacity">
+                <Link href="/waitlist" className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full bg-primary text-white text-sm font-medium hover:opacity-90 transition-opacity">
                   Join Waitlist <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>

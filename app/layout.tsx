@@ -10,13 +10,12 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://onequestion.space'),
-  title: 'One Question - Your AI-Powered Q&A Page',
-  description:
-    'Create your own AI-powered Q&A page. Upload knowledge once. Let AI answer forever.',
+  title: 'OneQuestion — Stop answering the same questions twice',
+  description: 'Turn your knowledge into a personal AI page that answers questions about you, your work and your expertise — 24/7.',
   openGraph: {
     images: ['/logo.png'],
-    title: 'One Question',
-    description: 'Your knowledge. Your answers. Your space.',
+    title: 'OneQuestion',
+    description: 'Your personal AI page for questions about you, your work and your expertise.',
     type: 'website',
     locale: 'en_US',
     siteName: 'One Question',
@@ -24,13 +23,13 @@ export const metadata: Metadata = {
   twitter: {
     images: ['/logo.png'],
     card: 'summary_large_image',
-    title: 'One Question',
-    description: 'Your knowledge. Your answers. Your space.',
+    title: 'OneQuestion',
+    description: 'Your personal AI page for questions about you, your work and your expertise.',
   },
 };
 
 export const viewport = {
-  themeColor: '#0A0A0A',
+  themeColor: '#FFFFFF',
   width: 'device-width',
   initialScale: 1,
 };
@@ -43,7 +42,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className="dark bg-background"
+      className="bg-background"
     >
       <body className={`${inter.className} antialiased`}>
         <ClerkProvider
@@ -53,11 +52,11 @@ export default function RootLayout({
               logoLinkUrl: '/',
             },
             variables: {
-              colorPrimary: '#F5A623',
-              colorBackground: '#0A0A0A',
-              colorText: '#ffffff',
-              colorInputBackground: '#111113',
-              colorInputText: '#ffffff',
+              colorPrimary: '#09090B',
+              colorBackground: '#FFFFFF',
+              colorText: '#09090B',
+              colorInputBackground: '#FFFFFF',
+              colorInputText: '#09090B',
             },
           }}
         >

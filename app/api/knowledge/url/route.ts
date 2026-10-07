@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
-import { generateEmbeddings, chunkText } from '@/lib/gemini';
+import { createKnowledgeEmbeddings } from '@/lib/gemini';
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
@@ -49,21 +49,15 @@ export async function POST(request: NextRequest) {
     const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
     const title = titleMatch ? titleMatch[1].trim().slice(0, 100) : url;
 
-    // Generate embeddings
-    let embeddings: number[] = [];
-    try {
-      const chunks = chunkText(text);
-      embeddings = await generateEmbeddings(chunks.join(' '));
-    } catch (e) {
-      console.error('Embedding error:', e);
-    }
+    const { embeddings, chunks } = await createKnowledgeEmbeddings(title, text);
 
     // Save to knowledge base
     const id = await convex.mutation(api.knowledge.createKnowledge, {
       userId,
       title,
       content: text,
-      embeddings: embeddings.length > 0 ? embeddings : undefined,
+      embeddings,
+      chunks,
       fileUrl: url,
       fileType: 'url',
       sourceType: sourceType || 'article',

@@ -24,6 +24,11 @@ export const createKnowledge = mutation({
     title: v.string(),
     content: v.string(),
     embeddings: v.optional(v.array(v.number())),
+    chunks: v.optional(v.array(v.object({
+      content: v.string(),
+      chunkIndex: v.number(),
+      embedding: v.optional(v.array(v.number())),
+    }))),
     chunkIndex: v.optional(v.number()),
     fileUrl: v.optional(v.string()),
     fileType: v.optional(v.string()),
@@ -37,6 +42,7 @@ export const createKnowledge = mutation({
       title: args.title,
       content: args.content,
       embeddings: args.embeddings,
+      chunks: args.chunks,
       chunkIndex: args.chunkIndex,
       fileUrl: args.fileUrl,
       fileType: args.fileType,
@@ -54,12 +60,18 @@ export const updateKnowledge = mutation({
     title: v.optional(v.string()),
     content: v.optional(v.string()),
     embeddings: v.optional(v.array(v.number())),
+    chunks: v.optional(v.array(v.object({
+      content: v.string(),
+      chunkIndex: v.number(),
+      embedding: v.optional(v.array(v.number())),
+    }))),
   },
   handler: async (ctx, args) => {
     return await ctx.db.patch(args.id, {
       ...(args.title !== undefined && { title: args.title }),
       ...(args.content !== undefined && { content: args.content }),
       ...(args.embeddings !== undefined && { embeddings: args.embeddings }),
+      ...(args.chunks !== undefined && { chunks: args.chunks }),
       updatedAt: Date.now(),
     });
   },

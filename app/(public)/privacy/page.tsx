@@ -1,123 +1,49 @@
-'use client';
-
-import { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Send, ShieldCheck, Sparkles } from 'lucide-react';
 
-const SUGGESTED = [
-  'What data do you collect?',
-  'Is my knowledge base private?',
-  'Can I delete my account?',
-  'Do you sell my data?',
-  'How is my data stored?',
+const sections = [
+  {
+    title: 'What we store',
+    body: 'We store your account and profile details, the knowledge and files you choose to upload, embeddings used to find relevant information, questions and answers from your page, and basic usage and subscription records. Clerk handles sign-in. Paystack processes payments; OneQuestion does not store your full payment card details.',
+  },
+  {
+    title: 'How your information is used',
+    body: 'Your uploaded knowledge is used to find relevant context when someone asks a question on your public page. The question and relevant context are sent to our AI service provider to generate an answer. Questions, answers, and usage records are saved so your page can work and you can review its activity.',
+  },
+  {
+    title: 'AI model training',
+    body: 'We do not use your uploaded knowledge, questions, or answers to train AI models.',
+  },
+  {
+    title: 'Who processes your data',
+    body: 'OneQuestion relies on service providers for hosting and database storage, authentication, payment processing, and AI answer generation. They process information only as needed to provide those services.',
+  },
+  {
+    title: 'Public pages and your choices',
+    body: 'Your OneQuestion page is public. Visitors can submit questions, and the AI uses the knowledge you provide to answer them. Do not upload information you do not want used to answer visitors. You can remove knowledge items in your dashboard. To request access to or deletion of account data, contact hello@onequestion.space.',
+  },
+  {
+    title: 'Contact',
+    body: 'Questions about privacy or a data request? Email hello@onequestion.space.',
+  },
 ];
 
 export default function PrivacyPage() {
-  const [question, setQuestion] = useState('');
-  const [messages, setMessages] = useState([
-    { role: 'ai', text: 'Hi! I am the One Question Privacy Assistant. Ask me anything about how we handle your data and privacy.' }
-  ]);
-  const [loading, setLoading] = useState(false);
-
-  const handleSubmit = async (q: string) => {
-    if (!q.trim()) return;
-    setMessages(prev => [...prev, { role: 'user', text: q }]);
-    setQuestion('');
-    setLoading(true);
-    try {
-      const res = await fetch('/api/explore', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question: q, history: messages, knowledgeOverride: "\nOne Question Privacy Policy:\n\nDATA WE COLLECT:\n- Account info: name, email, username via Clerk authentication\n- Knowledge base content you upload (text, files)\n- Questions asked to your AI space by visitors\n- Analytics: visitor counts, question counts, response rates\n- Payment info processed securely via Paystack (we never store card details)\n\nHOW WE USE YOUR DATA:\n- To power your AI space and answer visitor questions\n- To show you analytics about your space performance\n- To process payments for credits and subscriptions\n- We never sell your data to third parties\n- We never use your knowledge base to train our models\n\nDATA STORAGE:\n- All data stored in Convex (real-time database) with encryption at rest\n- Authentication handled by Clerk with industry-standard security\n- Files and knowledge stored securely on our servers\n\nYOUR RIGHTS:\n- You can delete your account and all data at any time from Settings\n- You can delete individual knowledge items from your dashboard\n- You can export your data by contacting us at support@onequestion.space\n\nCOOKIES:\n- We use minimal cookies for authentication only\n- No advertising cookies or third-party trackers\n\nCONTACT:\n- Email: support@onequestion.space\n- X: @OneQuestion_Spa\n" }),
-      });
-      const data = await res.json();
-      setMessages(prev => [...prev, { role: 'ai', text: data.answer || 'I could not answer that. Try rephrasing.' }]);
-    } catch {
-      setMessages(prev => [...prev, { role: 'ai', text: 'Something went wrong. Please try again.' }]);
-    }
-    setLoading(false);
-  };
-
   return (
-    <div className="min-h-screen bg-background">
-      <div className="fixed inset-0 -z-10">
-        <div className="mesh-gradient" />
-        <div className="dot-pattern" />
-      </div>
+    <main className="min-h-[70vh] bg-white px-4 pb-20 pt-28 text-black">
+      <article className="mx-auto max-w-3xl">
+        <Link href="/" className="text-sm text-zinc-500 hover:text-black">Back to OneQuestion</Link>
+        <h1 className="mt-8 text-4xl font-semibold tracking-[-0.04em]">Privacy policy</h1>
+        <p className="mt-3 text-sm text-zinc-500">A plain-language explanation of what OneQuestion stores and how it is used.</p>
 
-      <main className="pt-24 pb-20">
-        <div className="max-w-lg mx-auto px-4">
-          <Link href="/" className="inline-flex items-center gap-2 text-muted-foreground hover:text-white transition-colors mb-8 text-sm">
-            <ArrowLeft className="w-4 h-4" />
-            Back to home
-          </Link>
-
-          <div className="glass rounded-2xl p-6 border border-white/10 text-center mb-6">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br bg-primary mx-auto mb-4 flex items-center justify-center">
-              <ShieldCheck className="w-8 h-8 text-white" />
-            </div>
-            <h1 className="text-2xl font-bold text-white mb-1">Privacy Assistant</h1>
-            <p className="text-muted-foreground text-sm mb-3">Ask anything about how we handle your data.</p>
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/10 text-primary text-xs">
-              <Sparkles className="w-3 h-3" />
-              AI Powered
-            </div>
-          </div>
-
-          <div className="glass rounded-2xl border border-white/10 mb-4 overflow-hidden">
-            <div className="p-4 space-y-3 min-h-[300px] max-h-[400px] overflow-y-auto">
-              {messages.map((msg, i) => (
-                <div key={i} className={msg.role === 'user' ? 'flex justify-end' : 'flex justify-start'}>
-                  <div className={msg.role === 'user' ? 'max-w-[80%] bg-primary/20 border border-primary/20 rounded-2xl px-4 py-2' : 'max-w-[80%] bg-white/5 border border-white/10 rounded-2xl px-4 py-2'}>
-                    <p className={'text-xs mb-1 ' + (msg.role === 'user' ? 'text-primary' : 'text-muted-foreground')}>{msg.role === 'user' ? 'You' : 'Privacy AI'}</p>
-                    <p className="text-white text-sm leading-relaxed">{msg.text}</p>
-                  </div>
-                </div>
-              ))}
-              {loading && (
-                <div className="flex justify-start">
-                  <div className="bg-white/5 border border-white/10 rounded-2xl px-4 py-2">
-                    <p className="text-muted-foreground text-xs mb-1">Privacy AI</p>
-                    <div className="flex gap-1">
-                      <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{animationDelay:'0ms'}} />
-                      <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{animationDelay:'150ms'}} />
-                      <span className="w-2 h-2 rounded-full bg-primary animate-bounce" style={{animationDelay:'300ms'}} />
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <div className="border-t border-white/10 p-3 flex gap-2">
-              <input
-                value={question}
-                onChange={(e) => setQuestion(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && handleSubmit(question)}
-                placeholder="Ask about privacy..."
-                className="flex-1 bg-white/5 border border-white/10 rounded-full px-4 py-2 text-sm text-white placeholder:text-muted-foreground focus:outline-none focus:border-primary/50"
-              />
-              <button
-                onClick={() => handleSubmit(question)}
-                disabled={loading || !question.trim()}
-                className="w-9 h-9 rounded-full bg-gradient-to-r bg-primary flex items-center justify-center disabled:opacity-50"
-              >
-                <Send className="w-4 h-4 text-white" />
-              </button>
-            </div>
-          </div>
-
-          <div className="glass rounded-2xl p-4 border border-white/10">
-            <p className="text-xs text-muted-foreground mb-3">Suggested questions</p>
-            <div className="flex flex-wrap gap-2">
-              {SUGGESTED.map((q, i) => (
-                <button key={i} onClick={() => handleSubmit(q)} className="text-xs px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground hover:text-white hover:border-primary/50 transition-all">
-                  {q}
-                </button>
-              ))}
-            </div>
-          </div>
+        <div className="mt-10 divide-y divide-zinc-200 border-y border-zinc-200">
+          {sections.map((section) => (
+            <section key={section.title} className="py-6">
+              <h2 className="text-base font-medium tracking-tight">{section.title}</h2>
+              <p className="mt-2 text-sm leading-7 text-zinc-600">{section.body}</p>
+            </section>
+          ))}
         </div>
-      </main>
-    </div>
+      </article>
+    </main>
   );
 }

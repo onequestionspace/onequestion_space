@@ -1,11 +1,14 @@
 import { mutation, query } from './_generated/server';
+import type { QueryCtx } from './_generated/server';
 import { v } from 'convex/values';
+import { isAdminUser } from './userIds';
 
-const ADMIN_IDS = [
-  'user_3EhKmuVyC1AhoBDlL7QNssllwgu',
-  'user_3Fmuk2jHEa5seXKEzewhWlA9yQs',
-  'user_3Ev3UAWNTTDAlVWSYFGGsEI6qQz',
-];
+const checkAdmin = async (ctx: QueryCtx, userId: string) => {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity || identity.subject !== userId || !isAdminUser(identity.subject)) {
+    throw new Error('Unauthorized');
+  }
+};
 
 export const trackPageview = mutation({
   args: {
@@ -40,7 +43,7 @@ export const trackEvent = mutation({
 export const getSiteAnalytics = query({
   args: { adminId: v.string() },
   handler: async (ctx, args) => {
-    if (!ADMIN_IDS.includes(args.adminId)) throw new Error('Unauthorized');
+    await checkAdmin(ctx, args.adminId);
 
     const now = Date.now();
     const day = 86400000;
@@ -117,7 +120,7 @@ export const getSiteAnalytics = query({
 export const getUserActivity = query({
   args: { adminId: v.string(), userId: v.string() },
   handler: async (ctx, args) => {
-    if (!ADMIN_IDS.includes(args.adminId)) throw new Error('Unauthorized');
+    await checkAdmin(ctx, args.adminId);
 
     const profile = await ctx.db
       .query('profiles')

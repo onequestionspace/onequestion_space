@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
-import { generateEmbeddings, chunkText } from '@/lib/gemini';
+import { createKnowledgeEmbeddings } from '@/lib/gemini';
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
@@ -34,22 +34,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Title and content are required' }, { status: 400 });
     }
 
-    // Generate embeddings for the content
-    let embeddings: number[] = [];
-    try {
-      const chunks = chunkText(content);
-      const fullText = chunks.join(' ');
-      embeddings = await generateEmbeddings(fullText);
-    } catch (e) {
-      console.error('Embedding error:', e);
-    }
+    const { embeddings, chunks } = await createKnowledgeEmbeddings(title, content);
 
     // Save to Convex
     const id = await convex.mutation(api.knowledge.createKnowledge, {
       userId,
       title,
       content,
-      embeddings: embeddings.length > 0 ? embeddings : undefined,
+      embeddings,
+      chunks,
       sourceType: sourceType || undefined,
     });
 

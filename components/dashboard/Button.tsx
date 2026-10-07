@@ -5,13 +5,13 @@ type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
 
 const variants: Record<Variant, string> = {
   primary:
-    'bg-primary text-black hover:bg-primary-light font-semibold shadow-amber-glow hover:shadow-amber-glow-lg',
+    'bg-black text-white hover:bg-zinc-800 font-medium',
   secondary:
-    'border border-white/10 bg-white/[0.04] text-white hover:bg-white/[0.08] font-medium',
+    'border border-zinc-200 bg-white text-zinc-800 hover:bg-zinc-50 font-medium',
   ghost:
-    'text-zinc-400 hover:text-white font-medium',
+    'text-zinc-600 hover:text-black font-medium',
   danger:
-    'border border-red-500/20 text-red-400 hover:bg-red-500 hover:text-white font-medium',
+    'border border-zinc-200 text-zinc-700 hover:bg-zinc-100 font-medium',
 };
 
 const sizes: Record<string, string> = {
@@ -42,7 +42,7 @@ export function Button({
   return (
     <button
       className={cn(
-        'inline-flex items-center justify-center gap-2 transition-all duration-200 disabled:opacity-50 disabled:pointer-events-none active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40',
+        'inline-flex items-center justify-center gap-2 rounded-lg transition-colors duration-150 disabled:opacity-50 disabled:pointer-events-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400',
         variants[variant],
         sizes[size] || sizes.md,
         className

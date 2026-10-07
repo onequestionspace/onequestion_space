@@ -14,21 +14,11 @@ export async function POST(request: NextRequest) {
     if (!valid) return NextResponse.json({ success: false, error: 'Invalid signature' }, { status: 401 });
 
     if (event === 'charge.success' || event === 'payment_intent.succeeded') {
-      const userId = data?.metadata?.userId;
-      const type = data?.metadata?.type;
-      if (!userId) return NextResponse.json({ success: true }, { status: 200 });
-
-      if (type === 'credits') {
-        const credits = data?.metadata?.credits || 0;
-        await convex.mutation(api.subscriptions.addCredits, { userId, credits });
-        console.log('Credits added:', credits, 'userId:', userId);
-      } else if (type === 'subscription') {
-        const plan = data?.metadata?.plan || 'pro';
-        await convex.mutation(api.subscriptions.updateSubscription, { userId, plan, status: 'active' });
-        const limits: Record<string, number> = { pro: 500, starter: 500 };
-        await convex.mutation(api.subscriptions.addCredits, { userId, credits: limits[plan] || 500 });
-        console.log('Plan upgraded:', plan, 'userId:', userId);
+      const reference = data?.reference;
+      if (typeof reference !== 'string' || !reference) {
+        return NextResponse.json({ success: false, error: 'Missing payment reference' }, { status: 400 });
       }
+      await convex.action(api.subscriptions.verifyAndApplyPayment, { reference });
     }
 
     return NextResponse.json({ success: true }, { status: 200 });

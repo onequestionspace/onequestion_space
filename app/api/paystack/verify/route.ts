@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { paymentProvider } from '@/lib/payments';
 import { auth } from '@clerk/nextjs/server';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
@@ -15,15 +14,12 @@ export async function GET(request: NextRequest) {
     const reference = searchParams.get('reference');
     if (!reference) return NextResponse.json({ success: false, error: 'Missing reference' }, { status: 400 });
 
-    const result = await paymentProvider.verify(reference);
-
-    if (result.success) {
-      const { type, credits, plan } = result.metadata;
-      if (type === 'credits' && credits) {
-        await convex.mutation(api.subscriptions.addCredits, { userId, credits });
-      } else if (type === 'subscription' && plan) {
-        await convex.mutation(api.subscriptions.updateSubscription, { userId, plan: plan as 'free' | 'starter' | 'pro' | 'business' | 'enterprise', status: 'active' });
-      }
+    const result = await convex.action(api.subscriptions.verifyAndApplyPayment, {
+      reference,
+      expectedUserId: userId,
+    });
+    if (!result.success && result.reason === 'account_mismatch') {
+      return NextResponse.json({ success: false, error: 'This payment belongs to another account.' }, { status: 403 });
     }
 
     return NextResponse.json({ success: result.success, data: result }, { status: 200 });

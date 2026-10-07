@@ -1,9 +1,20 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
+import type { QueryCtx } from './_generated/server';
+import type { Id } from './_generated/dataModel';
+
+async function assertProfileOwner(ctx: QueryCtx, profileId: Id<'profiles'>) {
+  const identity = await ctx.auth.getUserIdentity();
+  const profile = await ctx.db.get(profileId);
+  if (!identity || !profile || profile.userId !== identity.subject) {
+    throw new Error('Not authorized to view these analytics');
+  }
+}
 
 export const getAnalytics = query({
   args: { profileId: v.id('profiles') },
   handler: async (ctx, args) => {
+    await assertProfileOwner(ctx, args.profileId);
     return await ctx.db
       .query('analytics')
       .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))

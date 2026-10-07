@@ -58,7 +58,7 @@ function InboxPageContent() {
   ];
 
   const handleBulkAnswer = async () => {
-    if (!plainUnanswered.length) return;
+    if (!plainUnanswered.length || !profile?.username) return;
     setBulkAnswering(true);
     setBulkDone(false);
     let msgIdx = 0;
@@ -67,23 +67,36 @@ function InboxPageContent() {
       msgIdx = (msgIdx + 1) % MAGIC_MESSAGES.length;
       setBulkStatus(MAGIC_MESSAGES[msgIdx]);
     }, 1800);
+    let processedTotal = 0;
     try {
-      const res = await fetch('/api/inbox/answer-all', { method: 'POST' });
-      const data = await res.json();
-      clearInterval(interval);
-      if (data.success) {
-        setBulkStatus('✅ Answered ' + data.processed + ' questions!');
-        setBulkDone(true);
-        toast({ type: 'success', title: 'Magic done!', description: 'Answered ' + data.processed + ' questions.' });
-      } else {
-        setBulkStatus('Something went wrong. Try again.');
-        toast({ type: 'error', title: 'Failed', description: 'Could not answer all questions.' });
+      while (true) {
+        const res = await fetch('/api/inbox/answer-all', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: profile.username }),
+        });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          const message = data.error || 'Could not answer all questions.';
+          setBulkStatus(processedTotal > 0 ? `Answered ${processedTotal}; stopped: ${message}` : message);
+          toast({ type: 'error', title: 'Could not finish', description: message });
+          return;
+        }
+        processedTotal += data.processed;
+        if (data.remaining === 0) break;
+        if (data.processed === 0) throw new Error('No questions were answered. Please try again.');
       }
-    } catch (e) {
+      setBulkStatus(`✅ Answered ${processedTotal} questions!`);
+      setBulkDone(true);
+      toast({ type: 'success', title: 'Magic done!', description: `Answered ${processedTotal} questions.` });
+    } catch (error) {
+      console.error('[inbox] bulk answer failed:', error);
+      setBulkStatus(processedTotal > 0 ? `Answered ${processedTotal}; some questions remain.` : 'Connection error. Try again.');
+      toast({ type: 'error', title: 'Could not finish', description: 'Some questions may still need an answer.' });
+    } finally {
       clearInterval(interval);
-      setBulkStatus('Connection error. Try again.');
+      setBulkAnswering(false);
     }
-    setBulkAnswering(false);
   };
 
   // "Needs Review" questions are always unanswered too, so filter them
