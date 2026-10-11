@@ -1,130 +1,108 @@
-import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { ConvexHttpClient } from 'convex/browser';
+import { NextRequest, NextResponse } from 'next/server';
 import { api } from '@/convex/_generated/api';
-import {
-  generateAnswer,
-  generateEmbeddings,
-  cosineSimilarity,
-  ProfileContext,
-} from '@/lib/gemini';
+import { isAdminUser } from '@/convex/userIds';
+import { generateAnswer, generateEmbeddings, rankKnowledge } from '@/lib/gemini';
 
-export const runtime = 'nodejs';
-export const maxDuration = 300;
+export const maxDuration = 60;
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+const BATCH_SIZE = 5;
 
-/** Never answer more than this in one request — keeps us inside function limits. */
-const MAX_QUESTIONS = 10;
-/** Retrieval depth per question. */
-const TOP_K = 5;
-/** Sequential on purpose: parallel LLM calls trip provider rate limits. */
-const THROTTLE_MS = 350;
-
-const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 
 export async function POST(request: NextRequest) {
   try {
     const { userId } = await auth();
-    if (!userId) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    if (!userId) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
+    if (!convexUrl) throw new Error('NEXT_PUBLIC_CONVEX_URL is not configured');
+
+    const body: unknown = await request.json();
+    const username = typeof body === 'object' && body !== null && 'username' in body
+      ? body.username
+      : undefined;
+    if (typeof username !== 'string' || !username.trim()) {
+      return NextResponse.json({ success: false, error: 'Username is required' }, { status: 400 });
     }
 
-    const profile = await convex.query(api.profiles.current);
-    if (!profile) {
+    const convex = new ConvexHttpClient(convexUrl);
+    const profile = await convex.query(api.profiles.byUsername, { username: username.trim() });
+    if (!profile || profile.userId !== userId) {
       return NextResponse.json({ success: false, error: 'Profile not found' }, { status: 404 });
     }
-    if (profile.userId !== userId) {
-      return NextResponse.json({ success: false, error: 'Forbidden' }, { status: 403 });
+
+    const [unanswered, needsReview, knowledge] = await Promise.all([
+      convex.query(api.questions.getUnansweredQuestions, { profileId: profile._id }),
+      convex.query(api.questions.listNeedsReview, { profileId: profile._id }),
+      convex.query(api.knowledge.getKnowledgeByUserId, { userId }),
+    ]);
+    const needsReviewIds = new Set(needsReview.map((question) => question._id));
+    const pending = unanswered.filter((question) => !needsReviewIds.has(question._id));
+
+    if (pending.length === 0) {
+      return NextResponse.json({ success: true, processed: 0, remaining: 0 });
+    }
+    if (knowledge.length === 0) {
+      return NextResponse.json({
+        success: false,
+        error: 'Add knowledge to your space before generating AI answers.',
+      }, { status: 400 });
     }
 
-    const body = await request.json().catch(() => ({}));
-    const limit = Math.min(Number(body?.limit) || MAX_QUESTIONS, MAX_QUESTIONS);
-
-    const pending = await convex.query(api.questions.getUnansweredQuestions, {
-      profileId: profile._id,
-    });
-    const questions = (pending ?? []).slice(0, limit);
-
-    if (questions.length === 0) {
-      return NextResponse.json({ success: true, processed: 0, skipped: 0, failed: 0 });
+    const isAdmin = isAdminUser(userId);
+    let availableCredits = Number.POSITIVE_INFINITY;
+    if (!isAdmin) {
+      const subscription = await convex.mutation(api.subscriptions.getOrCreateSubscription, { userId });
+      const used = subscription?.messagesUsed ?? 0;
+      const limit = subscription?.messagesLimit ?? 50;
+      availableCredits = limit === -1 ? Number.POSITIVE_INFINITY : Math.max(0, limit - used);
+      if (availableCredits === 0) {
+        return NextResponse.json({
+          success: false,
+          error: 'You have reached your AI answer limit. Upgrade your plan to continue.',
+          code: 'limit_reached',
+        }, { status: 429 });
+      }
     }
 
-    const knowledge =
-      (await convex.query(api.knowledge.getKnowledgeByUserId, { userId: profile.userId })) ?? [];
-
-    const context: ProfileContext = {
-      displayName: profile.displayName,
-      bio: profile.bio,
-      welcomeMessage: profile.welcomeMessage,
-      username: profile.username,
-    };
-
+    const batch = pending.slice(0, Math.min(BATCH_SIZE, availableCredits));
     let processed = 0;
-    let failed = 0;
+    for (const question of batch) {
+      const embedding = await generateEmbeddings(question.question);
+      const context = rankKnowledge(question.question, embedding, knowledge)
+        .map((chunk) => `[${chunk.title}]\n${chunk.content}`);
 
-    for (const question of questions) {
-      try {
-        const chunks: string[] = [];
-
-        if (knowledge.length > 0) {
-          const embedding = await generateEmbeddings(question.question).catch(() => []);
-          if (embedding.length > 0) {
-            chunks.push(
-              ...knowledge
-                .flatMap((k) =>
-                  Array.isArray(k.embeddings) && k.embeddings.length > 0
-                    ? [{ text: k.content, score: cosineSimilarity(embedding, k.embeddings) }]
-                    : []
-                )
-                .sort((a, b) => b.score - a.score)
-                .slice(0, TOP_K)
-                .map((k) => k.text)
-            );
-          } else {
-            // No embeddings available — fall back to the most recent knowledge.
-            chunks.push(...knowledge.slice(0, TOP_K).map((k) => k.content));
-          }
-        }
-
-        const answer = await generateAnswer(question.question, chunks, context);
-        const trimmed = answer?.trim();
-
-        // Treat the model's "I don't know" and placeholder replies as failures
-        // so they are not written to the knowledge base as real answers.
-        const unusable =
-          !trimmed ||
-          trimmed === "Sorry, I could not generate an answer right now." ||
-          trimmed === 'AI is not configured yet.' ||
-          trimmed.includes('generated an answer right now') ||
-          trimmed.includes('not configured yet');
-
-        if (unusable) {
-          failed += 1;
-          continue;
-        }
-
-        await convex.mutation(api.questions.answerQuestion, {
-          id: question._id,
-          answer: trimmed,
-        });
-        processed += 1;
-      } catch (error) {
-        console.error(`answer-all: failed for question ${question._id}:`, error);
-        failed += 1;
+      const answer = await generateAnswer(question.question, context, {
+        displayName: profile.displayName,
+        bio: profile.bio,
+        username: profile.username,
+      });
+      if (
+        !answer.trim() ||
+        answer === 'AI is not configured yet.' ||
+        answer === 'Sorry, I could not generate an answer right now.'
+      ) {
+        throw new Error('AI provider did not generate an answer');
       }
 
-      await sleep(THROTTLE_MS);
+      await convex.mutation(api.questions.answerQuestion, {
+        id: question._id,
+        answer,
+      });
+      await convex.mutation(api.analytics.incrementAnswerCount, { profileId: profile._id });
+      if (!isAdmin) {
+        await convex.mutation(api.subscriptions.incrementMessagesUsed, { userId });
+      }
+      processed += 1;
     }
 
-    const skipped = questions.length - processed - failed;
-
-    return NextResponse.json({ success: true, processed, skipped, failed });
+    return NextResponse.json({
+      success: true,
+      processed,
+      remaining: Math.max(0, pending.length - processed),
+    });
   } catch (error) {
-    console.error('Error in POST /api/inbox/answer-all:', error);
-    return NextResponse.json(
-      { success: false, error: 'Internal server error' },
-      { status: 500 }
-    );
+    console.error('[inbox/answer-all] error:', error);
+    return NextResponse.json({ success: false, error: 'Could not answer questions right now.' }, { status: 500 });
   }
 }

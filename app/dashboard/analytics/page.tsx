@@ -26,15 +26,18 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 export default function AnalyticsPage() {
-  const { isSignedIn, isLoaded } = useAuth();
+  const { isSignedIn, isLoaded, userId } = useAuth();
   const profile = useQuery(api.profiles.current);
-  const analyticsData = useQuery(api.analytics.getAnalytics, profile?._id ? { profileId: profile._id } : 'skip');
-  const visitorEmails = useQuery(api.questions.getVisitorEmails, profile?._id ? { profileId: profile._id } : 'skip');
-  const questions = useQuery(api.questions.getQuestionsByProfile, profile?._id ? { profileId: profile._id } : 'skip');
+  const subscription = useQuery(api.subscriptions.getSubscription, userId ? { userId } : 'skip');
+  const hasPro = subscription?.plan === 'pro' && subscription.status === 'active';
+  const analyticsArgs = hasPro && profile?._id ? { profileId: profile._id } : 'skip';
+  const analyticsData = useQuery(api.analytics.getAnalytics, analyticsArgs);
+  const visitorEmails = useQuery(api.questions.getVisitorEmails, analyticsArgs);
+  const questions = useQuery(api.questions.getQuestionsByProfile, analyticsArgs);
 
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
-  const loading = analyticsData === undefined || questions === undefined;
+  const loading = subscription === undefined || (hasPro && (analyticsData === undefined || questions === undefined));
 
   const totalQ = analyticsData?.totalQuestions || 0;
   const totalV = analyticsData?.totalVisitors || 0;
@@ -59,8 +62,8 @@ export default function AnalyticsPage() {
   }, [questions]);
 
   const pieData = useMemo(() => [
-    { name: 'Answered', value: totalA, color: '#F5A623' },
-    { name: 'Pending', value: Math.max(0, unanswered), color: '#27272a' },
+    { name: 'Answered', value: totalA, color: '#18181b' },
+    { name: 'Pending', value: Math.max(0, unanswered), color: '#e4e4e7' },
   ], [totalA, unanswered]);
 
   // Top questions (grouped by text)
@@ -100,8 +103,33 @@ export default function AnalyticsPage() {
   if (!isLoaded) return <div className="min-h-screen flex items-center justify-center"><div className="animate-pulse text-zinc-500 text-sm">Loading...</div></div>;
   if (!isSignedIn) { redirect('/'); }
 
+  if (subscription === undefined || profile === undefined) {
+    return (
+      <DashboardLayout title="Analytics" description="Understand what visitors ask about you.">
+        <div className="rounded-xl border border-zinc-200 p-6 text-sm text-zinc-500">Loading your plan…</div>
+      </DashboardLayout>
+    );
+  }
+
+  if (!hasPro) {
+    return (
+      <DashboardLayout title="Analytics" description="Understand what visitors ask about you.">
+        <section className="max-w-xl rounded-xl border border-zinc-200 p-6 sm:p-8">
+          <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">Pro feature</p>
+          <h2 className="mt-3 text-xl font-semibold tracking-tight text-zinc-950">See what people ask most.</h2>
+          <p className="mt-2 text-sm leading-6 text-zinc-600">
+            Pro includes question trends, response rates, and visitor insights, plus 500 answers each month and a clean page without OneQuestion branding.
+          </p>
+          <Link href="/dashboard/billing" className="mt-6 inline-flex h-10 items-center rounded-lg bg-black px-4 text-sm font-medium text-white hover:bg-zinc-800">
+            Upgrade to Pro — $9/month
+          </Link>
+        </section>
+      </DashboardLayout>
+    );
+  }
+
   return (
-    <DashboardLayout title="Analytics" description="Real-time stats for your space">
+    <DashboardLayout title="Analytics" description="Understand what visitors ask about you.">
       <div className="max-w-4xl mx-auto space-y-5">
 
         {/* Low response rate warning */}
@@ -120,10 +148,10 @@ export default function AnalyticsPage() {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {loading ? Array.from({ length: 4 }).map((_, i) => <StatsCardSkeleton key={i} />) : (
             <>
-              <StatsCard label="Total Questions" value={totalQ} icon={<MessageSquare className="w-4 h-4" />} color="#F5A623" />
-              <StatsCard label="Total Visitors" value={totalV} icon={<Users className="w-4 h-4" />} color="#3b82f6" />
-              <StatsCard label="AI Answers" value={totalA} icon={<Brain className="w-4 h-4" />} color="#22c55e" />
-              <StatsCard label="Response Rate" value={responseRate + '%'} icon={<TrendingUp className="w-4 h-4" />} color="#F5A623" />
+              <StatsCard label="Total Questions" value={totalQ} icon={<MessageSquare className="w-4 h-4" />} color="#18181b" />
+              <StatsCard label="Total Visitors" value={totalV} icon={<Users className="w-4 h-4" />} color="#18181b" />
+              <StatsCard label="AI Answers" value={totalA} icon={<Brain className="w-4 h-4" />} color="#18181b" />
+              <StatsCard label="Response Rate" value={responseRate + '%'} icon={<TrendingUp className="w-4 h-4" />} color="#18181b" />
             </>
           )}
         </div>
@@ -155,7 +183,7 @@ export default function AnalyticsPage() {
                   <BarChart data={chartData} barSize={24}>
                     <XAxis dataKey="date" tick={{ fill: '#71717a', fontSize: 11 }} axisLine={false} tickLine={false} />
                     <Tooltip content={<CustomTooltip />} cursor={{ fill: '#ffffff08' }} />
-                    <Bar dataKey="questions" fill="#F5A623" radius={[6, 6, 0, 0]} />
+                    <Bar dataKey="questions" fill="#18181b" radius={[6, 6, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               )}

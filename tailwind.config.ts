@@ -9,22 +9,22 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: '#0A0A0A',
-        foreground: '#ffffff',
+        background: '#ffffff',
+        foreground: '#09090B',
         primary: {
-          DEFAULT: '#F5A623',
-          light: '#F7B955',
-          dark: '#D9901A',
+          DEFAULT: '#09090B',
+          light: '#27272A',
+          dark: '#000000',
         },
         muted: {
-          DEFAULT: '#18181B',
-          foreground: '#A1A1AA',
+          DEFAULT: '#F4F4F5',
+          foreground: '#71717A',
         },
         card: {
-          DEFAULT: '#111113',
-          hover: '#1A1A1D',
+          DEFAULT: '#FFFFFF',
+          hover: '#FAFAFA',
         },
-        border: 'rgba(255,255,255,0.06)',
+        border: '#E4E4E7',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -36,13 +36,13 @@ const config: Config = {
         'display-3': ['2.5rem', { lineHeight: '1.12', letterSpacing: '-0.02em', fontWeight: '800' }],
       },
       boxShadow: {
-        'soft': '0 2px 20px rgba(0,0,0,0.3)',
-        'elevated': '0 8px 40px rgba(0,0,0,0.4)',
-        'premium': '0 20px 60px rgba(0,0,0,0.5)',
-        'card': '0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2)',
-        'card-hover': '0 10px 40px rgba(0,0,0,0.4), 0 2px 8px rgba(0,0,0,0.3)',
-        'amber-glow': '0 0 30px rgba(245,166,35,0.15)',
-        'amber-glow-lg': '0 0 60px rgba(245,166,35,0.2)',
+        'soft': 'none',
+        'elevated': 'none',
+        'premium': 'none',
+        'card': 'none',
+        'card-hover': 'none',
+        'amber-glow': 'none',
+        'amber-glow-lg': 'none',
       },
       animation: {
         'fade-up': 'fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards',

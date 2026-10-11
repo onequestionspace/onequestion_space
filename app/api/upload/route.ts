@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
+import { createKnowledgeEmbeddings } from '@/lib/gemini';
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 
@@ -57,10 +58,14 @@ export async function POST(req: NextRequest) {
 
     if (looksLikeText) {
       const content = await file.text();
+      const knowledgeTitle = title || file.name;
+      const { embeddings, chunks } = await createKnowledgeEmbeddings(knowledgeTitle, content);
       await convex.mutation(api.knowledge.createKnowledge, {
         userId,
-        title: title || file.name,
+        title: knowledgeTitle,
         content,
+        embeddings,
+        chunks,
         fileType: fileType || 'text/plain',
         sourceType: sourceType || 'personal',
       });

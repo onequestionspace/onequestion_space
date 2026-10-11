@@ -1,269 +1,94 @@
 'use client';
 
-import { useState, useMemo, useCallback } from 'react';
+import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { useQuery } from 'convex/react';
-import { api } from '@/convex/_generated/api';
-import { ArrowRight, Sparkles, Globe, Brain, Check, X as XIcon, Play, Star, MessageSquare } from 'lucide-react';
-// framer-motion removed for mobile stability
-import Image from 'next/image';
-import { AnimatedCounter } from '@/components/motion/AnimatedCounter';
-import { FadeIn } from '@/components/motion/FadeIn';
-
-function seededRandom(seed: number): number {
-  const x = Math.sin(seed * 9301 + 49297) * 49297;
-  return x - Math.floor(x);
-}
-
-function FloatingParticles({ count = 20 }) {
-  const particles = useMemo(() =>
-    Array.from({ length: count }, (_, i) => {
-      const s = i * 137.5;
-      return {
-        id: i,
-        x: seededRandom(s) * 100,
-        y: seededRandom(s + 1) * 100,
-        size: seededRandom(s + 2) * 2 + 0.5,
-        delay: seededRandom(s + 3) * 5,
-        duration: seededRandom(s + 4) * 12 + 10,
-        xDrift: (seededRandom(s + 5) - 0.5) * 40,
-        yDrift: (seededRandom(s + 6) - 0.5) * 40,
-      };
-    }), [count]);
-
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {particles.map(p => (
-        <div
-          key={p.id}
-          className="absolute rounded-full"
-          style={{
-            left: `${p.x}%`,
-            top: `${p.y}%`,
-            width: p.size,
-            height: p.size,
-            background: 'radial-gradient(circle, rgba(245,166,35,0.3), transparent)',
-          }}
-
-        />
-      ))}
-    </div>
-  );
-}
+import { ArrowRight } from 'lucide-react';
+import { MessageCircleQuestion } from 'lucide-react';
 
 export function Hero() {
   const { isSignedIn } = useAuth();
   const [username, setUsername] = useState('');
 
-  const recentProfiles = useQuery(api.profiles.getRecentProfiles, { limit: 5 });
-  const profilesCount = useQuery(api.profiles.getProfilesCount);
-  const count = profilesCount ?? 0;
-
-  const scrollToSection = (id: string) => {
-    const el = document.getElementById(id);
-    el?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  const handleClaim = useCallback(() => {
+  const createPage = () => {
     if (isSignedIn) {
       window.location.href = '/dashboard';
-    } else {
-      const u = username.trim().toLowerCase();
-      window.location.href = '/sign-up' + (u ? '?username=' + u : '');
+      return;
     }
-  }, [isSignedIn, username]);
+
+    const requestedUsername = username.trim().toLowerCase();
+    window.location.href = '/sign-up' + (requestedUsername
+      ? '?username=' + encodeURIComponent(requestedUsername)
+      : '');
+  };
 
   return (
-    <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-24 pb-16">
-      <div className="absolute inset-0 bg-background" />
-      <div className="absolute inset-0 amber-radial-hero pointer-events-none" />
-      <div className="absolute inset-0 faint-grid opacity-50 pointer-events-none" />
-      <div className="absolute inset-0 grain opacity-[0.02] pointer-events-none mix-blend-soft-light" />
-      <div className="absolute inset-0 paper-texture pointer-events-none" />
+    <section className="bg-white px-4 pb-24 pt-32 text-black sm:pb-32 sm:pt-40">
+      <div className="mx-auto max-w-5xl text-center">
+        <p className="mb-6 text-sm font-medium text-zinc-500">
+          Early access — join builders testing OneQuestion
+        </p>
+        <h1 className="mx-auto max-w-4xl text-4xl font-semibold leading-[1.08] tracking-[-0.045em] sm:text-6xl md:text-7xl">
+          Stop answering the same questions twice.
+        </h1>
+        <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-zinc-600 sm:text-lg sm:leading-8">
+          Turn your knowledge into a personal AI page that answers questions about you, your work and your expertise — 24/7.
+        </p>
 
-      <div
-        className="absolute top-0 left-0 right-0 h-px pointer-events-none"
-        style={{
-          background: 'linear-gradient(90deg, transparent, rgba(245,166,35,0.3), rgba(245,166,35,0.5), rgba(245,166,35,0.3), transparent)',
-          backgroundSize: '200% 100%',
-        }}
-        
-      />
+        <div className="mx-auto mt-10 flex max-w-xl flex-col items-center gap-3 sm:flex-row">
+          <div className="flex h-12 w-full items-center rounded-lg border border-zinc-200 bg-white px-4 text-left focus-within:border-zinc-500">
+            <span className="shrink-0 text-sm text-zinc-500">onequestion.space/</span>
+            <input
+              type="text"
+              value={username}
+              onChange={(event) => setUsername(event.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter') createPage();
+              }}
+              aria-label="Choose your page username"
+              placeholder="yourname"
+              className="min-w-0 flex-1 bg-transparent text-sm text-black outline-none placeholder:text-zinc-400"
+            />
+          </div>
+          <button
+            onClick={createPage}
+            className="inline-flex h-12 w-full shrink-0 items-center justify-center gap-2 rounded-lg bg-black px-5 text-sm font-medium text-white transition-colors hover:bg-zinc-800 sm:w-auto"
+          >
+            Create your page
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        </div>
 
-      <FloatingParticles count={15} />
-
-      <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 w-full">
-
-        {/* === HERO HEADING (FIRST — above the fold) === */}
-        <FadeIn delay={0}>
-          <div className="text-center max-w-4xl mx-auto mb-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-[11px] font-bold tracking-wide mb-4">
-              <Brain className="w-3 h-3" />
-              YOUR KNOWLEDGE, YOUR AI
-            </div>
-            <h1 className="text-[clamp(2.5rem,8vw,5.5rem)] font-black text-white leading-[1.04] tracking-[-0.03em] mb-4">
-              YOUR AI.<br />
-              <span className="gradient-text">YOUR VOICE.</span><br />
-              <span className="text-white">ALWAYS ON.</span>
-            </h1>
-            <p className="text-zinc-400 text-sm sm:text-base md:text-lg leading-relaxed max-w-xl mx-auto">
-              Upload knowledge once. AI answers every visitor instantly — <span className="text-zinc-200 font-semibold">in your voice</span>.
+        <div className="mx-auto mt-20 grid max-w-4xl overflow-hidden rounded-2xl border border-zinc-200 bg-white text-left sm:grid-cols-[1.1fr_0.9fr]">
+          <div className="flex flex-col justify-center border-b border-zinc-200 p-7 sm:border-b-0 sm:border-r sm:p-10">
+            <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">A better way to answer</p>
+            <p className="mt-3 text-xl font-medium leading-8 tracking-tight text-zinc-900 sm:text-2xl">
+              Instead of explaining your work in DMs, send your OneQuestion.
+            </p>
+            <p className="mt-3 text-sm leading-6 text-zinc-500">
+              One link gives people a place to ask, and your knowledge does the answering.
             </p>
           </div>
-        </FadeIn>
-
-        {/* === COMPACT COMPARISON (two small cards side by side) === */}
-        <FadeIn delay={0.1} y={12}>
-          <div className="grid grid-cols-2 gap-2 max-w-lg mx-auto mb-8">
-            <div className="paper-card p-3 border-white/[0.04]">
-              <div className="flex items-center gap-2 mb-2">
-                <Globe className="w-3 h-3 text-zinc-500 shrink-0" />
-                <span className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider">Generic AI</span>
-              </div>
-              <ul className="space-y-1">
-                {['Internet knowledge', 'Generic answers', 'Same for everyone'].map((b, i) => (
-                  <li key={i} className="flex items-center gap-1.5 text-[10px] text-zinc-600">
-                    <XIcon className="w-2.5 h-2.5 text-red-400/60 shrink-0" />
-                    {b}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="paper-card p-3 border-primary/20 bg-gradient-to-b from-primary/[0.04] to-transparent relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-16 h-16 bg-primary/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
-              <div className="flex items-center gap-2 mb-2">
-                <Brain className="w-3 h-3 text-primary shrink-0" />
-                <span className="text-[10px] font-bold text-white uppercase tracking-wider">Your AI</span>
-                <span className="text-[8px] font-bold px-1.5 py-0.5 rounded-full bg-primary/15 text-primary border border-primary/25 ml-auto leading-none">YOURS</span>
-              </div>
-              <ul className="space-y-1">
-                {['Your docs', 'Your links', 'Your voice'].map((b, i) => (
-                  <li key={i} className="flex items-center gap-1.5 text-[10px] text-zinc-300">
-                    <Check className="w-2.5 h-2.5 text-primary shrink-0" />
-                    {b}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </FadeIn>
-
-        {/* CTA Buttons */}
-        <FadeIn delay={0.2} y={15}>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-8">
-            <button
-              onClick={handleClaim}
-              className="group relative px-8 py-4 rounded-2xl bg-primary text-black font-black text-sm flex items-center gap-2 transition-all shadow-amber-glow-lg hover:shadow-amber-glow overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-[-20deg]" />
-              <Sparkles className="w-4 h-4 relative" />
-              <span className="relative">Claim Your Space</span>
-              <ArrowRight className="w-4 h-4 relative group-hover:translate-x-0.5 transition-transform" />
-            </button>
-
-            <button
-              onClick={() => scrollToSection('how-it-works')}
-              className="px-8 py-4 rounded-2xl border border-white/10 text-zinc-300 font-semibold text-sm flex items-center gap-2 hover:bg-white/[0.04] hover:border-white/20 transition-all"
-            >
-              <Play className="w-4 h-4" />
-              See How It Works
-            </button>
-          </div>
-        </FadeIn>
-
-        {/* Social Proof */}
-        <FadeIn delay={0.35} y={15}>
-          <div className="flex flex-col items-center justify-center gap-4 mb-6">
-            <div className="flex items-center">
-              <div className="flex -space-x-2 mr-3">
-                {(recentProfiles && recentProfiles.length > 0 ? recentProfiles : [
-                  { avatar: 'https://i.pravatar.cc/150?img=1', username: 'Asym' },
-                  { avatar: 'https://i.pravatar.cc/150?img=47', username: 'Sarah' },
-                  { avatar: 'https://i.pravatar.cc/150?img=13', username: 'Kwame' },
-                  { avatar: 'https://i.pravatar.cc/150?img=44', username: 'Priya' },
-                  { avatar: 'https://i.pravatar.cc/150?img=14', username: 'Carlos' },
-                ]).map((p, i) => (
-                  <div
-                    key={i}
-                    className="relative w-7 h-7 rounded-full border-2 border-background overflow-hidden ring-2 ring-background"
-                    style={{ zIndex: 5 - i }}
-                  >
-                    {p.avatar ? (
-                      <Image src={p.avatar} alt="" width={28} height={28} className="w-full h-full object-cover" />
-                    ) : (
-                      <img src={p.username ? `https://i.pravatar.cc/150?u=${p.username}` : 'https://i.pravatar.cc/150?img=1'} alt="" className="w-full h-full object-cover" />
-                    )}
-                  </div>
-                ))}
-              </div>
-              <div className="flex flex-col items-start gap-1">
-                <div className="flex">
-                  {[1,2,3,4,5].map(i => (
-                    <Star key={i} className="w-3 h-3 text-primary" fill="currentColor" />
-                  ))}
+          <div className="bg-zinc-50 p-5 sm:p-7">
+            <div className="rounded-xl border border-zinc-200 bg-white p-4">
+              <div className="flex items-center gap-3 border-b border-zinc-100 pb-4">
+                <div className="flex h-9 w-9 items-center justify-center rounded-full bg-zinc-100 text-xs font-semibold">Y</div>
+                <div>
+                  <p className="text-sm font-medium">Your name</p>
+                  <p className="text-xs text-zinc-500">Personal page · onequestion.space/yourname</p>
                 </div>
-                <span className="text-zinc-500 text-[11px] font-medium">
-                  Trusted by {count > 0 ? count : '50'}+ builders
-                </span>
+              </div>
+              <p className="mt-4 text-xs font-medium text-zinc-500">ASK ABOUT MY WORK</p>
+              <div className="mt-2 flex items-center gap-2 rounded-lg border border-zinc-200 px-3 py-3 text-sm text-zinc-400">
+                <MessageCircleQuestion className="h-4 w-4 shrink-0" />
+                What would you like to know?
+              </div>
+              <div className="mt-3 flex justify-end">
+                <span className="rounded-md bg-black px-3 py-1.5 text-xs font-medium text-white">Ask</span>
               </div>
             </div>
+            <p className="mt-3 text-center text-xs text-zinc-500">A simple page, ready whenever they are.</p>
           </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-lg mx-auto mb-6">
-            {[
-              { icon: '🔥', label: 'Spaces Live', value: count },
-              { icon: '💬', label: 'Questions Answered', value: '1,200+' },
-              { icon: '⚡', label: 'AI Running 24/7', value: 'Always' },
-              { icon: '🌍', label: 'Builders Worldwide', value: count > 0 ? count : '50+' },
-            ].map((stat, i) => (
-              <div key={i} className="paper-card p-3 text-center">
-                <p className="text-lg mb-0.5">{stat.icon}</p>
-                <p className="text-sm font-bold text-white">
-                  {typeof stat.value === 'number' && stat.value > 0 ? (
-                    <AnimatedCounter value={stat.value} />
-                  ) : stat.value}
-                </p>
-                <p className="text-[10px] text-zinc-500">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </FadeIn>
-
-        {/* Trust line */}
-        <FadeIn delay={0.45} y={10}>
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-primary/[0.05] border border-primary/10 text-primary/60 text-[10px] font-medium mb-4 mx-auto block w-fit">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75" />
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
-            </span>
-            Built from Nigeria {`🇳🇬`}
-          </div>
-        </FadeIn>
-
-        {/* Username input */}
-        <FadeIn delay={0.5} y={10}>
-          <div className="flex justify-center mt-4">
-            <div className="flex items-center bg-white/[0.03] border border-white/10 rounded-xl px-3 py-2 focus-within:border-primary/40 transition-all shadow-inner shadow-black/20 max-w-xs w-full">
-              <span className="text-zinc-500 text-[11px] whitespace-nowrap shrink-0 font-mono">onequestion.space/</span>
-              <input
-                type="text"
-                value={username}
-                onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ''))}
-                onKeyDown={e => e.key === 'Enter' && username && handleClaim()}
-                placeholder="yourname"
-                className="flex-1 bg-transparent text-white ml-1 outline-none placeholder:text-zinc-600 text-[11px] font-mono"
-              />
-              {username && (
-                <button
-                  onClick={handleClaim}
-                  className="w-6 h-6 rounded-lg bg-primary flex items-center justify-center shrink-0 ml-2 hover:bg-primary-light transition-colors"
-                >
-                  <ArrowRight className="w-3 h-3 text-black" />
-                </button>
-              )}
-            </div>
-          </div>
-        </FadeIn>
+        </div>
       </div>
     </section>
   );

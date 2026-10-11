@@ -10,7 +10,7 @@ interface CardProps {
 export function Card({ children, className = '', hover = false }: CardProps) {
   return (
     <div
-      className={cn('paper-card p-5 sm:p-6', hover ? 'hover:border-primary/20' : '', className)}
+      className={cn('paper-card p-4 sm:p-5', hover ? 'hover:border-zinc-400' : '', className)}
     >
       {children}
     </div>
@@ -30,7 +30,7 @@ export function CardHeader({ title, description, action, icon }: CardHeaderProps
       <div className="flex items-center gap-3 min-w-0">
         {icon && <span className="shrink-0">{icon}</span>}
         <div className="min-w-0">
-          <h3 className="text-sm font-semibold text-white">{title}</h3>
+          <h3 className="text-sm font-semibold text-zinc-950">{title}</h3>
           {description && <p className="text-xs text-zinc-500 mt-0.5">{description}</p>}
         </div>
       </div>
@@ -47,25 +47,24 @@ interface StatsCardProps {
   trend?: { value: string; positive: boolean };
 }
 
-export function StatsCard({ label, value, icon, color = '#F5A623', trend }: StatsCardProps) {
+export function StatsCard({ label, value, icon, color: _color = '#09090B', trend }: StatsCardProps) {
   return (
     <Card hover>
       <div className="flex items-center justify-between mb-3">
         {icon && (
           <div
-            className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0"
-            style={{ backgroundColor: `${color}15`, color }}
+            className="w-9 h-9 rounded-lg bg-zinc-100 text-zinc-600 flex items-center justify-center shrink-0"
           >
             {icon}
           </div>
         )}
         {trend && (
-          <span className={`text-[11px] font-medium ${trend.positive ? 'text-green-400' : 'text-red-400'}`}>
+          <span className="text-[11px] font-medium text-zinc-500">
             {trend.value}
           </span>
         )}
       </div>
-      <p className="text-2xl font-bold text-white mb-0.5">{value}</p>
+      <p className="text-2xl font-semibold tracking-tight text-zinc-950 mb-0.5">{value}</p>
       <p className="text-xs text-zinc-500">{label}</p>
     </Card>
   );
@@ -80,11 +79,11 @@ interface ProgressBarProps {
 
 export function ProgressBar({ value, max = 100, color, size = 'md' }: ProgressBarProps) {
   const pct = Math.min(Math.round((value / max) * 100), 100);
-  const barColor = color || (pct > 80 ? '#ef4444' : pct > 50 ? '#F5A623' : '#F5A623');
+  const barColor = color || '#09090B';
   const h = size === 'sm' ? 'h-1' : 'h-1.5';
 
   return (
-    <div className={`w-full ${h} bg-white/5 rounded-full overflow-hidden`}>
+    <div className={`w-full ${h} bg-zinc-100 rounded-full overflow-hidden`}>
       <div
         className="h-full rounded-full transition-all duration-700 ease-out"
         style={{ width: `${pct}%`, backgroundColor: barColor }}

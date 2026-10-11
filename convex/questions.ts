@@ -1,9 +1,20 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
+import type { QueryCtx } from './_generated/server';
+import type { Id } from './_generated/dataModel';
+
+async function assertProfileOwner(ctx: QueryCtx, profileId: Id<'profiles'>) {
+  const identity = await ctx.auth.getUserIdentity();
+  const profile = await ctx.db.get(profileId);
+  if (!identity || !profile || profile.userId !== identity.subject) {
+    throw new Error('Not authorized to view these questions');
+  }
+}
 
 export const getQuestionsByProfile = query({
   args: { profileId: v.id('profiles') },
   handler: async (ctx, args) => {
+    await assertProfileOwner(ctx, args.profileId);
     return await ctx.db.query('questions')
       .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
       .order('desc')
@@ -18,6 +29,34 @@ export const getRecentQuestions = query({
       .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
       .order('desc')
       .take(args.limit ?? 5);
+  },
+});
+
+export const getMostAskedQuestions = query({
+  args: { profileId: v.id('profiles') },
+  handler: async (ctx, args) => {
+    await assertProfileOwner(ctx, args.profileId);
+    const recentQuestions = await ctx.db
+      .query('questions')
+      .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
+      .order('desc')
+      .take(500);
+
+    const counts = new Map<string, { question: string; count: number }>();
+    for (const item of recentQuestions) {
+      const normalized = item.question.trim().toLowerCase();
+      if (!normalized) continue;
+      const existing = counts.get(normalized);
+      if (existing) {
+        existing.count += 1;
+      } else {
+        counts.set(normalized, { question: item.question.trim(), count: 1 });
+      }
+    }
+
+    return Array.from(counts.values())
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 5);
   },
 });
 
@@ -128,6 +167,7 @@ export const getVisitorGoalAchieved = query({
 export const getVisitorEmails = query({
   args: { profileId: v.id('profiles') },
   handler: async (ctx, args) => {
+    await assertProfileOwner(ctx, args.profileId);
     const questions = await ctx.db
       .query('questions')
       .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))

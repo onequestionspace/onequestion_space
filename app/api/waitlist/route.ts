@@ -11,8 +11,16 @@ function getConvexClient() {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const { email, role, name, username } = body;
+    const body: unknown = await request.json();
+    if (!body || typeof body !== 'object') {
+      return NextResponse.json({ success: false, error: 'Invalid request body' }, { status: 400 });
+    }
+    const role = 'role' in body && typeof body.role === 'string' ? body.role : undefined;
+    const name = 'name' in body && typeof body.name === 'string' ? body.name : undefined;
+    const username = 'username' in body && typeof body.username === 'string' ? body.username : undefined;
+    const email = 'email' in body && typeof body.email === 'string'
+      ? body.email.trim().toLowerCase()
+      : '';
 
     const emailError = validateEmail(email);
     if (emailError) {
@@ -34,7 +42,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        message: 'Successfully added to waitlist',
+        message: result.alreadyJoined ? 'You are already on the waitlist' : 'Successfully added to waitlist',
+        alreadyJoined: result.alreadyJoined,
         position: result.position,
         data: { email, role, name, username },
       },

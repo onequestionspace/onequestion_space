@@ -34,7 +34,12 @@ export default defineSchema({
     userId: v.string(),
     title: v.string(),
     content: v.string(),
-    embeddings: v.optional(v.array(v.number())), // Gemini vector 768-dim
+    embeddings: v.optional(v.array(v.number())),
+    chunks: v.optional(v.array(v.object({
+      content: v.string(),
+      chunkIndex: v.number(),
+      embedding: v.optional(v.array(v.number())),
+    }))),
     chunkIndex: v.optional(v.number()),
     fileUrl: v.optional(v.string()),
     fileType: v.optional(v.string()),
@@ -86,6 +91,29 @@ export default defineSchema({
     updatedAt: v.number(),
   })
     .index('by_userId', ['userId']),
+
+  paidTransactions: defineTable({
+    reference: v.string(),
+    userId: v.string(),
+    kind: v.union(v.literal('subscription'), v.literal('credits')),
+    createdAt: v.number(),
+  }).index('by_reference', ['reference']),
+
+  prospects: defineTable({
+    profileId: v.id('profiles'),
+    email: v.string(),
+    status: v.union(
+      v.literal('building'),
+      v.literal('ready'),
+      v.literal('invited'),
+      v.literal('claimed'),
+    ),
+    knowledgeCount: v.number(),
+    createdAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index('by_profileId', ['profileId'])
+    .index('by_email', ['email']),
 
   blogs: defineTable({
     title: v.string(),

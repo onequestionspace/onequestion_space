@@ -8,8 +8,8 @@
 
 ## 1. What this is
 
-**One Question** — an AI-powered personal Q&A platform. A user claims a username,
-uploads knowledge once, and AI answers visitor questions in that person's voice, 24/7.
+**One Question** — a personal AI page that answers repetitive questions about a user,
+their work, and expertise, 24/7. A user uploads knowledge, gets a public link, and shares it.
 
 Live: [onequestion.space](https://onequestion.space) · Vercel auto-deploy from `main`.
 
@@ -29,7 +29,7 @@ Live: [onequestion.space](https://onequestion.space) · Vercel auto-deploy from 
 | AI answers | Gemini 2.5 Flash | primary |
 | AI fallback | Groq `llama-3.3-70b-versatile` | on Gemini rate-limit/empty |
 | Embeddings | `gemini-embedding-001` | knowledge retrieval |
-| Styling | Tailwind 3.4 | dark, amber `#F5A623` on `#0A0A0A` |
+| Styling | Tailwind 3.4 | monochrome black/white with zinc neutrals |
 | Payments | Paystack | USD→NGN conversion at runtime |
 | Charts | Recharts 3.8 | analytics page |
 | CI | GitHub Actions | lint + build + typecheck |
@@ -58,10 +58,10 @@ Live: [onequestion.space](https://onequestion.space) · Vercel auto-deploy from 
 | `NEXT_PUBLIC_CONVEX_URL` | ConvexHttpClient in 13 modules |
 | `CONVEX_DEPLOY_KEY` | Convex deploys |
 | `GEMINI_API_KEY` | `lib/gemini.ts` + 6 API routes |
-| `GROQ_API_KEY` | Optional Groq fallback in `app/api/stream` and `app/api/chat-knowledge` |
-| `PAYSTACK_SECRET_KEY` | Paystack initialize/verify/webhook |
+| `GROQ_API_KEY` | Groq fallback in `app/api/stream` |
+| `PAYSTACK_SECRET_KEY` | Paystack initialize/verify/webhook in Next.js; also configure in Convex for server-side payment verification |
 | `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY` | billing page |
-| `ADMIN_SECRET` | `app/api/admin/seed-profile` (x-admin-secret header) |
+| `NEXT_PUBLIC_APP_URL` | Base URL for Clerk prospect invitations; defaults to `https://onequestion.space` in production |
 
 No `.env` files are committed (gitignored via `.env*`).
 
@@ -71,12 +71,12 @@ No `.env` files are committed (gitignored via `.env*`).
 
 ```
 app/
-├── (public)/            → "/" , /blog, /pricing, /early, /founding,
+├── (public)/            → "/" , /blog, /pricing, /early, /founding, /waitlist,
 │                          /features, /contact, /privacy, /terms, /sign-in, /sign-up
 │                          └── layout.tsx  ← Navbar + Footer shell
 ├── (space)/[username]/  → public AI Q&A space (the product's core page)
 ├── dashboard/           → overview, knowledge, train, chat, inbox, analytics,
-│                          blogs, studio, billing, settings, admin, tools/post-generator
+│                          blogs, studio, billing, settings, admin/prospects, tools/post-generator
 ├── onboarding, claim/[token], api/…
 convex/                  → schema.ts + 16 function modules
 components/              → marketing sections, dashboard/ (UI kit), motion/, ui/ (DELETED)
@@ -103,22 +103,28 @@ Visitor opens /:username
   → app/(space)/[username]/page.tsx
   → POST /api/stream                     ← THE main answer route
       → gemini generateEmbeddings(question)
-      → convex knowledge.embeddings, cosineSimilarity(), top-5 chunks
-      → Gemini 2.5 Flash (SSE stream, buffered frame parsing)
-      → fallback: Groq llama-3.3-70b on provider failure / empty response
+      → semantic match against previously answered questions
+      → shared chunk-level semantic + lexical retrieval (`rankKnowledge`)
+      → legacy whole-item knowledge uses lexical fallback until re-uploaded
+      → Gemini 2.5 Flash (SSE stream)
+      → fallback: Groq llama-3.3-70b on rate-limit / empty response
       → save question + answer, increment usage
   → page re-renders reactively via useQuery (no polling needed)
 ```
 
-Knowledge upload: `POST /api/upload` → `/api/knowledge` → Gemini embeddings → Convex.
+Knowledge upload: `POST /api/upload`, `/api/knowledge`, or `/api/knowledge/url`
+→ paragraph-aware chunks → Gemini `RETRIEVAL_DOCUMENT` embeddings (768 dimensions)
+→ Convex. Questions use `RETRIEVAL_QUERY` embeddings at the same dimension. The public
+answer, dashboard chat, and inbox reuse semantic + lexical chunk ranking.
 
 ---
 
-## 6. Live API routes (19)
+## 6. Live API routes (21)
 
 | Route | Called by |
 |---|---|
 | `/api/stream` | space page — **primary answer route** |
+| `/api/inbox/answer-all` | inbox — authenticated AI answers for pending questions |
 | `/api/chat-knowledge` | dashboard/chat (SSE) |
 | `/api/explore` | blog, privacy, terms, space page |
 | `/api/knowledge` | onboarding, train, knowledge mgmt |
@@ -131,7 +137,8 @@ Knowledge upload: `POST /api/upload` → `/api/knowledge` → Gemini embeddings 
 | `/api/og/answer` | OG image, via `metadata` in space layout |
 | `/api/paystack/{initialize,subscribe,verify}` | billing page |
 | `/api/paystack/webhook` | **external** — Paystack servers |
-| `/api/waitlist` | no UI caller, but only populator of the `waitlist` table |
+| `/api/admin/prospects/*` | Admin-only knowledge embedding, answer testing, and Clerk invitations |
+| `/api/waitlist` | `/waitlist` signup page |
 | `/api/well-known` | **external** — `vercel.json` rewrite for Apple Pay |
 | `/api/profile` | early, founding pages |
 | `/api/tools/post-generator` | tools page |
@@ -142,7 +149,7 @@ Knowledge upload: `POST /api/upload` → `/api/knowledge` → Gemini embeddings 
 ## 7. Convex modules (14 live)
 
 `schema.ts` defines 15 tables: `profiles, knowledge, questions, analytics,
-subscriptions, blogs, reactions, founding, earlyAdopters, pageviews, events,
+subscriptions, paidTransactions, prospects, blogs, reactions, founding, earlyAdopters, pageviews, events,
 waitlist, chats, chat_messages`.
 
 | Module | Role |
@@ -153,9 +160,17 @@ waitlist, chats, chat_messages`.
 | `knowledgeHealth.ts` | health, gaps, coverage score (powers KnowledgeIntelligence) |
 | `siteAnalytics.ts` | `trackPageview`, site stats, user activity |
 | `analytics.ts` | per-profile counters |
-| `subscriptions.ts` | plan state + usage increments |
-| `admin.ts` | admin-gated user/analytics queries |
+| `subscriptions.ts` | plan state, answer usage, and Paystack-verified Pro/credit application |
+| `admin.ts` | admin-gated user/analytics queries and credit grants |
 | `blogs.ts`, `chats.ts`, `reactions.ts`, `founding.ts`, `earlyAdopters.ts`, `waitlist.ts` | feature modules |
+
+`/dashboard/admin/prospects` is the admin sales setup flow: create a reserved
+page and claim token, add text/Markdown knowledge with Gemini document
+embeddings, test retrieval and answers without consuming a visitor quota, and
+send a Clerk invitation. Recipients create or sign in to their own Clerk
+account; claiming requires the invited email address to match. Claiming transfers
+the page's knowledge records to the new account. Enable Clerk invitation emails
+and allow the production `/claim/*` redirect URL in the Clerk dashboard.
 
 `convex/migrations.ts` — single `internalMutation` `remapClerkUser`. Not called from code;
 run manually from the Convex dashboard after a Clerk account migration. Keep.
@@ -192,66 +207,14 @@ because all 60+ call sites used deep imports anyway.
 
 Ordered by severity.
 
-### 9.1 Hardcoded user IDs have diverged across 8 files — **security-relevant**
-
-There are two unrelated ID sets, both hardcoded, both partially out of sync.
-
-**Admin IDs** (canonical: `convex/admin.ts` and `convex/siteAnalytics.ts`, 3 IDs):
-
-| Location | Missing |
-|---|---|
-| `app/dashboard/billing/page.tsx:86` | `user_3Ev3UAWNTTDAlVWSYFGGsEI6qQz` (Paraja) |
-| `components/DashboardLayout.tsx:54` | `user_3Fmuk2jHEa5seXKEzewhWlA9yQs` (Asym prod) |
-| `app/api/stream/route.ts:156` | Paraja |
-
-Effect: Paraja gets no admin billing exemption; Asym's prod account sees no Admin nav link.
-
-**Founder/cofounder IDs** — a separate concern for perks, also duplicated:
-
-| Location | Contents |
-|---|---|
-| `app/(space)/[username]/page.tsx:12-14` | `COFOUNDER_IDS`, `FOUNDER_ID`, `FOUNDER_IDS` |
-| `app/api/explore/route.ts:14` | `FOUNDER_USER_IDS` (only `FOUNDER_USER_IDS[0]` is ever read) |
-
-`FOUNDER_ID` in the space page is **not** dead — it is still read at line 1034, but its
-single value is already a member of `FOUNDER_IDS`, so the two are redundant definitions
-of the same person.
-
-**Fix:** centralize each set into one module and import everywhere. This changes access
-control and visible perks, so it needs a deliberate decision — don't do it blind.
-
-### 9.2 `POST /api/inbox/answer-all` does not exist — guaranteed 404
-
-`app/dashboard/inbox/page.tsx:71` fetches it, but no `app/api/inbox/` directory exists.
-The "Answer all with AI 🪄" button always fails. The working Convex equivalents are
-`api.questions.listNeedsReview` + `api.questions.resolveQuestion`, which the same page uses
-correctly elsewhere.
-
-### 9.3 `/api/ask` removal dropped two capabilities
-
-Legacy `/api/ask` was deleted in `764ced2` (superseded by `/api/stream`). It uniquely had:
-- answer caching via `getAnsweredQuestionByText` (return a previously-answered identical question)
-- `SIMILARITY_THRESHOLD = 0.55` filter with auto-flagging below threshold
-- `isLowConfidence()` → `needsReview` flag on the question
-
-The `needsReview` half **is** still live via `convex/questions.ts` + the Inbox.
-If you want answer-caching back, it is ~20 lines inside `/api/stream`.
-
-### 9.4 "Join Waitlist" buttons link to `/`
-
-`app/(public)/early/page.tsx:171` and `founding/page.tsx:169` render `<Link href="/">`.
-They never reach `/api/waitlist`, so the `waitlist` table only fills via direct API calls.
-
-### 9.5 Orphaned CSS class `.dot-pattern`
+### 9.1 Orphaned CSS class `.dot-pattern`
 
 Referenced by 6 TSX files but **no longer defined** in `app/globals.css`
 (lost in an earlier globals.css rewrite). Those elements render with no background.
 
-### 9.6 Dead code inside kept files
+### 9.2 Dead code inside kept files
 
-- `app/dashboard/admin/page.tsx:42` — `userActivity` query is unused (the drawer JSX was removed).
-  `selectedUserId` is still read at line 238.
-- `app/api/explore/route.ts:14` — `FOUNDER_USER_IDS` is an array where only `[0]` is read.
+- `app/dashboard/admin/page.tsx` — `userActivity` query result is unused; the selected-user drawer JSX was removed.
 - `lib/validations.ts` — 9 exports exist, only **`validateEmail`** is used (by `/api/waitlist`).
   Dead: `validateUsername`, `validatePassword`, `validateQuestion`,
   `validateKnowledgeTitle`, `validateKnowledgeContent`, `validateFile`,
@@ -263,16 +226,16 @@ Referenced by 6 TSX files but **no longer defined** in `app/globals.css`
 - Unreferenced Convex functions: `admin.getAllProfiles`, `analytics.updateAnalytics`,
   `chats.getChatById`, `earlyAdopters.getEarlyAdopters`, `knowledge.getKnowledge`,
   `knowledge.updateKnowledge`, `knowledgeHealth.analyzeKnowledge`, `questions.deleteQuestion`,
-  `siteAnalytics.trackEvent`, `subscriptions.{createSubscription,cancelSubscription,resetMonthlyUsage}`,
+  `siteAnalytics.trackEvent`, `subscriptions.cancelSubscription`,
   `waitlist.getWaitlistCount`.
 
-### 9.7 README drift
+### 9.3 README drift
 
 `README.md:35` claims "Tailwind CSS + shadcn/ui" — shadcn output was deleted (§8).
 `README.md` project-structure block still lists `api/ask/` and omits `(space)`.
 `docs/project/ROADMAP.md:274` documents `POST /api/ask` as a live endpoint.
 
-### 9.8 npm audit
+### 9.4 npm audit
 
 18 vulnerabilities (1 low, 1 moderate, 15 high, 1 critical) as of the last install.
 Not triaged.
@@ -281,7 +244,11 @@ Not triaged.
 
 ## 10. Conventions
 
-- **Dark UI**, amber `#F5A623` accent on `#0A0A0A`. No purple (that was the pre-rebrand era).
+- **Monochrome light UI**: white surfaces, black primary actions, zinc neutrals, and thin borders.
+  Keep dashboard, public pages, analytics, and billing free of colorful accents and gradients.
+- **Pro** is $9/month and includes 500 answers per month, detailed analytics, and no OneQuestion
+  branding. Free includes 50 answers per month. Payment application must only follow Paystack
+  server-side verification; configure `PAYSTACK_SECRET_KEY` in both Vercel and Convex.
 - Styling is **inline Tailwind classes**, not CSS modules.
 - Animations use `components/motion/FadeIn` (IntersectionObserver), **not** framer-motion —
   it was removed for mobile stability. Several files still carry a

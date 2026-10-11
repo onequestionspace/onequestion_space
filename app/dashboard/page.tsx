@@ -7,255 +7,175 @@ import Link from 'next/link';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { DashboardLayout } from '@/components/DashboardLayout';
-import { StatsCard } from '@/components/dashboard/Card';
-import { EmptyState } from '@/components/dashboard/EmptyState';
-import { Button } from '@/components/dashboard/Button';
-import { Badge } from '@/components/dashboard/Badge';
-import { KnowledgeHealthCard, KnowledgeGapsCard, CoverageCard, AutoFAQCard, AICoachCard } from '@/components/KnowledgeIntelligence';
-import { AIProactiveTip } from '@/components/AIProactiveTip';
-import {
-  MessageSquare, Users, Zap, Brain,
-  Sparkles, BarChart3, Clock,
-  FileText, Settings, Layers,
-  ExternalLink, Copy, CheckCircle2,
-  ChevronRight, Target,
-} from 'lucide-react';
-
-const QUICK_ACTIONS = [
-  { label: 'New Chat', href: '/dashboard/chat', icon: Sparkles, color: '#F5A623', desc: 'Chat with your knowledge' },
-  { label: 'Upload Knowledge', href: '/dashboard/knowledge', icon: FileText, color: '#3b82f6', desc: 'Add documents, notes, URLs' },
-  { label: 'Edit Profile', href: '/dashboard/settings', icon: Settings, color: '#22c55e', desc: 'Update your bio and links' },
-  { label: 'Space Studio', href: '/dashboard/studio', icon: Layers, color: '#a855f7', desc: 'Customize your AI space' },
-];
+import { ArrowUpRight, Check, Copy, MessageSquare, Users, Zap, BookOpen } from 'lucide-react';
 
 export default function DashboardPage() {
   const { isSignedIn, isLoaded, userId } = useAuth();
   const [copied, setCopied] = useState(false);
-
   const profile = useQuery(api.profiles.current);
   const createProfile = useMutation(api.profiles.createIfMissing);
-  const getOrCreateSubscription = useMutation(api.subscriptions.getOrCreateSubscription);
-
+  const ensureSubscription = useMutation(api.subscriptions.getOrCreateSubscription);
+  const ensureAnalytics = useMutation(api.analytics.getOrCreateAnalytics);
   const analytics = useQuery(
     api.analytics.getAnalytics,
     profile?._id ? { profileId: profile._id } : 'skip'
   );
-  const getOrCreateAnalytics = useMutation(api.analytics.getOrCreateAnalytics);
-
-  const unansweredQuestions = useQuery(
+  const mostAsked = useQuery(
+    api.questions.getMostAskedQuestions,
+    profile?._id ? { profileId: profile._id } : 'skip'
+  );
+  const unanswered = useQuery(
     api.questions.getUnansweredQuestions,
     profile?._id ? { profileId: profile._id } : 'skip'
   );
-
+  const knowledgeCount = useQuery(
+    api.knowledge.getKnowledgeCount,
+    userId ? { userId } : 'skip'
+  );
   const subscription = useQuery(
     api.subscriptions.getSubscription,
     userId ? { userId } : 'skip'
   );
 
-  const knowledgeCount = useQuery(
-    api.knowledge.getKnowledgeCount,
-    userId ? { userId } : 'skip'
-  );
-
   useEffect(() => {
     if (profile === null && isSignedIn) {
-      createProfile({}).catch(() => {});
+      void createProfile({}).catch((error) => console.error('Could not create profile:', error));
     }
   }, [profile, isSignedIn, createProfile]);
 
   useEffect(() => {
-    if (profile?._id) {
-      getOrCreateAnalytics({ profileId: profile._id }).catch(() => {});
+    if (profile?._id && analytics === null) {
+      void ensureAnalytics({ profileId: profile._id }).catch((error) => console.error('Could not create analytics:', error));
     }
-  }, [profile?._id, getOrCreateAnalytics]);
+  }, [profile?._id, analytics, ensureAnalytics]);
 
   useEffect(() => {
     if (userId && subscription === null) {
-      getOrCreateSubscription({ userId }).catch(() => {});
+      void ensureSubscription({ userId }).catch((error) => console.error('Could not create subscription:', error));
     }
-  }, [userId, subscription, getOrCreateSubscription]);
+  }, [userId, subscription, ensureSubscription]);
 
   if (!isLoaded) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-xl bg-primary/20 animate-pulse flex items-center justify-center">
-            <MessageSquare className="w-4 h-4 text-primary" />
-          </div>
-          <p className="text-zinc-500 text-sm">Loading your space...</p>
-        </div>
-      </div>
-    );
+    return <div className="min-h-screen bg-white p-8 text-sm text-zinc-500">Loading your page…</div>;
   }
-  if (!isSignedIn) { redirect('/'); }
+  if (!isSignedIn) redirect('/');
 
-  const hour = new Date().getHours();
-  const greeting = hour < 12 ? 'Good morning' : hour < 18 ? 'Good afternoon' : 'Good evening';
-  const loading = !profile || analytics === undefined || knowledgeCount === undefined;
-  const pendingCount = unansweredQuestions?.length ?? 0;
+  const username = profile?.username;
+  const pageUrl = username ? `https://onequestion.space/${username}` : '';
+  const isLoading = profile === undefined || analytics === undefined || mostAsked === undefined
+    || knowledgeCount === undefined || subscription === undefined;
+  const planLimit = subscription?.messagesLimit ?? 50;
+  const used = subscription?.messagesUsed ?? 0;
+  const remaining = Math.max(0, planLimit - used);
+  const pendingCount = unanswered?.length ?? 0;
+
+  const copyPageLink = async () => {
+    if (!pageUrl) return;
+    try {
+      await navigator.clipboard.writeText(pageUrl);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch (error) {
+      console.error('Could not copy page link:', error);
+    }
+  };
 
   return (
     <DashboardLayout
-      title={`${greeting}, ${profile?.displayName || 'friend'}`}
-      description={profile?.username ? `onequestion.space/${profile.username}` : undefined}
+      title={profile?.displayName ? `Your page, ${profile.displayName}` : 'Your page'}
+      description="Share one link. Let your knowledge answer."
     >
-      <div className="space-y-5">
-        {/* Quick Actions Strip */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2">
-          {QUICK_ACTIONS.map(action => (
-            <Link key={action.label} href={action.href}
-              className="flex items-center gap-3 p-3.5 rounded-xl border border-white/[0.06] bg-white/[0.02] hover:bg-white/[0.04] hover:border-white/[0.12] transition-all group">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-                style={{ backgroundColor: action.color + '15' }}>
-                <action.icon className="w-5 h-5" style={{ color: action.color }} />
-              </div>
-              <div className="min-w-0">
-                <p className="text-sm font-semibold text-white group-hover:text-primary transition-colors">{action.label}</p>
-                <p className="text-[10px] text-zinc-500 truncate">{action.desc}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-
-        {loading ? (
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="paper-card p-5 space-y-3">
-                <div className="h-9 w-9 rounded-xl skeleton-shimmer" />
-                <div className="h-7 w-20 skeleton-shimmer rounded" />
-                <div className="h-3 w-16 skeleton-shimmer rounded" />
-              </div>
-            ))}
+      <div className="mx-auto max-w-4xl space-y-6">
+        <section className="flex flex-col gap-4 rounded-xl border border-zinc-200 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
+          <div className="min-w-0">
+            <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">Your public page</p>
+            {pageUrl ? (
+              <a href={pageUrl} target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex max-w-full items-center gap-1.5 truncate text-lg font-medium tracking-tight text-zinc-950 hover:underline">
+                onequestion.space/{username}<ArrowUpRight className="h-4 w-4 shrink-0" />
+              </a>
+            ) : (
+              <p className="mt-2 text-sm text-zinc-500">Setting up your page…</p>
+            )}
           </div>
-        ) : (
-          <>
-            {/* Stats */}
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
-              <StatsCard label="Questions" value={analytics?.totalQuestions?.toString() ?? '0'}
-                icon={<MessageSquare className="w-4 h-4" />} color="#F5A623" />
-              <StatsCard label="Visitors" value={analytics?.totalVisitors?.toString() ?? '0'}
-                icon={<Users className="w-4 h-4" />} color="#3b82f6" />
-              <StatsCard label="AI Answers" value={analytics?.totalAnswers?.toString() ?? '0'}
-                icon={<Zap className="w-4 h-4" />} color="#22c55e" />
-              <StatsCard label="Knowledge" value={knowledgeCount?.toString() ?? '0'}
-                icon={<Brain className="w-4 h-4" />} color="#F5A623" />
-            </div>
+          <button
+            type="button"
+            onClick={() => void copyPageLink()}
+            disabled={!pageUrl}
+            className="inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-lg bg-black px-4 text-sm font-medium text-white transition-colors hover:bg-zinc-800 disabled:opacity-40"
+          >
+            {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            {copied ? 'Copied' : 'Copy page link'}
+          </button>
+        </section>
 
-            {/* AI Suggestions */}
-            <div className="paper-card p-4">
-              <div className="flex items-center gap-2 mb-3">
-                <Sparkles className="w-4 h-4 text-primary" />
-                <span className="text-xs font-semibold text-white">AI Suggestions</span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {knowledgeCount === 0 && (
-                  <Link href="/dashboard/knowledge" className="flex items-center gap-2 p-2.5 rounded-lg bg-amber-500/5 border border-amber-500/20 hover:bg-amber-500/10 transition-all">
-                    <Target className="w-4 h-4 text-amber-400 shrink-0" />
-                    <span className="text-xs text-amber-300">Upload your first knowledge item to activate AI answers</span>
-                  </Link>
-                )}
-                {pendingCount > 0 && (
-                  <Link href="/dashboard/inbox?tab=unanswered" className="flex items-center gap-2 p-2.5 rounded-lg bg-blue-500/5 border border-blue-500/20 hover:bg-blue-500/10 transition-all">
-                    <MessageSquare className="w-4 h-4 text-blue-400 shrink-0" />
-                    <span className="text-xs text-blue-300">{pendingCount} unanswered question{pendingCount !== 1 ? 's' : ''}</span>
-                  </Link>
-                )}
-                {knowledgeCount && knowledgeCount > 0 && knowledgeCount < 5 && (
-                  <div className="flex items-center gap-2 p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06]">
-                    <Brain className="w-4 h-4 text-primary shrink-0" />
-                    <span className="text-xs text-zinc-400">Add {5 - knowledgeCount} more items for optimal AI</span>
-                  </div>
-                )}
-                <Link href="/dashboard/chat" className="flex items-center gap-2 p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] transition-all">
-                  <Sparkles className="w-4 h-4 text-primary shrink-0" />
-                  <span className="text-xs text-zinc-400">Chat with your knowledge</span>
-                  <ChevronRight className="w-3 h-3 text-zinc-600 ml-auto" />
+        {!isLoading ? (
+          <>
+            <section className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              {[
+                { label: 'Questions', value: analytics?.totalQuestions ?? 0, icon: MessageSquare },
+                { label: 'Visitors', value: analytics?.totalVisitors ?? 0, icon: Users },
+                { label: 'AI answers', value: analytics?.totalAnswers ?? 0, icon: Zap },
+                { label: 'Knowledge items', value: knowledgeCount ?? 0, icon: BookOpen },
+              ].map(({ label, value, icon: Icon }) => (
+                <div key={label} className="rounded-xl border border-zinc-200 p-4">
+                  <Icon className="h-4 w-4 text-zinc-500" />
+                  <p className="mt-4 text-2xl font-semibold tracking-tight text-zinc-950">{value}</p>
+                  <p className="mt-1 text-xs text-zinc-500">{label}</p>
+                </div>
+              ))}
+            </section>
+
+            <section className="rounded-xl border border-zinc-200 p-5 sm:p-6">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <h2 className="text-sm font-semibold text-zinc-950">Most asked questions</h2>
+                  <p className="mt-1 text-sm text-zinc-500">Use these to keep your page useful.</p>
+                </div>
+                <Link href="/dashboard/analytics" className="shrink-0 text-sm text-zinc-600 underline-offset-4 hover:text-black hover:underline">
+                  Analytics
                 </Link>
               </div>
-            </div>
+              {mostAsked?.length ? (
+                <ol className="mt-4 divide-y divide-zinc-100">
+                  {mostAsked.map((item) => (
+                    <li key={item.question.toLowerCase()} className="flex items-center justify-between gap-4 py-3 text-sm">
+                      <span className="text-zinc-800">{item.question}</span>
+                      <span className="shrink-0 text-xs text-zinc-500">{item.count}×</span>
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p className="mt-4 rounded-lg bg-zinc-50 px-4 py-4 text-sm text-zinc-600">
+                  No questions yet — share your link to see what people ask.
+                </p>
+              )}
+            </section>
 
-            {/* Activity & Usage */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-              <div className="paper-card p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <BarChart3 className="w-4 h-4 text-primary" />
-                    <span className="text-xs font-semibold text-white">Response Rate</span>
-                  </div>
-                </div>
-                <div className="flex items-end gap-3 mb-2">
-                  <p className="text-3xl font-bold text-white">
-                    {analytics?.totalQuestions && analytics.totalQuestions > 0
-                      ? Math.round((analytics.totalAnswers / analytics.totalQuestions) * 100)
-                      : 0}%
-                  </p>
-                  <span className="text-xs text-zinc-500 mb-1">
-                    {analytics?.totalAnswers ?? 0} of {analytics?.totalQuestions ?? 0} answered
-                  </span>
-                </div>
-                <div className="w-full h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-                  <div className="h-full rounded-full bg-primary transition-all duration-500"
-                    style={{ width: `${analytics?.totalQuestions && analytics.totalQuestions > 0
-                      ? Math.round((analytics.totalAnswers / analytics.totalQuestions) * 100) : 0}%` }} />
-                </div>
+            <section className="flex flex-col gap-3 rounded-xl border border-zinc-200 p-5 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-medium text-zinc-950">
+                  {remaining} of {planLimit} answers left this month
+                </p>
+                <p className="mt-1 text-xs text-zinc-500">
+                  {pendingCount ? `${pendingCount} visitor question${pendingCount === 1 ? '' : 's'} need your attention.` : 'Your page answers visitors from your uploaded knowledge.'}
+                </p>
               </div>
-
-              <div className="paper-card p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-primary" />
-                    <span className="text-xs font-semibold text-white">AI Credits</span>
-                  </div>
-                  <Badge variant={subscription?.plan === 'pro' ? 'default' : 'neutral'} className="capitalize">
-                    {subscription?.plan ?? 'free'}
-                  </Badge>
-                </div>
-                <div className="flex items-end gap-2 mb-2">
-                  <p className="text-3xl font-bold text-white">
-                    {subscription?.messagesUsed ?? 0}
-                    <span className="text-lg text-zinc-500 font-normal">/{subscription?.messagesLimit ?? 50}</span>
-                  </p>
-                </div>
-                <div className="w-full h-1.5 rounded-full bg-white/[0.06] overflow-hidden">
-                  <div className="h-full rounded-full transition-all duration-500"
-                    style={{
-                      width: `${subscription ? Math.round((subscription.messagesUsed / subscription.messagesLimit) * 100) : 0}%`,
-                      backgroundColor: subscription && subscription.messagesUsed > subscription.messagesLimit * 0.8 ? '#ef4444' : '#F5A623',
-                    }} />
-                </div>
-              </div>
-            </div>
-
-            {/* AI Coach */}
-            {userId && <AICoachCard userId={userId} knowledgeCount={knowledgeCount ?? 0} />}
-
-            {/* Knowledge Intelligence Grid */}
-            {knowledgeCount && knowledgeCount > 0 && userId && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
-                <KnowledgeHealthCard userId={userId} />
-                <KnowledgeGapsCard userId={userId} />
-                <CoverageCard userId={userId} />
-                <AutoFAQCard userId={userId} />
-              </div>
-            )}
-
-            {/* Bottom section - recent activity or empty state */}
-            {knowledgeCount === 0 && (
-              <EmptyState
-                icon={<Brain />}
-                title="Your AI has nothing to work with yet"
-                description="Upload your first knowledge item to activate your AI."
-                action={
-                  <Link href="/dashboard/knowledge">
-                    <Button variant="primary">Upload Knowledge</Button>
+              <div className="flex gap-2">
+                {pendingCount > 0 && (
+                  <Link href="/dashboard/inbox" className="inline-flex h-9 items-center rounded-lg border border-zinc-200 px-3 text-sm text-zinc-700 hover:bg-zinc-50">
+                    Open inbox
                   </Link>
-                }
-              />
-            )}
+                )}
+                <Link href="/dashboard/knowledge" className="inline-flex h-9 items-center rounded-lg border border-zinc-200 px-3 text-sm text-zinc-700 hover:bg-zinc-50">
+                  Manage knowledge
+                </Link>
+              </div>
+            </section>
           </>
+        ) : (
+          <div className="rounded-xl border border-zinc-200 p-6 text-sm text-zinc-500">Loading page activity…</div>
         )}
       </div>
-      {profile?._id && <AIProactiveTip profileId={profile._id} />}
     </DashboardLayout>
   );
 }

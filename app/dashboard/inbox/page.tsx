@@ -22,8 +22,7 @@ function InboxPageContent() {
 
   const searchParams = useSearchParams();
   const router = useRouter();
-  const requestedTab = searchParams.get('tab');
-  const activeTab = requestedTab === 'unanswered' ? 'unanswered' : 'review';
+  const activeTab = searchParams.get('tab') === 'unanswered' ? 'unanswered' : 'review';
   const selectTab = (tab: 'review' | 'unanswered') => {
     router.replace(`/dashboard/inbox?tab=${tab}`, { scroll: false });
   };
@@ -56,7 +55,7 @@ function InboxPageContent() {
   ];
 
   const handleBulkAnswer = async () => {
-    if (!plainUnanswered.length) return;
+    if (!plainUnanswered.length || !profile?.username) return;
     setBulkAnswering(true);
     setBulkDone(false);
     let msgIdx = 0;
@@ -65,45 +64,36 @@ function InboxPageContent() {
       msgIdx = (msgIdx + 1) % MAGIC_MESSAGES.length;
       setBulkStatus(MAGIC_MESSAGES[msgIdx]);
     }, 1800);
+    let processedTotal = 0;
     try {
-      const res = await fetch('/api/inbox/answer-all', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ limit: Math.min(plainUnanswered.length, 10) }),
-      });
-      const data = await res.json().catch(() => ({}));
-      clearInterval(interval);
-      if (res.ok && data.success) {
-        const { processed = 0, failed = 0 } = data;
-        setBulkDone(true);
-        if (processed > 0) {
-          setBulkStatus(`✅ Answered ${processed} question${processed === 1 ? '' : 's'}!`);
-          toast({
-            type: 'success',
-            title: 'Magic done!',
-            description:
-              failed > 0
-                ? `Answered ${processed}. ${failed} could not be answered — try those manually.`
-                : `Answered ${processed} question${processed === 1 ? '' : 's'}.`,
-          });
-        } else {
-          setBulkStatus('Could not answer any of these — please answer them manually.');
-          toast({ type: 'error', title: 'Nothing answered', description: 'The AI could not answer these questions.' });
-        }
-      } else {
-        setBulkStatus('Something went wrong. Try again.');
-        toast({
-          type: 'error',
-          title: 'Failed',
-          description: data?.error || 'Could not answer all questions.',
+      while (true) {
+        const res = await fetch('/api/inbox/answer-all', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: profile.username }),
         });
+        const data = await res.json();
+        if (!res.ok || !data.success) {
+          const message = data.error || 'Could not answer all questions.';
+          setBulkStatus(processedTotal > 0 ? `Answered ${processedTotal}; stopped: ${message}` : message);
+          toast({ type: 'error', title: 'Could not finish', description: message });
+          return;
+        }
+        processedTotal += data.processed;
+        if (data.remaining === 0) break;
+        if (data.processed === 0) throw new Error('No questions were answered. Please try again.');
       }
-    } catch (e) {
+      setBulkStatus(`✅ Answered ${processedTotal} questions!`);
+      setBulkDone(true);
+      toast({ type: 'success', title: 'Magic done!', description: `Answered ${processedTotal} questions.` });
+    } catch (error) {
+      console.error('[inbox] bulk answer failed:', error);
+      setBulkStatus(processedTotal > 0 ? `Answered ${processedTotal}; some questions remain.` : 'Connection error. Try again.');
+      toast({ type: 'error', title: 'Could not finish', description: 'Some questions may still need an answer.' });
+    } finally {
       clearInterval(interval);
-      setBulkStatus('Connection error. Try again.');
-      toast({ type: 'error', title: 'Connection error', description: 'Please try again.' });
+      setBulkAnswering(false);
     }
-    setBulkAnswering(false);
   };
 
   // "Needs Review" questions are always unanswered too, so filter them
