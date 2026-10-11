@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Check, Loader2, Save, Globe, Upload, X, Phone } from "lucide-react";
@@ -82,50 +82,61 @@ const CARD_STYLES = [
   { id: "minimal", label: "Minimal", sub: "Borderless" },
 ];
 
+type AppearanceForm = {
+  themeColor: string;
+  themeBg: string;
+  themeEffect: string;
+  themeFont: string;
+  themeCardStyle: string;
+  twitter: string;
+  github: string;
+  website: string;
+  linkedin: string;
+  whatsapp: string;
+  customBgUrl: string;
+};
+
+function getAppearanceForm(profile: {
+  themeColor?: string;
+  themeBg?: string;
+  themeEffect?: string;
+  themeFont?: string;
+  themeCardStyle?: string;
+  socialLinks?: string;
+} | null): AppearanceForm {
+  let social: Partial<Pick<AppearanceForm, 'twitter' | 'github' | 'website' | 'linkedin' | 'whatsapp'>> = {};
+  try {
+    social = profile?.socialLinks ? JSON.parse(profile.socialLinks) : {};
+  } catch {}
+  const effect = profile?.themeEffect || 'none';
+  return {
+    themeColor: profile?.themeColor || '#F5A623',
+    themeBg: profile?.themeBg || 'dark',
+    themeEffect: effect.startsWith('custom:') ? 'custom' : effect,
+    themeFont: profile?.themeFont || 'inter',
+    themeCardStyle: profile?.themeCardStyle || 'glass',
+    twitter: social.twitter || '',
+    github: social.github || '',
+    website: social.website || '',
+    linkedin: social.linkedin || '',
+    whatsapp: social.whatsapp || '',
+    customBgUrl: effect.startsWith('custom:') ? effect.slice('custom:'.length) : '',
+  };
+}
+
 export function AppearanceTab() {
   const profile = useQuery(api.profiles.current);
   const updateProfile = useMutation(api.profiles.update);
 
-  const [themeColor, setThemeColor] = useState("#F5A623");
-  const [themeBg, setThemeBg] = useState("dark");
-  const [themeEffect, setThemeEffect] = useState("none");
-  const [themeFont, setThemeFont] = useState("inter");
-  const [themeCardStyle, setThemeCardStyle] = useState("glass");
-  const [twitter, setTwitter] = useState("");
-  const [github, setGithub] = useState("");
-  const [website, setWebsite] = useState("");
-  const [linkedin, setLinkedin] = useState("");
-  const [whatsapp, setWhatsapp] = useState("");
+  const [draft, setDraft] = useState<AppearanceForm | null>(null);
+  const appearance = draft ?? getAppearanceForm(profile ?? null);
+  const updateAppearance = <K extends keyof AppearanceForm>(key: K, value: AppearanceForm[K]) => {
+    setDraft(previous => ({ ...(previous ?? getAppearanceForm(profile ?? null)), [key]: value }));
+  };
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
-  const [customBgUrl, setCustomBgUrl] = useState("");
   const [uploadingBg, setUploadingBg] = useState(false);
   const bgFileRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (!profile) return;
-    setThemeColor(profile.themeColor || "#F5A623");
-    setThemeBg(profile.themeBg || "dark");
-    setThemeFont(profile.themeFont || "inter");
-    setThemeCardStyle(profile.themeCardStyle || "glass");
-    const effect = profile.themeEffect || "none";
-    if (effect.startsWith("custom:")) {
-      setCustomBgUrl(effect.replace("custom:", ""));
-      setThemeEffect("custom");
-    } else {
-      setThemeEffect(effect);
-    }
-    if (profile.socialLinks) {
-      try {
-        const s = JSON.parse(profile.socialLinks);
-        setTwitter(s.twitter || "");
-        setGithub(s.github || "");
-        setWhatsapp(s.whatsapp || "");
-        setWebsite(s.website || "");
-        setLinkedin(s.linkedin || "");
-      } catch {}
-    }
-  }, [profile]);
 
   const handleBgUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -138,8 +149,8 @@ export function AppearanceTab() {
       const res = await fetch("/api/upload", { method: "POST", body: form });
       const data = await res.json();
       if (data.url) {
-        setCustomBgUrl(data.url);
-        setThemeEffect("custom");
+        updateAppearance("customBgUrl", data.url);
+        updateAppearance("themeEffect", "custom");
       }
     } catch {}
     setUploadingBg(false);
@@ -148,16 +159,22 @@ export function AppearanceTab() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const effectValue = themeEffect === "custom" && customBgUrl
-        ? "custom:" + customBgUrl
-        : themeEffect;
+      const effectValue = appearance.themeEffect === "custom" && appearance.customBgUrl
+        ? "custom:" + appearance.customBgUrl
+        : appearance.themeEffect;
       await updateProfile({
-        themeColor,
-        themeBg,
-        themeFont,
-        themeCardStyle,
+        themeColor: appearance.themeColor,
+        themeBg: appearance.themeBg,
+        themeFont: appearance.themeFont,
+        themeCardStyle: appearance.themeCardStyle,
         themeEffect: effectValue,
-        socialLinks: JSON.stringify({ twitter, github, website, linkedin, whatsapp }),
+        socialLinks: JSON.stringify({
+          twitter: appearance.twitter,
+          github: appearance.github,
+          website: appearance.website,
+          linkedin: appearance.linkedin,
+          whatsapp: appearance.whatsapp,
+        }),
       });
       setSaved(true);
       setTimeout(() => setSaved(false), 2000);
@@ -174,20 +191,20 @@ export function AppearanceTab() {
         <p className="text-xs text-zinc-500 mb-3">Shows on buttons, rings, and highlights.</p>
         <div className="flex flex-wrap gap-2.5 mb-3">
           {ACCENT_COLORS.map(c => (
-            <button key={c.value} onClick={() => setThemeColor(c.value)} title={c.name}
+            <button key={c.value} onClick={() => updateAppearance("themeColor", c.value)} title={c.name}
               className="relative w-8 h-8 rounded-full transition-all hover:scale-110"
-              style={{ backgroundColor: c.value, boxShadow: themeColor === c.value ? "0 0 0 2px #000, 0 0 0 4px " + c.value : "none" }}>
-              {themeColor === c.value && <Check className="w-3.5 h-3.5 absolute inset-0 m-auto text-black" />}
+              style={{ backgroundColor: c.value, boxShadow: appearance.themeColor === c.value ? "0 0 0 2px #000, 0 0 0 4px " + c.value : "none" }}>
+              {appearance.themeColor === c.value && <Check className="w-3.5 h-3.5 absolute inset-0 m-auto text-black" />}
             </button>
           ))}
           <label className="relative w-8 h-8 rounded-full border-2 border-dashed border-white/20 flex items-center justify-center cursor-pointer hover:border-white/40 transition-colors overflow-hidden">
             <span className="text-xs text-zinc-500">+</span>
-            <input type="color" value={themeColor} onChange={e => setThemeColor(e.target.value)} className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
+            <input type="color" value={appearance.themeColor} onChange={e => updateAppearance("themeColor", e.target.value)} className="absolute inset-0 opacity-0 cursor-pointer w-full h-full" />
           </label>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded-full border border-white/10" style={{ backgroundColor: themeColor }} />
-          <span className="text-xs text-zinc-600 font-mono">{themeColor}</span>
+          <div className="w-4 h-4 rounded-full border border-white/10" style={{ backgroundColor: appearance.themeColor }} />
+          <span className="text-xs text-zinc-600 font-mono">{appearance.themeColor}</span>
         </div>
       </div>
 
@@ -198,13 +215,13 @@ export function AppearanceTab() {
         <div className="grid grid-cols-2 gap-2 mb-3">
           {BACKGROUNDS.map(bg => {
             const isLight = LIGHT_BGS.includes(bg.id);
-            const isSelected = themeBg === bg.id;
+            const isSelected = appearance.themeBg === bg.id;
             return (
-              <button key={bg.id} onClick={() => setThemeBg(bg.id)}
+              <button key={bg.id} onClick={() => updateAppearance("themeBg", bg.id)}
                 className={"relative rounded-xl border-2 overflow-hidden transition-all " + (isSelected ? "border-white/40" : "border-white/8 hover:border-white/20")}
-                style={{ borderColor: isSelected ? themeColor : undefined }}>
+                style={{ borderColor: isSelected ? appearance.themeColor : undefined }}>
                 <div className="h-12 w-full relative overflow-hidden" style={{ background: bg.preview }}>
-                  <div className="absolute inset-0 opacity-30" style={{ background: "radial-gradient(circle at 30% 50%, " + themeColor + "40, transparent 60%)" }} />
+                  <div className="absolute inset-0 opacity-30" style={{ background: "radial-gradient(circle at 30% 50%, " + appearance.themeColor + "40, transparent 60%)" }} />
                   <div className="absolute inset-0 backdrop-blur-[0.5px]" style={{ background: "linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 50%)" }} />
                 </div>
                 <div className="px-2.5 py-1.5 flex items-center justify-between" style={{ background: bg.preview }}>
@@ -213,7 +230,7 @@ export function AppearanceTab() {
                     <p className={"text-[10px] " + (isLight ? "text-zinc-500" : "text-zinc-500")}>{bg.desc}</p>
                   </div>
                   {isSelected && (
-                    <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: themeColor }}>
+                    <div className="w-4 h-4 rounded-full flex items-center justify-center shrink-0" style={{ backgroundColor: appearance.themeColor }}>
                       <Check className="w-2.5 h-2.5 text-black" />
                     </div>
                   )}
@@ -225,16 +242,16 @@ export function AppearanceTab() {
 
         {/* Custom background upload */}
         <div className="rounded-xl border-2 border-dashed border-white/10 hover:border-white/20 transition-colors overflow-hidden">
-          {customBgUrl ? (
+          {appearance.customBgUrl ? (
             <div className="relative h-20 group">
-              <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(" + customBgUrl + ")" }} />
+              <div className="absolute inset-0 bg-cover bg-center" style={{ backgroundImage: "url(" + appearance.customBgUrl + ")" }} />
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button onClick={() => bgFileRef.current?.click()} className="px-3 py-1.5 rounded-lg bg-white/20 text-white text-xs font-medium backdrop-blur-sm hover:bg-white/30 transition-colors">Change</button>
-                <button onClick={() => { setCustomBgUrl(""); setThemeEffect("none"); }} className="px-3 py-1.5 rounded-lg bg-red-500/30 text-red-300 text-xs font-medium backdrop-blur-sm hover:bg-red-500/50 transition-colors">Remove</button>
+                <button onClick={() => { updateAppearance("customBgUrl", ""); updateAppearance("themeEffect", "none"); }} className="px-3 py-1.5 rounded-lg bg-red-500/30 text-red-300 text-xs font-medium backdrop-blur-sm hover:bg-red-500/50 transition-colors">Remove</button>
               </div>
               <div className="absolute bottom-2 right-2">
-                <span className={"px-2 py-1 rounded-lg text-[10px] font-bold " + (themeEffect === "custom" ? "bg-amber-500 text-black" : "bg-white/20 text-white/60 backdrop-blur-sm")}>
-                  {themeEffect === "custom" ? "● Active" : "○ Inactive"}
+                <span className={"px-2 py-1 rounded-lg text-[10px] font-bold " + (appearance.themeEffect === "custom" ? "bg-amber-500 text-black" : "bg-white/20 text-white/60 backdrop-blur-sm")}>
+                  {appearance.themeEffect === "custom" ? "● Active" : "○ Inactive"}
                 </span>
               </div>
             </div>
@@ -248,10 +265,10 @@ export function AppearanceTab() {
           )}
           <input ref={bgFileRef} type="file" accept="image/*" className="hidden" onChange={handleBgUpload} />
         </div>
-        {customBgUrl && themeEffect !== "custom" && (
+        {appearance.customBgUrl && appearance.themeEffect !== "custom" && (
           <p className="text-[10px] text-zinc-600 mt-1">Tip: select <strong className="text-zinc-400">Still</strong> under Background Effect to show only your custom image</p>
         )}
-        {customBgUrl && themeEffect === "custom" && (
+        {appearance.customBgUrl && appearance.themeEffect === "custom" && (
           <p className="text-[10px] text-zinc-600 mt-1">Tip: choose a Background Effect to layer on top of your image</p>
         )}
       </div>
@@ -262,13 +279,13 @@ export function AppearanceTab() {
         <p className="text-xs text-zinc-500 mb-3">Animated layer on top of your background.</p>
         <div className="grid grid-cols-3 gap-2">
           {EFFECTS.map(fx => (
-            <button key={fx.id} onClick={() => setThemeEffect(fx.id)}
-              className={"relative rounded-xl border-2 p-2.5 text-left transition-all " + (themeEffect === fx.id ? "border-white/40 bg-white/5" : "border-white/8 hover:border-white/20")}
-              style={{ borderColor: themeEffect === fx.id ? themeColor : undefined }}>
+            <button key={fx.id} onClick={() => updateAppearance("themeEffect", fx.id)}
+              className={"relative rounded-xl border-2 p-2.5 text-left transition-all " + (appearance.themeEffect === fx.id ? "border-white/40 bg-white/5" : "border-white/8 hover:border-white/20")}
+              style={{ borderColor: appearance.themeEffect === fx.id ? appearance.themeColor : undefined }}>
               <p className="text-xs font-bold text-white">{fx.label}</p>
               <p className="text-[10px] text-zinc-500 mt-0.5">{fx.desc}</p>
-              {themeEffect === fx.id && (
-                <div className="absolute top-1.5 right-1.5 w-3 h-3 rounded-full flex items-center justify-center" style={{ backgroundColor: themeColor }}>
+              {appearance.themeEffect === fx.id && (
+                <div className="absolute top-1.5 right-1.5 w-3 h-3 rounded-full flex items-center justify-center" style={{ backgroundColor: appearance.themeColor }}>
                   <Check className="w-2 h-2 text-black" />
                 </div>
               )}
@@ -283,14 +300,14 @@ export function AppearanceTab() {
         <p className="text-xs text-zinc-500 mb-3">How text feels on your space.</p>
         <div className="grid grid-cols-3 gap-2">
           {FONTS.map(f => (
-            <button key={f.id} onClick={() => setThemeFont(f.id)}
-              className={"relative rounded-xl border-2 p-3 text-left transition-all " + (themeFont === f.id ? "border-white/40 bg-white/5" : "border-white/8 hover:border-white/20")}
-              style={{ borderColor: themeFont === f.id ? themeColor : undefined }}>
+            <button key={f.id} onClick={() => updateAppearance("themeFont", f.id)}
+              className={"relative rounded-xl border-2 p-3 text-left transition-all " + (appearance.themeFont === f.id ? "border-white/40 bg-white/5" : "border-white/8 hover:border-white/20")}
+              style={{ borderColor: appearance.themeFont === f.id ? appearance.themeColor : undefined }}>
               <p className={"text-xl font-bold text-white mb-0.5 " + f.family}>Aa</p>
               <p className="text-xs font-bold text-white">{f.label}</p>
               <p className="text-[10px] text-zinc-500">{f.sub}</p>
-              {themeFont === f.id && (
-                <div className="absolute top-2 right-2 w-3.5 h-3.5 rounded-full flex items-center justify-center" style={{ backgroundColor: themeColor }}>
+              {appearance.themeFont === f.id && (
+                <div className="absolute top-2 right-2 w-3.5 h-3.5 rounded-full flex items-center justify-center" style={{ backgroundColor: appearance.themeColor }}>
                   <Check className="w-2 h-2 text-black" />
                 </div>
               )}
@@ -305,14 +322,14 @@ export function AppearanceTab() {
         <p className="text-xs text-zinc-500 mb-3">How your Q&A card looks.</p>
         <div className="grid grid-cols-3 gap-2">
           {CARD_STYLES.map(s => (
-            <button key={s.id} onClick={() => setThemeCardStyle(s.id)}
-              className={"relative rounded-xl border-2 p-3 text-left transition-all " + (themeCardStyle === s.id ? "border-white/40 bg-white/5" : "border-white/8 hover:border-white/20")}
-              style={{ borderColor: themeCardStyle === s.id ? themeColor : undefined }}>
+            <button key={s.id} onClick={() => updateAppearance("themeCardStyle", s.id)}
+              className={"relative rounded-xl border-2 p-3 text-left transition-all " + (appearance.themeCardStyle === s.id ? "border-white/40 bg-white/5" : "border-white/8 hover:border-white/20")}
+              style={{ borderColor: appearance.themeCardStyle === s.id ? appearance.themeColor : undefined }}>
               <div className={"w-full h-6 rounded-lg mb-2 " + (s.id === "glass" ? "bg-white/10 border border-white/20 backdrop-blur-sm" : s.id === "solid" ? "bg-zinc-800 border border-zinc-700" : "border border-dashed border-white/10")} />
               <p className="text-xs font-bold text-white">{s.label}</p>
               <p className="text-[10px] text-zinc-500">{s.sub}</p>
-              {themeCardStyle === s.id && (
-                <div className="absolute top-2 right-2 w-3.5 h-3.5 rounded-full flex items-center justify-center" style={{ backgroundColor: themeColor }}>
+              {appearance.themeCardStyle === s.id && (
+                <div className="absolute top-2 right-2 w-3.5 h-3.5 rounded-full flex items-center justify-center" style={{ backgroundColor: appearance.themeColor }}>
                   <Check className="w-2 h-2 text-black" />
                 </div>
               )}
@@ -327,11 +344,11 @@ export function AppearanceTab() {
         <p className="text-xs text-zinc-500 mb-3">Show up on your space page.</p>
         <div className="space-y-2">
           {([
-            { Icon: XIcon, value: twitter, set: setTwitter, placeholder: "@username", label: "X" },
-            { Icon: GithubIcon, value: github, set: setGithub, placeholder: "username", label: "GitHub" },
-            { Icon: LinkedinIcon, value: linkedin, set: setLinkedin, placeholder: "username", label: "LinkedIn" },
-            { Icon: Globe, value: website, set: setWebsite, placeholder: "https://...", label: "Website" },
-            { Icon: Phone, value: whatsapp, set: setWhatsapp, placeholder: "+234...", label: "WhatsApp" },
+            { Icon: XIcon, value: appearance.twitter, set: (value: string) => updateAppearance("twitter", value), placeholder: "@username", label: "X" },
+            { Icon: GithubIcon, value: appearance.github, set: (value: string) => updateAppearance("github", value), placeholder: "username", label: "GitHub" },
+            { Icon: LinkedinIcon, value: appearance.linkedin, set: (value: string) => updateAppearance("linkedin", value), placeholder: "username", label: "LinkedIn" },
+            { Icon: Globe, value: appearance.website, set: (value: string) => updateAppearance("website", value), placeholder: "https://...", label: "Website" },
+            { Icon: Phone, value: appearance.whatsapp, set: (value: string) => updateAppearance("whatsapp", value), placeholder: "+234...", label: "WhatsApp" },
           ] as const).map(({ Icon, value, set, placeholder, label }) => (
             <div key={label} className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/8 flex items-center justify-center shrink-0">
@@ -347,7 +364,7 @@ export function AppearanceTab() {
       {/* Save */}
       <button onClick={handleSave} disabled={saving}
         className="w-full py-3 rounded-xl text-black text-sm font-black flex items-center justify-center gap-2 transition-all disabled:opacity-50 hover:opacity-90"
-        style={{ backgroundColor: themeColor }}>
+        style={{ backgroundColor: appearance.themeColor }}>
         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : saved ? <><Check className="w-4 h-4" /> Saved!</> : <><Save className="w-4 h-4" /> Save Appearance</>}
       </button>
 

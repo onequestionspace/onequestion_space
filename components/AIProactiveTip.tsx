@@ -79,23 +79,29 @@ export function AIProactiveTip({ profileId }: { profileId: string }) {
         tip.keywords.some(kw => q.question?.toLowerCase().includes(kw))
       );
       if (matched) {
-        setActiveTip(tip);
-        setTimeout(() => setVisible(true), 2000);
-        return;
+        const timeout = setTimeout(() => {
+          setActiveTip(tip);
+          setVisible(true);
+        }, 2000);
+        return () => clearTimeout(timeout);
       }
     }
 
     // Generic tip if knowledge base is empty
     if (!dismissed.includes('generic')) {
-      setActiveTip({
+      const genericTip = {
         id: 'generic',
         keywords: [],
         question: '',
         tip: 'I need more info about you to answer questions well. Add some knowledge so I can represent you better.',
         cta: 'Train me now →',
         href: '/dashboard/train',
-      });
-      setTimeout(() => setVisible(true), 2000);
+      };
+      const timeout = setTimeout(() => {
+        setActiveTip(genericTip);
+        setVisible(true);
+      }, 2000);
+      return () => clearTimeout(timeout);
     }
   }, [unanswered, needsReview, dismissed]);
 

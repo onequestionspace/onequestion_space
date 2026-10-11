@@ -56,24 +56,29 @@ function BillingContent() {
   const [creditAmount, setCreditAmount] = useState(100);
   const [loading, setLoading] = useState('');
   const [error, setError] = useState('');
-  const [verifyStatus, setVerifyStatus] = useState('');
+  const [verificationResult, setVerificationResult] = useState<'success' | 'failed' | null>(null);
   const searchParams = useSearchParams();
+  const reference = searchParams.get('reference');
 
   useEffect(() => {
-    const reference = searchParams.get('reference');
     if (!reference) return;
-    setVerifyStatus('verifying');
-    fetch('/api/paystack/verify?reference=' + reference)
+    const controller = new AbortController();
+    fetch('/api/paystack/verify?reference=' + encodeURIComponent(reference), { signal: controller.signal })
       .then(r => r.json())
       .then(data => {
         if (data.success && data.data?.success) {
-          setVerifyStatus('success');
+          setVerificationResult('success');
         } else {
-          setVerifyStatus('failed');
+          setVerificationResult('failed');
         }
       })
-      .catch(() => setVerifyStatus('failed'));
-  }, [searchParams]);
+      .catch(() => {
+        if (!controller.signal.aborted) setVerificationResult('failed');
+      });
+    return () => controller.abort();
+  }, [reference]);
+
+  const verifyStatus = reference ? verificationResult ?? 'verifying' : '';
 
   const subscription = useQuery(api.subscriptions.getSubscription, userId ? { userId } : 'skip');
 

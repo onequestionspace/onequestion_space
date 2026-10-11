@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useUser, SignInButton } from '@clerk/nextjs';
 import { useMutation, useQuery } from 'convex/react';
@@ -13,25 +13,25 @@ export default function ClaimPage() {
   const { isSignedIn, isLoaded } = useUser();
   const claimProfile = useMutation(api.profiles.claimProfile);
   const profile = useQuery(api.profiles.getByClaimToken, { token });
-  const [claiming, setClaiming] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const claimStarted = useRef(false);
+  const [claimError, setClaimError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isLoaded || !isSignedIn || !profile || claiming) return;
-    if (!profile.isSeeded) {
-      setError('This page has already been claimed.');
-      return;
-    }
+    if (!isLoaded || !isSignedIn || !profile || claimStarted.current) return;
+    if (!profile.isSeeded) return;
 
-    setClaiming(true);
+    claimStarted.current = true;
     claimProfile({ token })
       .then(() => router.push(`/dashboard`))
-      .catch((e) => setError(e.message || 'Failed to claim this page'));
-  }, [isLoaded, isSignedIn, profile, claiming, token, claimProfile, router]);
+      .catch((e) => {
+        setClaimError(e instanceof Error ? e.message : 'Failed to claim this page');
+      });
+  }, [isLoaded, isSignedIn, profile, token, claimProfile, router]);
 
   if (profile === undefined) return <div className="p-8 text-center">Loading...</div>;
   if (profile === null) return <div className="p-8 text-center">This claim link is invalid.</div>;
-  if (error) return <div className="p-8 text-center text-red-500">{error}</div>;
+  if (claimError) return <div className="p-8 text-center text-red-500">{claimError}</div>;
+  if (!profile.isSeeded) return <div className="p-8 text-center text-red-500">This page has already been claimed.</div>;
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center gap-4 p-8 text-center">

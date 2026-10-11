@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X } from 'lucide-react';
 
 export interface TourStep {
@@ -17,7 +17,7 @@ interface TourTooltipProps {
 
 export function TourTooltip({ steps, onDone }: TourTooltipProps) {
   const [current, setCurrent] = useState(0);
-  const [pos, setPos] = useState({ top: 0, left: 0 });
+  const cardRef = useRef<HTMLDivElement>(null);
   const step = steps[current];
   const isLast = current === steps.length - 1;
 
@@ -31,7 +31,10 @@ export function TourTooltip({ steps, onDone }: TourTooltipProps) {
     if (position === 'bottom') { top = rect.bottom + window.scrollY + 12; left = rect.left + window.scrollX; }
     if (position === 'top') { top = rect.top + window.scrollY - 120; left = rect.left + window.scrollX; }
     if (position === 'right') { top = rect.top + window.scrollY; left = rect.right + window.scrollX + 12; }
-    setPos({ top, left });
+    if (cardRef.current) {
+      cardRef.current.style.top = `${top}px`;
+      cardRef.current.style.left = `${left}px`;
+    }
 
     // Highlight element
     el.classList.add('tour-highlight');
@@ -60,8 +63,9 @@ export function TourTooltip({ steps, onDone }: TourTooltipProps) {
       `}</style>
       <div className="tour-overlay" onClick={onDone} />
       <div
+        ref={cardRef}
         key={current}
-        style={{ position: 'absolute', top: pos.top, left: pos.left, zIndex: 50 }}
+        style={{ position: 'absolute', top: 0, left: 0, zIndex: 50 }}
         className="tour-card w-72 rounded-2xl border border-primary/30 bg-zinc-950 p-4 shadow-xl shadow-primary/10"
       >
         <div className="flex items-start justify-between gap-2 mb-2">

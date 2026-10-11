@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Suspense } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { redirect } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { DashboardLayout } from '@/components/DashboardLayout';
@@ -21,14 +21,12 @@ function InboxPageContent() {
   const profile = useQuery(api.profiles.current);
 
   const searchParams = useSearchParams();
-  const [activeTab, setActiveTab] = useState<'review' | 'unanswered'>('review');
-
-  useEffect(() => {
-    const tab = searchParams.get('tab');
-    if (tab === 'unanswered' || tab === 'review') {
-      setActiveTab(tab);
-    }
-  }, [searchParams]);
+  const router = useRouter();
+  const requestedTab = searchParams.get('tab');
+  const activeTab = requestedTab === 'unanswered' ? 'unanswered' : 'review';
+  const selectTab = (tab: 'review' | 'unanswered') => {
+    router.replace(`/dashboard/inbox?tab=${tab}`, { scroll: false });
+  };
 
   const needsReview = useQuery(
     api.questions.listNeedsReview,
@@ -185,7 +183,7 @@ function InboxPageContent() {
 
         <div className="flex gap-2">
           <button
-            onClick={() => setActiveTab('review')}
+            onClick={() => selectTab('review')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
               activeTab === 'review'
                 ? 'bg-primary/20 text-primary border border-primary/20'
@@ -197,7 +195,7 @@ function InboxPageContent() {
             <span className="text-[10px] text-zinc-500">({needsReview?.length ?? 0})</span>
           </button>
           <button
-            onClick={() => setActiveTab('unanswered')}
+            onClick={() => selectTab('unanswered')}
             className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
               activeTab === 'unanswered'
                 ? 'bg-primary/20 text-primary border border-primary/20'

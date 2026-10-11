@@ -817,7 +817,6 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
         referrer: typeof document !== 'undefined' ? document.referrer : undefined,
       }).catch(() => {});
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?._id, incrementVisitor, trackPageview, username]);
 
   useEffect(() => {
@@ -867,8 +866,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   };
 
   const handleSubmit = async () => {
-    if (!question.trim() || !profile?._id) return;
-    if (!question.trim() || isTyping) return;
+    if (!question.trim() || !profile?._id || isTyping) return;
     const currentQuestion = question;
     setLastQuestion(currentQuestion);
     setQuestion('');
@@ -887,7 +885,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
       const res = await fetch('/api/stream', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question, username, visitorEmail: visitorEmail || undefined, visitorId: getOrCreateVisitorId() }),
+        body: JSON.stringify({ question: currentQuestion, username, visitorEmail: visitorEmail || undefined, visitorId: getOrCreateVisitorId() }),
         signal: controller.signal,
       });
 
@@ -919,6 +917,10 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
       full += decoder.decode();
 
       const finalAnswer = stripMarkdown(full);
+      if (!finalAnswer.trim()) {
+        setAiResponse('The AI returned an empty response. Please try again.');
+        return;
+      }
       setResponseTime(Math.round((getCurrentTimestamp() - t0) / 100) / 10);
       saveToHistory(currentQuestion, finalAnswer);
     } catch (e: unknown) {
@@ -1317,7 +1319,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
         </div>
 
         {/* Input bar */}
-        <div className="mb-6">
+        <form className="mb-6" onSubmit={e => { e.preventDefault(); void handleSubmit(); }}>
           <div className={"flex items-end gap-2 px-3 py-2 rounded-3xl border shadow-lg backdrop-blur-sm " + (isLight ? "border-zinc-200 bg-white/90" : "border-zinc-700/40 bg-zinc-900/50")}>
             <textarea
               value={question}
@@ -1325,10 +1327,10 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
               placeholder={"Ask " + firstName + " anything..."}
               rows={question.length > 60 ? 3 : 1}
               className={"flex-1 px-2 py-1.5 bg-transparent focus:outline-none resize-none text-sm leading-relaxed " + (isLight ? "text-zinc-900 placeholder:text-zinc-400" : "text-white placeholder:text-zinc-500")}
-              onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSubmit(); } }}
+              onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void handleSubmit(); } }}
               disabled={isTyping}
             />
-            <button onClick={handleSubmit} disabled={!question.trim() || isTyping}
+            <button type="submit" disabled={!question.trim() || isTyping}
               className="w-9 h-9 rounded-full flex items-center justify-center transition-all disabled:opacity-20 hover:opacity-90 active:scale-95 shrink-0 shadow-md"
               style={{ backgroundColor: color }}>
               <Send className="w-3.5 h-3.5 text-white" fill="white" />
@@ -1341,7 +1343,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
               </span>
             </div>
           )}
-        </div>
+        </form>
 
         {/* Footer */}
         <div

@@ -1,21 +1,19 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { DashboardLayout } from '@/components/DashboardLayout';
-import { TourTooltip } from '@/components/TourTooltip';
 import { AppearanceTab } from '@/components/AppearanceTab';
 import { Input, Textarea, Label } from '@/components/dashboard/Input';
 import { Button } from '@/components/dashboard/Button';
 import { Skeleton } from '@/components/dashboard/Skeleton';
-import { Badge } from '@/components/dashboard/Badge';
 import { useToast } from '@/components/dashboard/Toast';
 import {
   User, Palette, Link as LinkIcon, Quote,
   Pin, Check, Save, Eye, Code2,
   Plus, Trash2, Sparkles, ExternalLink, RefreshCw,
-  AlertCircle, Image as ImageIcon, Undo2, Layout,
+  AlertCircle, Image as ImageIcon, Undo2,
 } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -55,45 +53,35 @@ export default function StudioPage() {
   const updateProfile = useMutation(api.profiles.update);
   const { toast } = useToast();
 
-  const [form, setForm] = useState<StudioForm>(emptyForm);
+  const savedForm = useMemo<StudioForm>(() => profile ? {
+    displayName: profile.displayName || '',
+    bio: profile.bio || '',
+    welcomeMessage: profile.welcomeMessage || '',
+    vibeQuote: profile.vibeQuote || '',
+    links: (() => {
+      try { return JSON.parse(profile.links || '[]') as StudioForm['links']; }
+      catch { return []; }
+    })(),
+    pinnedQuestions: profile.pinnedQuestions || [],
+    suggestedQuestions: profile.suggestedQuestions || [],
+  } : emptyForm, [profile]);
+  const [formOverride, setFormOverride] = useState<StudioForm | null>(null);
+  const form = formOverride ?? savedForm;
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState('profile');
   const [mode, setMode] = useState<'edit' | 'preview'>('edit');
   const [previewKey, setPreviewKey] = useState(0);
-  const [showTour, setShowTour] = useState(false);
-  const [initialized, setInitialized] = useState(false);
 
   const recentQuestions = useQuery(
     api.questions.getRecentQuestions,
     profile?._id ? { profileId: profile._id, limit: 20 } : 'skip'
   );
 
-  useEffect(() => {
-    if (!localStorage.getItem('oq_studio_tour_seen')) {
-      setTimeout(() => setShowTour(true), 1000);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (!profile || initialized) return;
-    setForm({
-      displayName: profile.displayName || '',
-      bio: profile.bio || '',
-      welcomeMessage: profile.welcomeMessage || '',
-      vibeQuote: (profile as Record<string, unknown>).vibeQuote as string || '',
-      links: (() => { try { return JSON.parse((profile as Record<string, unknown>).links as string || '[]'); } catch { return []; } })(),
-      pinnedQuestions: (profile as Record<string, unknown>).pinnedQuestions as string[] || [],
-      suggestedQuestions: (profile as Record<string, unknown>).suggestedQuestions as string[] || [],
-    });
-    setDirty(false);
-    setInitialized(true);
-  }, [profile, initialized]);
-
   const updateField = useCallback(<K extends keyof StudioForm>(key: K, value: StudioForm[K]) => {
-    setForm(prev => ({ ...prev, [key]: value }));
+    setFormOverride(prev => ({ ...(prev ?? savedForm), [key]: value }));
     setDirty(true);
-  }, []);
+  }, [savedForm]);
 
   const handleSave = async () => {
     setSaving(true);
@@ -119,32 +107,13 @@ export default function StudioPage() {
 
   const handleReset = () => {
     if (!profile) return;
-    setForm({
-      displayName: profile.displayName || '',
-      bio: profile.bio || '',
-      welcomeMessage: profile.welcomeMessage || '',
-      vibeQuote: (profile as Record<string, unknown>).vibeQuote as string || '',
-      links: (() => { try { return JSON.parse((profile as Record<string, unknown>).links as string || '[]'); } catch { return []; } })(),
-      pinnedQuestions: (profile as Record<string, unknown>).pinnedQuestions as string[] || [],
-      suggestedQuestions: (profile as Record<string, unknown>).suggestedQuestions as string[] || [],
-    });
+    setFormOverride(savedForm);
     setDirty(false);
     toast({ type: 'info', title: 'Reset', description: 'Reverted to last saved state.' });
   };
 
   const spaceUrl = profile?.username ? '/' + profile.username : null;
   const initials = form.displayName?.charAt(0)?.toUpperCase() || profile?.username?.charAt(0)?.toUpperCase() || '?';
-
-  const completionChecks = [
-    { label: 'Name', done: !!form.displayName },
-    { label: 'Photo', done: !!profile?.avatar },
-    { label: 'Bio', done: form.bio.length > 10 },
-    { label: 'Welcome', done: !!form.welcomeMessage },
-    { label: 'Vibe', done: !!form.vibeQuote },
-    { label: 'Links', done: form.links.filter(l => l.title || l.url).length > 0 },
-    { label: 'Pinned', done: form.pinnedQuestions.length > 0 },
-  ];
-  const score = Math.round((completionChecks.filter(c => c.done).length / completionChecks.length) * 100);
 
   if (!profile) return (
     <DashboardLayout title="Space Studio" description="Build your perfect space">
@@ -161,38 +130,6 @@ export default function StudioPage() {
   return (
     <DashboardLayout title="Space Studio" description="Changes go live instantly">
       <div className="space-y-4">
-
-        {/* Completion bar */}
-        <div className="rounded-2xl border border-white/[0.06] bg-white/[0.03] p-4 backdrop-blur-sm">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 flex items-center justify-center">
-                <Layout className="w-4 h-4 text-amber-500" />
-              </div>
-              <span className="text-sm font-semibold text-white">{score}% complete</span>
-            </div>
-            <div className="flex items-center gap-3">
-              {spaceUrl && (
-                <Link href={spaceUrl} target="_blank" className="flex items-center gap-1 text-xs text-amber-500 hover:text-amber-500/80 transition-colors">
-                  <ExternalLink className="w-3 h-3" /> View live
-                </Link>
-              )}
-              <Badge variant={dirty ? 'warning' : 'success'}>{dirty ? 'Unsaved' : 'Saved'}</Badge>
-            </div>
-          </div>
-            <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden mb-3">
-            <div className="h-full rounded-full bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 animate-gradient transition-all duration-700" style={{ width: `${score}%`, backgroundSize: '200% 100%' }} />
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {completionChecks.map((c, i) => (
-              <span key={i} className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${
-                c.done ? 'border-green-500/20 bg-green-500/10 text-green-400' : 'border-white/[0.06] text-zinc-600'
-              }`}>
-                {c.done ? '✓' : '○'} {c.label}
-              </span>
-            ))}
-          </div>
-        </div>
 
         {/* Save bar */}
         {dirty && (
@@ -464,20 +401,6 @@ export default function StudioPage() {
           </div>
         </div>
       </div>
-
-      {showTour && (
-        <TourTooltip
-          steps={[
-            { target: '[data-tour="tabs"]', title: 'Build your space here', desc: 'Profile, Vibe, Links, Pinned answers, and Style — each tab customizes part of your space.', position: 'bottom' },
-            { target: '[data-tour="preview"]', title: 'Live preview', desc: 'See exactly how your space looks to visitors. Updates instantly when you save.', position: 'left' },
-            { target: '[data-tour="save"]', title: 'Save your changes', desc: 'Hit Save after editing each section. Changes go live immediately.', position: 'top' },
-          ]}
-          onDone={() => {
-            setShowTour(false);
-            localStorage.setItem('oq_studio_tour_seen', '1');
-          }}
-        />
-      )}
     </DashboardLayout>
   );
 }

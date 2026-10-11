@@ -9,6 +9,23 @@ import { api } from '@/convex/_generated/api';
 // framer-motion removed for mobile stability
 import { ArrowRight, Check, Crown, Copy, Share2, Sparkles, Brain, MessageSquare } from 'lucide-react';
 
+const SETUP_STEPS = [2, 3, 4, 5, 6, 7];
+
+function StepIndicator({ activeStep }: { activeStep: number }) {
+  const setupIndex = SETUP_STEPS.indexOf(activeStep);
+  return (
+    <div className="flex items-center gap-1.5 mb-6 justify-center">
+      {SETUP_STEPS.map((_, i) => (
+        <div key={i}
+          className={`h-1.5 rounded-full transition-all duration-300 ${
+            i <= setupIndex ? 'bg-primary' : 'bg-white/10'
+          }`}
+        />
+      ))}
+    </div>
+  );
+}
+
 export default function OnboardingPage() {
   const { isSignedIn, isLoaded, user } = useAuth();
   const router = useRouter();
@@ -22,7 +39,7 @@ export default function OnboardingPage() {
   const createProfile = useMutation(api.profiles.createIfMissing);
   const updateProfile = useMutation(api.profiles.update);
 
-  const [form, setForm] = useState({
+  const defaultForm = {
     username: '',
     displayName: '',
     bio: '',
@@ -32,21 +49,26 @@ export default function OnboardingPage() {
     goalTitle: '',
     goalProgress: 0,
     goalDeadline: '2026-12-31'
-  });
+  };
+  const [formOverrides, setFormOverrides] = useState<Partial<typeof defaultForm>>({});
+  const form = {
+    ...defaultForm,
+    displayName: user?.fullName || user?.firstName || '',
+    username: user?.username || user?.emailAddresses?.[0]?.emailAddress?.split('@')[0]?.toLowerCase().replace(/[^a-z0-9_]/g, '') || '',
+    ...formOverrides,
+  };
+  const setForm = (update: (current: typeof form) => typeof form) => {
+    setFormOverrides(prev => update({
+      ...defaultForm,
+      displayName: user?.fullName || user?.firstName || '',
+      username: user?.username || user?.emailAddresses?.[0]?.emailAddress?.split('@')[0]?.toLowerCase().replace(/[^a-z0-9_]/g, '') || '',
+      ...prev,
+    }));
+  };
   const [questionsPerWeek, setQuestionsPerWeek] = useState(10);
   const [minutesPerAnswer, setMinutesPerAnswer] = useState(5);
   const hoursPerMonth = Math.round((questionsPerWeek * 4 * minutesPerAnswer) / 60);
   const hoursPerYear = hoursPerMonth * 12;
-
-  useEffect(() => {
-    if (user) {
-      setForm(prev => ({
-        ...prev,
-        displayName: user.fullName || user.firstName || '',
-        username: user.username || user.emailAddresses?.[0]?.emailAddress?.split('@')[0]?.toLowerCase().replace(/[^a-z0-9_]/g, '') || '',
-      }));
-    }
-  }, [user]);
 
   useEffect(() => {
     if (!profile) return;
@@ -162,22 +184,9 @@ export default function OnboardingPage() {
 
   if (!isSignedIn) { router.replace('/'); return null; }
 
-  const SETUP_STEPS = [2, 3, 4, 5, 6, 7];
   const isSetupStep = SETUP_STEPS.includes(step);
   const setupIndex = SETUP_STEPS.indexOf(step);
   const setupProgress = isSetupStep ? ((setupIndex + 1) / SETUP_STEPS.length) * 100 : 0;
-
-  const StepIndicator = () => (
-    <div className="flex items-center gap-1.5 mb-6 justify-center">
-      {SETUP_STEPS.map((_, i) => (
-        <div key={i}
-          className={`h-1.5 rounded-full transition-all duration-300 ${
-            i < setupIndex ? 'bg-primary' : i === setupIndex ? 'bg-primary' : 'bg-white/10'
-          }`}
-        />
-      ))}
-    </div>
-  );
 
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center px-4 py-10">
@@ -289,7 +298,7 @@ export default function OnboardingPage() {
             {/* Setup Steps */}
             {step >= 3 && step <= 7 && (
               <div className="paper-card p-8">
-                <StepIndicator />
+                <StepIndicator activeStep={step} />
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-lg shrink-0">
                     {step === 3 ? '👋' : step === 4 ? '✨' : step === 5 ? '🎯' : step === 6 ? '🤖' : '🎨'}
