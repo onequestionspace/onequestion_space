@@ -1,12 +1,11 @@
 import { NextRequest } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { generateEmbeddings, cosineSimilarity } from '@/lib/gemini';
+import { streamAIResponse } from '@/lib/ai-stream';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY!;
-const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
 
 function isMemoryDump(question: string): boolean {
   const lower = question.trim().toLowerCase();
@@ -96,115 +95,6 @@ Always explain WHY you recommend something. Connect it back to their actual know
 
   return prompt;
 }
-
-async function streamGemini(prompt: string): Promise<ReadableStream<Uint8Array> | null> {
-  try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:streamGenerateContent?key=${GEMINI_API_KEY}&alt=sse`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { maxOutputTokens: 2048, temperature: 0.7 },
-        }),
-      }
-    );
-    if (!res.ok || !res.body) return null;
-    const decoder = new TextDecoder();
-    const encoder = new TextEncoder();
-    const reader = res.body.getReader();
-    let totalText = '';
-    let isRateLimited = false;
-    let eventCount = 0;
-    while (eventCount < 3) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split('\n');
-      for (const line of lines) {
-        if (!line.startsWith('data: ')) continue;
-        const json = line.slice(6).trim();
-        if (json === '[DONE]') continue;
-        try {
-          const parsed = JSON.parse(json);
-          const text = parsed.candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-          const tokenCount = parsed.usageMetadata?.candidatesTokenCount ?? 0;
-          const finishReason = parsed.candidates?.[0]?.finishReason;
-          if (finishReason === 'MAX_TOKENS' && tokenCount < 50) { isRateLimited = true; break; }
-          totalText += text;
-          eventCount++;
-        } catch {}
-      }
-      if (isRateLimited) break;
-    }
-    if (isRateLimited || totalText.trim().length === 0) { reader.releaseLock(); return null; }
-    return new ReadableStream({
-      async start(controller) {
-        if (totalText) controller.enqueue(encoder.encode(totalText));
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            const lines = decoder.decode(value, { stream: true }).split('\n');
-            for (const line of lines) {
-              if (!line.startsWith('data: ')) continue;
-              const json = line.slice(6).trim();
-              if (json === '[DONE]') continue;
-              try {
-                const text = JSON.parse(json).candidates?.[0]?.content?.parts?.[0]?.text ?? '';
-                if (text) controller.enqueue(encoder.encode(text));
-              } catch {}
-            }
-          }
-        } finally { controller.close(); reader.releaseLock(); }
-      },
-    });
-  } catch { return null; }
-}
-
-async function streamGroq(prompt: string): Promise<ReadableStream<Uint8Array> | null> {
-  if (!GROQ_API_KEY) return null;
-  try {
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.7, max_tokens: 2048, stream: true,
-      }),
-    });
-    if (!res.ok || !res.body) return null;
-    const decoder = new TextDecoder();
-    const encoder = new TextEncoder();
-    return new ReadableStream({
-      async start(controller) {
-        const reader = res.body!.getReader();
-        let buffer = '';
-        try {
-          while (true) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split('\n');
-            buffer = lines.pop() ?? '';
-            for (const line of lines) {
-              if (!line.startsWith('data: ')) continue;
-              const json = line.slice(6).trim();
-              if (json === '[DONE]') continue;
-              try {
-                const text = JSON.parse(json).choices?.[0]?.delta?.content ?? '';
-                if (text) controller.enqueue(encoder.encode(text));
-              } catch {}
-            }
-          }
-        } finally { controller.close(); reader.releaseLock(); }
-      },
-    });
-  } catch { return null; }
-}
-
 
 // Intent detection — reads natural language and returns action type
 function detectIntent(question: string): { intent: string; params: Record<string, string> } {
@@ -309,10 +199,6 @@ export async function POST(request: NextRequest) {
     // Detect intent from natural language
     const { intent, params } = detectIntent(question || '');
 
-    // Fetch profile + analytics for context
-    const profile = await convex.query(api.profiles.byUsername, { username: '' }).catch(() => null);
-    const userProfile = await convex.query(api.profiles.current).catch(() => null);
-
     // Handle profile update intents
     if (intent === 'updateBio' && params.bio && params.bio.length > 3) {
       await convex.mutation(api.profiles.update, { bio: params.bio }).catch(() => {});
@@ -343,9 +229,10 @@ export async function POST(request: NextRequest) {
     // Memory Dump mode
     if (isMemoryDump(question)) {
       const prompt = buildDumpPrompt(question);
-      let stream = await streamGemini(prompt);
-      if (!stream) stream = await streamGroq(prompt);
-      if (!stream) return new Response('Could not process memory dump.', { status: 500 });
+      const stream = await streamAIResponse(prompt, 2048);
+      if (!stream) {
+        return new Response('AI is temporarily unavailable. Check your AI provider configuration and try again.', { status: 503 });
+      }
 
       const responseStream = new ReadableStream({
         async start(controller) {
@@ -406,9 +293,10 @@ export async function POST(request: NextRequest) {
 
     const prompt = buildAgentPrompt(question, topChunks, hasKnowledge, knowledgeChunks?.length || 0);
 
-    let stream = await streamGemini(prompt);
-    if (!stream) stream = await streamGroq(prompt);
-    if (!stream) return new Response('Could not generate answer right now.', { status: 500 });
+    const stream = await streamAIResponse(prompt, 2048);
+    if (!stream) {
+      return new Response('AI is temporarily unavailable. Check your AI provider configuration and try again.', { status: 503 });
+    }
 
     const responseStream = new ReadableStream({
       async start(controller) {

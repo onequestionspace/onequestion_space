@@ -510,6 +510,10 @@ function FirefliesBackground({ color }: { color: string }) {
 
 const AURORA_BANDS = 4;
 
+function getCurrentTimestamp() {
+  return Date.now();
+}
+
 function NorthernBackground({ color }: { color: string }) {
   const auroraColors = ['rgba(20,255,100,0.15)', 'rgba(100,200,255,0.12)', 'rgba(200,100,255,0.10)', 'rgba(255,100,200,0.08)'];
   return (
@@ -527,9 +531,9 @@ function NorthernBackground({ color }: { color: string }) {
       {Array.from({ length: 15 }).map((_, i) => (
         <div key={'s'+i} className="absolute rounded-full" style={{
           width: '1px', height: '1px',
-          left: Math.random()*100+'%', top: Math.random()*60+'%',
-          backgroundColor: '#fff', opacity: 0.2+Math.random()*0.4,
-          animation: 'twinkle '+(2+Math.random()*3)+'s ease-in-out '+(Math.random()*2)+'s infinite alternate',
+          left: ((i * 37 + 13) % 100)+'%', top: ((i * 23 + 7) % 60)+'%',
+          backgroundColor: '#fff', opacity: 0.2+(i % 5)*0.08,
+          animation: 'twinkle '+(2+(i % 4))+'s ease-in-out '+((i % 5)*0.4)+'s infinite alternate',
         }} />
       ))}
     </div>
@@ -873,11 +877,12 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
     setIsTyping(true);
     setAiResponse('');
     setResponseTime(null);
-    const t0 = Date.now();
+    const t0 = getCurrentTimestamp();
     setStartTime(t0);
+    let timeout: ReturnType<typeof setTimeout> | undefined;
     try {
       const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 30000);
+      timeout = setTimeout(() => controller.abort(), 60000);
 
       const res = await fetch('/api/stream', {
         method: 'POST',
@@ -885,17 +890,18 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
         body: JSON.stringify({ question, username, visitorEmail: visitorEmail || undefined, visitorId: getOrCreateVisitorId() }),
         signal: controller.signal,
       });
-      clearTimeout(timeout);
 
       if (res.status === 429) {
         setAiResponse('Monthly AI answer limit reached. Upgrade your plan to continue.');
-        setIsTyping(false);
         return;
       }
 
-      if (!res.ok || !res.body) {
-        setAiResponse('Something went wrong. Please try again.');
-        setIsTyping(false);
+      if (!res.ok) {
+        setAiResponse((await res.text()).trim() || 'Something went wrong. Please try again.');
+        return;
+      }
+      if (!res.body) {
+        setAiResponse('The AI returned an empty response. Please try again.');
         return;
       }
 
@@ -910,9 +916,10 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
         full += chunk;
         setAiResponse(stripMarkdown(full));
       }
+      full += decoder.decode();
 
       const finalAnswer = stripMarkdown(full);
-      setResponseTime(Math.round((Date.now() - t0) / 100) / 10);
+      setResponseTime(Math.round((getCurrentTimestamp() - t0) / 100) / 10);
       saveToHistory(currentQuestion, finalAnswer);
     } catch (e: unknown) {
       if (e instanceof Error && e.name === 'AbortError') {
@@ -920,8 +927,10 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
       } else {
         setAiResponse('Something went wrong. Please try again.');
       }
+    } finally {
+      if (timeout) clearTimeout(timeout);
+      setIsTyping(false);
     }
-    setIsTyping(false);
   };
 
   const saveToHistory = (q: string, a: string) => {

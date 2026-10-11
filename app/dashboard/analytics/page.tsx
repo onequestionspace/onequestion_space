@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
@@ -111,7 +112,7 @@ export default function AnalyticsPage() {
               <p className="text-sm font-bold text-yellow-400">{unanswered} questions unanswered</p>
               <p className="text-xs text-zinc-500 mt-0.5">Your AI may need more knowledge to answer these. Upload more content to improve your response rate.</p>
             </div>
-            <a href="/dashboard/knowledge" className="text-xs font-bold text-amber-500 hover:opacity-80 shrink-0">Add knowledge →</a>
+            <Link href="/dashboard/knowledge" className="text-xs font-bold text-amber-500 hover:opacity-80 shrink-0">Add knowledge →</Link>
           </div>
         )}
 

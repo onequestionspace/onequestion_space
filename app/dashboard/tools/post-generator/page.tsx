@@ -66,7 +66,7 @@ export default function PostGeneratorPage() {
         🐣 Build in Public — Post Generator
       </h1>
       <p className="text-sm text-[#9a9a9a] mb-6">
-        Turn today's work into ready-to-post drafts in your voice.
+        Turn today&rsquo;s work into ready-to-post drafts in your voice.
       </p>
 
       <div className="flex gap-2 mb-4">
@@ -107,7 +107,7 @@ export default function PostGeneratorPage() {
       ) : (
         <>
           <label className="block text-xs text-orange-500 uppercase tracking-wide mb-1 mt-2">
-            Paste today's `git log --oneline` output
+            Paste today&rsquo;s `git log --oneline` output
           </label>
           <textarea
             value={commits}

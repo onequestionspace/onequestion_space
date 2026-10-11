@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 import { Id } from '@/convex/_generated/dataModel';
@@ -12,7 +13,7 @@ import {
   Send, Copy, Check, RefreshCw, Share2, ChevronDown, BookOpen,
   Sparkles, Brain, Zap, FileText, Star, Settings, ChevronLeft,
   Menu, X, Download, Pin, Edit3, GripVertical,
-  Lightbulb, Target, PenTool, Notebook, Link,
+  Lightbulb, Target, PenTool, Notebook,
   Newspaper, BarChart3, Sword, Clock, Quote, ExternalLink,
   DollarSign, Layers, FolderOpen,
 } from 'lucide-react';
@@ -29,6 +30,48 @@ interface Message {
   content: string;
   sources?: Source[];
   createdAt: number;
+}
+
+type ChatStreamEvent = {
+  type: 'content' | 'done' | 'error' | 'action';
+  text?: string;
+  sources?: Source[];
+  result?: string;
+};
+
+async function consumeChatStream(
+  body: ReadableStream<Uint8Array>,
+  onEvent: (event: ChatStreamEvent) => void,
+) {
+  const reader = body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  const processLine = (line: string) => {
+    if (line.trim()) onEvent(JSON.parse(line) as ChatStreamEvent);
+  };
+
+  try {
+    while (true) {
+      const { done, value } = await reader.read();
+      if (value) buffer += decoder.decode(value, { stream: true });
+      if (done) buffer += decoder.decode();
+
+      let newline = buffer.indexOf('\n');
+      while (newline !== -1) {
+        processLine(buffer.slice(0, newline));
+        buffer = buffer.slice(newline + 1);
+        newline = buffer.indexOf('\n');
+      }
+
+      if (done) {
+        processLine(buffer);
+        return;
+      }
+    }
+  } finally {
+    reader.releaseLock();
+  }
 }
 
 const WELCOME_SUGGESTIONS = [
@@ -215,26 +258,28 @@ export default function ChatYourKnowledgePage() {
       setInput('');
     }
 
-    if (!chatId) {
-      const title = userMessage.length > 50 ? userMessage.slice(0, 50) + '...' : userMessage;
-      chatId = await createChat({ userId, title });
-      setActiveChatId(chatId);
-    }
-
-    const userMsg: Message = {
-      id: 'temp-' + Date.now(),
-      role: 'user',
-      content: userMessage,
-      createdAt: Date.now(),
-    };
-    setMessages(prev => [...prev, userMsg]);
-
     setIsStreaming(true);
-    await addMessage({ chatId, role: 'user', content: userMessage });
-
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    let controller: AbortController | undefined;
+    let fullContent = '';
+    let assistantMessageId: string | undefined;
     try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 60000);
+      if (!chatId) {
+        const title = userMessage.length > 50 ? userMessage.slice(0, 50) + '...' : userMessage;
+        chatId = await createChat({ userId, title });
+        setActiveChatId(chatId);
+      }
+
+      setMessages(prev => [...prev, {
+        id: 'temp-' + Date.now(),
+        role: 'user',
+        content: userMessage,
+        createdAt: Date.now(),
+      }]);
+      await addMessage({ chatId, role: 'user', content: userMessage });
+
+      controller = new AbortController();
+      timeout = setTimeout(() => controller?.abort(), 60000);
 
       const res = await fetch('/api/chat-knowledge', {
         method: 'POST',
@@ -243,22 +288,11 @@ export default function ChatYourKnowledgePage() {
         signal: controller.signal,
       });
 
-      clearTimeout(timeout);
-
-      if (!res.ok || !res.body) {
-        setMessages(prev => [...prev, {
-          id: 'error-' + Date.now(),
-          role: 'assistant',
-          content: 'Something went wrong. Please try again.',
-          createdAt: Date.now(),
-        }]);
-        setIsStreaming(false);
-        return;
+      if (!res.ok) {
+        throw new Error((await res.text()).trim() || 'AI could not answer. Please try again.');
       }
+      if (!res.body) throw new Error('AI returned an empty response. Please try again.');
 
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let fullContent = '';
       let sources: Source[] = [];
 
       const assistantMsg: Message = {
@@ -267,32 +301,20 @@ export default function ChatYourKnowledgePage() {
         content: '',
         createdAt: Date.now(),
       };
+      assistantMessageId = assistantMsg.id;
       setMessages(prev => [...prev, assistantMsg]);
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n').filter(Boolean);
-        for (const line of lines) {
-          try {
-            const data = JSON.parse(line);
-            if (data.type === 'content') {
-              fullContent += data.text;
-              setMessages(prev => {
-                const updated = [...prev];
-                const last = updated[updated.length - 1];
-                if (last && last.id === assistantMsg.id) {
-                  updated[updated.length - 1] = { ...last, content: fullContent };
-                }
-                return updated;
-              });
-            } else if (data.type === 'done') {
-              sources = data.sources || [];
-            }
-          } catch {}
+      await consumeChatStream(res.body, (event) => {
+        if (event.type === 'error') throw new Error('The AI response was interrupted. Please try again.');
+        if (event.type === 'content' && event.text) {
+          fullContent += event.text;
+          setMessages(prev => prev.map(message =>
+            message.id === assistantMsg.id ? { ...message, content: fullContent } : message
+          ));
+        } else if (event.type === 'done') {
+          sources = event.sources ?? [];
         }
-      }
+      });
 
       if (fullContent) {
         await addMessage({
@@ -308,15 +330,23 @@ export default function ChatYourKnowledgePage() {
         const newTitle = fullContent.replace(/[#*_~`]/g, '').trim().slice(0, 60) + '...';
         await renameChat({ id: chatId, title: newTitle });
       }
-    } catch {
+    } catch (error) {
       setMessages(prev => [...prev, {
         id: 'error-' + Date.now(),
         role: 'assistant',
-        content: 'Something went wrong. Please try again.',
+        content: controller?.signal.aborted
+          ? 'The AI response timed out. Please try again.'
+          : error instanceof Error ? error.message : 'Something went wrong. Please try again.',
         createdAt: Date.now(),
       }]);
+    } finally {
+      if (timeout) clearTimeout(timeout);
+      setIsStreaming(false);
     }
-    setIsStreaming(false);
+
+    if (assistantMessageId && !fullContent) {
+      setMessages(prev => prev.filter(message => message.id !== assistantMessageId));
+    }
   };
 
   const handleRegenerate = async () => {
@@ -325,45 +355,65 @@ export default function ChatYourKnowledgePage() {
     if (!lastUserMsg) return;
     setMessages(prev => prev.slice(0, -1));
     setIsStreaming(true);
+    let timeout: ReturnType<typeof setTimeout> | undefined;
+    let controller: AbortController | undefined;
+    let fullContent = '';
+    let assistantMessageId: string | undefined;
     try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 60000);
+      controller = new AbortController();
+      timeout = setTimeout(() => controller?.abort(), 60000);
       const res = await fetch('/api/chat-knowledge', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ question: lastUserMsg.content, userId }),
         signal: controller.signal,
       });
-      clearTimeout(timeout);
-      if (!res.ok || !res.body) { setIsStreaming(false); return; }
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let fullContent = '';
-      const assistantMsg: Message = { id: 'stream-' + Date.now(), role: 'assistant', content: '', createdAt: Date.now() };
-      setMessages(prev => [...prev, assistantMsg]);
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n').filter(Boolean);
-        for (const line of lines) {
-          try {
-            const data = JSON.parse(line);
-            if (data.type === 'content') {
-              fullContent += data.text;
-              setMessages(prev => {
-                const updated = [...prev];
-                const last = updated[updated.length - 1];
-                if (last && last.id === assistantMsg.id) updated[updated.length - 1] = { ...last, content: fullContent };
-                return updated;
-              });
-            }
-          } catch {}
-        }
+      if (!res.ok) {
+        throw new Error((await res.text()).trim() || 'AI could not answer. Please try again.');
       }
-      if (fullContent) await addMessage({ chatId: activeChatId, role: 'assistant', content: fullContent });
-    } catch { }
-    setIsStreaming(false);
+      if (!res.body) throw new Error('AI returned an empty response. Please try again.');
+
+      const assistantMsg: Message = { id: 'stream-' + Date.now(), role: 'assistant', content: '', createdAt: Date.now() };
+      assistantMessageId = assistantMsg.id;
+      setMessages(prev => [...prev, assistantMsg]);
+
+      let sources: Source[] = [];
+      await consumeChatStream(res.body, (event) => {
+        if (event.type === 'error') throw new Error('The AI response was interrupted. Please try again.');
+        if (event.type === 'content' && event.text) {
+          fullContent += event.text;
+          setMessages(prev => prev.map(message =>
+            message.id === assistantMsg.id ? { ...message, content: fullContent } : message
+          ));
+        } else if (event.type === 'done') {
+          sources = event.sources ?? [];
+        }
+      });
+      if (fullContent) {
+        await addMessage({
+          chatId: activeChatId,
+          role: 'assistant',
+          content: fullContent,
+          sources: sources.length > 0 ? sources : undefined,
+        });
+      }
+    } catch (error) {
+      setMessages(prev => [...prev, {
+        id: 'error-' + Date.now(),
+        role: 'assistant',
+        content: controller?.signal.aborted
+          ? 'The AI response timed out. Please try again.'
+          : error instanceof Error ? error.message : 'Something went wrong. Please try again.',
+        createdAt: Date.now(),
+      }]);
+    } finally {
+      if (timeout) clearTimeout(timeout);
+      setIsStreaming(false);
+    }
+
+    if (assistantMessageId && !fullContent) {
+      setMessages(prev => prev.filter(message => message.id !== assistantMessageId));
+    }
   };
 
   const handleCopy = async (content: string, index: number) => {
@@ -648,14 +698,14 @@ export default function ChatYourKnowledgePage() {
             { icon: Star, label: 'Pinned', href: '#' },
             { icon: Settings, label: 'Settings', href: '/dashboard/settings' },
           ].map(item => (
-            <a
+            <Link
               key={item.label}
               href={item.href}
               className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs text-zinc-500 hover:text-zinc-300 hover:bg-white/[0.03] transition-all"
             >
               <item.icon className="w-3.5 h-3.5" />
               {item.label}
-            </a>
+            </Link>
           ))}
         </div>
       </aside>
@@ -739,13 +789,13 @@ export default function ChatYourKnowledgePage() {
                     <p className="text-xs text-zinc-500 leading-relaxed mb-3">
                       Upload your first document to start chatting with your knowledge.
                     </p>
-                    <a
+                    <Link
                       href="/dashboard/knowledge"
                       className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-black text-xs font-semibold hover:bg-primary-light transition-all"
                     >
                       <Plus className="w-3.5 h-3.5" />
                       Upload your first document
-                    </a>
+                    </Link>
                   </div>
                 ) : (
                   <>
@@ -982,19 +1032,19 @@ export default function ChatYourKnowledgePage() {
                   <div className="text-center py-10">
                     <FileText className="w-6 h-6 text-zinc-700 mx-auto mb-2" />
                     <p className="text-xs text-zinc-600">No knowledge uploaded yet</p>
-                    <a href="/dashboard/knowledge" className="inline-flex items-center gap-1 mt-3 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-medium hover:bg-primary/15 transition-all">
+                    <Link href="/dashboard/knowledge" className="inline-flex items-center gap-1 mt-3 px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-xs font-medium hover:bg-primary/15 transition-all">
                       <Plus className="w-3 h-3" /> Upload
-                    </a>
+                    </Link>
                   </div>
                 ) : (
                   <>
-                    <a href="/dashboard/knowledge" className="flex items-center justify-between p-2.5 rounded-lg bg-primary/[0.05] border border-primary/20 hover:bg-primary/[0.08] transition-all">
+                    <Link href="/dashboard/knowledge" className="flex items-center justify-between p-2.5 rounded-lg bg-primary/[0.05] border border-primary/20 hover:bg-primary/[0.08] transition-all">
                       <div className="flex items-center gap-2">
                         <Plus className="w-3 h-3 text-primary" />
                         <span className="text-[11px] font-medium text-primary">Upload new</span>
                       </div>
                       <ExternalLink className="w-2.5 h-2.5 text-primary/60" />
-                    </a>
+                    </Link>
                     <div className="space-y-1.5">
                       {(knowledge as Array<{ _id: string; title: string; content: string; createdAt: number; sourceType?: string }>).slice(0, 15).map(item => (
                         <div key={item._id} className="p-2.5 rounded-lg bg-white/[0.02] border border-white/[0.06] hover:bg-white/[0.04] transition-all">
@@ -1013,9 +1063,9 @@ export default function ChatYourKnowledgePage() {
                       ))}
                     </div>
                     {(knowledge as Array<any>).length > 15 && (
-                      <a href="/dashboard/knowledge" className="block text-center text-[10px] text-primary/60 hover:text-primary py-2 transition-colors">
+                      <Link href="/dashboard/knowledge" className="block text-center text-[10px] text-primary/60 hover:text-primary py-2 transition-colors">
                         View all {knowledge.length} items
-                      </a>
+                      </Link>
                     )}
                   </>
                 )}

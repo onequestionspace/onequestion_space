@@ -58,7 +58,7 @@ Live: [onequestion.space](https://onequestion.space) · Vercel auto-deploy from 
 | `NEXT_PUBLIC_CONVEX_URL` | ConvexHttpClient in 13 modules |
 | `CONVEX_DEPLOY_KEY` | Convex deploys |
 | `GEMINI_API_KEY` | `lib/gemini.ts` + 6 API routes |
-| `GROQ_API_KEY` | Groq fallback in `app/api/stream` |
+| `GROQ_API_KEY` | Optional Groq fallback in `app/api/stream` and `app/api/chat-knowledge` |
 | `PAYSTACK_SECRET_KEY` | Paystack initialize/verify/webhook |
 | `NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY` | billing page |
 | `ADMIN_SECRET` | `app/api/admin/seed-profile` (x-admin-secret header) |
@@ -104,8 +104,8 @@ Visitor opens /:username
   → POST /api/stream                     ← THE main answer route
       → gemini generateEmbeddings(question)
       → convex knowledge.embeddings, cosineSimilarity(), top-5 chunks
-      → Gemini 2.5 Flash (SSE stream)
-      → fallback: Groq llama-3.3-70b on rate-limit / empty response
+      → Gemini 2.5 Flash (SSE stream, buffered frame parsing)
+      → fallback: Groq llama-3.3-70b on provider failure / empty response
       → save question + answer, increment usage
   → page re-renders reactively via useQuery (no polling needed)
 ```

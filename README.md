@@ -46,17 +46,15 @@ cd onequestion_space
 npm install
 ```
 
-Create `.env.local`:
+Copy `.env.example` to `.env.local` and replace the placeholders with your
+credentials. The example file intentionally contains no real secrets:
 
-```env
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_...
-CLERK_SECRET_KEY=sk_...
-NEXT_PUBLIC_CONVEX_URL=https://...
-CONVEX_DEPLOY_KEY=...
-GEMINI_API_KEY=...
-PAYSTACK_SECRET_KEY=sk_...
-NEXT_PUBLIC_PAYSTACK_PUBLIC_KEY=pk_...
+```bash
+cp .env.example .env.local
 ```
+
+Set your real `GEMINI_API_KEY`; it is used for embeddings and FAQ generation.
+`GROQ_API_KEY` is an optional text-generation fallback.
 
 ```bash
 npx convex dev --once
