@@ -25,10 +25,12 @@ export const getQuestionsByProfile = query({
 export const getRecentQuestions = query({
   args: { profileId: v.id('profiles'), limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
+    await assertProfileOwner(ctx, args.profileId);
+    const limit = Math.max(1, Math.min(100, Math.floor(args.limit ?? 5)));
     return await ctx.db.query('questions')
       .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
       .order('desc')
-      .take(args.limit ?? 5);
+      .take(limit);
   },
 });
 
@@ -200,6 +202,7 @@ export const deleteQuestion = mutation({
 export const getAnsweredQuestionByText = query({
   args: { profileId: v.id('profiles'), question: v.string() },
   handler: async (ctx, args) => {
+    await assertProfileOwner(ctx, args.profileId);
     const q = args.question.toLowerCase().trim();
     const results = await ctx.db.query('questions')
       .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
@@ -228,7 +231,11 @@ export const getSemanticMatch = query({
       const score = denom === 0 ? 0 : dot / denom;
       if (score > bestScore) { bestScore = score; best = r; }
     }
-    if (best && bestScore > 0.92) return best;
+    // This query is used by the public answer route, so return only the
+    // answer-cache fields it needs; never expose visitor IDs or other metadata.
+    if (best && bestScore > 0.92) {
+      return { question: best.question, answer: best.answer, embeddings: best.embeddings };
+    }
     return null;
   },
 });
