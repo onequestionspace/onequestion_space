@@ -8,13 +8,18 @@ export function PricingSection() {
   const createHref = isSignedIn ? '/dashboard' : '/sign-up';
 
   return (
-    <section id="pricing" className="scroll-mt-20 border-t border-zinc-200 bg-white px-4 py-20 text-black sm:py-28">
-      <div className="mx-auto max-w-5xl">
-        <div className="max-w-xl">
-          <p className="text-sm font-medium text-zinc-500">Pricing</p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">
-            Start free. Upgrade when it helps.
-          </h2>
+    <section id="pricing" className="relative scroll-mt-20 overflow-hidden border-t border-zinc-200 bg-[#f7f7f5] px-4 py-20 text-black sm:py-28">
+      <div className="nest-lines pointer-events-none absolute inset-x-0 top-0 h-64 opacity-25" aria-hidden="true" />
+      <div className="relative mx-auto max-w-5xl">
+        <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
+          <div className="max-w-xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">Simple pricing</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.045em] sm:text-5xl">
+              Start free. Stay useful.
+            </h2>
+            <p className="mt-4 max-w-md text-sm leading-6 text-zinc-600">Everything you need to turn repeated questions into a helpful public space.</p>
+          </div>
+          <span className="w-fit rounded-full border border-zinc-300 bg-white px-3 py-1.5 text-xs text-zinc-600">No credit card required</span>
         </div>
 
         <div className="mt-10 grid gap-4 sm:grid-cols-2">
@@ -36,7 +41,7 @@ export function PricingSection() {
             <div>
               <h3 className="text-base font-medium">Pro</h3>
               <p className="mt-4 text-4xl font-semibold tracking-tight">
-                $9 <span className="text-base font-normal text-zinc-500">/ month</span>
+                $6 <span className="text-base font-normal text-zinc-500">/ month</span>
               </p>
               <ul className="mt-4 space-y-2 text-sm text-zinc-600">
                 <li>500 answers per month</li>

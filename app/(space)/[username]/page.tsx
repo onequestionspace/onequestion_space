@@ -138,7 +138,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   const displayName = profile.displayName || profile.username;
 
   return (
-    <main className="min-h-screen bg-white px-5 text-black sm:px-8">
+    <main className="nest-background min-h-screen px-5 text-black sm:px-8">
       <div className="mx-auto flex min-h-screen max-w-3xl flex-col">
         <header className="flex h-16 items-center">
           {isProPlan === false && (

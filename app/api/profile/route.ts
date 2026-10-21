@@ -3,12 +3,13 @@ import { auth } from '@clerk/nextjs/server';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
-
 export async function GET() {
   try {
     const { userId } = await auth();
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+    if (!convexUrl) return NextResponse.json({ error: 'Database connection is not configured' }, { status: 503 });
+    const convex = new ConvexHttpClient(convexUrl);
 
     const profile = await convex.query(api.profiles.current);
     return NextResponse.json(profile);

@@ -4,8 +4,6 @@ import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
 import { isAdminUser } from '@/convex/userIds';
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
-
 export async function POST(req: NextRequest) {
   const { userId, getToken } = await auth();
   if (!userId || !isAdminUser(userId)) {
@@ -13,6 +11,11 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+    if (!convexUrl) {
+      return NextResponse.json({ error: 'Database connection is not configured' }, { status: 503 });
+    }
+    const convex = new ConvexHttpClient(convexUrl);
     const { username, displayName, bio, welcomeMessage } = await req.json();
     if (!username || !displayName) {
       return NextResponse.json({ error: 'username and displayName required' }, { status: 400 });

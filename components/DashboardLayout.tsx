@@ -60,7 +60,7 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
   const isPro = subscription?.plan === 'pro' && subscription.status === 'active';
 
   return (
-    <div className="dashboard-shell min-h-screen bg-white text-zinc-950">
+    <div className="dashboard-shell nest-background min-h-screen text-zinc-950">
       {/* Mobile header bar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 h-14 border-b border-zinc-200 bg-white">
         <Link href="/" className="flex items-center gap-2" aria-label="Home">

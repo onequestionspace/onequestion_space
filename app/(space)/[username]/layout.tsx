@@ -2,11 +2,12 @@ import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
 import type { Metadata } from 'next';
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
-
 export async function generateMetadata({ params }: { params: Promise<{ username: string }> }): Promise<Metadata> {
   const { username } = await params;
   try {
+    const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+    if (!convexUrl) return { title: 'One Question Space' };
+    const convex = new ConvexHttpClient(convexUrl);
     const profile = await convex.query(api.profiles.byUsername, { username });
     if (!profile) return { title: 'Space not found' };
 

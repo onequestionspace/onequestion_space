@@ -5,7 +5,6 @@ import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
 import { isAdminUser } from '@/convex/userIds';
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY!;
 const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
 const STREAM_SECRET = process.env.ONEQUESTION_STREAM_SECRET || '';
@@ -148,6 +147,9 @@ async function streamGroq(prompt: string): Promise<ReadableStream<Uint8Array> | 
 
 export async function POST(request: NextRequest) {
   try {
+    const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+    if (!convexUrl) return new Response('Database connection is not configured', { status: 503 });
+    const convex = new ConvexHttpClient(convexUrl);
     const { question, username, visitorEmail, visitorId: clientVisitorId } = await request.json();
     if (!question?.trim() || !username?.trim()) return new Response('Missing params', { status: 400 });
 
