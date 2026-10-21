@@ -34,7 +34,6 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
     api.subscriptions.isProPlan,
     profile?._id ? { profileId: profile._id } : 'skip'
   );
-  const incrementVisitor = useMutation(api.analytics.incrementVisitorCount);
   const trackPageview = useMutation(api.siteAnalytics.trackPageview);
 
   useEffect(() => {
@@ -44,7 +43,13 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
     const lastVisit = Number(localStorage.getItem(visitedKey) || 0);
     const now = Date.now();
     if (!lastVisit || now - lastVisit > 86400000) {
-      void incrementVisitor({ profileId: profile._id }).catch((visitError) => {
+      void fetch('/api/visitor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profileId: profile._id }),
+      }).then((response) => {
+        if (!response.ok) throw new Error('Visitor tracking request failed');
+      }).catch((visitError) => {
         console.error('Could not record space visitor:', visitError);
       });
       localStorage.setItem(visitedKey, String(now));
@@ -56,7 +61,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
     }).catch((trackingError) => {
       console.error('Could not record space pageview:', trackingError);
     });
-  }, [profile?._id, incrementVisitor, trackPageview, username]);
+  }, [profile?._id, trackPageview, username]);
 
   const handleSubmit = async () => {
     const questionToAsk = question.trim();
