@@ -41,8 +41,12 @@ export const getPublicKnowledgeByUsername = query({
 });
 
 export const getPublicKnowledgeByUserId = query({
-  args: { userId: v.string() },
+  // Server-only lookup used by the Knowledge Explorer. Public profile visitors
+  // must use getPublicKnowledgeByUsername instead.
+  args: { secret: v.string(), userId: v.string() },
   handler: async (ctx, args) => {
+    const expected = process.env.ONEQUESTION_STREAM_SECRET;
+    if (!expected || args.secret !== expected) throw new Error('Not authorized');
     const profile = await ctx.db.query('profiles')
       .withIndex('by_userId', (q) => q.eq('userId', args.userId))
       .unique();
