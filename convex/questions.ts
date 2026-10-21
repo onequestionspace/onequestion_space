@@ -25,10 +25,12 @@ export const getQuestionsByProfile = query({
 export const getRecentQuestions = query({
   args: { profileId: v.id('profiles'), limit: v.optional(v.number()) },
   handler: async (ctx, args) => {
+    await assertProfileOwner(ctx, args.profileId);
+    const limit = Math.max(1, Math.min(100, Math.floor(args.limit ?? 5)));
     return await ctx.db.query('questions')
       .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
       .order('desc')
-      .take(args.limit ?? 5);
+      .take(limit);
   },
 });
 
