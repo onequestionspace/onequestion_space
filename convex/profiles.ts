@@ -75,6 +75,43 @@ export const checkUsernameAvailable = query({
 export const byUsername = query({
   args: { username: v.string() },
   handler: async (ctx, args) => {
+    const profile = await ctx.db
+      .query('profiles')
+      .withIndex('by_username', (q) => q.eq('username', args.username))
+      .unique();
+    if (!profile) return null;
+    // Public profile data only. Never expose owner IDs or seeded-profile claim tokens.
+    return {
+      _id: profile._id,
+      _creationTime: profile._creationTime,
+      username: profile.username,
+      displayName: profile.displayName,
+      bio: profile.bio,
+      avatar: profile.avatar,
+      welcomeMessage: profile.welcomeMessage,
+      themeColor: profile.themeColor,
+      themeBg: profile.themeBg,
+      themeFont: profile.themeFont,
+      themeCardStyle: profile.themeCardStyle,
+      socialLinks: profile.socialLinks,
+      vibeQuote: profile.vibeQuote,
+      links: profile.links,
+      themeEffect: profile.themeEffect,
+      pinnedQuestions: profile.pinnedQuestions,
+      suggestedQuestions: profile.suggestedQuestions,
+      goalType: profile.goalType,
+      goalLink: profile.goalLink,
+      createdAt: profile.createdAt,
+      updatedAt: profile.updatedAt,
+    };
+  },
+});
+
+export const getProfileForServer = query({
+  args: { secret: v.string(), username: v.string() },
+  handler: async (ctx, args) => {
+    const expected = process.env.ONEQUESTION_STREAM_SECRET;
+    if (!expected || args.secret !== expected) throw new Error('Not authorized');
     return await ctx.db
       .query('profiles')
       .withIndex('by_username', (q) => q.eq('username', args.username))
