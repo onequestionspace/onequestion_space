@@ -17,6 +17,8 @@ type PaymentApplicationResult =
 export const getSubscription = query({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity || identity.subject !== args.userId) throw new Error('Not authorized');
     return await ctx.db
       .query('subscriptions')
       .withIndex('by_userId', (q) => q.eq('userId', args.userId))
@@ -27,6 +29,8 @@ export const getSubscription = query({
 export const getOrCreateSubscription = mutation({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity || identity.subject !== args.userId) throw new Error('Not authorized');
     const existing = await ctx.db
       .query('subscriptions')
       .withIndex('by_userId', (q) => q.eq('userId', args.userId))
@@ -178,6 +182,8 @@ export const isProPlan = query({
 export const incrementMessagesUsed = mutation({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity || identity.subject !== args.userId) throw new Error('Not authorized');
     const record = await ctx.db
       .query('subscriptions')
       .withIndex('by_userId', (q) => q.eq('userId', args.userId))
@@ -191,9 +197,38 @@ export const incrementMessagesUsed = mutation({
   },
 });
 
+
+export const reservePublicAnswer = mutation({
+  args: { secret: v.string(), userId: v.string() },
+  handler: async (ctx, args) => {
+    const expected = process.env.ONEQUESTION_STREAM_SECRET;
+    if (!expected || args.secret !== expected) throw new Error('Not authorized');
+    const existing = await ctx.db.query('subscriptions')
+      .withIndex('by_userId', (q) => q.eq('userId', args.userId))
+      .unique();
+    const now = Date.now();
+    let record = existing;
+    if (!record) {
+      const id = await ctx.db.insert('subscriptions', {
+        userId: args.userId, plan: 'free', status: 'active',
+        messagesUsed: 0, messagesLimit: 50, createdAt: now, updatedAt: now,
+      });
+      record = await ctx.db.get(id);
+    }
+    if (!record || record.status !== 'active') return { allowed: false, reason: 'inactive' as const };
+    if (record.messagesLimit !== -1 && record.messagesUsed >= record.messagesLimit) {
+      return { allowed: false, reason: 'limit_reached' as const };
+    }
+    await ctx.db.patch(record._id, { messagesUsed: record.messagesUsed + 1, updatedAt: now });
+    return { allowed: true, reason: 'ok' as const };
+  },
+});
+
 export const cancelSubscription = mutation({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity || identity.subject !== args.userId) throw new Error('Not authorized');
     const record = await ctx.db
       .query('subscriptions')
       .withIndex('by_userId', (q) => q.eq('userId', args.userId))
