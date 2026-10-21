@@ -1,9 +1,9 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
-import type { QueryCtx } from './_generated/server';
+import type { MutationCtx, QueryCtx } from './_generated/server';
 import type { Id } from './_generated/dataModel';
 
-async function assertProfileOwner(ctx: QueryCtx, profileId: Id<'profiles'>) {
+async function assertProfileOwner(ctx: QueryCtx | MutationCtx, profileId: Id<'profiles'>) {
   const identity = await ctx.auth.getUserIdentity();
   const profile = await ctx.db.get(profileId);
   if (!identity || !profile || profile.userId !== identity.subject) {
@@ -63,6 +63,7 @@ export const getMostAskedQuestions = query({
 export const getUnansweredQuestions = query({
   args: { profileId: v.id('profiles') },
   handler: async (ctx, args) => {
+    await assertProfileOwner(ctx, args.profileId);
     return await ctx.db.query('questions')
       .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
       .filter((q) => q.eq(q.field('isAnswered'), false))
@@ -102,18 +103,26 @@ export const createQuestion = mutation({
 export const answerQuestion = mutation({
   args: { id: v.id('questions'), answer: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db.patch(args.id, {
+    const question = await ctx.db.get(args.id);
+    if (!question) throw new Error('Question not found');
+    await assertProfileOwner(ctx, question.profileId);
+    await ctx.db.patch(args.id, {
       answer: args.answer,
       isAnswered: true,
       answeredAt: Date.now(),
     });
+    return args.id;
   },
 });
 
 export const deleteQuestion = mutation({
   args: { id: v.id('questions') },
   handler: async (ctx, args) => {
-    return await ctx.db.delete(args.id);
+    const question = await ctx.db.get(args.id);
+    if (!question) return null;
+    await assertProfileOwner(ctx, question.profileId);
+    await ctx.db.delete(args.id);
+    return args.id;
   },
 });
 
@@ -185,6 +194,7 @@ export const getVisitorEmails = query({
 export const listNeedsReview = query({
   args: { profileId: v.id('profiles') },
   handler: async (ctx, { profileId }) => {
+    await assertProfileOwner(ctx, profileId);
     return await ctx.db
       .query('questions')
       .withIndex('by_profileId_needsReview', (q) =>
@@ -199,11 +209,13 @@ export const resolveQuestion = mutation({
   args: {
     id: v.id('questions'),
     correctedAnswer: v.string(),
-    userId: v.string(),
   },
   handler: async (ctx, args) => {
     const q = await ctx.db.get(args.id);
-    if (!q) return;
+    if (!q) throw new Error('Question not found');
+    await assertProfileOwner(ctx, q.profileId);
+    const profile = await ctx.db.get(q.profileId);
+    if (!profile) throw new Error('Profile not found');
     await ctx.db.patch(args.id, {
       answer: args.correctedAnswer,
       isAnswered: true,
@@ -211,7 +223,7 @@ export const resolveQuestion = mutation({
       answeredAt: Date.now(),
     });
     await ctx.db.insert('knowledge', {
-      userId: args.userId,
+      userId: profile.userId,
       title: q.question,
       content: args.correctedAnswer,
       createdAt: Date.now(),
