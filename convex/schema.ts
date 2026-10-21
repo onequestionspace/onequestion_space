@@ -217,6 +217,8 @@ export default defineSchema({
     count: v.number(),
     windowStartedAt: v.number(),
     updatedAt: v.number(),
-  }).index('by_key', ['key']),
+  })
+    .index('by_key', ['key'])
+    .index('by_updatedAt', ['updatedAt']),
 });
 // customBg added via patch — no schema change needed, stored in themeEffect as "custom:URL"
