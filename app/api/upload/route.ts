@@ -4,7 +4,14 @@ import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
 import { createKnowledgeEmbeddings } from '@/lib/gemini';
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+async function getAuthenticatedConvexClient() {
+  const { getToken } = await auth();
+  const token = await getToken({ template: 'convex' });
+  if (!token) throw new Error('Could not obtain Convex authentication token');
+  const client = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+  client.setAuth(token);
+  return client;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,45 +19,41 @@ export async function POST(req: NextRequest) {
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const formData = await req.formData();
-    const file = formData.get('file') as File;
-    const type = formData.get('type') as string;
-    const sourceType = formData.get('sourceType') as string;
-    const title = formData.get('title') as string;
+    const file = formData.get('file');
+    const type = formData.get('type');
+    const sourceType = formData.get('sourceType');
+    const title = formData.get('title');
 
-    if (!file) return NextResponse.json({ error: 'No file' }, { status: 400 });
+    if (!(file instanceof File)) return NextResponse.json({ error: 'No file' }, { status: 400 });
+    if (file.size > 5 * 1024 * 1024) {
+      return NextResponse.json({ error: 'File exceeds the 5 MB limit' }, { status: 413 });
+    }
 
-    const fileType = file.type;
-
-    // Handle avatar upload - convert to base64 data URL
-    if (type === 'avatar' || fileType.startsWith('image/')) {
+    const fileType = file.type || '';
+    const isImage = fileType.startsWith('image/');
+    if (type === 'avatar') {
+      if (!isImage) return NextResponse.json({ error: 'Avatar must be an image' }, { status: 400 });
       const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      const base64 = buffer.toString('base64');
-      const dataUrl = 'data:' + fileType + ';base64,' + base64;
-      
+      const dataUrl = 'data:' + fileType + ';base64,' + Buffer.from(bytes).toString('base64');
       return NextResponse.json({ success: true, url: dataUrl });
     }
 
-    // Handle image as knowledge (store as base64)
-    if (fileType.startsWith('image/') && type !== 'avatar') {
+    const convex = await getAuthenticatedConvexClient();
+
+    if (isImage) {
       const bytes = await file.arrayBuffer();
-      const buffer = Buffer.from(bytes);
-      const base64 = buffer.toString('base64');
-      const dataUrl = 'data:' + fileType + ';base64,' + base64;
+      const dataUrl = 'data:' + fileType + ';base64,' + Buffer.from(bytes).toString('base64');
       await convex.mutation(api.knowledge.createKnowledge, {
         userId,
-        title: title || file.name,
+        title: typeof title === 'string' && title.trim() ? title.trim() : file.name,
         content: file.name,
         fileUrl: dataUrl,
         fileType,
-        sourceType: sourceType || 'image',
+        sourceType: typeof sourceType === 'string' ? sourceType : 'image',
       });
       return NextResponse.json({ success: true, data: { fileUrl: dataUrl } });
     }
 
-    // Handle text-based file uploads for knowledge base.
-    // Mobile browsers often misreport or omit MIME type for .md/.txt files,
-    // so we also check the file extension as a fallback.
     const textMimeTypes = ['text/plain', 'text/markdown', 'text/x-markdown', 'application/octet-stream', ''];
     const textExtensions = ['.txt', '.md', '.markdown', '.csv'];
     const lowerName = (file.name || '').toLowerCase();
@@ -58,7 +61,7 @@ export async function POST(req: NextRequest) {
 
     if (looksLikeText) {
       const content = await file.text();
-      const knowledgeTitle = title || file.name;
+      const knowledgeTitle = typeof title === 'string' && title.trim() ? title.trim() : file.name;
       const { embeddings, chunks } = await createKnowledgeEmbeddings(knowledgeTitle, content);
       await convex.mutation(api.knowledge.createKnowledge, {
         userId,
@@ -67,14 +70,16 @@ export async function POST(req: NextRequest) {
         embeddings,
         chunks,
         fileType: fileType || 'text/plain',
-        sourceType: sourceType || 'personal',
+        sourceType: typeof sourceType === 'string' ? sourceType : 'personal',
       });
       return NextResponse.json({ success: true });
     }
 
-    return NextResponse.json({ error: 'Unsupported file type: ' + (fileType || 'unknown') + '. Supported: .txt, .md, images. PDF support coming soon.' }, { status: 400 });
-  } catch (e) {
-    console.error(e);
+    return NextResponse.json({
+      error: 'Unsupported file type: ' + (fileType || 'unknown') + '. Supported: .txt, .md, images. PDF support coming soon.',
+    }, { status: 400 });
+  } catch (error) {
+    console.error('Upload failed:', error);
     return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
   }
 }
