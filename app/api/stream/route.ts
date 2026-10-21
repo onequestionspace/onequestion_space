@@ -190,11 +190,10 @@ export async function POST(request: NextRequest) {
       const cachedAnswerIsConcise = semanticMatch?.answer
         && semanticMatch.answer.trim().split(/\s+/).length <= 65;
       if (semanticMatch?.answer && cachedAnswerIsConcise) {
-        convex.mutation(api.analytics.incrementQuestionCount, { profileId: profile._id }).catch(() => {});
-        convex.mutation(api.analytics.incrementAnswerCount, { profileId: profile._id }).catch(() => {});
-        if (!isAdmin) {
-          convex.mutation(api.subscriptions.incrementMessagesUsed, { userId: profile.userId }).catch(() => {});
-        }
+        await convex.mutation(api.questions.recordGeneratedAnswer, {
+          secret: STREAM_SECRET, profileId: profile._id, question, answer: semanticMatch.answer,
+          visitorId: effectiveVisitorId, embeddings: qEmbed.length > 0 ? qEmbed : undefined,
+        });
         return new Response(semanticMatch.answer, {
           headers: { 'Content-Type': 'text/plain; charset=utf-8' },
         });
