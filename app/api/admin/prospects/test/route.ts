@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
     if (!profile?.isSeeded) {
       return NextResponse.json({ success: false, error: 'Prospect page not found or already claimed' }, { status: 404 });
     }
-    const knowledge = await convex.query(api.knowledge.getKnowledgeByUserId, { userId: profile.userId });
+    const knowledge = await convex.query(api.knowledge.getPublicKnowledgeByUsername, { username: profile.username });
     if (!knowledge.length) {
       return NextResponse.json({ success: false, error: 'Add at least one knowledge item before testing.' }, { status: 400 });
     }
