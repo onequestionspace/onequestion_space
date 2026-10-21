@@ -6,7 +6,10 @@ const MAX_SPOTS = 5;
 export const getFoundingMembers = query({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db.query('founding').order('asc').collect();
+    const members = await ctx.db.query('founding').order('asc').collect();
+    return members.map(({ username, displayName, claimedAt, spotNumber }) => ({
+      username, displayName, claimedAt, spotNumber,
+    }));
   },
 });
 
