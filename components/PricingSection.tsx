@@ -42,7 +42,7 @@ export function PricingSection() {
             <div>
               <h3 className="text-base font-medium">Pro</h3>
               <p className="mt-4 text-4xl font-semibold tracking-tight">
-                $6 <span className="text-base font-normal text-zinc-400">/ month</span>
+                $9 <span className="text-base font-normal text-zinc-400">/ month</span>
               </p>
               <p className="mt-2 text-xs text-zinc-400">Less than one coffee. More useful than another link page.</p>
               <ul className="mt-5 space-y-2 text-sm text-zinc-300">
