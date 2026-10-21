@@ -8,6 +8,7 @@ import { isAdminUser } from '@/convex/userIds';
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY!;
 const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
+const STREAM_SECRET = process.env.ONEQUESTION_STREAM_SECRET || '';
 
 const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
 const BOOK_INTENT_REGEX = /\b(book|schedule|call|meet|meeting|chat with you|talk to you|let'?s talk|available)\b/i;
@@ -157,24 +158,21 @@ export async function POST(request: NextRequest) {
 
     const isAdmin = isAdminUser(profile.userId);
 
+    if (!STREAM_SECRET) return new Response('Service temporarily unavailable', { status: 503 });
     if (!isAdmin) {
-      const subscription = await convex.mutation(api.subscriptions.getOrCreateSubscription, { userId: profile.userId });
-      if (subscription) {
-        const used = subscription.messagesUsed ?? 0;
-        const limit = subscription.messagesLimit ?? 50;
-        if (limit !== -1 && used >= limit) return new Response('limit_reached', { status: 429 });
-      }
+      const reservation = await convex.mutation(api.subscriptions.reservePublicAnswer, {
+        secret: STREAM_SECRET, userId: profile.userId,
+      });
+      if (!reservation.allowed) return new Response('limit_reached', { status: 429 });
     }
 
     const knowledgeChunks = await convex.query(api.knowledge.getPublicKnowledgeByUsername, { username: profile.username });
     const hasKnowledge = knowledgeChunks && knowledgeChunks.length > 0;
 
     if (!hasKnowledge) {
-      convex.mutation(api.questions.createQuestion, {
-        profileId: profile._id, question, visitorId: effectiveVisitorId,
-        isAnswered: false, createdAt: Date.now(),
-      }).catch(() => {});
-      convex.mutation(api.analytics.incrementQuestionCount, { profileId: profile._id }).catch(() => {});
+      await convex.mutation(api.questions.recordPublicQuestion, {
+        secret: STREAM_SECRET, profileId: profile._id, question, visitorId: effectiveVisitorId,
+      });
 
       const noKnowledgeMsg = `${profile.displayName || profile.username || 'This space'} hasn't added any knowledge yet. The owner has been notified of your question and will answer it soon.`;
       return new Response(noKnowledgeMsg, {
@@ -192,11 +190,10 @@ export async function POST(request: NextRequest) {
       const cachedAnswerIsConcise = semanticMatch?.answer
         && semanticMatch.answer.trim().split(/\s+/).length <= 65;
       if (semanticMatch?.answer && cachedAnswerIsConcise) {
-        convex.mutation(api.analytics.incrementQuestionCount, { profileId: profile._id }).catch(() => {});
-        convex.mutation(api.analytics.incrementAnswerCount, { profileId: profile._id }).catch(() => {});
-        if (!isAdmin) {
-          convex.mutation(api.subscriptions.incrementMessagesUsed, { userId: profile.userId }).catch(() => {});
-        }
+        await convex.mutation(api.questions.recordGeneratedAnswer, {
+          secret: STREAM_SECRET, profileId: profile._id, question, answer: semanticMatch.answer,
+          visitorId: effectiveVisitorId, embeddings: qEmbed.length > 0 ? qEmbed : undefined,
+        });
         return new Response(semanticMatch.answer, {
           headers: { 'Content-Type': 'text/plain; charset=utf-8' },
         });
@@ -223,10 +220,6 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    convex.mutation(api.analytics.incrementQuestionCount, { profileId: profile._id }).catch(() => {});
-    convex.mutation(api.analytics.incrementAnswerCount, { profileId: profile._id }).catch(() => {});
-    if (!isAdmin) convex.mutation(api.subscriptions.incrementMessagesUsed, { userId: profile.userId }).catch(() => {});
-
     // Detect goal completion from the visitor's own message
     let goalHitThisTurn = false;
     if (!goalAlreadyAchieved) {
@@ -252,17 +245,15 @@ export async function POST(request: NextRequest) {
           controller.close();
           reader.releaseLock();
           if (fullAnswer.trim()) {
-            convex.mutation(api.questions.createQuestion, {
+            await convex.mutation(api.questions.recordGeneratedAnswer, {
+              secret: STREAM_SECRET,
               profileId: profile._id,
               question,
               answer: fullAnswer.trim(),
-              isAnswered: true,
               visitorId: effectiveVisitorId,
-              createdAt: Date.now(),
-              answeredAt: Date.now(),
               embeddings: qEmbed.length > 0 ? qEmbed : undefined,
               goalAchieved: goalHitThisTurn || undefined,
-            }).catch(() => {});
+            }).catch((error) => console.error('[stream] Failed to save generated answer:', error));
           }
         }
       },

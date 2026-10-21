@@ -46,6 +46,7 @@ export const getOrCreateAnalytics = mutation({
 export const incrementQuestionCount = mutation({
   args: { profileId: v.id('profiles') },
   handler: async (ctx, args) => {
+    await assertProfileOwner(ctx, args.profileId);
     const record = await ctx.db
       .query('analytics')
       .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
@@ -61,6 +62,7 @@ export const incrementQuestionCount = mutation({
 export const incrementAnswerCount = mutation({
   args: { profileId: v.id('profiles') },
   handler: async (ctx, args) => {
+    await assertProfileOwner(ctx, args.profileId);
     const record = await ctx.db
       .query('analytics')
       .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
@@ -96,6 +98,7 @@ export const updateAnalytics = mutation({
     totalVisitors: v.optional(v.number()),
   },
   handler: async (ctx, args) => {
+    await assertProfileOwner(ctx, args.profileId);
     const record = await ctx.db
       .query('analytics')
       .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
