@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
       if (!reservation.allowed) return new Response('limit_reached', { status: 429 });
     }
 
-    const knowledgeChunks = await convex.query(api.knowledge.getPublicKnowledgeByUsername, { username: profile.username });
+    const knowledgeChunks = await convex.query(api.knowledge.getPublicKnowledgeByUsername, { secret: STREAM_SECRET, username: profile.username });
     const hasKnowledge = knowledgeChunks && knowledgeChunks.length > 0;
 
     if (!hasKnowledge) {
