@@ -220,10 +220,6 @@ export async function POST(request: NextRequest) {
       });
     }
 
-    convex.mutation(api.analytics.incrementQuestionCount, { profileId: profile._id }).catch(() => {});
-    convex.mutation(api.analytics.incrementAnswerCount, { profileId: profile._id }).catch(() => {});
-    if (!isAdmin) convex.mutation(api.subscriptions.incrementMessagesUsed, { userId: profile.userId }).catch(() => {});
-
     // Detect goal completion from the visitor's own message
     let goalHitThisTurn = false;
     if (!goalAlreadyAchieved) {
@@ -249,17 +245,15 @@ export async function POST(request: NextRequest) {
           controller.close();
           reader.releaseLock();
           if (fullAnswer.trim()) {
-            convex.mutation(api.questions.createQuestion, {
+            await convex.mutation(api.questions.recordGeneratedAnswer, {
+              secret: STREAM_SECRET,
               profileId: profile._id,
               question,
               answer: fullAnswer.trim(),
-              isAnswered: true,
               visitorId: effectiveVisitorId,
-              createdAt: Date.now(),
-              answeredAt: Date.now(),
               embeddings: qEmbed.length > 0 ? qEmbed : undefined,
               goalAchieved: goalHitThisTurn || undefined,
-            }).catch(() => {});
+            }).catch((error) => console.error('[stream] Failed to save generated answer:', error));
           }
         }
       },
