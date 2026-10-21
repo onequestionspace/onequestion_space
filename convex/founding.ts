@@ -50,8 +50,8 @@ export const claimFoundingSpot = mutation({
     const spotNumber = members.length + 1;
     await ctx.db.insert('founding', {
       userId: args.userId,
-      username: args.username,
-      displayName: args.displayName,
+      username,
+      displayName,
       claimedAt: Date.now(),
       spotNumber,
     });
