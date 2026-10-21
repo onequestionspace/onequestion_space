@@ -8,6 +8,13 @@
   --primary-dark: #000000;
   --black: #000000;
   --white: #ffffff;
+  --ink: #09090b;
+  --paper: #fafafa;
+  --line: rgba(9, 9, 11, 0.14);
+  --accent-purple: #7c3aed;
+  --accent-pink: #ec4899;
+  --accent-red: #ef4444;
+  --accent-yellow: #f59e0b;
   --radius: 0.75rem;
 }
 
