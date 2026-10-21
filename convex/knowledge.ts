@@ -1,7 +1,8 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
+import type { MutationCtx, QueryCtx } from './_generated/server';
 
-async function assertOwner(ctx: any, userId: string) {
+async function assertOwner(ctx: QueryCtx | MutationCtx, userId: string) {
   const identity = await ctx.auth.getUserIdentity();
   if (!identity || identity.subject !== userId) {
     throw new Error('Not authorized to access this knowledge');
@@ -28,10 +29,14 @@ export const getPublicKnowledgeByUsername = query({
       .withIndex('by_username', (q) => q.eq('username', args.username))
       .unique();
     if (!profile) return [];
-    return await ctx.db.query('knowledge')
+    const items = await ctx.db.query('knowledge')
       .withIndex('by_userId', (q) => q.eq('userId', profile.userId))
       .order('desc')
       .collect();
+    // Expose only fields required for answering public questions, not storage URLs or metadata.
+    return items.map(({ title, content, embeddings, chunks, chunkIndex, _id, _creationTime }) => ({
+      _id, _creationTime, title, content, embeddings, chunks, chunkIndex,
+    }));
   },
 });
 
