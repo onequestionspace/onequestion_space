@@ -22,15 +22,19 @@ export function Hero() {
   };
 
   return (
-    <section className="bg-white px-4 pb-24 pt-32 text-black sm:pb-32 sm:pt-40">
-      <div className="mx-auto max-w-5xl text-center">
-        <p className="mb-6 text-sm font-medium text-zinc-500">
-          Early access — join builders testing OneQuestion
-        </p>
-        <h1 className="mx-auto max-w-4xl text-4xl font-semibold leading-[1.08] tracking-[-0.045em] sm:text-6xl md:text-7xl">
-          Stop answering the same questions twice.
+    <section className="relative px-4 pb-24 pt-32 text-black sm:pb-32 sm:pt-40">
+      <div className="nest-lines pointer-events-none absolute right-0 top-0 h-[34rem] w-[46%] opacity-70" aria-hidden="true" />
+      <div className="relative mx-auto max-w-6xl text-left">
+        <div className="mb-8 inline-flex items-center gap-2 border border-zinc-200 bg-white/70 px-3 py-2 text-[11px] font-medium uppercase tracking-[0.18em] text-zinc-500">
+          <span className="h-2 w-2 rounded-full bg-fuchsia-500" aria-hidden="true" />
+          OneQuestion / personal knowledge pages
+        </div>
+        <h1 className="max-w-5xl text-5xl font-semibold leading-[0.98] tracking-[-0.06em] sm:text-7xl md:text-[6.5rem]">
+          Make your work
+          <br />
+          <span className="editorial-underline">easy to find.</span>
         </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-zinc-600 sm:text-lg sm:leading-8">
+        <p className="mt-8 max-w-2xl text-base leading-7 text-zinc-600 sm:text-lg sm:leading-8">
           Turn your knowledge into a personal AI page that answers questions about you, your work and your expertise — 24/7.
         </p>
 
@@ -58,7 +62,7 @@ export function Hero() {
           </button>
         </div>
 
-        <div className="mx-auto mt-20 grid max-w-4xl overflow-hidden rounded-2xl border border-zinc-200 bg-white text-left sm:grid-cols-[1.1fr_0.9fr]">
+        <div className="home-card mt-20 grid max-w-5xl overflow-hidden rounded-[1.25rem] text-left sm:grid-cols-[1.05fr_0.95fr]">
           <div className="flex flex-col justify-center border-b border-zinc-200 p-7 sm:border-b-0 sm:border-r sm:p-10">
             <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">A better way to answer</p>
             <p className="mt-3 text-xl font-medium leading-8 tracking-tight text-zinc-900 sm:text-2xl">

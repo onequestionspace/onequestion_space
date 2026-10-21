@@ -6,7 +6,7 @@ import { PricingSection } from '@/components/PricingSection';
 
 export default function Home() {
   return (
-    <main className="bg-white">
+    <main className="nest-background relative overflow-hidden">
       <Hero />
       <HowItWorksSection />
       <PricingSection />
