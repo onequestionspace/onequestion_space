@@ -40,6 +40,23 @@ export const getPublicKnowledgeByUsername = query({
   },
 });
 
+export const getPublicKnowledgeByUserId = query({
+  args: { userId: v.string() },
+  handler: async (ctx, args) => {
+    const profile = await ctx.db.query('profiles')
+      .withIndex('by_userId', (q) => q.eq('userId', args.userId))
+      .unique();
+    if (!profile) return [];
+    const items = await ctx.db.query('knowledge')
+      .withIndex('by_userId', (q) => q.eq('userId', profile.userId))
+      .order('desc')
+      .collect();
+    return items.map(({ title, content, embeddings, chunks, chunkIndex, _id, _creationTime }) => ({
+      _id, _creationTime, title, content, embeddings, chunks, chunkIndex,
+    }));
+  },
+});
+
 export const getKnowledge = query({
   args: { id: v.id('knowledge') },
   handler: async (ctx, args) => {
