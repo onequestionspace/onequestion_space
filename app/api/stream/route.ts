@@ -8,6 +8,7 @@ import { isAdminUser } from '@/convex/userIds';
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY!;
 const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
+const STREAM_SECRET = process.env.ONEQUESTION_STREAM_SECRET || '';
 
 const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
 const BOOK_INTENT_REGEX = /\b(book|schedule|call|meet|meeting|chat with you|talk to you|let'?s talk|available)\b/i;
