@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '../../../convex/_generated/api';
+import { enforceRateLimit } from '@/lib/server-rate-limit';
 
 function getConvexClient() {
   const url = process.env.NEXT_PUBLIC_CONVEX_URL;
@@ -32,6 +33,11 @@ const RESERVED_USERNAMES = [
 ];
 
 export async function POST(request: NextRequest) {
+  const rate = await enforceRateLimit(request, 'check-username', 30, 60 * 1000);
+  if ('unavailable' in rate) return NextResponse.json({ success: false, error: 'Service temporarily unavailable' }, { status: 503 });
+  if (!rate.allowed) return NextResponse.json({ success: false, error: 'Too many requests' }, {
+    status: 429, headers: { 'Retry-After': String(rate.retryAfterSeconds) },
+  });
   try {
     const body = await request.json();
     const { username } = body;
