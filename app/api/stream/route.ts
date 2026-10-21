@@ -158,13 +158,12 @@ export async function POST(request: NextRequest) {
 
     const isAdmin = isAdminUser(profile.userId);
 
+    if (!STREAM_SECRET) return new Response('Service temporarily unavailable', { status: 503 });
     if (!isAdmin) {
-      const subscription = await convex.mutation(api.subscriptions.getOrCreateSubscription, { userId: profile.userId });
-      if (subscription) {
-        const used = subscription.messagesUsed ?? 0;
-        const limit = subscription.messagesLimit ?? 50;
-        if (limit !== -1 && used >= limit) return new Response('limit_reached', { status: 429 });
-      }
+      const reservation = await convex.mutation(api.subscriptions.reservePublicAnswer, {
+        secret: STREAM_SECRET, userId: profile.userId,
+      });
+      if (!reservation.allowed) return new Response('limit_reached', { status: 429 });
     }
 
     const knowledgeChunks = await convex.query(api.knowledge.getPublicKnowledgeByUsername, { username: profile.username });
