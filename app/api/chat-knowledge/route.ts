@@ -4,7 +4,7 @@ import { createKnowledgeEmbeddings, generateEmbeddings, rankKnowledge } from '@/
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY!;
 const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
 
@@ -278,12 +278,17 @@ function wrapTextAsStream(text: string): ReadableStream<Uint8Array> {
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId: sessionUserId } = await auth();
+    const { userId: sessionUserId, getToken } = await auth();
     if (!sessionUserId) return new Response('Unauthorized', { status: 401 });
 
     const { question, userId, action, actionData } = await request.json();
     if (!userId?.trim()) return new Response('Missing params', { status: 400 });
     if (userId !== sessionUserId) return new Response('Forbidden', { status: 403 });
+
+    const token = await getToken({ template: 'convex' });
+    if (!token) return new Response('Unauthorized', { status: 401 });
+    const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+    convex.setAuth(token);
 
     if (action === 'updateProfile' && actionData) {
       await convex.mutation(api.profiles.update, { ...actionData });
