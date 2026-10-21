@@ -38,7 +38,10 @@ async function fetchLiveKnowledge(question: string): Promise<string> {
   try {
     // Fetch founder's knowledge + published blogs in parallel
     const [knowledgeItems, blogs] = await Promise.all([
-      convex.query(api.knowledge.getPublicKnowledgeByUserId, { userId: PRIMARY_FOUNDER_USER_ID }),
+      convex.query(api.knowledge.getPublicKnowledgeByUserId, {
+        secret: process.env.ONEQUESTION_STREAM_SECRET || '',
+        userId: PRIMARY_FOUNDER_USER_ID,
+      }),
       convex.query(api.blogs.getPublishedBlogs, {}),
     ]);
 
