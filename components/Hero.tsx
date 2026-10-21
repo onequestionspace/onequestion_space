@@ -1,24 +1,26 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import { ArrowRight } from 'lucide-react';
 import { MessageCircleQuestion } from 'lucide-react';
 
 export function Hero() {
   const { isSignedIn } = useAuth();
+  const router = useRouter();
   const [username, setUsername] = useState('');
 
   const createPage = () => {
     if (isSignedIn) {
-      window.location.href = '/dashboard';
+      router.push('/dashboard');
       return;
     }
 
     const requestedUsername = username.trim().toLowerCase();
-    window.location.href = '/sign-up' + (requestedUsername
+    router.push('/sign-up' + (requestedUsername
       ? '?username=' + encodeURIComponent(requestedUsername)
-      : '');
+      : ''));
   };
 
   return (

@@ -138,7 +138,8 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   const displayName = profile.displayName || profile.username;
 
   return (
-    <main className="min-h-screen bg-white px-5 text-black sm:px-8">
+    <main className="nest-background relative min-h-screen overflow-hidden px-5 text-black sm:px-8">
+      <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-20 h-72 w-72 -translate-x-1/2 rounded-full bg-purple-200/30 blur-3xl" />
       <div className="mx-auto flex min-h-screen max-w-3xl flex-col">
         <header className="flex h-16 items-center">
           {isProPlan === false && (
@@ -146,7 +147,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
           )}
         </header>
 
-        <section className="flex flex-1 flex-col items-center pt-[12vh] pb-16 text-center sm:pt-[15vh]">
+        <section className="relative flex flex-1 flex-col items-center pt-[12vh] pb-16 text-center sm:pt-[15vh]">
           <div className="space-avatar-orbit mb-7">
             {profile.avatar ? (
               <Image
@@ -195,6 +196,20 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
                 <ArrowUp className="h-4 w-4" />
               </button>
             </div>
+          </div>
+
+          <div className="mt-4 flex w-full max-w-2xl flex-wrap justify-center gap-2" aria-label="Suggested questions">
+            {['What do you make?', 'How can you help?', 'What should I read first?'].map((suggestion) => (
+              <button
+                key={suggestion}
+                type="button"
+                onClick={() => setQuestion(suggestion)}
+                disabled={isLoading}
+                className="rounded-full border border-zinc-200 bg-white/80 px-3 py-1.5 text-xs text-zinc-600 transition-colors hover:border-zinc-400 hover:text-zinc-950 disabled:opacity-50"
+              >
+                {suggestion}
+              </button>
+            ))}
           </div>
 
           {error && <p role="alert" className="mt-4 max-w-lg text-sm text-zinc-600">{error}</p>}
