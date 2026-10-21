@@ -35,8 +35,6 @@ export async function POST(request: NextRequest) {
     if (!profile?.isSeeded) {
       return NextResponse.json({ success: false, error: 'Prospect page not found or already claimed' }, { status: 404 });
     }
-    const secret = process.env.ONEQUESTION_STREAM_SECRET;
-    if (!secret) return NextResponse.json({ success: false, error: 'Service temporarily unavailable' }, { status: 503 });
     const knowledge = await convex.query(api.knowledge.getPublicKnowledgeByUsername, { secret, username: profile.username });
     if (!knowledge.length) {
       return NextResponse.json({ success: false, error: 'Add at least one knowledge item before testing.' }, { status: 400 });
