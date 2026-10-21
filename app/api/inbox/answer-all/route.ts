@@ -30,7 +30,8 @@ export async function POST(request: NextRequest) {
     const convex = new ConvexHttpClient(convexUrl);
     convex.setAuth(token);
     const profile = await convex.query(api.profiles.byUsername, { username: username.trim() });
-    if (!profile || profile.userId !== userId) {
+    const ownerProfile = await convex.query(api.profiles.current, {});
+    if (!profile || !ownerProfile || profile._id !== ownerProfile._id) {
       return NextResponse.json({ success: false, error: 'Profile not found' }, { status: 404 });
     }
 
