@@ -70,7 +70,11 @@ async function streamFromProvider(
   }
 
   if (!response.ok || !response.body) {
-    console.error(`[ai-stream] ${provider} returned HTTP ${response.status}`);
+    let providerMessage = '';
+    try {
+      providerMessage = (await response.text()).slice(0, 500).replace(/(api[_-]?key|authorization|token)\s*[:=]\s*[^\s,"]+/gi, '$1=[redacted]');
+    } catch {}
+    console.error(`[ai-stream] ${provider} returned HTTP ${response.status}`, providerMessage);
     return null;
   }
 
