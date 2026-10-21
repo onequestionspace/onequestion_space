@@ -87,7 +87,7 @@ export async function POST(request: NextRequest) {
     // Semantic cache check — catches paraphrased repeats of already-answered questions
     if (qEmbed.length > 0) {
       const semanticMatch = await convex.query(api.questions.getSemanticMatch, {
-        profileId: profile._id, embedding: qEmbed,
+        secret: STREAM_SECRET, profileId: profile._id, embedding: qEmbed,
       }).catch(() => null);
       const cachedAnswerIsConcise = semanticMatch?.answer
         && semanticMatch.answer.trim().split(/\s+/).length <= 65;
@@ -106,7 +106,7 @@ export async function POST(request: NextRequest) {
       .map((chunk) => `[${chunk.title}]\n${chunk.content}`);
 
     const goalAlreadyAchieved = await convex.query(api.questions.getVisitorGoalAchieved, {
-      profileId: profile._id, visitorId: effectiveVisitorId,
+      secret: STREAM_SECRET, profileId: profile._id, visitorId: effectiveVisitorId,
     }).catch(() => false);
 
     const goalDirective = buildGoalDirective(profile.goalType, profile.goalLink, !!goalAlreadyAchieved);
