@@ -4,6 +4,7 @@ import { streamAIResponse } from '@/lib/ai-stream';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
 import { isAdminUser } from '@/convex/userIds';
+import { enforceRateLimit } from '@/lib/server-rate-limit';
 
 const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY!;
@@ -147,9 +148,26 @@ async function streamGroq(prompt: string): Promise<ReadableStream<Uint8Array> | 
 }
 
 export async function POST(request: NextRequest) {
+  const rate = await enforceRateLimit(request, 'public-stream', 12, 60 * 1000);
+  if ('unavailable' in rate) return new Response('Service temporarily unavailable', { status: 503 });
+  if (!rate.allowed) {
+    return new Response('Too many requests. Please try again later.', {
+      status: 429,
+      headers: { 'Retry-After': String(rate.retryAfterSeconds) },
+    });
+  }
+
   try {
-    const { question, username, visitorEmail, visitorId: clientVisitorId } = await request.json();
-    if (!question?.trim() || !username?.trim()) return new Response('Missing params', { status: 400 });
+    const body: unknown = await request.json();
+    if (!body || typeof body !== 'object') return new Response('Invalid request body', { status: 400 });
+    const input = body as Record<string, unknown>;
+    const question = typeof input.question === 'string' ? input.question.trim() : '';
+    const username = typeof input.username === 'string' ? input.username.trim().toLowerCase() : '';
+    const visitorEmail = typeof input.visitorEmail === 'string' ? input.visitorEmail.trim().slice(0, 254) : '';
+    const clientVisitorId = typeof input.visitorId === 'string' ? input.visitorId.trim().slice(0, 120) : '';
+    if (!question || question.length > 1000 || !/^[a-z0-9_-]{2,40}$/.test(username)) {
+      return new Response('Invalid question or username', { status: 400 });
+    }
 
     const profile = await convex.query(api.profiles.byUsername, { username });
     if (!profile) return new Response('Profile not found', { status: 404 });
