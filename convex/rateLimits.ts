@@ -1,4 +1,4 @@
-import { mutation } from './_generated/server';
+import { internalMutation, mutation } from './_generated/server';
 import { v } from 'convex/values';
 
 // Only trusted server routes may consume rate-limit buckets.
@@ -43,5 +43,20 @@ export const consume = mutation({
       remaining: Math.max(0, limit - nextCount),
       retryAfterMs,
     };
+  },
+});
+
+
+export const cleanupExpired = internalMutation({
+  args: {},
+  handler: async (ctx) => {
+    const cutoff = Date.now() - 24 * 60 * 60 * 1000;
+    const expired = await ctx.db.query('rateLimitBuckets')
+      .withIndex('by_updatedAt', (q) => q.lt('updatedAt', cutoff))
+      .take(500);
+    for (const bucket of expired) {
+      await ctx.db.delete(bucket._id);
+    }
+    return { deleted: expired.length };
   },
 });
