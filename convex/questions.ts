@@ -72,31 +72,102 @@ export const getUnansweredQuestions = query({
 });
 
 export const createQuestion = mutation({
+  // Public visitor submission only. Callers cannot submit answers, embeddings,
+  // timestamps, review flags, or goal-completion state.
   args: {
     profileId: v.id('profiles'),
     question: v.string(),
-    answer: v.optional(v.string()),
     visitorId: v.optional(v.string()),
-    isAnswered: v.optional(v.boolean()),
-    needsReview: v.optional(v.boolean()),
-    createdAt: v.optional(v.number()),
-    answeredAt: v.optional(v.number()),
+  },
+  handler: async (ctx, args) => {
+    const question = args.question.trim();
+    if (!question || question.length > 2000) throw new Error('Invalid question');
+    const profile = await ctx.db.get(args.profileId);
+    if (!profile) throw new Error('Profile not found');
+    return await ctx.db.insert('questions', {
+      profileId: args.profileId,
+      question,
+      visitorId: args.visitorId?.slice(0, 254),
+      isAnswered: false,
+      needsReview: false,
+      createdAt: Date.now(),
+    });
+  },
+});
+
+export const recordGeneratedAnswer = mutation({
+  // Called only by the trusted Next.js streaming route. Configure the same
+  // high-entropy secret in Convex and Vercel as ONEQUESTION_STREAM_SECRET.
+  args: {
+    secret: v.string(),
+    profileId: v.id('profiles'),
+    question: v.string(),
+    answer: v.string(),
+    visitorId: v.optional(v.string()),
     embeddings: v.optional(v.array(v.number())),
     goalAchieved: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    return await ctx.db.insert('questions', {
+    const expected = process.env.ONEQUESTION_STREAM_SECRET;
+    if (!expected || args.secret !== expected) throw new Error('Not authorized');
+    const profile = await ctx.db.get(args.profileId);
+    if (!profile) throw new Error('Profile not found');
+    const question = args.question.trim();
+    const answer = args.answer.trim();
+    if (!question || question.length > 2000 || !answer || answer.length > 10000) {
+      throw new Error('Invalid question or answer');
+    }
+    const now = Date.now();
+    const id = await ctx.db.insert('questions', {
       profileId: args.profileId,
-      question: args.question,
-      answer: args.answer,
-      visitorId: args.visitorId,
-      isAnswered: args.isAnswered ?? false,
-      needsReview: args.needsReview ?? false,
-      createdAt: args.createdAt ?? Date.now(),
-      answeredAt: args.answeredAt,
+      question,
+      answer,
+      visitorId: args.visitorId?.slice(0, 254),
+      isAnswered: true,
+      needsReview: false,
+      createdAt: now,
+      answeredAt: now,
       embeddings: args.embeddings,
       goalAchieved: args.goalAchieved,
     });
+    const analytics = await ctx.db.query('analytics')
+      .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
+      .unique();
+    if (analytics) await ctx.db.patch(analytics._id, {
+      totalQuestions: analytics.totalQuestions + 1,
+      totalAnswers: analytics.totalAnswers + 1,
+      updatedAt: now,
+    });
+    return id;
+  },
+});
+
+export const recordPublicQuestion = mutation({
+  args: {
+    secret: v.string(),
+    profileId: v.id('profiles'),
+    question: v.string(),
+    visitorId: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const expected = process.env.ONEQUESTION_STREAM_SECRET;
+    if (!expected || args.secret !== expected) throw new Error('Not authorized');
+    const profile = await ctx.db.get(args.profileId);
+    if (!profile) throw new Error('Profile not found');
+    const question = args.question.trim();
+    if (!question || question.length > 2000) throw new Error('Invalid question');
+    const now = Date.now();
+    const id = await ctx.db.insert('questions', {
+      profileId: args.profileId, question, visitorId: args.visitorId?.slice(0, 254),
+      isAnswered: false, needsReview: false, createdAt: now,
+    });
+    const analytics = await ctx.db.query('analytics')
+      .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
+      .unique();
+    if (analytics) await ctx.db.patch(analytics._id, {
+      totalQuestions: analytics.totalQuestions + 1, updatedAt: now,
+    });
+    return id;
   },
 });
 
