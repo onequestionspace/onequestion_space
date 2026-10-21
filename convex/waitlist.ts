@@ -4,6 +4,7 @@ import { isAdminUser } from './userIds';
 
 export const addToWaitlist = mutation({
   args: {
+    secret: v.string(),
     email: v.string(),
     role: v.optional(v.string()),
     name: v.optional(v.string()),
@@ -11,17 +12,26 @@ export const addToWaitlist = mutation({
   },
 
   handler: async (ctx, args) => {
+    const expected = process.env.ONEQUESTION_STREAM_SECRET;
+    if (!expected || args.secret !== expected) throw new Error('Not authorized');
+    const email = args.email.trim().toLowerCase();
+    if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      throw new Error('Invalid email');
+    }
+    const role = args.role?.trim().slice(0, 80);
+    const name = args.name?.trim().slice(0, 120);
+    const username = args.username?.trim().slice(0, 40);
     const existing = await ctx.db
       .query('waitlist')
-      .withIndex('by_email', (q) => q.eq('email', args.email))
+      .withIndex('by_email', (q) => q.eq('email', email))
       .first();
     if (existing) return { position: null, alreadyJoined: true };
 
     await ctx.db.insert("waitlist", {
-      email: args.email,
-      role: args.role,
-      name: args.name,
-      username: args.username,
+      email,
+      role,
+      name,
+      username,
       createdAt: Date.now(),
     });
 
