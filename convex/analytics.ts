@@ -1,9 +1,9 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
-import type { QueryCtx } from './_generated/server';
+import type { MutationCtx, QueryCtx } from './_generated/server';
 import type { Id } from './_generated/dataModel';
 
-async function assertProfileOwner(ctx: QueryCtx, profileId: Id<'profiles'>) {
+async function assertProfileOwner(ctx: QueryCtx | MutationCtx, profileId: Id<'profiles'>) {
   const identity = await ctx.auth.getUserIdentity();
   const profile = await ctx.db.get(profileId);
   if (!identity || !profile || profile.userId !== identity.subject) {
@@ -25,6 +25,7 @@ export const getAnalytics = query({
 export const getOrCreateAnalytics = mutation({
   args: { profileId: v.id('profiles') },
   handler: async (ctx, args) => {
+    await assertProfileOwner(ctx, args.profileId);
     const existing = await ctx.db
       .query('analytics')
       .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
