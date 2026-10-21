@@ -1,11 +1,35 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
 
+async function assertOwner(ctx: any, userId: string) {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity || identity.subject !== userId) {
+    throw new Error('Not authorized to access this knowledge');
+  }
+}
+
 export const getKnowledgeByUserId = query({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
+    await assertOwner(ctx, args.userId);
     return await ctx.db.query('knowledge')
       .withIndex('by_userId', (q) => q.eq('userId', args.userId))
+      .order('desc')
+      .collect();
+  },
+});
+
+// Public profile visitors may use published knowledge to receive answers.
+// Keep this separate from the owner-only knowledge query.
+export const getPublicKnowledgeByUsername = query({
+  args: { username: v.string() },
+  handler: async (ctx, args) => {
+    const profile = await ctx.db.query('profiles')
+      .withIndex('by_username', (q) => q.eq('username', args.username))
+      .unique();
+    if (!profile) return [];
+    return await ctx.db.query('knowledge')
+      .withIndex('by_userId', (q) => q.eq('userId', profile.userId))
       .order('desc')
       .collect();
   },
@@ -14,7 +38,10 @@ export const getKnowledgeByUserId = query({
 export const getKnowledge = query({
   args: { id: v.id('knowledge') },
   handler: async (ctx, args) => {
-    return await ctx.db.get(args.id);
+    const item = await ctx.db.get(args.id);
+    if (!item) return null;
+    await assertOwner(ctx, item.userId);
+    return item;
   },
 });
 
@@ -36,6 +63,7 @@ export const createKnowledge = mutation({
     sourceUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    await assertOwner(ctx, args.userId);
     const now = Date.now();
     return await ctx.db.insert('knowledge', {
       userId: args.userId,
@@ -67,26 +95,35 @@ export const updateKnowledge = mutation({
     }))),
   },
   handler: async (ctx, args) => {
-    return await ctx.db.patch(args.id, {
+    const item = await ctx.db.get(args.id);
+    if (!item) throw new Error('Knowledge item not found');
+    await assertOwner(ctx, item.userId);
+    await ctx.db.patch(args.id, {
       ...(args.title !== undefined && { title: args.title }),
       ...(args.content !== undefined && { content: args.content }),
       ...(args.embeddings !== undefined && { embeddings: args.embeddings }),
       ...(args.chunks !== undefined && { chunks: args.chunks }),
       updatedAt: Date.now(),
     });
+    return args.id;
   },
 });
 
 export const deleteKnowledge = mutation({
   args: { id: v.id('knowledge') },
   handler: async (ctx, args) => {
-    return await ctx.db.delete(args.id);
+    const item = await ctx.db.get(args.id);
+    if (!item) return null;
+    await assertOwner(ctx, item.userId);
+    await ctx.db.delete(args.id);
+    return args.id;
   },
 });
 
 export const getKnowledgeCount = query({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
+    await assertOwner(ctx, args.userId);
     const items = await ctx.db.query('knowledge')
       .withIndex('by_userId', (q) => q.eq('userId', args.userId))
       .collect();
