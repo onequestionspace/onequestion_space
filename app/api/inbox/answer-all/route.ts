@@ -13,7 +13,7 @@ const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 
 export async function POST(request: NextRequest) {
   try {
-    const { userId } = await auth();
+    const { userId, getToken } = await auth();
     if (!userId) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     if (!convexUrl) throw new Error('NEXT_PUBLIC_CONVEX_URL is not configured');
 
@@ -25,7 +25,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Username is required' }, { status: 400 });
     }
 
+    const token = await getToken({ template: 'convex' });
+    if (!token) return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     const convex = new ConvexHttpClient(convexUrl);
+    convex.setAuth(token);
     const profile = await convex.query(api.profiles.byUsername, { username: username.trim() });
     if (!profile || profile.userId !== userId) {
       return NextResponse.json({ success: false, error: 'Profile not found' }, { status: 404 });
