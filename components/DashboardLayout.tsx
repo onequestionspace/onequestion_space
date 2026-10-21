@@ -158,8 +158,8 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
                   <Link
                     href="/dashboard/admin/prospects"
                     onClick={closeMenu}
-className={`relative flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 ${
-                      isActive
+                    className={`relative flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 ${
+                      pathname === '/dashboard/admin/prospects' || pathname.startsWith('/dashboard/admin/prospects/')
                         ? 'text-black bg-zinc-100 before:absolute before:left-0 before:top-1/2 before:h-5 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-purple-500'
                         : 'text-zinc-600 hover:text-black hover:bg-zinc-50'
                     }`}

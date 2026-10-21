@@ -198,6 +198,20 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
             </div>
           </div>
 
+          <div className="mt-4 flex w-full max-w-2xl flex-wrap justify-center gap-2" aria-label="Suggested questions">
+            {['What do you make?', 'How can you help?', 'What should I read first?'].map((suggestion) => (
+              <button
+                key={suggestion}
+                type="button"
+                onClick={() => setQuestion(suggestion)}
+                disabled={isLoading}
+                className="rounded-full border border-zinc-200 bg-white/80 px-3 py-1.5 text-xs text-zinc-600 transition-colors hover:border-zinc-400 hover:text-zinc-950 disabled:opacity-50"
+              >
+                {suggestion}
+              </button>
+            ))}
+          </div>
+
           {error && <p role="alert" className="mt-4 max-w-lg text-sm text-zinc-600">{error}</p>}
 
           {(currentQuestion || conversation.length > 0) && (

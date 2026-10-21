@@ -37,15 +37,17 @@ export function PricingSection() {
             </Link>
           </article>
 
-          <article className="flex flex-col rounded-xl border border-zinc-300 p-6 sm:p-8">
+          <article className="relative flex flex-col rounded-xl border border-zinc-900 bg-zinc-950 p-6 text-white shadow-[0_18px_50px_rgba(9,9,11,0.14)] sm:p-8">
+            <span className="absolute right-6 top-6 rounded-full bg-white px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-900">Most useful</span>
             <div>
               <h3 className="text-base font-medium">Pro</h3>
               <p className="mt-4 text-4xl font-semibold tracking-tight">
-                $6 <span className="text-base font-normal text-zinc-500">/ month</span>
+                $6 <span className="text-base font-normal text-zinc-400">/ month</span>
               </p>
-              <ul className="mt-4 space-y-2 text-sm text-zinc-600">
+              <p className="mt-2 text-xs text-zinc-400">Less than one coffee. More useful than another link page.</p>
+              <ul className="mt-5 space-y-2 text-sm text-zinc-300">
                 <li>500 answers per month</li>
-                <li>Analytics</li>
+                <li>Analytics and question inbox</li>
                 <li>Remove OneQuestion branding</li>
               </ul>
             </div>
