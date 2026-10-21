@@ -61,6 +61,7 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
 
   return (
     <div className="dashboard-shell nest-background min-h-screen text-zinc-950">
+      <div aria-hidden="true" className="pointer-events-none fixed inset-x-0 top-0 z-0 h-1 bg-gradient-to-r from-purple-500 via-pink-500 to-yellow-400" />
       {/* Mobile header bar */}
       <div className="lg:hidden fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 h-14 border-b border-zinc-200 bg-white">
         <Link href="/" className="flex items-center gap-2" aria-label="Home">
@@ -157,9 +158,9 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
                   <Link
                     href="/dashboard/admin/prospects"
                     onClick={closeMenu}
-                    className={`relative flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 ${
-                      pathname.startsWith('/dashboard/admin/prospects')
-                        ? 'text-black bg-zinc-100'
+className={`relative flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-150 ${
+                      isActive
+                        ? 'text-black bg-zinc-100 before:absolute before:left-0 before:top-1/2 before:h-5 before:w-0.5 before:-translate-y-1/2 before:rounded-full before:bg-purple-500'
                         : 'text-zinc-600 hover:text-black hover:bg-zinc-50'
                     }`}
                   >

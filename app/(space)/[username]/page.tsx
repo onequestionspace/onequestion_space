@@ -138,7 +138,8 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
   const displayName = profile.displayName || profile.username;
 
   return (
-    <main className="nest-background min-h-screen px-5 text-black sm:px-8">
+    <main className="nest-background relative min-h-screen overflow-hidden px-5 text-black sm:px-8">
+      <div aria-hidden="true" className="pointer-events-none absolute left-1/2 top-20 h-72 w-72 -translate-x-1/2 rounded-full bg-purple-200/30 blur-3xl" />
       <div className="mx-auto flex min-h-screen max-w-3xl flex-col">
         <header className="flex h-16 items-center">
           {isProPlan === false && (
@@ -146,7 +147,7 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
           )}
         </header>
 
-        <section className="flex flex-1 flex-col items-center pt-[12vh] pb-16 text-center sm:pt-[15vh]">
+        <section className="relative flex flex-1 flex-col items-center pt-[12vh] pb-16 text-center sm:pt-[15vh]">
           <div className="space-avatar-orbit mb-7">
             {profile.avatar ? (
               <Image
