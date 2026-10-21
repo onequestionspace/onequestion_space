@@ -322,7 +322,6 @@ export async function POST(request: NextRequest) {
     const { intent, params } = detectIntent(question || '');
 
     // Fetch profile + analytics for context
-    const profile = await convex.query(api.profiles.byUsername, { username: '' }).catch(() => null);
     const userProfile = await convex.query(api.profiles.current).catch(() => null);
 
     // Handle profile update intents
