@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const knowledgeChunks = await convex.query(api.knowledge.getKnowledgeByUserId, { userId: profile.userId });
+    const knowledgeChunks = await convex.query(api.knowledge.getPublicKnowledgeByUsername, { username: profile.username });
     const hasKnowledge = knowledgeChunks && knowledgeChunks.length > 0;
 
     if (!hasKnowledge) {

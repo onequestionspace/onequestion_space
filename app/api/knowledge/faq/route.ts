@@ -6,7 +6,7 @@ import { api } from '@/convex/_generated/api';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY!;
 const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 const MODEL = 'gemini-2.5-flash';
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+
 
 async function callGemini(system: string, prompt: string) {
   const res = await fetch(`${GEMINI_BASE}/${MODEL}:generateContent?key=${GEMINI_API_KEY}`, {
@@ -26,6 +26,11 @@ export async function POST(req: NextRequest) {
   try {
     const { userId } = await auth();
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const { getToken } = await auth();
+    const token = await getToken({ template: 'convex' });
+    if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+    convex.setAuth(token);
 
     const { save } = await req.json().catch(() => ({ save: false }));
 

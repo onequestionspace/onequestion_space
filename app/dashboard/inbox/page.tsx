@@ -103,13 +103,12 @@ function InboxPageContent() {
 
   const handleSubmitReview = async (questionId: string) => {
     const answer = answers[questionId]?.trim();
-    if (!answer || !profile?.userId) return;
+    if (!answer) return;
     setSubmitting(questionId);
     try {
       await resolveQuestion({
         id: questionId as any,
         correctedAnswer: answer,
-        userId: profile.userId,
       });
       toast({ type: 'success', title: 'Added to knowledge base!', description: 'Your Space just got smarter.' });
       setAnswers(prev => {
