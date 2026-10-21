@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
       return new Response('Invalid question or username', { status: 400 });
     }
 
-    const profile = await convex.query(api.profiles.byUsername, { username });
+    const profile = await convex.query(api.profiles.getProfileForServer, { secret: STREAM_SECRET, username });
     if (!profile) return new Response('Profile not found', { status: 404 });
 
     const effectiveVisitorId = visitorEmail || clientVisitorId || 'anonymous';
