@@ -29,7 +29,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Enter a question under 500 characters' }, { status: 400 });
     }
 
-    const profile = await convex.query(api.profiles.byUsername, { username });
+    const secret = process.env.ONEQUESTION_STREAM_SECRET;
+    if (!secret) return NextResponse.json({ success: false, error: 'Service temporarily unavailable' }, { status: 503 });
+    const profile = await convex.query(api.profiles.getProfileForServer, { secret, username });
     if (!profile?.isSeeded) {
       return NextResponse.json({ success: false, error: 'Prospect page not found or already claimed' }, { status: 404 });
     }
