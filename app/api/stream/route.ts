@@ -170,11 +170,9 @@ export async function POST(request: NextRequest) {
     const hasKnowledge = knowledgeChunks && knowledgeChunks.length > 0;
 
     if (!hasKnowledge) {
-      convex.mutation(api.questions.createQuestion, {
-        profileId: profile._id, question, visitorId: effectiveVisitorId,
-        isAnswered: false, createdAt: Date.now(),
-      }).catch(() => {});
-      convex.mutation(api.analytics.incrementQuestionCount, { profileId: profile._id }).catch(() => {});
+      await convex.mutation(api.questions.recordPublicQuestion, {
+        secret: STREAM_SECRET, profileId: profile._id, question, visitorId: effectiveVisitorId,
+      });
 
       const noKnowledgeMsg = `${profile.displayName || profile.username || 'This space'} hasn't added any knowledge yet. The owner has been notified of your question and will answer it soon.`;
       return new Response(noKnowledgeMsg, {
