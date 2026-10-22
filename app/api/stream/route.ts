@@ -6,7 +6,7 @@ import { api } from '@/convex/_generated/api';
 import { isAdminUser } from '@/convex/userIds';
 import { enforceRateLimit } from '@/lib/server-rate-limit';
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+const CONVEX_URL = process.env.NEXT_PUBLIC_CONVEX_URL;
 const STREAM_SECRET = process.env.ONEQUESTION_STREAM_SECRET || '';
 
 const EMAIL_REGEX = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/;
@@ -42,6 +42,8 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    if (!CONVEX_URL) return new Response('Database connection is not configured', { status: 503 });
+    const convex = new ConvexHttpClient(CONVEX_URL);
     const body: unknown = await request.json();
     if (!body || typeof body !== 'object') return new Response('Invalid request body', { status: 400 });
     const input = body as Record<string, unknown>;
