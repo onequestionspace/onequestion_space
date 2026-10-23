@@ -97,7 +97,21 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
         return;
       }
       if (!response.ok || !response.body) {
-        setError('We could not get an answer right now. Please try again.');
+        const responseMessage = await response.text().catch(() => '');
+        console.error('AI endpoint rejected request:', {
+          status: response.status,
+          message: responseMessage.slice(0, 200),
+        });
+
+        if (response.status === 503 && responseMessage.startsWith('AI is temporarily unavailable')) {
+          setError('The AI providers are not returning answers right now. Please try again shortly.');
+        } else if (response.status === 503) {
+          setError('OneQuestion is temporarily unavailable. Please try again shortly.');
+        } else if (response.status === 404) {
+          setError('This OneQuestion page could not be found.');
+        } else {
+          setError('We could not get an answer right now. Please try again.');
+        }
         return;
       }
 
