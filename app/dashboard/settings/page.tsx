@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { useClerk } from '@clerk/nextjs';
 import { AppearanceTab } from '@/components/AppearanceTab';
-import { redirect } from 'next/navigation';
+import { redirect, useRouter } from 'next/navigation';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
@@ -26,6 +26,7 @@ const TABS = [
 
 export default function SettingsPage() {
   const { signOut } = useClerk();
+  const router = useRouter();
   const [deleting, setDeleting] = useState(false);
 
   const handleDeleteAccount = async () => {
@@ -36,7 +37,7 @@ export default function SettingsPage() {
     setDeleting(true);
     try {
       await signOut();
-      window.location.href = '/';
+      router.push('/');
     } catch {
       alert('Something went wrong. Please contact support.');
       setDeleting(false);

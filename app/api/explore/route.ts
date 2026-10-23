@@ -10,8 +10,6 @@ const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
 const MODEL = 'gemini-2.5-flash';
 const GROQ_API_KEY = process.env.GROQ_API_KEY || '';
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
-
 const FALLBACK_KNOWLEDGE = `
 One Question is an AI-powered personal Q&A platform built by Asym Alwali, a 19-year-old CS student from Yobe, Nigeria. He builds entirely from an Android phone using Termux — no laptop.
 
@@ -36,6 +34,9 @@ Creators, founders, consultants, developers — anyone who wants to let AI answe
 
 async function fetchLiveKnowledge(question: string): Promise<string> {
   try {
+    const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+    if (!convexUrl) return FALLBACK_KNOWLEDGE;
+    const convex = new ConvexHttpClient(convexUrl);
     // Fetch founder's knowledge + published blogs in parallel
     const [knowledgeItems, blogs] = await Promise.all([
       convex.query(api.knowledge.getPublicKnowledgeByUserId, {

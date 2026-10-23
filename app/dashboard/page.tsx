@@ -117,7 +117,7 @@ export default function DashboardPage() {
                 { label: 'AI answers', value: analytics?.totalAnswers ?? 0, icon: Zap },
                 { label: 'Knowledge items', value: knowledgeCount ?? 0, icon: BookOpen },
               ].map(({ label, value, icon: Icon }) => (
-                <div key={label} className="rounded-xl border border-zinc-200 p-4">
+                <div key={label} className="group rounded-xl border border-zinc-200 bg-white/75 p-4 shadow-[0_10px_30px_rgba(0,0,0,0.03)] transition-all hover:-translate-y-0.5 hover:border-zinc-300 hover:shadow-[0_14px_35px_rgba(0,0,0,0.07)]">
                   <Icon className="h-4 w-4 text-zinc-500" />
                   <p className="mt-4 text-2xl font-semibold tracking-tight text-zinc-950">{value}</p>
                   <p className="mt-1 text-xs text-zinc-500">{label}</p>

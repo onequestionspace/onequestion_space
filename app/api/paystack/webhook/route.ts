@@ -3,10 +3,11 @@ import { paymentProvider } from '@/lib/payments';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
-
 export async function POST(request: NextRequest) {
   try {
+    const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+    if (!convexUrl) return NextResponse.json({ success: false, error: 'Database connection is not configured' }, { status: 503 });
+    const convex = new ConvexHttpClient(convexUrl);
     const signature = request.headers.get('x-paystack-signature') || request.headers.get('stripe-signature') || '';
     const body = await request.text();
 

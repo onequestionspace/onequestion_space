@@ -5,10 +5,11 @@ import { api } from '@/convex/_generated/api';
 import { isAdminUser } from '@/convex/userIds';
 import { generateAnswer, generateEmbeddings, rankKnowledge } from '@/lib/gemini';
 
-const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
-
 export async function POST(request: NextRequest) {
   try {
+    const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
+    if (!convexUrl) return NextResponse.json({ success: false, error: 'Database connection is not configured.' }, { status: 503 });
+    const convex = new ConvexHttpClient(convexUrl);
     const { userId } = await auth();
     if (!userId || !isAdminUser(userId)) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 403 });
