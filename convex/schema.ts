@@ -211,5 +211,14 @@ export default defineSchema({
   })
     .index('by_chatId', ['chatId'])
     .index('by_chatId_createdAt', ['chatId', 'createdAt']),
+
+  rateLimitBuckets: defineTable({
+    key: v.string(),
+    count: v.number(),
+    windowStartedAt: v.number(),
+    updatedAt: v.number(),
+  })
+    .index('by_key', ['key'])
+    .index('by_updatedAt', ['updatedAt']),
 });
 // customBg added via patch — no schema change needed, stored in themeEffect as "custom:URL"

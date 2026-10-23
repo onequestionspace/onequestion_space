@@ -23,8 +23,12 @@ export const getKnowledgeByUserId = query({
 // Public profile visitors may use published knowledge to receive answers.
 // Keep this separate from the owner-only knowledge query.
 export const getPublicKnowledgeByUsername = query({
-  args: { username: v.string() },
+  // Server-only: knowledge is used to answer public questions but should not
+  // be directly enumerable through the public Convex API.
+  args: { secret: v.string(), username: v.string() },
   handler: async (ctx, args) => {
+    const expected = process.env.ONEQUESTION_STREAM_SECRET;
+    if (!expected || args.secret !== expected) throw new Error('Not authorized');
     const profile = await ctx.db.query('profiles')
       .withIndex('by_username', (q) => q.eq('username', args.username))
       .unique();
@@ -41,8 +45,12 @@ export const getPublicKnowledgeByUsername = query({
 });
 
 export const getPublicKnowledgeByUserId = query({
-  args: { userId: v.string() },
+  // Server-only lookup used by the Knowledge Explorer. Public profile visitors
+  // must use getPublicKnowledgeByUsername instead.
+  args: { secret: v.string(), userId: v.string() },
   handler: async (ctx, args) => {
+    const expected = process.env.ONEQUESTION_STREAM_SECRET;
+    if (!expected || args.secret !== expected) throw new Error('Not authorized');
     const profile = await ctx.db.query('profiles')
       .withIndex('by_userId', (q) => q.eq('userId', args.userId))
       .unique();

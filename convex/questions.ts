@@ -77,11 +77,14 @@ export const createQuestion = mutation({
   // Public visitor submission only. Callers cannot submit answers, embeddings,
   // timestamps, review flags, or goal-completion state.
   args: {
+    secret: v.string(),
     profileId: v.id('profiles'),
     question: v.string(),
     visitorId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const expected = process.env.ONEQUESTION_STREAM_SECRET;
+    if (!expected || args.secret !== expected) throw new Error('Not authorized');
     const question = args.question.trim();
     if (!question || question.length > 2000) throw new Error('Invalid question');
     const profile = await ctx.db.get(args.profileId);
@@ -213,8 +216,13 @@ export const getAnsweredQuestionByText = query({
 });
 
 export const getSemanticMatch = query({
-  args: { profileId: v.id('profiles'), embedding: v.array(v.number()) },
+  args: { secret: v.string(), profileId: v.id('profiles'), embedding: v.array(v.number()) },
   handler: async (ctx, args) => {
+    const expected = process.env.ONEQUESTION_STREAM_SECRET;
+    if (!expected || args.secret !== expected) throw new Error('Not authorized');
+    if (args.embedding.length > 2048 || args.embedding.some((value) => !Number.isFinite(value))) {
+      throw new Error('Invalid embedding');
+    }
     const results = await ctx.db.query('questions')
       .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
       .filter((row) => row.eq(row.field('isAnswered'), true))
@@ -241,8 +249,10 @@ export const getSemanticMatch = query({
 });
 
 export const getVisitorGoalAchieved = query({
-  args: { profileId: v.id('profiles'), visitorId: v.string() },
+  args: { secret: v.string(), profileId: v.id('profiles'), visitorId: v.string() },
   handler: async (ctx, args) => {
+    const expected = process.env.ONEQUESTION_STREAM_SECRET;
+    if (!expected || args.secret !== expected) throw new Error('Not authorized');
     const results = await ctx.db.query('questions')
       .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
       .filter((row) => row.eq(row.field('visitorId'), args.visitorId))

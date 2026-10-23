@@ -1,9 +1,16 @@
 import { mutation, query } from './_generated/server';
 import { v } from 'convex/values';
+import type { QueryCtx } from './_generated/server';
+
+async function assertOwner(ctx: QueryCtx, userId: string) {
+  const identity = await ctx.auth.getUserIdentity();
+  if (!identity || identity.subject !== userId) throw new Error('Not authorized to access this knowledge');
+}
 
 export const getKnowledgeHealth = query({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
+    await assertOwner(ctx, args.userId);
     const items = await ctx.db.query('knowledge')
       .withIndex('by_userId', (q) => q.eq('userId', args.userId))
       .collect();
@@ -86,6 +93,7 @@ const GAP_CATEGORIES = [
 export const getKnowledgeGaps = query({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
+    await assertOwner(ctx, args.userId);
     const items = await ctx.db.query('knowledge')
       .withIndex('by_userId', (q) => q.eq('userId', args.userId))
       .collect();
@@ -117,6 +125,7 @@ export const getKnowledgeGaps = query({
 export const getCoverageScore = query({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
+    await assertOwner(ctx, args.userId);
     const items = await ctx.db.query('knowledge')
       .withIndex('by_userId', (q) => q.eq('userId', args.userId))
       .collect();
@@ -151,6 +160,7 @@ export const getCoverageScore = query({
 export const analyzeKnowledge = query({
   args: { userId: v.string() },
   handler: async (ctx, args) => {
+    await assertOwner(ctx, args.userId);
     const items = await ctx.db.query('knowledge')
       .withIndex('by_userId', (q) => q.eq('userId', args.userId))
       .collect();

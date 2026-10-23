@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
 import { generateCompletion } from "@/lib/gemini";
+import { enforceRateLimit } from '@/lib/server-rate-limit';
 
 const VOICE_GUIDE = `
 You write build-in-public posts for a 19-year-old solo founder from Kaduna, Nigeria
@@ -63,6 +64,12 @@ export async function POST(req: NextRequest) {
   try {
     const { userId } = await auth();
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+    const rate = await enforceRateLimit(req, 'post-generator', 10, 60 * 1000);
+    if ('unavailable' in rate) return NextResponse.json({ error: 'Service temporarily unavailable' }, { status: 503 });
+    if (!rate.allowed) return NextResponse.json({ error: 'Too many requests' }, {
+      status: 429, headers: { 'Retry-After': String(rate.retryAfterSeconds) },
+    });
 
     const body = await req.json();
     const { mode, work, commits, metric, mood, postType } = body;

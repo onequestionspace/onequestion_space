@@ -6,7 +6,10 @@ const MAX_SPOTS = 50;
 export const getEarlyAdopters = query({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db.query('earlyAdopters').order('asc').collect();
+    const members = await ctx.db.query('earlyAdopters').order('asc').collect();
+    return members.map(({ username, displayName, claimedAt, spotNumber }) => ({
+      username, displayName, claimedAt, spotNumber,
+    }));
   },
 });
 
@@ -36,6 +39,13 @@ export const claimEarlyAdopterSpot = mutation({
     displayName: v.string(),
   },
   handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity || identity.subject !== args.userId) throw new Error('Not authorized');
+    const username = args.username.trim().toLowerCase();
+    const displayName = args.displayName.trim();
+    if (!/^[a-z0-9_-]{3,40}$/.test(username) || !displayName || displayName.length > 120) {
+      throw new Error('Invalid profile details');
+    }
     const existing = await ctx.db
       .query('earlyAdopters')
       .withIndex('by_userId', (q) => q.eq('userId', args.userId))
@@ -48,8 +58,8 @@ export const claimEarlyAdopterSpot = mutation({
     const spotNumber = members.length + 1;
     await ctx.db.insert('earlyAdopters', {
       userId: args.userId,
-      username: args.username,
-      displayName: args.displayName,
+      username,
+      displayName,
       claimedAt: Date.now(),
       spotNumber,
     });

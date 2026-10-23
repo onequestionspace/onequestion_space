@@ -8,9 +8,7 @@ import { generateAnswer, generateEmbeddings, rankKnowledge } from '@/lib/gemini'
 export async function POST(request: NextRequest) {
   try {
     const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
-    if (!convexUrl) {
-      return NextResponse.json({ success: false, error: 'Database connection is not configured.' }, { status: 503 });
-    }
+    if (!convexUrl) return NextResponse.json({ success: false, error: 'Database connection is not configured.' }, { status: 503 });
     const convex = new ConvexHttpClient(convexUrl);
     const { userId } = await auth();
     if (!userId || !isAdminUser(userId)) {
@@ -32,11 +30,13 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Enter a question under 500 characters' }, { status: 400 });
     }
 
-    const profile = await convex.query(api.profiles.byUsername, { username });
+    const secret = process.env.ONEQUESTION_STREAM_SECRET;
+    if (!secret) return NextResponse.json({ success: false, error: 'Service temporarily unavailable' }, { status: 503 });
+    const profile = await convex.query(api.profiles.getProfileForServer, { secret, username });
     if (!profile?.isSeeded) {
       return NextResponse.json({ success: false, error: 'Prospect page not found or already claimed' }, { status: 404 });
     }
-    const knowledge = await convex.query(api.knowledge.getPublicKnowledgeByUsername, { username: profile.username });
+    const knowledge = await convex.query(api.knowledge.getPublicKnowledgeByUsername, { secret, username: profile.username });
     if (!knowledge.length) {
       return NextResponse.json({ success: false, error: 'Add at least one knowledge item before testing.' }, { status: 400 });
     }

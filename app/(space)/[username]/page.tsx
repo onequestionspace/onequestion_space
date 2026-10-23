@@ -4,7 +4,7 @@ import { use, useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowUp } from 'lucide-react';
-import { useQuery, useMutation } from 'convex/react';
+import { useQuery } from 'convex/react';
 import { api } from '@/convex/_generated/api';
 
 type Conversation = {
@@ -34,8 +34,6 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
     api.subscriptions.isProPlan,
     profile?._id ? { profileId: profile._id } : 'skip'
   );
-  const incrementVisitor = useMutation(api.analytics.incrementVisitorCount);
-  const trackPageview = useMutation(api.siteAnalytics.trackPageview);
 
   useEffect(() => {
     if (!profile?._id) return;
@@ -44,19 +42,31 @@ export default function SpacePage({ params }: { params: Promise<{ username: stri
     const lastVisit = Number(localStorage.getItem(visitedKey) || 0);
     const now = Date.now();
     if (!lastVisit || now - lastVisit > 86400000) {
-      void incrementVisitor({ profileId: profile._id }).catch((visitError) => {
+      void fetch('/api/visitor', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ profileId: profile._id }),
+      }).then((response) => {
+        if (!response.ok) throw new Error('Visitor tracking request failed');
+      }).catch((visitError) => {
         console.error('Could not record space visitor:', visitError);
       });
       localStorage.setItem(visitedKey, String(now));
     }
-    void trackPageview({
-      page: '/' + username,
-      visitorId: getVisitorId(),
-      referrer: document.referrer || undefined,
+    void fetch('/api/pageview', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        page: '/' + username,
+        visitorId: getVisitorId(),
+        referrer: document.referrer || undefined,
+      }),
+    }).then((response) => {
+      if (!response.ok) throw new Error('Pageview tracking request failed');
     }).catch((trackingError) => {
       console.error('Could not record space pageview:', trackingError);
     });
-  }, [profile?._id, incrementVisitor, trackPageview, username]);
+  }, [profile?._id, username]);
 
   const handleSubmit = async () => {
     const questionToAsk = question.trim();

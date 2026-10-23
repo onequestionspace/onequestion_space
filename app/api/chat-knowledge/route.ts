@@ -3,6 +3,7 @@ import { auth } from '@clerk/nextjs/server';
 import { createKnowledgeEmbeddings, generateEmbeddings, rankKnowledge } from '@/lib/gemini';
 import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
+import { enforceRateLimit } from '@/lib/server-rate-limit';
 
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY!;
@@ -277,6 +278,11 @@ function wrapTextAsStream(text: string): ReadableStream<Uint8Array> {
 }
 
 export async function POST(request: NextRequest) {
+  const rate = await enforceRateLimit(request, 'chat-knowledge', 20, 60 * 1000);
+  if ('unavailable' in rate) return new Response('Service temporarily unavailable', { status: 503 });
+  if (!rate.allowed) return new Response('Too many requests. Please try again later.', {
+    status: 429, headers: { 'Retry-After': String(rate.retryAfterSeconds) },
+  });
   try {
     const { userId: sessionUserId, getToken } = await auth();
     if (!sessionUserId) return new Response('Unauthorized', { status: 401 });
@@ -316,7 +322,6 @@ export async function POST(request: NextRequest) {
     const { intent, params } = detectIntent(question || '');
 
     // Fetch profile + analytics for context
-    const profile = await convex.query(api.profiles.byUsername, { username: '' }).catch(() => null);
     const userProfile = await convex.query(api.profiles.current).catch(() => null);
 
     // Handle profile update intents

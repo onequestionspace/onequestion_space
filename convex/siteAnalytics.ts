@@ -12,14 +12,22 @@ const checkAdmin = async (ctx: QueryCtx, userId: string) => {
 
 export const trackPageview = mutation({
   args: {
+    secret: v.string(),
     page: v.string(),
     referrer: v.optional(v.string()),
     visitorId: v.optional(v.string()),
     userId: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const expected = process.env.ONEQUESTION_STREAM_SECRET;
+    if (!expected || args.secret !== expected) throw new Error('Not authorized');
+    const page = args.page.trim().slice(0, 200);
+    if (!page.startsWith('/')) throw new Error('Invalid page');
     await ctx.db.insert('pageviews', {
-      ...args,
+      page,
+      referrer: args.referrer?.slice(0, 500),
+      visitorId: args.visitorId?.slice(0, 120),
+      userId: undefined,
       createdAt: Date.now(),
     });
   },
@@ -27,14 +35,22 @@ export const trackPageview = mutation({
 
 export const trackEvent = mutation({
   args: {
+    secret: v.string(),
     type: v.string(),
     userId: v.optional(v.string()),
     visitorId: v.optional(v.string()),
     metadata: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    const expected = process.env.ONEQUESTION_STREAM_SECRET;
+    if (!expected || args.secret !== expected) throw new Error('Not authorized');
+    const type = args.type.trim().slice(0, 80);
+    if (!type) throw new Error('Invalid event type');
     await ctx.db.insert('events', {
-      ...args,
+      type,
+      visitorId: args.visitorId?.slice(0, 120),
+      metadata: args.metadata?.slice(0, 2000),
+      userId: undefined,
       createdAt: Date.now(),
     });
   },

@@ -3,6 +3,7 @@ import { ConvexHttpClient } from 'convex/browser';
 import { api } from '@/convex/_generated/api';
 import { generateEmbeddings, rankKnowledge } from '@/lib/gemini';
 import { PRIMARY_FOUNDER_USER_ID } from '@/convex/userIds';
+import { enforceRateLimit } from '@/lib/server-rate-limit';
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY!;
 const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models';
@@ -38,7 +39,10 @@ async function fetchLiveKnowledge(question: string): Promise<string> {
     const convex = new ConvexHttpClient(convexUrl);
     // Fetch founder's knowledge + published blogs in parallel
     const [knowledgeItems, blogs] = await Promise.all([
-      convex.query(api.knowledge.getPublicKnowledgeByUserId, { userId: PRIMARY_FOUNDER_USER_ID }),
+      convex.query(api.knowledge.getPublicKnowledgeByUserId, {
+        secret: process.env.ONEQUESTION_STREAM_SECRET || '',
+        userId: PRIMARY_FOUNDER_USER_ID,
+      }),
       convex.query(api.blogs.getPublishedBlogs, {}),
     ]);
 
@@ -90,22 +94,44 @@ async function callGroq(systemPrompt: string, contents: any[], maxTokens: number
 }
 
 export async function POST(req: NextRequest) {
-  try {
-    const { question, history, knowledgeOverride, demoMode } = await req.json();
-    if (!question) return NextResponse.json({ error: 'Missing question' }, { status: 400 });
+  const rate = await enforceRateLimit(req, 'explore', 20, 60 * 1000);
+  if ('unavailable' in rate) return NextResponse.json({ error: 'Service temporarily unavailable' }, { status: 503 });
+  if (!rate.allowed) {
+    return NextResponse.json({ error: 'Too many requests. Please try again later.' }, {
+      status: 429,
+      headers: { 'Retry-After': String(rate.retryAfterSeconds) },
+    });
+  }
 
-    const wordCount = question.split(' ').length;
+  try {
+    const body: unknown = await req.json();
+    if (!body || typeof body !== 'object') return NextResponse.json({ error: 'Invalid request body' }, { status: 400 });
+    const input = body as Record<string, unknown>;
+    const question = typeof input.question === 'string' ? input.question.trim() : '';
+    const demoMode = input.demoMode === true;
+    const knowledgeOverride = typeof input.knowledgeOverride === 'string' && input.knowledgeOverride.length <= 12000
+      ? input.knowledgeOverride
+      : undefined;
+    const rawHistory = Array.isArray(input.history) ? input.history.slice(-12) : [];
+    if (!question || question.length > 2000) return NextResponse.json({ error: 'Invalid question' }, { status: 400 });
+    const history = rawHistory
+      .filter((m): m is { role: string; text: string } => !!m && typeof m === 'object'
+        && 'text' in m && typeof m.text === 'string'
+        && 'role' in m && (m.role === 'ai' || m.role === 'user'))
+      .map((m) => ({ role: m.role, text: m.text.slice(0, 3000) }));
+
+    const wordCount = question.split(/\s+/).length;
     const maxTokens = demoMode ? 80 : wordCount > 15 ? 600 : 350;
 
     const contents = [
-      ...(history || []).map((m: any) => ({
+      ...history.map((m) => ({
         role: m.role === 'ai' ? 'model' : 'user',
         parts: [{ text: m.text }],
       })),
       { role: 'user', parts: [{ text: question }] },
     ];
 
-    // Use live knowledge unless overridden
+    // Use live knowledge unless a bounded demo override was supplied.
     const activeKnowledge = knowledgeOverride || await fetchLiveKnowledge(question);
 
     const systemPrompt = demoMode

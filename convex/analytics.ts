@@ -79,6 +79,7 @@ export const incrementAnswerCount = mutation({
 export const incrementVisitorCount = mutation({
   args: { profileId: v.id('profiles') },
   handler: async (ctx, args) => {
+    await assertProfileOwner(ctx, args.profileId);
     const record = await ctx.db
       .query('analytics')
       .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
@@ -109,6 +110,25 @@ export const updateAnalytics = mutation({
       ...(args.totalQuestions !== undefined && { totalQuestions: args.totalQuestions }),
       ...(args.totalAnswers !== undefined && { totalAnswers: args.totalAnswers }),
       ...(args.totalVisitors !== undefined && { totalVisitors: args.totalVisitors }),
+      updatedAt: Date.now(),
+    });
+  },
+});
+
+
+export const recordPublicVisitor = mutation({
+  args: { secret: v.string(), profileId: v.id('profiles') },
+  handler: async (ctx, args) => {
+    const expected = process.env.ONEQUESTION_STREAM_SECRET;
+    if (!expected || args.secret !== expected) throw new Error('Not authorized');
+    const profile = await ctx.db.get(args.profileId);
+    if (!profile) throw new Error('Profile not found');
+    const record = await ctx.db.query('analytics')
+      .withIndex('by_profileId', (q) => q.eq('profileId', args.profileId))
+      .unique();
+    if (!record) return;
+    await ctx.db.patch(record._id, {
+      totalVisitors: record.totalVisitors + 1,
       updatedAt: Date.now(),
     });
   },

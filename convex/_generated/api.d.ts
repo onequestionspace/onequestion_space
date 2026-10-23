@@ -19,6 +19,7 @@ import type * as knowledgeHealth from "../knowledgeHealth.js";
 import type * as migrations from "../migrations.js";
 import type * as profiles from "../profiles.js";
 import type * as questions from "../questions.js";
+import type * as rateLimits from "../rateLimits.js";
 import type * as reactions from "../reactions.js";
 import type * as siteAnalytics from "../siteAnalytics.js";
 import type * as subscriptions from "../subscriptions.js";
@@ -43,6 +44,7 @@ declare const fullApi: ApiFromModules<{
   migrations: typeof migrations;
   profiles: typeof profiles;
   questions: typeof questions;
+  rateLimits: typeof rateLimits;
   reactions: typeof reactions;
   siteAnalytics: typeof siteAnalytics;
   subscriptions: typeof subscriptions;
