@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
     });
   }
 
+  let stage = 'request_validation';
   try {
     if (!CONVEX_URL) return new Response('Database connection is not configured', { status: 503 });
     const convex = new ConvexHttpClient(CONVEX_URL);
@@ -55,6 +56,7 @@ export async function POST(request: NextRequest) {
       return new Response('Invalid question or username', { status: 400 });
     }
 
+    stage = 'profile_lookup';
     const profile = await convex.query(api.profiles.getProfileForServer, { secret: STREAM_SECRET, username });
     if (!profile) return new Response('Profile not found', { status: 404 });
 
@@ -63,6 +65,7 @@ export async function POST(request: NextRequest) {
     const isAdmin = isAdminUser(profile.userId);
 
     if (!STREAM_SECRET) return new Response('Service temporarily unavailable', { status: 503 });
+    stage = 'answer_quota';
     if (!isAdmin) {
       const reservation = await convex.mutation(api.subscriptions.reservePublicAnswer, {
         secret: STREAM_SECRET, userId: profile.userId,
@@ -70,6 +73,7 @@ export async function POST(request: NextRequest) {
       if (!reservation.allowed) return new Response('limit_reached', { status: 429 });
     }
 
+    stage = 'knowledge_lookup';
     const knowledgeChunks = await convex.query(api.knowledge.getPublicKnowledgeByUsername, { secret: STREAM_SECRET, username: profile.username });
     const hasKnowledge = knowledgeChunks && knowledgeChunks.length > 0;
 
@@ -84,9 +88,11 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    stage = 'query_embedding';
     const qEmbed = await generateEmbeddings(question).catch(() => []);
 
     // Semantic cache check — catches paraphrased repeats of already-answered questions
+    stage = 'semantic_cache';
     if (qEmbed.length > 0) {
       const semanticMatch = await convex.query(api.questions.getSemanticMatch, {
         secret: STREAM_SECRET, profileId: profile._id, embedding: qEmbed,
@@ -107,6 +113,7 @@ export async function POST(request: NextRequest) {
     const topChunks = rankKnowledge(question, qEmbed, knowledgeChunks)
       .map((chunk) => `[${chunk.title}]\n${chunk.content}`);
 
+    stage = 'goal_state';
     const goalAlreadyAchieved = await convex.query(api.questions.getVisitorGoalAchieved, {
       secret: STREAM_SECRET, profileId: profile._id, visitorId: effectiveVisitorId,
     }).catch(() => false);
@@ -114,6 +121,7 @@ export async function POST(request: NextRequest) {
     const goalDirective = buildGoalDirective(profile.goalType, profile.goalLink, !!goalAlreadyAchieved);
     const prompt = buildPrompt(question, topChunks, { displayName: profile.displayName, bio: profile.bio, welcomeMessage: profile.welcomeMessage, username: profile.username }, goalDirective);
 
+    stage = 'provider_generation';
     const stream = await streamAIResponse(prompt, 120);
     // streamAIResponse already attempts Gemini and then Groq. Do not retry
     // the same providers again here; duplicate retries can amplify quota errors.
@@ -124,6 +132,7 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    stage = 'response_stream';
     // Detect goal completion from the visitor's own message
     let goalHitThisTurn = false;
     if (!goalAlreadyAchieved) {
@@ -167,7 +176,9 @@ export async function POST(request: NextRequest) {
       headers: { 'Content-Type': 'text/plain; charset=utf-8', 'Transfer-Encoding': 'chunked', 'X-Accel-Buffering': 'no', 'Cache-Control': 'no-cache' },
     });
   } catch (error) {
-    console.error('[stream] error:', error);
+    console.error(`[stream] stage=${stage} error:`, error instanceof Error
+      ? { name: error.name, message: error.message, stack: error.stack }
+      : error);
     return new Response('Internal server error', { status: 500 });
   }
 }
