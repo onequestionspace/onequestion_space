@@ -14,7 +14,7 @@ import {
   Menu, X,
   MessageSquare, CreditCard,
   Layers, BookOpen, Sparkles, UserPlus,
-  ChevronRight, Inbox, LockKeyhole,
+  ChevronRight, Inbox, LockKeyhole, Wrench, FileText, GraduationCap,
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -30,6 +30,9 @@ const navItems = [
   { label: 'Inbox', href: '/dashboard/inbox', icon: Inbox },
   { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3, pro: true },
   { label: 'Knowledge', href: '/dashboard/knowledge', icon: BookOpen },
+  { label: 'Train', href: '/dashboard/train', icon: GraduationCap },
+  { label: 'Tools', href: '/dashboard/tools/post-generator', icon: Wrench },
+  { label: 'Content', href: '/dashboard/blogs', icon: FileText },
   { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
 ];
 
