@@ -131,6 +131,23 @@ export default function StudioPage() {
     <DashboardLayout title="Space Studio" description="Changes go live instantly">
       <div className="space-y-4">
 
+        {(!form.bio.trim() || !form.welcomeMessage.trim()) && (
+          <section className="rounded-2xl border border-amber-500/20 bg-gradient-to-r from-amber-500/[0.07] to-transparent p-4 sm:p-5">
+            <div className="flex items-start gap-3">
+              <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-500"><Sparkles className="h-4 w-4" /></div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-white">Start with your own words. No technical setup needed.</p>
+                <p className="mt-1 text-xs leading-5 text-zinc-400">A good introduction says who you are, who you help, and what you help them do. Your welcome message tells visitors what they can ask.</p>
+                {!form.bio.trim() && (
+                  <button type="button" onClick={() => { setActiveTab('profile'); updateField('bio', 'I help [the people you serve] with [the problem you solve]. My work includes [your services, experience, or examples]. People usually come to me when they need [the outcome you help create].'); }} className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-amber-500/25 px-3 py-2 text-xs font-medium text-amber-300 transition-colors hover:bg-amber-500/10">
+                    Use a fill-in-the-blanks bio <ArrowRight className="h-3.5 w-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
+          </section>
+        )}
+
         {/* Save bar */}
         {dirty && (
           <div className="flex items-center gap-3 px-4 py-3 rounded-2xl border border-amber-500/20 bg-gradient-to-r from-amber-500/[0.06] to-transparent backdrop-blur-sm">

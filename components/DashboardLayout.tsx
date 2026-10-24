@@ -25,14 +25,14 @@ interface DashboardLayoutProps {
 
 const navItems = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { label: 'Chat', href: '/dashboard/chat', icon: Sparkles },
-  { label: 'Studio', href: '/dashboard/studio', icon: Layers },
+  { label: 'Space Studio', href: '/dashboard/studio', icon: Layers },
+  { label: 'Knowledge', href: '/dashboard/knowledge', icon: BookOpen },
+  { label: 'Test your AI', href: '/dashboard/chat', icon: Sparkles },
   { label: 'Inbox', href: '/dashboard/inbox', icon: Inbox },
   { label: 'Analytics', href: '/dashboard/analytics', icon: BarChart3, pro: true },
-  { label: 'Knowledge', href: '/dashboard/knowledge', icon: BookOpen },
   { label: 'Train', href: '/dashboard/train', icon: GraduationCap },
-  { label: 'Tools', href: '/dashboard/tools/post-generator', icon: Wrench },
   { label: 'Content', href: '/dashboard/blogs', icon: FileText },
+  { label: 'Tools', href: '/dashboard/tools/post-generator', icon: Wrench },
   { label: 'Billing', href: '/dashboard/billing', icon: CreditCard },
 ];
 

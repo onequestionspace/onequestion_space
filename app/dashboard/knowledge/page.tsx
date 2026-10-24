@@ -164,6 +164,28 @@ export default function KnowledgePage() {
     <DashboardLayout title="Knowledge Base" description="Train your AI with your content.">
       <div className="space-y-5">
 
+        {(!knowledge || knowledge.length === 0) && !isAdding && (
+          <section className="rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/[0.09] to-transparent p-5 sm:p-6">
+            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-primary">Start here · no technical setup</p>
+            <h2 className="mt-2 text-xl font-semibold tracking-tight text-white sm:text-2xl">Give your AI something useful to know.</h2>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-400">Start with one short piece of information. You can improve it later. Choose a starter below and replace the prompts with details that are true for you.</p>
+            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+              {[
+                { title: 'About me', detail: 'Your work, experience, and who you help.', template: 'About me', content: 'My name is [your name].\nI work as [your role or business].\nI help [the people you help] with [the problem you solve].\nMy experience includes [relevant experience or examples].\nThe best way to contact me is [your preferred contact method].' },
+                { title: 'Services & pricing', detail: 'What you offer and how people can work with you.', template: 'Services and pricing', content: 'Service 1: [name and what is included]\nWho it is for: [ideal customer]\nPrice or starting price: [amount, or explain how you quote]\nHow to get started: [next step]\nImportant details or limits: [anything customers should know].' },
+                { title: 'Frequently asked questions', detail: 'Answer the questions people ask repeatedly.', template: 'Frequently asked questions', content: 'Q: What do you do?\nA: [Your clear answer]\n\nQ: Who do you help?\nA: [Your answer]\n\nQ: How much does it cost?\nA: [Your answer or how pricing works]\n\nQ: How can someone get started?\nA: [Your next step].' },
+              ].map((starter) => (
+                <button key={starter.title} type="button" onClick={() => { setForm({ title: starter.template, content: starter.content }); setActiveTab('text'); setSourceType('personal'); setUploadError(''); setIsAdding(true); }} className="rounded-xl border border-white/10 bg-black/20 p-4 text-left transition-colors hover:border-primary/40 hover:bg-primary/[0.04]">
+                  <span className="text-sm font-semibold text-white">{starter.title}</span>
+                  <span className="mt-2 block text-xs leading-5 text-zinc-400">{starter.detail}</span>
+                  <span className="mt-4 inline-flex items-center gap-1.5 text-xs font-semibold text-primary">Use starter <Plus className="h-3.5 w-3.5" /></span>
+                </button>
+              ))}
+            </div>
+            <p className="mt-4 text-xs leading-5 text-zinc-500">Tip: only add information you are comfortable sharing through your public page. Replace every bracketed prompt before saving.</p>
+          </section>
+        )}
+
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm text-zinc-500">
             <Brain className="w-5 h-5 text-primary" />
