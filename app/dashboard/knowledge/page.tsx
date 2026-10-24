@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { redirect } from 'next/navigation';
+import NextLink from 'next/link';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
@@ -183,7 +184,7 @@ export default function KnowledgePage() {
               <p className="text-sm font-semibold text-white">Knowledge added. Now test what your AI can answer.</p>
               <p className="mt-1 text-xs leading-relaxed text-zinc-500">Ask a real question and check that the response matches the information you provided.</p>
             </div>
-            <a href="/dashboard/chat" className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-black transition-opacity hover:opacity-90">Test an answer →</a>
+            <NextLink href="/dashboard/chat" className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-black transition-opacity hover:opacity-90">Test an answer →</NextLink>
           </div>
         )}
 
