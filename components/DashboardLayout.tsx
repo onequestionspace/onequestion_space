@@ -215,6 +215,38 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
             <h1 className="text-2xl lg:text-3xl font-semibold tracking-tight text-zinc-950 mb-1">{title}</h1>
             {description && <p className="text-zinc-500 text-sm">{description}</p>}
           </div>
+          <nav aria-label="Your OneQuestion workflow" className="mb-6 rounded-xl border border-zinc-200 bg-white p-3 sm:p-4">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+              <p className="text-xs font-semibold uppercase tracking-[0.12em] text-zinc-500">Your workflow</p>
+              <p className="text-xs text-zinc-500">Build it · teach it · test it · share it · improve it</p>
+            </div>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-5">
+              {[
+                { label: '1. Create', detail: 'Your page', href: '/dashboard' },
+                { label: '2. Teach', detail: 'Add knowledge', href: '/dashboard/knowledge' },
+                { label: '3. Test', detail: 'Check an answer', href: '/dashboard/chat' },
+                { label: '4. Share', detail: 'Your public space', href: '/dashboard/studio' },
+                { label: '5. Improve', detail: 'Review questions', href: '/dashboard/inbox' },
+              ].map((step) => {
+                const active = step.href === '/dashboard'
+                  ? pathname === '/dashboard'
+                  : pathname === step.href || pathname.startsWith(step.href + '/');
+                return (
+                  <Link
+                    key={step.href}
+                    href={step.href}
+                    aria-current={active ? 'step' : undefined}
+                    className={`rounded-lg border px-3 py-2.5 transition-colors ${active
+                      ? 'border-zinc-900 bg-zinc-900 text-white'
+                      : 'border-zinc-200 bg-white text-zinc-700 hover:border-zinc-400 hover:bg-zinc-50'}`}
+                  >
+                    <span className="block text-sm font-semibold">{step.label}</span>
+                    <span className={`mt-0.5 block text-xs ${active ? 'text-zinc-300' : 'text-zinc-500'}`}>{step.detail}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </nav>
           <ToastProvider>
             {children}
           </ToastProvider>
