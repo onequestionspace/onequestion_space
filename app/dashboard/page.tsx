@@ -86,6 +86,43 @@ export default function DashboardPage() {
       description="Share one link. Let your knowledge answer."
     >
       <div className="mx-auto max-w-4xl space-y-6">
+        {(() => {
+          const hasProfile = Boolean(profile?.bio?.trim());
+          const hasKnowledge = (knowledgeCount ?? 0) > 0;
+          const hasQuestionActivity = (analytics?.totalQuestions ?? 0) > 0;
+          const completed = [hasProfile, hasKnowledge, hasQuestionActivity, Boolean(pageUrl)].filter(Boolean).length;
+          const steps = [
+            { done: hasProfile, title: 'Complete your introduction', detail: 'Tell visitors who you help and what you do.', href: '/dashboard/settings', action: 'Edit profile' },
+            { done: hasKnowledge, title: 'Add your knowledge', detail: 'Add services, FAQs, examples, or project details.', href: '/dashboard/knowledge', action: 'Add knowledge' },
+            { done: hasQuestionActivity, title: 'Test with a real question', detail: 'Open your public page and verify that answers are useful and accurate.', href: pageUrl || '/dashboard/chat', action: 'Test page' },
+            { done: Boolean(pageUrl), title: 'Share your page', detail: 'Put your link where clients or followers can find it.', href: pageUrl || '/dashboard/settings', action: 'Open page' },
+          ];
+          return (
+            <section className="rounded-xl border border-zinc-200 bg-white p-5 sm:p-6" aria-labelledby="setup-checklist-title">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">Your next steps</p>
+                  <h2 id="setup-checklist-title" className="mt-1 text-lg font-semibold tracking-tight text-zinc-950">Make your page useful</h2>
+                  <p className="mt-1 text-sm leading-6 text-zinc-500">Complete the basics, test the answers, then share your link.</p>
+                </div>
+                <span className="w-fit rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs font-medium text-zinc-600">{completed} of {steps.length} steps</span>
+              </div>
+              <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-zinc-100"><div className="h-full rounded-full bg-emerald-500 transition-all" style={{ width: (completed / steps.length * 100) + '%' }} /></div>
+              <ol className="mt-3 divide-y divide-zinc-100">
+                {steps.map((step, index) => (
+                  <li key={step.title} className="flex items-center gap-3 py-3">
+                    <span className={'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-medium ' + (step.done ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-zinc-200 text-zinc-500')}>{step.done ? <Check className="h-3.5 w-3.5" /> : index + 1}</span>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-zinc-900">{step.title}</p>
+                      <p className="mt-0.5 text-xs leading-5 text-zinc-500">{step.detail}</p>
+                    </div>
+                    <Link href={step.href} target={step.href.startsWith('https://') ? '_blank' : undefined} rel={step.href.startsWith('https://') ? 'noopener noreferrer' : undefined} className="shrink-0 text-xs font-medium text-zinc-700 underline underline-offset-4 hover:text-black">{step.action}</Link>
+                  </li>
+                ))}
+              </ol>
+            </section>
+          );
+        })()}
         <section className="flex flex-col gap-4 rounded-xl border border-zinc-200 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
           <div className="min-w-0">
             <p className="text-xs font-medium uppercase tracking-wide text-zinc-500">Your public page</p>
