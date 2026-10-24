@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import {
   Brain, BarChart3, Palette, Zap, Globe, ShieldCheck,
-  MessageSquare, Upload, CheckCircle2, ArrowRight, Inbox, BookOpenText
+  MessageSquare, Upload, CheckCircle2, ArrowRight, Inbox
 } from 'lucide-react';
 
 const FEATURES = [
