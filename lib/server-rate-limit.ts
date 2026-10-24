@@ -22,9 +22,9 @@ function enforceLocalFallback(key: string, limit: number, windowMs: number): Rat
   if (!bucket || bucket.resetAt <= now) {
     if (localBuckets.size >= MAX_LOCAL_BUCKETS) {
       // Remove expired buckets first, then evict oldest entries to keep memory bounded.
-      for (const [existingKey, existingBucket] of localBuckets) {
+      localBuckets.forEach((existingBucket, existingKey) => {
         if (existingBucket.resetAt <= now) localBuckets.delete(existingKey);
-      }
+      });
       while (localBuckets.size >= MAX_LOCAL_BUCKETS) {
         const oldestKey = localBuckets.keys().next().value;
         if (oldestKey === undefined) break;
