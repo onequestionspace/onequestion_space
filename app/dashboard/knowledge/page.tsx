@@ -57,6 +57,8 @@ export default function KnowledgePage() {
   );
   const coverageLoading = coverage === undefined;
 
+  const profile = useQuery(api.profiles.current);
+
   const knowledge = useQuery(
     api.knowledge.getKnowledgeByUserId,
     userId ? { userId } : 'skip'
@@ -184,7 +186,7 @@ export default function KnowledgePage() {
               <p className="text-sm font-semibold text-white">Knowledge added. Now test what your AI can answer.</p>
               <p className="mt-1 text-xs leading-relaxed text-zinc-500">Ask a real question and check that the response matches the information you provided.</p>
             </div>
-            <NextLink href="/dashboard/chat" className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-black transition-opacity hover:opacity-90">Test an answer →</NextLink>
+            <NextLink href={profile?.username ? `/${profile.username}` : '/dashboard/studio'} className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-black transition-opacity hover:opacity-90">Preview and test your page →</NextLink>
           </div>
         )}
 
