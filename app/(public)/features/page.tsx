@@ -1,135 +1,133 @@
-'use client';
-
 import Link from 'next/link';
-import { Brain, BarChart3, Palette, Zap, Globe, Shield, MessageSquare, Upload, Sparkles, ArrowRight } from 'lucide-react';
+import {
+  Brain, BarChart3, Palette, Zap, Globe, ShieldCheck,
+  MessageSquare, Upload, CheckCircle2, ArrowRight, Inbox, BookOpenText
+} from 'lucide-react';
 
 const FEATURES = [
   {
     icon: Brain,
-    color: 'text-primary',
-    bg: 'bg-primary/10',
-    title: 'Semantic AI Knowledge',
-    desc: 'Your AI uses vector embeddings to find the most relevant answer — not keyword matching. The more you upload, the smarter it gets.',
-    tags: ['PDF upload', 'Text training', 'Auto embeddings'],
-  },
-  {
-    icon: Zap,
-    color: 'text-yellow-400',
-    bg: 'bg-yellow-400/10',
-    title: 'Instant Answers',
-    desc: 'Gemini 2.5 Flash powers sub-2 second responses every time. Your visitors never wait.',
-    tags: ['< 2s response', 'Gemini 2.5 Flash', '24/7 uptime'],
-  },
-  {
-    icon: Palette,
-    color: 'text-primary',
-    bg: 'bg-primary/10',
-    title: 'Full Customization',
-    desc: 'Colors, fonts, backgrounds, social links. Particles, bubbles, matrix animations. Your space, your brand.',
-    tags: ['Theme colors', 'Animated backgrounds', 'Custom fonts'],
-  },
-  {
-    icon: BarChart3,
-    color: 'text-primary',
-    bg: 'bg-primary/10',
-    title: 'Real-time Analytics',
-    desc: 'See every question, visitor and response rate in real time. Know exactly what people want to know about you.',
-    tags: ['Live stats', 'Question history', 'Response rate'],
+    eyebrow: 'Knowledge',
+    title: 'Answers shaped by your context',
+    desc: 'Add your bio, services, FAQs, project details, and other information you want visitors to know. Keep the source material current and test the questions people actually ask.',
+    bullets: ['Text and supported file uploads', 'FAQs and service information', 'Owner-controlled knowledge'],
   },
   {
     icon: MessageSquare,
-    color: 'text-green-400',
-    bg: 'bg-green-400/10',
-    title: 'Reaction Bar',
-    desc: 'Visitors react to AI answers with 🔥❤️🧠👏😮 — turning every answer into a feedback loop.',
-    tags: ['5 reactions', 'Convex storage', 'Live counts'],
+    eyebrow: 'Public page',
+    title: 'One clear place to ask',
+    desc: 'Give people a dedicated link for questions about your work instead of repeating the same explanation across DMs, email, and social profiles.',
+    bullets: ['Shareable personal URL', 'Mobile-friendly visitor experience', 'Profile and welcome message'],
+  },
+  {
+    icon: Inbox,
+    eyebrow: 'Human oversight',
+    title: 'See what needs your attention',
+    desc: 'Use your inbox to review questions that need a better answer and add your own response when the AI context is not enough.',
+    bullets: ['Review and unanswered questions', 'Write or correct replies', 'Improve knowledge over time'],
+  },
+  {
+    icon: BarChart3,
+    eyebrow: 'Insights',
+    title: 'Learn what people care about',
+    desc: 'Use the available dashboard metrics and question history to identify repeated questions and decide what information to add next.',
+    bullets: ['Question and answer totals', 'Popular questions', 'Plan usage visibility'],
+  },
+  {
+    icon: Palette,
+    eyebrow: 'Personalization',
+    title: 'Make the page feel like yours',
+    desc: 'Shape your profile, welcome message, links, suggested questions, and available appearance settings so the page fits your work.',
+    bullets: ['Profile and bio', 'Links and suggested questions', 'Appearance controls'],
   },
   {
     icon: Upload,
-    color: 'text-blue-400',
-    bg: 'bg-blue-400/10',
-    title: 'Knowledge Base',
-    desc: 'Upload text, PDFs, FAQs, projects, services. Everything your AI needs to answer on your behalf.',
-    tags: ['Text + PDF', 'Auto embeddings', 'Unlimited uploads'],
+    eyebrow: 'Setup',
+    title: 'Start with what you already know',
+    desc: 'Build your first knowledge set from the information you already use to explain your work. Start small, test it, then add detail where visitors get stuck.',
+    bullets: ['Start with a few FAQs', 'Add service and pricing details', 'Update information when it changes'],
   },
-  {
-    icon: Globe,
-    color: 'text-cyan-400',
-    bg: 'bg-cyan-400/10',
-    title: 'Public Space Page',
-    desc: 'Your personal AI page at onequestion.space/you — shareable everywhere. X bio, LinkedIn, email signature.',
-    tags: ['Custom URL', 'No login needed', 'Mobile friendly'],
-  },
-  {
-    icon: Shield,
-    color: 'text-red-400',
-    bg: 'bg-red-400/10',
-    title: 'Private by Default',
-    desc: 'Your knowledge is yours. We never train our models on your data. Everything stays in your space.',
-    tags: ['Data privacy', 'Your knowledge', 'Secure storage'],
-  },
-  {
-    icon: Sparkles,
-    color: 'text-orange-400',
-    bg: 'bg-orange-400/10',
-    title: 'Knowledge Explorer',
-    desc: 'An AI-powered blog and Q&A explorer. Ask anything about One Question, AI, and building in public.',
-    tags: ['AI chat', 'Blog system', 'SEO friendly'],
-  },
+];
+
+const STEPS = [
+  { number: '01', title: 'Build your context', text: 'Add a useful bio and the information visitors need most.' },
+  { number: '02', title: 'Test real questions', text: 'Try common questions yourself and improve unclear answers.' },
+  { number: '03', title: 'Share your link', text: 'Put your page in your bio, portfolio, newsletter, or email signature.' },
 ];
 
 export default function FeaturesPage() {
   return (
-    <div className="min-h-screen bg-background">
-      <div className="fixed inset-0 -z-10">
-        <div className="mesh-gradient opacity-40" />
-        <div className="dot-pattern" />
-      </div>
-
-      <main className="pt-24 pb-20 px-4">
-        <div className="max-w-4xl mx-auto">
-
-          <div className="text-center mb-16">
-            <p className="text-primary text-sm font-semibold uppercase tracking-widest mb-4">Features</p>
-            <h1 className="text-4xl md:text-5xl font-black text-white leading-tight mb-4">
-              Everything you need to let<br />
-              <span className="bg-gradient-to-r text-primary">AI speak for you.</span>
-            </h1>
-            <p className="text-muted-foreground text-base max-w-xl mx-auto">
-              One Question is built for creators, founders, and professionals who want AI to answer questions about them 24/7.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
-            {FEATURES.map((f, i) => {
-              const Icon = f.icon;
-              return (
-                <div key={i} className="glass rounded-2xl p-5 border border-white/10 hover:border-primary/30 transition-all group">
-                  <div className={`w-10 h-10 rounded-xl ${f.bg} flex items-center justify-center mb-4`}>
-                    <Icon className={`w-5 h-5 ${f.color}`} />
-                  </div>
-                  <h3 className="text-white font-bold text-sm mb-2">{f.title}</h3>
-                  <p className="text-muted-foreground text-xs leading-relaxed mb-3">{f.desc}</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {f.tags.map(tag => (
-                      <span key={tag} className="text-xs px-2 py-0.5 rounded-full bg-white/5 border border-white/10 text-muted-foreground">{tag}</span>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="glass rounded-2xl p-6 border border-primary/20 text-center">
-            <h2 className="text-white font-bold text-lg mb-2">Ready to claim your space?</h2>
-            <p className="text-muted-foreground text-sm mb-4">Free forever. No credit card required.</p>
-            <Link href="/" className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r bg-primary text-white font-bold text-sm hover:opacity-90 transition-opacity">
-              Claim your space <ArrowRight className="w-4 h-4" />
+    <main className="min-h-screen bg-[#fafaf9] text-zinc-950">
+      <section className="border-b border-zinc-200 px-4 pb-16 pt-28 sm:pb-20 sm:pt-36">
+        <div className="mx-auto max-w-5xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">Product overview</p>
+          <h1 className="mt-5 max-w-4xl text-4xl font-semibold leading-[1.02] tracking-[-0.055em] sm:text-6xl">
+            Your work deserves better than the same answer, over and over.
+          </h1>
+          <p className="mt-6 max-w-2xl text-base leading-7 text-zinc-600 sm:text-lg sm:leading-8">
+            OneQuestion is a shareable Q&A page for professionals, creators, educators, and small teams. Give visitors a useful place to ask about your work, powered by the knowledge you choose to provide.
+          </p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link href="/sign-up" className="inline-flex h-11 items-center gap-2 rounded-lg bg-zinc-950 px-5 text-sm font-medium text-white transition-colors hover:bg-zinc-800">
+              Create your page <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link href="/pricing" className="inline-flex h-11 items-center rounded-lg border border-zinc-300 bg-white px-5 text-sm font-medium text-zinc-800 hover:bg-zinc-100">
+              View pricing
             </Link>
           </div>
-
+          <div className="mt-10 flex flex-wrap gap-x-6 gap-y-3 text-sm text-zinc-600">
+            <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-700" />You control the knowledge you add</span>
+            <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-700" />Visitors can use a shareable link</span>
+            <span className="inline-flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-700" />Human review when AI needs help</span>
+          </div>
         </div>
-      </main>
-    </div>
+      </section>
+
+      <section className="px-4 py-16 sm:py-20">
+        <div className="mx-auto max-w-5xl">
+          <div className="max-w-xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">What you can do</p>
+            <h2 className="mt-4 text-3xl font-semibold tracking-[-0.045em] sm:text-4xl">Useful tools, connected to one workflow.</h2>
+            <p className="mt-4 text-sm leading-7 text-zinc-600">The product is most valuable when your knowledge, public page, inbox, and usage insights work together.</p>
+          </div>
+          <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {FEATURES.map(({ icon: Icon, eyebrow, title, desc, bullets }) => (
+              <article key={title} className="rounded-xl border border-zinc-200 bg-white p-5 sm:p-6">
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 bg-zinc-50 text-zinc-800"><Icon className="h-5 w-5" /></div>
+                <p className="mt-5 text-[10px] font-semibold uppercase tracking-[0.16em] text-zinc-500">{eyebrow}</p>
+                <h3 className="mt-2 text-lg font-semibold tracking-tight">{title}</h3>
+                <p className="mt-2 text-sm leading-6 text-zinc-600">{desc}</p>
+                <ul className="mt-4 space-y-2 border-t border-zinc-100 pt-4">
+                  {bullets.map((bullet) => <li key={bullet} className="flex gap-2 text-xs leading-5 text-zinc-600"><CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-emerald-700" />{bullet}</li>)}
+                </ul>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="border-y border-zinc-200 bg-white px-4 py-16 sm:py-20">
+        <div className="mx-auto max-w-5xl">
+          <div className="max-w-xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-zinc-500">A simple path to value</p>
+            <h2 className="mt-4 text-3xl font-semibold tracking-[-0.045em] sm:text-4xl">From blank page to useful link.</h2>
+          </div>
+          <ol className="mt-9 grid gap-3 sm:grid-cols-3">
+            {STEPS.map((step) => <li key={step.number} className="rounded-xl border border-zinc-200 p-5"><p className="text-xs font-semibold text-zinc-400">{step.number}</p><h3 className="mt-5 font-semibold">{step.title}</h3><p className="mt-2 text-sm leading-6 text-zinc-600">{step.text}</p></li>)}
+          </ol>
+        </div>
+      </section>
+
+      <section className="px-4 py-16 sm:py-20">
+        <div className="mx-auto flex max-w-5xl flex-col gap-5 rounded-2xl bg-zinc-950 p-7 text-white sm:flex-row sm:items-center sm:justify-between sm:p-10">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-400">Start small</p>
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight sm:text-3xl">Build a page people can actually use.</h2>
+            <p className="mt-3 max-w-xl text-sm leading-6 text-zinc-300">Start with your most common questions, test the answers, and improve it as you learn what visitors need.</p>
+          </div>
+          <Link href="/sign-up" className="inline-flex h-11 shrink-0 items-center justify-center gap-2 rounded-lg bg-white px-5 text-sm font-medium text-zinc-950 hover:bg-zinc-100">Create a free page <ArrowRight className="h-4 w-4" /></Link>
+        </div>
+      </section>
+    </main>
   );
 }
