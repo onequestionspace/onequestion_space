@@ -224,7 +224,7 @@ export function DashboardLayout({ children, title, description }: DashboardLayou
               {[
                 { label: '1. Create', detail: 'Your page', href: '/dashboard' },
                 { label: '2. Teach', detail: 'Add knowledge', href: '/dashboard/knowledge' },
-                { label: '3. Test', detail: 'Check an answer', href: '/dashboard/chat' },
+                { label: '3. Test', detail: 'Ask your page', href: profile?.username ? `/${profile.username}` : '/dashboard/studio' },
                 { label: '4. Share', detail: 'Your public space', href: '/dashboard/studio' },
                 { label: '5. Improve', detail: 'Review questions', href: '/dashboard/inbox' },
               ].map((step) => {
