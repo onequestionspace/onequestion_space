@@ -1,6 +1,6 @@
 const steps = [
   { number: '01', title: 'Upload your knowledge', description: 'Add your notes, answers, and the details people ask you for most.' },
-  { number: '02', title: 'Get your link', description: 'Your personal page is ready to answer from what you have shared.' },
+  { number: '02', title: 'Get your link', description: 'Open your page, ask real questions, and check the answers against your sources before sharing.' },
   { number: '03', title: 'Share it anywhere', description: 'Put your link in your bio, email signature, or send it in a DM.' },
 ];
 

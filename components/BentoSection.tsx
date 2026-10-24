@@ -7,7 +7,7 @@ const features = [
   { icon: BarChart3, eyebrow: '02 / Signals', title: 'See what people need.', text: 'Simple analytics show the questions, visitors, and ideas worth answering next.', className: '', accent: 'yellow' },
   { icon: Palette, eyebrow: '03 / Expression', title: 'Make it feel like you.', text: 'Choose your colors, links, and tone without losing the calm of a great page.', className: '', accent: 'pink' },
   { icon: Zap, eyebrow: '04 / Speed', title: 'Answers, without the loop.', text: 'One clear link replaces the same explanation repeated across DMs and email.', className: '', accent: 'red' },
-  { icon: ShieldCheck, eyebrow: '05 / Ownership', title: 'Private by default.', text: 'Your knowledge stays yours. Share only what you want your audience to know.', className: '', accent: 'purple' },
+  { icon: ShieldCheck, eyebrow: '05 / Control', title: 'Choose what to share.', text: 'Only add information you are comfortable publishing, avoid sensitive data, and keep your sources current.', className: '', accent: 'purple' },
   { icon: Globe2, eyebrow: '06 / Anywhere', title: 'One link. Every channel.', text: 'Put your OneQuestion in your bio, portfolio, newsletter, or email signature.', className: 'md:col-span-2', accent: 'yellow' },
 ];
 

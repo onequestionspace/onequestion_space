@@ -6,14 +6,14 @@ import { ChevronDown, HelpCircle } from 'lucide-react';
 import { FadeIn } from '@/components/motion/FadeIn';
 
 const FAQS = [
-  { q: 'Is the free plan actually free?', a: 'Yes. No credit card, no trial period, no expiry. 50 AI answers a month forever. I hate fake free tiers.' },
-  { q: 'What happens if I hit my limit?', a: 'Your space stays live — visitors just see a friendly message that answers are paused. You can buy extra credits or upgrade anytime from your dashboard.' },
-  { q: 'Can I cancel Pro anytime?', a: 'Yes. One click. No emails asking why. No retention flow. Just cancel.' },
-  { q: 'How does the AI know my answers?', a: 'You upload your knowledge — bio, FAQs, services, projects. The AI uses vector search to find the most relevant answer from what you have taught it. It sounds like you because it is trained on your content.' },
-  { q: 'Does it work on mobile?', a: 'Yes. Every space is fully responsive. Visitors can ask questions from any device — phone, tablet, desktop.' },
-  { q: 'Can I customize how my space looks?', a: 'Absolutely. Multiple backgrounds, effects, colors, fonts, card styles, and custom image uploads. Your space, your brand.' },
-  { q: 'Why $9/month for Pro?', a: "Honest answer: it covers Gemini API, Convex, Vercel, and lets me keep building. It's not a number a VC told me — it's what makes sense." },
-  { q: 'Why does a 19-year-old from Nigeria get to build this?', a: 'Honestly I ask myself that too sometimes. But the problem was real, the tools existed, and nobody else was building exactly this. So here we are.' },
+  { q: 'Can I start without a credit card?', a: 'The free plan is designed to let you set up a page before paying. Check the pricing page for the current monthly answer allowance and any plan limits.' },
+  { q: 'What happens when I reach my answer limit?', a: 'AI answers may pause until your allowance resets or you change plans. Check the usage and billing screens for your current plan details before relying on the page for a time-sensitive workflow.' },
+  { q: 'How does the AI know what to say?', a: 'You add source material such as your bio, services, FAQs, project details, and supported documents or URLs. The system uses that information to help answer visitors. Review and test the page regularly; AI can still make mistakes.' },
+  { q: 'Can I control what visitors learn about me?', a: 'Yes. Only add information you are comfortable sharing and are authorized to publish. Avoid passwords, private customer information, confidential documents, and other sensitive data.' },
+  { q: 'Will the AI always answer correctly?', a: 'No AI system is perfect. Good source material helps, but answers can still be incomplete or wrong. Test important questions, keep your knowledge current, and provide a clear way for visitors to contact you when they need a definitive answer.' },
+  { q: 'Does it work on mobile?', a: 'The public page is designed to be usable on phones, tablets, and desktop browsers. We recommend checking your own page on a phone before sharing it widely.' },
+  { q: 'Can I customize my page?', a: 'You can edit your profile and use the appearance options supported by your account. Available customization can change as the product evolves.' },
+  { q: 'What is included in Pro?', a: 'Pro is listed at $9/month and includes a higher monthly answer allowance and additional features such as advanced analytics. Review the live pricing and billing screens for current limits and terms.' },
 ];
 
 export function FAQSection() {
