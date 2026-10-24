@@ -35,7 +35,7 @@ export function CTASection() {
           </h2>
 
           <p className="text-base text-zinc-400 mb-5 max-w-md mx-auto leading-relaxed">
-            Claim your space. Upload what you know. Your AI handles the rest — 24/7, in your voice.
+            Claim your space. Add what you know. Your page can answer recurring questions using the information you choose to provide.
           </p>
 
           <p className="text-xs text-zinc-600 mb-8 max-w-sm mx-auto">
