@@ -89,12 +89,14 @@ export default function DashboardPage() {
         {(() => {
           const hasProfile = Boolean(profile?.bio?.trim());
           const hasKnowledge = (knowledgeCount ?? 0) > 0;
-          const hasQuestionActivity = (analytics?.totalQuestions ?? 0) > 0;
+          // Visitor activity is not proof that the owner has tested the public page.
+          // Keep this step actionable until we have explicit test-completion tracking.
+          const hasQuestionActivity = false;
           const completed = [hasProfile, hasKnowledge, hasQuestionActivity, Boolean(pageUrl)].filter(Boolean).length;
           const steps = [
             { done: hasProfile, title: 'Complete your introduction', detail: 'Tell visitors who you help and what you do.', href: '/dashboard/settings', action: 'Edit profile' },
             { done: hasKnowledge, title: 'Add your knowledge', detail: 'Add services, FAQs, examples, or project details.', href: '/dashboard/knowledge', action: 'Add knowledge' },
-            { done: hasQuestionActivity, title: 'Test with a real question', detail: 'Open your public page and verify that answers are useful and accurate.', href: pageUrl || '/dashboard/chat', action: 'Test page' },
+            { done: hasQuestionActivity, title: 'Test with a real question', detail: 'Ask a question on your public page and check the answer before sharing it widely.', href: pageUrl || '/dashboard/chat', action: 'Test page' },
             { done: Boolean(pageUrl), title: 'Share your page', detail: 'Put your link where clients or followers can find it.', href: pageUrl || '/dashboard/settings', action: 'Open page' },
           ];
           return (
