@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { redirect } from 'next/navigation';
+import NextLink from 'next/link';
 import { DashboardLayout } from '@/components/DashboardLayout';
 import { useQuery, useMutation } from 'convex/react';
 import { api } from '@/convex/_generated/api';
@@ -175,6 +176,17 @@ export default function KnowledgePage() {
             </Button>
           )}
         </div>
+
+        {/* Keep the next activation step visible once the user has taught the AI. */}
+        {!loading && (knowledge?.length ?? 0) > 0 && (
+          <div className="flex flex-col gap-3 rounded-xl border border-primary/20 bg-primary/[0.04] p-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-sm font-semibold text-white">Knowledge added. Now test what your AI can answer.</p>
+              <p className="mt-1 text-xs leading-relaxed text-zinc-500">Ask a real question and check that the response matches the information you provided.</p>
+            </div>
+            <NextLink href="/dashboard/chat" className="inline-flex min-h-10 shrink-0 items-center justify-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-black transition-opacity hover:opacity-90">Test an answer →</NextLink>
+          </div>
+        )}
 
         {uploadSuccess && (
           <div className="flex items-center gap-2 px-4 py-3 rounded-xl bg-green-500/10 border border-green-500/30 text-green-400 text-sm">

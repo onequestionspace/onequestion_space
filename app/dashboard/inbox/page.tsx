@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { Suspense } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { redirect, useRouter } from 'next/navigation';
@@ -209,8 +210,14 @@ function InboxPageContent() {
             ) : !needsReview || needsReview.length === 0 ? (
               <EmptyState
                 icon={<Inbox />}
-                title="Inbox zero!"
-                description="Your AI is answering everything confidently. Nice work."
+                title="Nothing needs review right now"
+                description="As visitors ask questions, review weak answers here and add the correct information so your AI improves."
+                action={
+                  <div className="flex flex-wrap items-center justify-center gap-2">
+                    <Link href="/dashboard/knowledge" className="inline-flex min-h-9 items-center rounded-lg border border-white/10 px-3 text-xs font-medium text-zinc-200 hover:bg-white/5">Improve knowledge</Link>
+                    <Link href={profile?.username ? `/${profile.username}` : '/dashboard/studio'} className="inline-flex min-h-9 items-center rounded-lg bg-primary px-3 text-xs font-semibold text-black hover:opacity-90">View public page</Link>
+                  </div>
+                }
               />
             ) : (
               <div className="space-y-3">
@@ -279,8 +286,14 @@ function InboxPageContent() {
             ) : plainUnanswered.length === 0 ? (
               <EmptyState
                 icon={<HelpCircle />}
-                title="All caught up!"
-                description="Every question a visitor has asked has been answered."
+                title="No unanswered questions"
+                description="When a visitor asks something your AI cannot answer, it will appear here. Keep your knowledge current and share your page to invite real questions."
+                action={
+                  <div className="flex flex-wrap items-center justify-center gap-2">
+                    <Link href="/dashboard/knowledge" className="inline-flex min-h-9 items-center rounded-lg border border-white/10 px-3 text-xs font-medium text-zinc-200 hover:bg-white/5">Add knowledge</Link>
+                    <Link href={profile?.username ? `/${profile.username}` : '/dashboard/studio'} className="inline-flex min-h-9 items-center rounded-lg bg-primary px-3 text-xs font-semibold text-black hover:opacity-90">View public page</Link>
+                  </div>
+                }
               />
             ) : (
               <div className="space-y-3">
